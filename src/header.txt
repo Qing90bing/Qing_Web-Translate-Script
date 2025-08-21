@@ -1,0 +1,15 @@
+// ==UserScript==
+// @name         AI网站中文汉化
+// @namespace    http://tampermonkey.net/
+// @version      1.2
+// @icon         https://s21.ax1x.com/2025/08/10/pVdPiOe.png
+// @description  给Jules,Google AI Studio网站的英文替换成中文翻译，提高使用效率。采用严格匹配模式，避免过度翻译，目前翻译不完善，但是足够使用了。
+// @author       Qing90bing (Optimized by Gemini)
+// @match        *://jules.google.com/*
+// @match        *://aistudio.google.com/*
+// @match        *://claude.ai/*
+// @match        *://console.anthropic.com/*
+// @match        *://status.anthropic.com/*
+// @run-at       document-start
+// @grant        none
+// ==/UserScript==

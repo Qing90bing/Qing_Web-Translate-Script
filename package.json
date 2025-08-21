@@ -1,0 +1,23 @@
+{
+  "name": "qing_web-translate-script",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Qing90bing/Qing_Web-Translate-Script.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Qing90bing/Qing_Web-Translate-Script/issues"
+  },
+  "homepage": "https://github.com/Qing90bing/Qing_Web-Translate-Script#readme",
+  "description": "",
+  "devDependencies": {
+    "esbuild": "^0.25.9"
+  }
+}
