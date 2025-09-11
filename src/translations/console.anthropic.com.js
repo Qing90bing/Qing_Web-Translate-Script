@@ -149,10 +149,10 @@ export const consoleAnthropicCom = [
     ["my-secret-key", "我的密钥"],
     ["Add", "加入"],
     ["Edit spend limit", "编辑花费限制"],
-    ["Set a monthly spend limit for organization.", "为组织设定每月支出限额。"]
+    ["Set a monthly spend limit for organization.", "为组织设定每月支出限额。"],
     ["Set Limit", "设置限额"],
     ["Create workspace", "创建工作空间"],
-    ["Workspaces allow you to separate API Keys and configurations by use case.", "工作区允许您根据使用案例分离 API 密钥和配置。"]
+    ["Workspaces allow you to separate API Keys and configurations by use case.", "工作区允许您根据使用案例分离 API 密钥和配置。"],
     ["Enter a name for your workspace", "输入您的工作空间名"],
     ["Color", "颜色"],
     ["Group by: Token Type", "分组依据：Token 类型"],
