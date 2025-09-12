@@ -138,7 +138,7 @@ export function initializeObservers(translator) {
         attributeFilter: ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip'],
         characterData: true
     });
-
+    
     pageObserver.observe(document.body, { childList: true, subtree: true });
 
     modelChangeObserver.observe(document.body, {

@@ -1,16 +1,9 @@
 // 导入词典
 import { masterTranslationMap } from './translations/index.js';
 
-// 导入配置
-import {
-    ALL_UNTRANSLATABLE_TAGS,
-    BLOCKS_ALL_TRANSLATION,
-    BLOCKS_CONTENT_ONLY,
-    attributesToTranslate
-} from './config.js';
 
 // 导入模块
-import { log, isDebugMode } from './modules/logger.js';
+import { log } from './modules/logger.js';
 import { initializeMenu } from './modules/menu.js';
 import { injectAntiFlickerStyle, removeAntiFlickerStyle } from './modules/anti-flicker.js';
 import { createTranslator } from './modules/translator.js';

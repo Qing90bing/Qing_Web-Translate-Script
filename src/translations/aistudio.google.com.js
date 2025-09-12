@@ -2,6 +2,7 @@
 
 export const aistudioGoogleCom = [
     // 正则表达式翻译
+    [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  换行\nAlt + ↩  追加文本 (不执行)\nCtrl + ↩  执行指令'],
     [/Invalid JSON: SyntaxError: Unexpected token '(.+?)', "(.+?)" is not valid JSON/i, '无效的 JSON 语法错误：在 “$2” 中存在意外的字符 “$1”'],
     [/All context lengths\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '所有上下文长度 | 输入: $$ $1 / 输出: $$ $2'],
     [/([<>]=?)\s*(\d+K)\s+tokens\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '$1$2 Tokens | 输入: $$ $3 / 输出: $$ $4'],
@@ -61,6 +62,7 @@ export const aistudioGoogleCom = [
     [/^\s*(-?\d+(\.\d+)?)\s*s\s*$/i, '$1秒'],
 
     // 完整句子翻译（按长度排序）
+    ["Speech","语音"],
     ["Temporary chat is not available for Veo","临时聊天功能不适用于 Veo"],
     ["Only one option is supported","仅支持一个选项"],
     ["The number of free generations that are remaining for this model","此模型的免费生成次数"],
