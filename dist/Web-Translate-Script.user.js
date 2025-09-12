@@ -251,6 +251,7 @@
   // src/translations/aistudio.google.com.js
   var aistudioGoogleCom = [
     // 正则表达式翻译
+    [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, "↩  换行\nAlt + ↩  追加文本 (不执行)\nCtrl + ↩  执行指令"],
     [/Invalid JSON: SyntaxError: Unexpected token '(.+?)', "(.+?)" is not valid JSON/i, "无效的 JSON 语法错误：在 “$2” 中存在意外的字符 “$1”"],
     [/All context lengths\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, "所有上下文长度 | 输入: $$ $1 / 输出: $$ $2"],
     [/([<>]=?)\s*(\d+K)\s+tokens\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, "$1$2 Tokens | 输入: $$ $3 / 输出: $$ $4"],
@@ -306,6 +307,7 @@
     [/^(\d+)\s+years?$/i, "$1年"],
     [/^\s*(-?\d+(\.\d+)?)\s*s\s*$/i, "$1秒"],
     // 完整句子翻译（按长度排序）
+    ["Speech", "语音"],
     ["Temporary chat is not available for Veo", "临时聊天功能不适用于 Veo"],
     ["Only one option is supported", "仅支持一个选项"],
     ["The number of free generations that are remaining for this model", "此模型的免费生成次数"],
@@ -3449,12 +3451,6 @@
     "status.anthropic.com": statusAnthropicCom
   };
 
-  // src/config.js
-  var BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(["script", "style", "pre", "code"]);
-  var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set(["textarea", "input"]);
-  var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
-  var attributesToTranslate = ["placeholder", "title", "aria-label", "alt", "mattooltip"];
-
   // src/modules/logger.js
   var LOG_KEY = "web_translate_debug_mode";
   var isDebugMode = GM_getValue(LOG_KEY, false);
@@ -3525,6 +3521,12 @@
       document.getElementById(STYLE_ID)?.remove();
     }, 500);
   }
+
+  // src/config.js
+  var BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(["script", "style", "pre", "code"]);
+  var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set(["textarea", "input"]);
+  var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
+  var attributesToTranslate = ["placeholder", "title", "aria-label", "alt", "mattooltip"];
 
   // src/modules/translator.js
   var textTranslationMap;
