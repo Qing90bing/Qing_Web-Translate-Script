@@ -36,39 +36,6 @@ import { masterTranslationMap } from './translations/index.js';
         return;
     }
 
-    // --- 从这里开始，是你原来的所有主逻辑代码，保持不变 ---
-
-    // 自定义样式
-    const customCSS = `
-            /* 优化按钮和布局 */
-            button {
-                display: flex !important;
-                flex-direction: row !important;
-                align-items: center !important;
-                white-space: nowrap !important;
-                gap: 4px !important;
-            }
-
-            .header.long[_ngcontent-ng-c2984080244] .code-header-text[_ngcontent-ng-c2984080244] {
-                display: flex !important;
-                flex-direction: row !important;
-                align-items: center !important;
-                white-space: nowrap !important;
-            }
-
-            /* 防止翻译后的文字溢出，并避免中文词内换行 */
-            .mat-button-wrapper, .mat-button-toggle-label-content, button {
-                overflow: hidden !important;
-                text-overflow: ellipsis !important;
-                word-break: keep-all !important; /* 防止中文词组在按钮内换行 */
-            }
-
-            /* 优化模型信息对话框显示 */
-            .model-info, .column-title, .column-content {
-                white-space: normal !important;
-            }
-        `;
-
     // 将所有字符串规则放入一个Map中，key为trim后的英文，便于快速查找
     // 正则表达式规则保持独立
     const regexRules = [];
@@ -344,11 +311,6 @@ import { masterTranslationMap } from './translations/index.js';
 
     // 初始化和启动
     function initializeTranslation() {
-        if (customCSS.trim()) {
-            const styleElement = document.createElement('style');
-            styleElement.textContent = customCSS;
-            document.head.appendChild(styleElement);
-        }
 
         translateElement(document.body);
 
