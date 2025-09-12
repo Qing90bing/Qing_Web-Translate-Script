@@ -1,6 +1,7 @@
 // src/translations/jules.google.com.js
 
 export const julesGoogleCom = [
+    ['css', '.feedback-button { width: auto !important; white-space: nowrap !important; }'],
     // --- 正则表达式翻译 ---
     // 匹配 "Completed ... ago" 等完成状态
     [/^Searching for\s+"(.+?)"$/i, '正在搜索“$1”'],

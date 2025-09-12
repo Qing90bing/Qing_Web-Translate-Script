@@ -55,9 +55,16 @@ import { masterTranslationMap } from './translations/index.js';
     const regexRules = [];
     const textTranslationMap = new Map();
 
+    const cssRules = [];
     for (const item of siteDictionary) {
         if (!Array.isArray(item) || item.length !== 2) continue;
         const [original, translation] = item;
+
+        // 提取自定义CSS规则
+        if (original === 'css') {
+            cssRules.push(translation);
+            continue;
+        }
 
         if (original instanceof RegExp) {
             regexRules.push(item);
@@ -65,6 +72,14 @@ import { masterTranslationMap } from './translations/index.js';
             // 将trim后的原文作为key，以实现稳定的匹配
             textTranslationMap.set(original.trim(), translation);
         }
+    }
+
+    // 注入自定义CSS
+    if (cssRules.length > 0) {
+        const customStyleElement = document.createElement('style');
+        customStyleElement.id = 'web-translate-custom-styles';
+        customStyleElement.textContent = cssRules.join('\n');
+        head.appendChild(customStyleElement);
     }
 
     const translationCache = new Map();

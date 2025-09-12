@@ -11,9 +11,11 @@ export const aistudioGoogleCom = [
     [/^Copied\s+models\/(.+)\s+to\s+clipboard$/i, '已将模型“$1”复制到剪贴板'],
     [/Last modified:\s*(\d{4})\/(\d{1,2})\/(\d{1,2})/, '最后修改于：$1 年 $2 月 $3 日'],
     ["Google Account: (.+?) \\((.+?)\\)", "Google 帐号：(.+?) \\((.+?)\\)"],
+    [/↩\s*Add a new line\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  换行\nCtrl + ↩  执行指令'],
     [/^Copied\s+(.+)\s+to\s+clipboard$/i, '已将模型“$1”复制到剪贴板'],
     [/Analyzed errors for (\d+) seconds/, "分析了 $1 秒的错误"],
     [/(\d+) tokens \/ image/, "$1 Tokens / 图像"],
+    [/\/\s+(\d+)\s+generations?/i, '/ $1 次生成'],
     ["(\\d+) / (\\d{1,3}(,\\d{3})*)", "$1 / $2"],
     [/Thought for (\d+) seconds/, "思考了 $1 秒"],
     [/Move\s+([\w\.-]+)\s+to/i, '将 $1 移动到'],
@@ -59,6 +61,9 @@ export const aistudioGoogleCom = [
     [/^\s*(-?\d+(\.\d+)?)\s*s\s*$/i, '$1秒'],
 
     // 完整句子翻译（按长度排序）
+    ["Temporary chat is not available for Veo","临时聊天功能不适用于 Veo"],
+    ["Only one option is supported","仅支持一个选项"],
+    ["The number of free generations that are remaining for this model","此模型的免费生成次数"],
     ["Full outage","完全中断停机"],
     ["Delete property","删除属性"],
     ["Type of the property","属性类型"],
