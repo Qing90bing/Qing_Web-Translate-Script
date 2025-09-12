@@ -285,7 +285,7 @@ import { masterTranslationMap } from './translations/index.js';
                     translateElement(document.body);
                 }
             }
-        }, 30); // 减少延迟以更快响应模型切换
+        }, 0); // 减少延迟以更快响应模型切换
     }
 
     //  MutationObserver 逻辑以处理动态内容变化 - 最终版

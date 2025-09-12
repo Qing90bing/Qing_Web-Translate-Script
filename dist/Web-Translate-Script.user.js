@@ -3657,7 +3657,7 @@
             translateElement(document.body);
           }
         }
-      }, 30);
+      }, 0);
     }
     const observer = new MutationObserver((mutations) => {
       const dirtyRoots = /* @__PURE__ */ new Set();
