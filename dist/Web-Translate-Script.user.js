@@ -3449,200 +3449,228 @@
     "status.anthropic.com": statusAnthropicCom
   };
 
-  // src/main.js
-  (function(translations) {
-    "use strict";
+  // src/config.js
+  var BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(["script", "style", "pre", "code"]);
+  var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set(["textarea", "input"]);
+  var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
+  var attributesToTranslate = ["placeholder", "title", "aria-label", "alt", "mattooltip"];
+
+  // src/modules/logger.js
+  var LOG_KEY = "web_translate_debug_mode";
+  var isDebugMode = GM_getValue(LOG_KEY, false);
+  function updateDebugState(newMode) {
+    isDebugMode = newMode;
+  }
+  function log(...args) {
+    if (isDebugMode) {
+      console.log("[汉化脚本]", ...args);
+    }
+  }
+
+  // src/modules/menu.js
+  var MENU_COMMAND_ID = "toggle_debug_log_command";
+  function toggleDebugMode() {
+    const newMode = !isDebugMode;
+    GM_setValue(LOG_KEY, newMode);
+    updateDebugState(newMode);
+    updateMenuCommand();
+  }
+  function updateMenuCommand() {
+    const status = isDebugMode ? "开启" : "关闭";
+    GM_registerMenuCommand(
+      `切换调试日志 (当前: ${status})`,
+      toggleDebugMode,
+      { id: MENU_COMMAND_ID }
+    );
+  }
+  function initializeMenu() {
+    updateMenuCommand();
+  }
+
+  // src/modules/anti-flicker.js
+  var STYLE_ID = "anti-flicker-style";
+  function injectAntiFlickerStyle() {
     document.documentElement.classList.add("translation-in-progress");
     const antiFlickerStyle = document.createElement("style");
-    antiFlickerStyle.id = "anti-flicker-style";
+    antiFlickerStyle.id = STYLE_ID;
     antiFlickerStyle.textContent = `
-            /* 在翻译进行中时，隐藏body，但保持加载指示器可见 */
-            html.translation-in-progress body {
-                visibility: hidden !important;
-                opacity: 0 !important;
-            }
-            html.translation-complete body {
-                visibility: visible !important;
-                opacity: 1 !important;
-                transition: opacity 0.3s ease-in !important;
-            }
-            html.translation-in-progress [class*="load"],
-            html.translation-in-progress [class*="spin"],
-            html.translation-in-progress [id*="load"],
-            html.translation-in-progress [id*="spin"],
-            html.translation-in-progress .loader,
-            html.translation-in-progress .spinner,
-            html.translation-in-progress .loading {
-                visibility: visible !important;
-                opacity: 1 !important;
-            }
-        `;
+        /* 在翻译进行中时，隐藏body，但保持加载指示器可见 */
+        html.translation-in-progress body {
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
+        html.translation-complete body {
+            visibility: visible !important;
+            opacity: 1 !important;
+            transition: opacity 0.3s ease-in !important;
+        }
+        html.translation-in-progress [class*="load"],
+        html.translation-in-progress [class*="spin"],
+        html.translation-in-progress [id*="load"],
+        html.translation-in-progress [id*="spin"],
+        html.translation-in-progress .loader,
+        html.translation-in-progress .spinner,
+        html.translation-in-progress .loading {
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+    `;
     const head = document.head || document.getElementsByTagName("head")[0] || document.documentElement;
     head.insertBefore(antiFlickerStyle, head.firstChild);
-    const siteDictionary = translations[window.location.hostname];
-    if (!siteDictionary) {
-      document.documentElement.classList.remove("translation-in-progress");
-      document.documentElement.classList.add("translation-complete");
-      setTimeout(() => {
-        document.getElementById("anti-flicker-style")?.remove();
-      }, 500);
-      return;
+  }
+  function removeAntiFlickerStyle() {
+    document.documentElement.classList.remove("translation-in-progress");
+    document.documentElement.classList.add("translation-complete");
+    setTimeout(() => {
+      document.getElementById(STYLE_ID)?.remove();
+    }, 500);
+  }
+
+  // src/modules/translator.js
+  var textTranslationMap;
+  var regexRules;
+  var translationCache;
+  var translatedElements;
+  function translateText(text) {
+    if (!text || typeof text !== "string") return text;
+    const originalText = text;
+    if (translationCache.has(originalText)) {
+      return translationCache.get(originalText);
     }
-    const regexRules = [];
-    const textTranslationMap = /* @__PURE__ */ new Map();
-    const cssRules = [];
-    for (const item of siteDictionary) {
-      if (!Array.isArray(item) || item.length !== 2) continue;
-      const [original, translation] = item;
-      if (original === "css") {
-        cssRules.push(translation);
-        continue;
-      }
-      if (original instanceof RegExp) {
-        regexRules.push(item);
-      } else if (typeof original === "string" && typeof translation === "string") {
-        textTranslationMap.set(original.trim(), translation);
-      }
-    }
-    if (cssRules.length > 0) {
-      const customStyleElement = document.createElement("style");
-      customStyleElement.id = "web-translate-custom-styles";
-      customStyleElement.textContent = cssRules.join("\n");
-      head.appendChild(customStyleElement);
-    }
-    const translationCache = /* @__PURE__ */ new Map();
-    const LOG_KEY = "web_translate_debug_mode";
-    let isDebugMode = GM_getValue(LOG_KEY, false);
-    function log(...args) {
-      if (isDebugMode) {
-        console.log("[汉化脚本]", ...args);
-      }
-    }
-    const BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(["script", "style", "pre", "code"]);
-    const BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set(["textarea", "input"]);
-    const ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
-    function translateElementContent(element) {
-      const tagName = element.tagName?.toLowerCase();
-      if (!element || ALL_UNTRANSLATABLE_TAGS.has(tagName) || element.isContentEditable) {
-        return false;
-      }
-      if (element.querySelector(Array.from(ALL_UNTRANSLATABLE_TAGS).join(","))) {
-        return false;
-      }
-      const fullText = element.textContent?.trim();
-      if (!fullText) return false;
-      const translation = textTranslationMap.get(fullText);
-      if (!translation) return false;
-      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
-        acceptNode: (node) => node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
-      });
-      const textNodes = [];
-      while (walker.nextNode()) textNodes.push(walker.currentNode);
-      if (textNodes.length === 0) return false;
-      textNodes[0].nodeValue = translation;
-      for (let i = 1; i < textNodes.length; i++) {
-        textNodes[i].nodeValue = "";
-      }
-      log("整段翻译:", `"${fullText}"`, "->", `"${translation}"`);
-      return true;
-    }
-    function translateText(text) {
-      if (!text || typeof text !== "string") return text;
-      const originalText = text;
-      if (translationCache.has(originalText)) {
-        return translationCache.get(originalText);
-      }
-      const trimmedText = text.trim();
-      if (trimmedText === "") return text;
-      let translatedText = text;
-      let hasChanged = false;
-      const mapTranslation = textTranslationMap.get(trimmedText);
-      if (mapTranslation) {
-        const leadingSpace = originalText.match(/^\s*/)[0] || "";
-        const trailingSpace = originalText.match(/\s*$/)[0] || "";
-        translatedText = leadingSpace + mapTranslation + trailingSpace;
-        hasChanged = true;
-      } else {
-        for (const [match, replacement] of regexRules) {
-          const newText = translatedText.replace(match, replacement);
-          if (newText !== translatedText) {
-            translatedText = newText;
-            hasChanged = true;
-          }
+    const trimmedText = text.trim();
+    if (trimmedText === "") return text;
+    let translatedText = text;
+    let hasChanged = false;
+    const mapTranslation = textTranslationMap.get(trimmedText);
+    if (mapTranslation) {
+      const leadingSpace = originalText.match(/^\s*/)[0] || "";
+      const trailingSpace = originalText.match(/\s*$/)[0] || "";
+      translatedText = leadingSpace + mapTranslation + trailingSpace;
+      hasChanged = true;
+    } else {
+      for (const [match, replacement] of regexRules) {
+        const newText = translatedText.replace(match, replacement);
+        if (newText !== translatedText) {
+          translatedText = newText;
+          hasChanged = true;
         }
       }
-      if (hasChanged) {
-        translationCache.set(originalText, translatedText);
-      }
-      return translatedText;
     }
-    let translatedElements = /* @__PURE__ */ new WeakSet();
-    function translateElement(element) {
-      if (!element || translatedElements.has(element) || !(element instanceof Element)) return;
-      const tagName = element.tagName.toLowerCase();
-      if (BLOCKS_ALL_TRANSLATION.has(tagName) || element.isContentEditable) {
+    if (hasChanged) {
+      translationCache.set(originalText, translatedText);
+    }
+    return translatedText;
+  }
+  function translateElementContent(element) {
+    const tagName = element.tagName?.toLowerCase();
+    if (!element || ALL_UNTRANSLATABLE_TAGS.has(tagName) || element.isContentEditable) {
+      return false;
+    }
+    if (element.querySelector(Array.from(ALL_UNTRANSLATABLE_TAGS).join(","))) {
+      return false;
+    }
+    const fullText = element.textContent?.trim();
+    if (!fullText) return false;
+    const translation = textTranslationMap.get(fullText);
+    if (!translation) return false;
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+      acceptNode: (node) => node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+    });
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+    if (textNodes.length === 0) return false;
+    textNodes[0].nodeValue = translation;
+    for (let i = 1; i < textNodes.length; i++) {
+      textNodes[i].nodeValue = "";
+    }
+    log("整段翻译:", `"${fullText}"`, "->", `"${translation}"`);
+    return true;
+  }
+  function translateElement(element) {
+    if (!element || translatedElements.has(element) || !(element instanceof Element)) return;
+    const tagName = element.tagName.toLowerCase();
+    if (BLOCKS_ALL_TRANSLATION.has(tagName) || element.isContentEditable) {
+      translatedElements.add(element);
+      return;
+    }
+    const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
+    if (!isContentBlocked) {
+      if (translateElementContent(element)) {
         translatedElements.add(element);
         return;
       }
-      const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
-      if (!isContentBlocked) {
-        if (translateElementContent(element)) {
-          translatedElements.add(element);
-          return;
-        }
-        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
-          acceptNode: function(node) {
-            if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
-            let parent = node.parentElement;
-            while (parent) {
-              if (ALL_UNTRANSLATABLE_TAGS.has(parent.tagName.toLowerCase()) || parent.isContentEditable) {
-                return NodeFilter.FILTER_REJECT;
-              }
-              if (parent === element) break;
-              parent = parent.parentElement;
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+        acceptNode: function(node) {
+          if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
+          let parent = node.parentElement;
+          while (parent) {
+            if (ALL_UNTRANSLATABLE_TAGS.has(parent.tagName.toLowerCase()) || parent.isContentEditable) {
+              return NodeFilter.FILTER_REJECT;
             }
-            return NodeFilter.FILTER_ACCEPT;
+            if (parent === element) break;
+            parent = parent.parentElement;
           }
-        });
-        const nodesToTranslate = [];
-        while (walker.nextNode()) nodesToTranslate.push(walker.currentNode);
-        nodesToTranslate.forEach((textNode) => {
-          const originalText = textNode.nodeValue;
-          const translatedText = translateText(originalText);
-          if (originalText !== translatedText) {
-            textNode.nodeValue = translatedText;
-          }
-        });
-      }
-      const attributesToTranslate = ["placeholder", "title", "aria-label", "alt", "mattooltip"];
-      const elementsWithAttributes = element.matches(`[${attributesToTranslate.join("], [")}]`) ? [element, ...element.querySelectorAll(`[${attributesToTranslate.join("], [")}]`)] : [...element.querySelectorAll(`[${attributesToTranslate.join("], [")}]`)];
-      elementsWithAttributes.forEach((el) => {
-        let current = el;
-        let isBlockedByContainer = false;
-        while (current && current !== element.parentElement) {
-          if (BLOCKS_ALL_TRANSLATION.has(current.tagName.toLowerCase())) {
-            isBlockedByContainer = true;
-            break;
-          }
-          if (current === element) break;
-          current = current.parentElement;
+          return NodeFilter.FILTER_ACCEPT;
         }
-        if (isBlockedByContainer) return;
-        attributesToTranslate.forEach((attr) => {
-          if (el.hasAttribute(attr)) {
-            const originalValue = el.getAttribute(attr);
-            const translatedValue = translateText(originalValue);
-            if (originalValue !== translatedValue) {
-              el.setAttribute(attr, translatedValue);
-            }
-          }
-        });
       });
-      if (element.shadowRoot) {
-        translateElement(element.shadowRoot);
-      }
-      translatedElements.add(element);
+      const nodesToTranslate = [];
+      while (walker.nextNode()) nodesToTranslate.push(walker.currentNode);
+      nodesToTranslate.forEach((textNode) => {
+        const originalText = textNode.nodeValue;
+        const translatedText = translateText(originalText);
+        if (originalText !== translatedText) {
+          textNode.nodeValue = translatedText;
+        }
+      });
     }
+    const elementsWithAttributes = element.matches(`[${attributesToTranslate.join("], [")}]`) ? [element, ...element.querySelectorAll(`[${attributesToTranslate.join("], [")}]`)] : [...element.querySelectorAll(`[${attributesToTranslate.join("], [")}]`)];
+    elementsWithAttributes.forEach((el) => {
+      let current = el;
+      let isBlockedByContainer = false;
+      while (current && current !== element.parentElement) {
+        if (BLOCKS_ALL_TRANSLATION.has(current.tagName.toLowerCase())) {
+          isBlockedByContainer = true;
+          break;
+        }
+        if (current === element) break;
+        current = current.parentElement;
+      }
+      if (isBlockedByContainer) return;
+      attributesToTranslate.forEach((attr) => {
+        if (el.hasAttribute(attr)) {
+          const originalValue = el.getAttribute(attr);
+          const translatedValue = translateText(originalValue);
+          if (originalValue !== translatedValue) {
+            el.setAttribute(attr, translatedValue);
+          }
+        }
+      });
+    });
+    if (element.shadowRoot) {
+      translateElement(element.shadowRoot);
+    }
+    translatedElements.add(element);
+  }
+  function createTranslator(textMap, regexArr) {
+    textTranslationMap = textMap;
+    regexRules = regexArr;
+    translationCache = /* @__PURE__ */ new Map();
+    translatedElements = /* @__PURE__ */ new WeakSet();
+    return {
+      translate: translateElement,
+      resetState: () => {
+        translationCache.clear();
+        translatedElements = /* @__PURE__ */ new WeakSet();
+      },
+      // 允许 observer 删除单个元素的翻译记录
+      deleteElement: (element) => {
+        translatedElements.delete(element);
+      }
+    };
+  }
+
+  // src/modules/observers.js
+  function initializeObservers(translator) {
     let translationTimer;
     let pendingNodes = /* @__PURE__ */ new Set();
     let lastModelInfo = "";
@@ -3652,11 +3680,10 @@
       if (currentModelInfo && currentModelInfo !== lastModelInfo) {
         lastModelInfo = currentModelInfo;
         log("检测到模型切换:", currentModelInfo);
-        translationCache.clear();
-        translatedElements = /* @__PURE__ */ new WeakSet();
+        translator.resetState();
         setTimeout(() => {
           if (document.body) {
-            translateElement(document.body);
+            translator.translate(document.body);
           }
         }, 100);
         return true;
@@ -3672,94 +3699,52 @@
           pendingNodes.clear();
           nodesToProcess.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
-              translateElement(node);
+              translator.translate(node);
             } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
-              translateElement(node.parentElement);
+              translator.translate(node.parentElement);
             }
           });
         }
         if (hasModelChange && pendingNodes.size === 0) {
           if (document.body) {
-            translateElement(document.body);
+            translator.translate(document.body);
           }
         }
       }, 0);
     }
-    const observer = new MutationObserver((mutations) => {
+    const mainObserver = new MutationObserver((mutations) => {
       const dirtyRoots = /* @__PURE__ */ new Set();
       for (const mutation of mutations) {
         let target = null;
-        if (mutation.type === "childList") {
-          target = mutation.target;
-        } else if (mutation.type === "attributes") {
+        if (mutation.type === "childList" || mutation.type === "attributes") {
           target = mutation.target;
         } else if (mutation.type === "characterData") {
           target = mutation.target.parentElement;
         }
-        if (target instanceof Element) {
-          dirtyRoots.add(target);
-        }
+        if (target instanceof Element) dirtyRoots.add(target);
       }
       if (dirtyRoots.size > 0) {
         for (const root of dirtyRoots) {
-          translatedElements.delete(root);
+          translator.deleteElement(root);
           const descendants = root.getElementsByTagName("*");
           for (let i = 0; i < descendants.length; i++) {
-            translatedElements.delete(descendants[i]);
+            translator.deleteElement(descendants[i]);
           }
           pendingNodes.add(root);
         }
         scheduleTranslation();
       }
     });
-    function initializeTranslation() {
-      translateElement(document.body);
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ["placeholder", "title", "aria-label", "alt", "mattooltip"],
-        characterData: true
-      });
-      document.documentElement.classList.remove("translation-in-progress");
-      document.documentElement.classList.add("translation-complete");
-      log("初次翻译完成，页面已显示。");
-      setTimeout(() => {
-        document.getElementById("anti-flicker-style")?.remove();
-      }, 500);
-      detectModelChange();
-      log("脚本初始化完成，开始监听页面变化。");
-    }
-    function startTranslation() {
-      if (document.body) {
-        initializeTranslation();
-      } else {
-        new MutationObserver((_mutations, obs) => {
-          if (document.body) {
-            obs.disconnect();
-            initializeTranslation();
-          }
-        }).observe(document.documentElement, { childList: true });
-      }
-    }
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", startTranslation);
-    } else {
-      startTranslation();
-    }
     let currentUrl = window.location.href;
     const pageObserver = new MutationObserver(() => {
       if (window.location.href !== currentUrl) {
         currentUrl = window.location.href;
         log("检测到页面导航，将重新翻译:", currentUrl);
-        translationCache.clear();
-        translatedElements = /* @__PURE__ */ new WeakSet();
+        translator.resetState();
         lastModelInfo = "";
         setTimeout(() => {
           log("开始重新翻译新页面内容...");
-          if (document.body) {
-            translateElement(document.body);
-          }
+          if (document.body) translator.translate(document.body);
         }, 300);
       }
     });
@@ -3784,60 +3769,89 @@
         }
       });
       if (shouldCheckModel) {
-        setTimeout(() => {
-          detectModelChange();
-        }, 50);
+        setTimeout(() => detectModelChange(), 50);
       }
     });
-    if (document.body) {
-      pageObserver.observe(document.body, { childList: true, subtree: true });
-      modelChangeObserver.observe(document.body, {
-        childList: true,
-        subtree: true,
-        characterData: true
-      });
-    } else {
-      document.addEventListener("DOMContentLoaded", () => {
-        pageObserver.observe(document.body, { childList: true, subtree: true });
-        modelChangeObserver.observe(document.body, {
-          childList: true,
-          subtree: true,
-          characterData: true
-        });
-      });
-    }
+    mainObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["placeholder", "title", "aria-label", "alt", "mattooltip"],
+      characterData: true
+    });
+    pageObserver.observe(document.body, { childList: true, subtree: true });
+    modelChangeObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
     window.forceRetranslate = function() {
       log("强制重新翻译已触发。");
-      translationCache.clear();
-      translatedElements = /* @__PURE__ */ new WeakSet();
+      translator.resetState();
       lastModelInfo = "";
       if (document.body) {
-        translateElement(document.body);
+        translator.translate(document.body);
       }
     };
-    if (isDebugMode) {
-      window.translationDebug = {
-        cache: translationCache,
-        textMap: textTranslationMap,
-        regexRules,
-        lastModelInfo: () => lastModelInfo
-      };
+    log("监听器初始化完成。");
+  }
+
+  // src/main.js
+  (function(translations) {
+    "use strict";
+    injectAntiFlickerStyle();
+    const siteDictionary = translations[window.location.hostname];
+    if (!siteDictionary) {
+      removeAntiFlickerStyle();
+      return;
     }
-    const MENU_COMMAND_ID = "toggle_debug_log_command";
-    function updateMenuCommand() {
-      const status = isDebugMode ? "开启" : "关闭";
-      GM_registerMenuCommand(
-        `切换调试日志 (当前: ${status})`,
-        toggleDebugMode,
-        { id: MENU_COMMAND_ID }
-        // 提供固定的ID
-      );
+    const regexRules2 = [];
+    const textTranslationMap2 = /* @__PURE__ */ new Map();
+    const cssRules = [];
+    for (const item of siteDictionary) {
+      if (!Array.isArray(item) || item.length !== 2) continue;
+      const [original, translation] = item;
+      if (original === "css") {
+        cssRules.push(translation);
+        continue;
+      }
+      if (original instanceof RegExp) {
+        regexRules2.push(item);
+      } else if (typeof original === "string" && typeof translation === "string") {
+        textTranslationMap2.set(original.trim(), translation);
+      }
     }
-    function toggleDebugMode() {
-      isDebugMode = !isDebugMode;
-      GM_setValue(LOG_KEY, isDebugMode);
-      updateMenuCommand();
+    if (cssRules.length > 0) {
+      const customStyleElement = document.createElement("style");
+      customStyleElement.id = "web-translate-custom-styles";
+      customStyleElement.textContent = cssRules.join("\n");
+      const head = document.head || document.getElementsByTagName("head")[0] || document.documentElement;
+      head.appendChild(customStyleElement);
     }
-    updateMenuCommand();
+    const translator = createTranslator(textTranslationMap2, regexRules2);
+    function initializeTranslation() {
+      translator.translate(document.body);
+      log("初次翻译完成。");
+      removeAntiFlickerStyle();
+      initializeObservers(translator);
+    }
+    function startTranslation() {
+      if (document.body) {
+        initializeTranslation();
+      } else {
+        new MutationObserver((_mutations, obs) => {
+          if (document.body) {
+            obs.disconnect();
+            initializeTranslation();
+          }
+        }).observe(document.documentElement, { childList: true });
+      }
+    }
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", startTranslation);
+    } else {
+      startTranslation();
+    }
+    initializeMenu();
   })(masterTranslationMap);
 })();
