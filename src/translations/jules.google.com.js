@@ -90,6 +90,7 @@ export const julesGoogleCom = [
     ["Review","审核"],
     [" Collapse all ","折叠所有"],
     ["Stacked","堆积"],
+    ["Expand all","展开所有"],
     ["Write tests", "编写测试代码"],
     ["Document my code", "为我的代码写说明文档"],
     ["Get started with some example prompts", "开始使用一些示例提示"],

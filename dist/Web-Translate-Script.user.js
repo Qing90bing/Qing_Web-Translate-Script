@@ -98,6 +98,10 @@
     ["Publish a branch with your changes", "发布一个包含您代码变更的分支"],
     ["Recent updates", "最近更新"],
     ["Find and fix a bug", "查找并修复错误"],
+    ["Review", "审核"],
+    [" Collapse all ", "折叠所有"],
+    ["Stacked", "堆积"],
+    ["Expand all", "展开所有"],
     ["Write tests", "编写测试代码"],
     ["Document my code", "为我的代码写说明文档"],
     ["Get started with some example prompts", "开始使用一些示例提示"],
@@ -1387,6 +1391,11 @@
   // src/translations/claude.ai.js
   var claudeAi = [
     // --- 正则表达式翻译 ---
+    [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, "每人/月，享受年度订阅折扣。按月计费则为 SGD $1。最少 $2 名成员。"],
+    [/Per person \/ month\. Minimum (\d+)\s+members\./i, "每人/月。最少 $1 名成员。"],
+    [/SGD\s+([\d.]+)/i, "SGD $1"],
+    [/Delete\s+(\d+)\s+selected\s+items?/i, "删除 $1 个选定的项目"],
+    [/(\d+)\s+chats?\s+with\s+(.+)/i, "与 $2 共有 $1 条聊天记录"],
     [/^How’s\s+it\s+going,\s*(\w+)\?/i, "$1，最近怎么样？"],
     [/^Hi\s+(\w+),\s*how are you\?/i, "你好，$1！"],
     [/^Hello\s+(\w+),\s*how are you\?/i, "你好，$1！"],
@@ -1450,6 +1459,7 @@
     [/(\d+(\.\d+)?)%\s+of\s+capacity\s+used/i, "容量已使用 $1%"],
     [/The Way of Code\s+(\d+)/i, "代码之道 $1"],
     [/Save\s+(\d+)%/i, "节省 $1%"],
+    [/^How was your day,\s+(.+)\?$/i, "今天过得怎么样，$1？"],
     [/month\s+\(includes GST\)/i, "月（含消费税）"],
     [/year\s+\(includes GST\)/i, "年（含消费税）"],
     [/Your subscription will auto renew on ([\d\/]+)\. You will be charged SGD\s+([\d.]+)\/year \(includes GST\)\./i, "您的订阅将于 $1 自动续订，届时将从您的银行卡扣除 SGD $2/年（含消费税）。"],
@@ -1460,6 +1470,86 @@
     [/Your subscription is set to cancel on\s+(\d{4})\/(\d{1,2})\/(\d{1,2})\./i, "您的订阅已设定于 $1年$2月$3日 取消。"],
     [/You will receive an email at\s+([\w\.\-]+@[\w\.\-]+)\s+with a link which expires in\s+(\d+)\s+hours\.\s+There may be a small delay while we prepare the export\./i, "您将收到一封发送至 $1 的邮件，其中包含一个$2小时内有效的链接。在我们准备导出文件时，可能会稍有延迟。"],
     // --- 完整句子和短语翻译 ---
+    ["English (United States)", "英语（美国）"],
+    ["français (France)", "法语（法国）"],
+    ["Deutsch (Deutschland)", "德语（德国）"],
+    ["हिन्दी (भारत)", "印地语（印度）"],
+    ["Indonesia (Indonesia)", "印度尼西亚语（印度尼西亚）"],
+    ["italiano (Italia)", "意大利语（意大利）"],
+    ["日本語 (日本)", "日语（日本）"],
+    ["한국어(대한민국)", "韩语（韩国）"],
+    ["português (Brasil)", "葡萄牙语（巴西）"],
+    ["español (Latinoamérica)", "西班牙语（拉丁美洲）"],
+    ["español (España)", "西班牙语（西班牙）"],
+    ["Private", "私有"],
+    ["Future messages aren’t included", "未来的消息不会包含在导出中"],
+    ["Switch between artifacts", "在文件之间切换"],
+    ["Your privacy choices", "您的隐私选择"],
+    ["Only you have access", "只有您才能访问"],
+    ["Public access", "公共访问"],
+    ["Anyone with the link can view", "任何有链接的人都可以查看"],
+    ["Create share link", "创建分享链接"],
+    ["Extended thinking", "扩展思维"],
+    ["Allow Claude to think out loud for longer for trickier questions and challenges.", "允许 Claude 更长时间思考棘手问题和挑战"],
+    ["Use a project", "使用一个项目"],
+    ["Opus consumes usage limits faster than other models", "Opus 消耗使用限制比其他模型更快"],
+    ["Search your chats...", "搜索您的聊天..."],
+    ["New project", "新建项目"],
+    ["Search projects...", "搜索项目..."],
+    ["Sort by", "排序方式"],
+    ["Activity", "活动"],
+    ["Recent activity", "最近活动"],
+    ["Recently created", "最近创建"],
+    ["Looking to start a project?", "正在考虑开始一个项目？"],
+    ["Upload materials, set custom instructions, and organize conversations in one space.", "上传素材、设置自定义指令并在一个空间中组织对话。"],
+    ["Toggle sidebar", "切换侧边栏"],
+    ["Projects", "项目"],
+    ["Create a personal project", "创建个人项目"],
+    ["How to use projects", "如何使用项目"],
+    ["Projects help organize your work and leverage knowledge across multiple conversations. Upload docs, code, and files to create themed collections that Claude can reference again and again.", "项目可帮助您组织工作并在多个对话中利用知识。上传文档、代码和文件，以创建 Claude 可以反复参考的主题集合。"],
+    ["Start by creating a memorable title and description to organize your project. You can always edit it later.", "首先创建一个令人难忘的标题和描述来组织您的项目。您稍后随时可以对其进行编辑。"],
+    ["What are you working on?", "您在做什么项目？"],
+    ["Name your project", "为您的项目命名"],
+    ["What are you trying to achieve?", "您想达成什么目标？"],
+    ["Describe your project, goals, subject, etc...", "描述您的项目、目标、主题等..."],
+    ["Cancel", "取消"],
+    ["Create project", "创建项目"],
+    ["Standard seat", "标准席位"],
+    ["Chat, projects, and more", "聊天、项目等功能"],
+    ["Premium seat", "高级席位"],
+    ["More usage", "更多用量"],
+    ["Early access to collaboration features", "抢先体验协作功能"],
+    ["Claude Code available with premium seat", "高级席位包含 Claude 代码功能"],
+    ["Enhanced context window", "增强的上下文窗口"],
+    ["Role-based access with fine grained permissioning", "基于角色的访问与精细化权限管理"],
+    ["Compliance API for observability and monitoring", "用于可观察性和监控的合规 API"],
+    ["Learn how your information is protected when using Anthropic products, and visit our ", "了解使用Anthropic产品时您的信息保护方式，访问我们的"],
+    ["What should Claude call you?", "Claude该怎么称呼您？"],
+    ["Contact support", "联系客服"],
+    ["Use incognito", "使用隐私模式"],
+    ["Updates to Consumer Terms and Policies", "消费者条款和政策更新"],
+    ["An update to our Consumer Terms and Privacy Policy will take effect on ", "我们的消费者条款和隐私政策的更新将于"],
+    [". You can accept the updated terms today.", "您可以在今天接受更新的条款。"],
+    ["What’s changing?", "有什么变化？"],
+    [" and read the ", "和阅读"],
+    ["Consumer Terms", "消费者条款"],
+    ["Not now", "现在不接受"],
+    ["Help improve Claude", "帮助改进 Claude"],
+    ["Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster through natural language commands. ", "Claude Code 是一个代理编码工具，它存在于你的终端中，理解你的代码库，并通过自然语言命令帮助你更快地编码。"],
+    ["Upgrade to Max or Pro", "升级到 Max 或 Pro"],
+    ["How does usage work?", "它是怎么工作的？"],
+    [" Prices shown include applicable tax.", "显示的价格包括适用的税"],
+    ["When you sign in to Claude Code using your subscription, your subscription usage limits are shared with Claude Code.", "当您使用订阅登录 Claude Code 时，您的订阅使用限制将与 Claude Code 共享。"],
+    ["No connected Claude Code instances", "您没有连接的 Claude Code 实例"],
+    ["When you sign in to Claude Code, your authorization tokens will appear here.", "当您登录 Claude Code 时，您的授权令牌将出现在这里。"],
+    ["Allow the use of your chats and coding sessions to train and improve Anthropic AI models. ", "允许使用您的聊天和编码会话来训练和改进Anthropic AI模型。"],
+    ["Your organization has not enabled any connectors", "您的组织尚未启用任何连接器"],
+    ["These changes take effect immediately upon confirmation.", "这些更改将立即生效。"],
+    ["You can help improve Claude", "您可以帮助改进 Claude"],
+    ["Allow the use of your chats and coding sessions to train and improve Anthropic AI models. Change anytime in your ", "允许使用您的聊天和编码会话来训练和改进Anthropic AI模型。随时改变你的"],
+    ["Privacy Settings", "隐私设置"],
+    ["Updates to data retention", "数据保留更新"],
+    ["To help us improve our AI models and safety protections, we’re extending data retention to 5 years.", "为了帮助我们改进我们的 AI 模型和安全保护，我们将数据保留时间延长至 5 年。"],
     ["API Console", "API 控制台"],
     ["Notifications (F8)", "通知 (F8)"],
     ["Full name", "全名"],
@@ -1650,6 +1740,7 @@
     ["Delete your account", "删除您的账户"],
     ["Delete account", "删除账户"],
     ["Organization ID: ", "组织ID："],
+    ["Organization ID", "组织ID"],
     ["Account preferences updated", "账户信息已更新"],
     ["Chat font", "聊天的字体"],
     ["Color mode", "主题模式"],
@@ -3352,17 +3443,27 @@
   // src/main.js
   (function(translations) {
     "use strict";
+    document.documentElement.classList.add("translation-in-progress");
     const antiFlickerStyle = document.createElement("style");
     antiFlickerStyle.id = "anti-flicker-style";
     antiFlickerStyle.textContent = `
-            body { visibility: hidden !important; opacity: 0 !important; }
-            body.translation-ready {
+            /* 在翻译进行中时，隐藏body，但保持加载指示器可见 */
+            html.translation-in-progress body {
+                visibility: hidden !important;
+                opacity: 0 !important;
+            }
+            html.translation-complete body {
                 visibility: visible !important;
                 opacity: 1 !important;
-                transition: opacity 0.2s ease-in !important;
+                transition: opacity 0.3s ease-in !important;
             }
-            [class*="load"], [class*="spin"], [id*="load"], [id*="spin"],
-            .loader, .spinner, .loading {
+            html.translation-in-progress [class*="load"],
+            html.translation-in-progress [class*="spin"],
+            html.translation-in-progress [id*="load"],
+            html.translation-in-progress [id*="spin"],
+            html.translation-in-progress .loader,
+            html.translation-in-progress .spinner,
+            html.translation-in-progress .loading {
                 visibility: visible !important;
                 opacity: 1 !important;
             }
@@ -3371,10 +3472,11 @@
     head.insertBefore(antiFlickerStyle, head.firstChild);
     const siteDictionary = translations[window.location.hostname];
     if (!siteDictionary) {
-      document.body?.classList.add("translation-ready");
+      document.documentElement.classList.remove("translation-in-progress");
+      document.documentElement.classList.add("translation-complete");
       setTimeout(() => {
         document.getElementById("anti-flicker-style")?.remove();
-      }, 200);
+      }, 500);
       return;
     }
     const regexRules = [];
@@ -3390,31 +3492,27 @@
     }
     const translationCache = /* @__PURE__ */ new Map();
     const DEBUG = false;
+    const BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(["script", "style", "pre", "code"]);
+    const BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set(["textarea", "input"]);
+    const ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
     function translateElementContent(element) {
-      if (!element || element.tagName === "SCRIPT" || element.tagName === "STYLE") return false;
+      const tagName = element.tagName?.toLowerCase();
+      if (!element || ALL_UNTRANSLATABLE_TAGS.has(tagName) || element.isContentEditable) {
+        return false;
+      }
+      if (element.querySelector(Array.from(ALL_UNTRANSLATABLE_TAGS).join(","))) {
+        return false;
+      }
       const fullText = element.textContent?.trim();
       if (!fullText) return false;
       const translation = textTranslationMap.get(fullText);
       if (!translation) return false;
-      const walker = document.createTreeWalker(
-        element,
-        NodeFilter.SHOW_TEXT,
-        {
-          acceptNode: function(node) {
-            return node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-          }
-        }
-      );
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+        acceptNode: (node) => node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+      });
       const textNodes = [];
-      while (walker.nextNode()) {
-        textNodes.push(walker.currentNode);
-      }
+      while (walker.nextNode()) textNodes.push(walker.currentNode);
       if (textNodes.length === 0) return false;
-      if (textNodes.length === 1) {
-        textNodes[0].nodeValue = translation;
-        if (DEBUG) console.log(`[元素内容翻译] "${fullText}" -> "${translation}"`);
-        return true;
-      }
       textNodes[0].nodeValue = translation;
       for (let i = 1; i < textNodes.length; i++) {
         textNodes[i].nodeValue = "";
@@ -3438,14 +3536,12 @@
         const trailingSpace = originalText.match(/\s*$/)[0] || "";
         translatedText = leadingSpace + mapTranslation + trailingSpace;
         hasChanged = true;
-        if (DEBUG) console.log(`[文本匹配] "${trimmedText}" -> "${mapTranslation}"`);
       } else {
         for (const [match, replacement] of regexRules) {
           const newText = translatedText.replace(match, replacement);
           if (newText !== translatedText) {
             translatedText = newText;
             hasChanged = true;
-            if (DEBUG) console.log(`[正则匹配] "${originalText}" -> "${translatedText}"`);
           }
         }
       }
@@ -3456,38 +3552,56 @@
     }
     let translatedElements = /* @__PURE__ */ new WeakSet();
     function translateElement(element) {
-      if (!element || translatedElements.has(element)) return;
-      if (translateElementContent(element)) {
+      if (!element || translatedElements.has(element) || !(element instanceof Element)) return;
+      const tagName = element.tagName.toLowerCase();
+      if (BLOCKS_ALL_TRANSLATION.has(tagName) || element.isContentEditable) {
         translatedElements.add(element);
         return;
       }
-      const walker = document.createTreeWalker(
-        element,
-        NodeFilter.SHOW_TEXT,
-        {
+      const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
+      if (!isContentBlocked) {
+        if (translateElementContent(element)) {
+          translatedElements.add(element);
+          return;
+        }
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
           acceptNode: function(node) {
-            const parentTag = node.parentElement?.tagName?.toLowerCase();
-            if (parentTag === "script" || parentTag === "style") {
-              return NodeFilter.FILTER_REJECT;
+            if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
+            let parent = node.parentElement;
+            while (parent) {
+              if (ALL_UNTRANSLATABLE_TAGS.has(parent.tagName.toLowerCase()) || parent.isContentEditable) {
+                return NodeFilter.FILTER_REJECT;
+              }
+              if (parent === element) break;
+              parent = parent.parentElement;
             }
-            return node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+            return NodeFilter.FILTER_ACCEPT;
           }
-        }
-      );
-      const nodesToTranslate = [];
-      while (walker.nextNode()) {
-        nodesToTranslate.push(walker.currentNode);
+        });
+        const nodesToTranslate = [];
+        while (walker.nextNode()) nodesToTranslate.push(walker.currentNode);
+        nodesToTranslate.forEach((textNode) => {
+          const originalText = textNode.nodeValue;
+          const translatedText = translateText(originalText);
+          if (originalText !== translatedText) {
+            textNode.nodeValue = translatedText;
+          }
+        });
       }
-      nodesToTranslate.forEach((textNode) => {
-        const originalText = textNode.nodeValue;
-        const translatedText = translateText(originalText);
-        if (originalText !== translatedText) {
-          textNode.nodeValue = translatedText;
-        }
-      });
       const attributesToTranslate = ["placeholder", "title", "aria-label", "alt", "mattooltip"];
       const elementsWithAttributes = element.matches(`[${attributesToTranslate.join("], [")}]`) ? [element, ...element.querySelectorAll(`[${attributesToTranslate.join("], [")}]`)] : [...element.querySelectorAll(`[${attributesToTranslate.join("], [")}]`)];
       elementsWithAttributes.forEach((el) => {
+        let current = el;
+        let isBlockedByContainer = false;
+        while (current && current !== element.parentElement) {
+          if (BLOCKS_ALL_TRANSLATION.has(current.tagName.toLowerCase())) {
+            isBlockedByContainer = true;
+            break;
+          }
+          if (current === element) break;
+          current = current.parentElement;
+        }
+        if (isBlockedByContainer) return;
         attributesToTranslate.forEach((attr) => {
           if (el.hasAttribute(attr)) {
             const originalValue = el.getAttribute(attr);
@@ -3546,28 +3660,29 @@
       }, 30);
     }
     const observer = new MutationObserver((mutations) => {
-      let hasChanges = false;
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
-          pendingNodes.add(node);
-          hasChanges = true;
-        });
-        if (mutation.type === "characterData") {
-          const targetElement = mutation.target.parentElement;
-          if (targetElement) {
-            translatedElements.delete(targetElement);
-            pendingNodes.add(targetElement);
-            hasChanges = true;
+      const dirtyRoots = /* @__PURE__ */ new Set();
+      for (const mutation of mutations) {
+        let target = null;
+        if (mutation.type === "childList") {
+          target = mutation.target;
+        } else if (mutation.type === "attributes") {
+          target = mutation.target;
+        } else if (mutation.type === "characterData") {
+          target = mutation.target.parentElement;
+        }
+        if (target instanceof Element) {
+          dirtyRoots.add(target);
+        }
+      }
+      if (dirtyRoots.size > 0) {
+        for (const root of dirtyRoots) {
+          translatedElements.delete(root);
+          const descendants = root.getElementsByTagName("*");
+          for (let i = 0; i < descendants.length; i++) {
+            translatedElements.delete(descendants[i]);
           }
+          pendingNodes.add(root);
         }
-        if (mutation.type === "attributes") {
-          const targetElement = mutation.target;
-          translatedElements.delete(targetElement);
-          pendingNodes.add(targetElement);
-          hasChanges = true;
-        }
-      });
-      if (hasChanges) {
         scheduleTranslation();
       }
     });
@@ -3580,7 +3695,8 @@
         attributeFilter: ["placeholder", "title", "aria-label", "alt", "mattooltip"],
         characterData: true
       });
-      document.body.classList.add("translation-ready");
+      document.documentElement.classList.remove("translation-in-progress");
+      document.documentElement.classList.add("translation-complete");
       if (DEBUG) console.log("[汉化脚本-优化版] 初次翻译完成，显示页面");
       setTimeout(() => {
         document.getElementById("anti-flicker-style")?.remove();

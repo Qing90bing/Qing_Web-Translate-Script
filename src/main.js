@@ -6,18 +6,30 @@ import { masterTranslationMap } from './translations/index.js';
 (function (translations) {
     'use strict';
 
-    // 防闪烁模块 (v2)
+    // 防闪烁模块 (v3)
+    // 立即在html根元素上添加类，以防止任何内容闪烁
+    document.documentElement.classList.add('translation-in-progress');
+
     const antiFlickerStyle = document.createElement('style');
     antiFlickerStyle.id = 'anti-flicker-style';
     antiFlickerStyle.textContent = `
-            body { visibility: hidden !important; opacity: 0 !important; }
-            body.translation-ready {
+            /* 在翻译进行中时，隐藏body，但保持加载指示器可见 */
+            html.translation-in-progress body {
+                visibility: hidden !important;
+                opacity: 0 !important;
+            }
+            html.translation-complete body {
                 visibility: visible !important;
                 opacity: 1 !important;
-                transition: opacity 0.2s ease-in !important;
+                transition: opacity 0.3s ease-in !important;
             }
-            [class*="load"], [class*="spin"], [id*="load"], [id*="spin"],
-            .loader, .spinner, .loading {
+            html.translation-in-progress [class*="load"],
+            html.translation-in-progress [class*="spin"],
+            html.translation-in-progress [id*="load"],
+            html.translation-in-progress [id*="spin"],
+            html.translation-in-progress .loader,
+            html.translation-in-progress .spinner,
+            html.translation-in-progress .loading {
                 visibility: visible !important;
                 opacity: 1 !important;
             }
@@ -28,11 +40,13 @@ import { masterTranslationMap } from './translations/index.js';
     // 在函数内部根据当前网站域名选择正确的词典
     const siteDictionary = translations[window.location.hostname];
     if (!siteDictionary) {
-        document.body?.classList.add('translation-ready');
-        // 如果当前网站没有对应的词典，提前移除防闪烁样式并退出
+        // 如果当前网站没有对应的词典，立即显示页面
+        document.documentElement.classList.remove('translation-in-progress');
+        document.documentElement.classList.add('translation-complete');
+        // 在过渡效果（0.3秒）结束后移除样式标签
         setTimeout(() => {
             document.getElementById('anti-flicker-style')?.remove();
-        }, 200);
+        }, 500);
         return;
     }
 
@@ -57,144 +71,146 @@ import { masterTranslationMap } from './translations/index.js';
     // 是否启用调试模式 (默认 false)
     const DEBUG = false;
 
-    // 元素内容合并翻译函数 - 处理被HTML标签分割的文本
-    function translateElementContent(element) {
-        if (!element || element.tagName === 'SCRIPT' || element.tagName === 'STYLE') return false;
+    // 定义两种不可翻译的标签集合，以实现更精细的控制
+    // 1. 完全阻塞型：这些标签内部的任何内容（包括子孙的文本和属性）都不会被翻译
+    const BLOCKS_ALL_TRANSLATION = new Set(['script', 'style', 'pre', 'code']);
+    // 2. 内容阻塞型：这些标签的文本内容不翻译，但placeholder等属性可以翻译
+    const BLOCKS_CONTENT_ONLY = new Set(['textarea', 'input']);
+    // 合并两者，用于需要检查所有不可翻译文本内容的场景
+    const ALL_UNTRANSLATABLE_TAGS = new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
 
-        // 获取元素的完整文本内容（忽略HTML标签）
+    // 元素内容合并翻译函数 - 逻辑保持不变，但现在依赖于新的标签集合
+    function translateElementContent(element) {
+        const tagName = element.tagName?.toLowerCase();
+
+        if (!element || ALL_UNTRANSLATABLE_TAGS.has(tagName) || element.isContentEditable) {
+            return false;
+        }
+        if (element.querySelector(Array.from(ALL_UNTRANSLATABLE_TAGS).join(','))) {
+            return false;
+        }
         const fullText = element.textContent?.trim();
         if (!fullText) return false;
-
-        // 查找是否有匹配的翻译
         const translation = textTranslationMap.get(fullText);
         if (!translation) return false;
 
-        // 如果找到翻译，需要智能地替换文本节点
-        const walker = document.createTreeWalker(
-            element,
-            NodeFilter.SHOW_TEXT,
-            {
-                acceptNode: function (node) {
-                    return node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-                }
-            }
-        );
-
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+            acceptNode: (node) => (node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT)
+        });
         const textNodes = [];
-        while (walker.nextNode()) {
-            textNodes.push(walker.currentNode);
-        }
-
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
         if (textNodes.length === 0) return false;
-
-        // 如果只有一个文本节点，直接替换
-        if (textNodes.length === 1) {
-            textNodes[0].nodeValue = translation;
-            if (DEBUG) console.log(`[元素内容翻译] "${fullText}" -> "${translation}"`);
-            return true;
-        }
-
-        // 多个文本节点的情况：将翻译内容放在第一个节点，清空其他节点
         textNodes[0].nodeValue = translation;
         for (let i = 1; i < textNodes.length; i++) {
             textNodes[i].nodeValue = '';
         }
-
         if (DEBUG) console.log(`[元素内容合并翻译] "${fullText}" -> "${translation}"`);
         return true;
     }
 
-    // 重写翻译函数，采用更稳定高效的"去空格匹配，保留格式替换"策略
+    // 文本翻译函数 - 无需改动
     function translateText(text) {
         if (!text || typeof text !== 'string') return text;
         const originalText = text;
-
         if (translationCache.has(originalText)) {
             return translationCache.get(originalText);
         }
-
         const trimmedText = text.trim();
         if (trimmedText === '') return text;
-
         let translatedText = text;
         let hasChanged = false;
-
-        // 第1步: 优先进行精确文本匹配（空格不敏感）
         const mapTranslation = textTranslationMap.get(trimmedText);
         if (mapTranslation) {
-            // 找到了翻译，智能地保留原文中的前后空格
             const leadingSpace = originalText.match(/^\s*/)[0] || '';
             const trailingSpace = originalText.match(/\s*$/)[0] || '';
             translatedText = leadingSpace + mapTranslation + trailingSpace;
             hasChanged = true;
-            if (DEBUG) console.log(`[文本匹配] "${trimmedText}" -> "${mapTranslation}"`);
         } else {
-            // 第2步: 如果没有精确匹配，则应用正则表达式规则
             for (const [match, replacement] of regexRules) {
                 const newText = translatedText.replace(match, replacement);
                 if (newText !== translatedText) {
                     translatedText = newText;
                     hasChanged = true;
-                    if (DEBUG) console.log(`[正则匹配] "${originalText}" -> "${translatedText}"`);
                 }
             }
         }
-
         if (hasChanged) {
             translationCache.set(originalText, translatedText);
         }
-
         return translatedText;
     }
 
     // 标记已翻译的元素，避免重复操作
     let translatedElements = new WeakSet();
 
+    // 核心翻译函数 - 使用了新的标签分类逻辑
     function translateElement(element) {
-        if (!element || translatedElements.has(element)) return;
+        if (!element || translatedElements.has(element) || !(element instanceof Element)) return;
 
-        // 尝试元素内容合并翻译
-        if (translateElementContent(element)) {
+        const tagName = element.tagName.toLowerCase();
+
+        // 如果是完全阻塞型标签或可编辑元素，则完全跳过
+        if (BLOCKS_ALL_TRANSLATION.has(tagName) || element.isContentEditable) {
             translatedElements.add(element);
             return;
         }
 
-        // 翻译文本节点
-        const walker = document.createTreeWalker(
-            element,
-            NodeFilter.SHOW_TEXT,
-            {
-                acceptNode: function (node) {
-                    const parentTag = node.parentElement?.tagName?.toLowerCase();
-                    if (parentTag === 'script' || parentTag === 'style') {
-                        return NodeFilter.FILTER_REJECT;
-                    }
-                    // 只接受包含非空白字符的节点
-                    return node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-                }
-            }
-        );
+        const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
 
-        const nodesToTranslate = [];
-        while (walker.nextNode()) {
-            nodesToTranslate.push(walker.currentNode);
+        // --- 文本内容翻译 ---
+        if (!isContentBlocked) {
+            // 1. 尝试合并翻译
+            if (translateElementContent(element)) {
+                translatedElements.add(element);
+                return;
+            }
+
+            // 2. 使用TreeWalker进行深度文本节点翻译
+            const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+                acceptNode: function (node) {
+                    if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
+                    let parent = node.parentElement;
+                    while (parent) {
+                        if (ALL_UNTRANSLATABLE_TAGS.has(parent.tagName.toLowerCase()) || parent.isContentEditable) {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+                        if (parent === element) break;
+                        parent = parent.parentElement;
+                    }
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+            });
+            const nodesToTranslate = [];
+            while (walker.nextNode()) nodesToTranslate.push(walker.currentNode);
+            nodesToTranslate.forEach(textNode => {
+                const originalText = textNode.nodeValue;
+                const translatedText = translateText(originalText);
+                if (originalText !== translatedText) {
+                    textNode.nodeValue = translatedText;
+                }
+            });
         }
 
-        nodesToTranslate.forEach(textNode => {
-            const originalText = textNode.nodeValue;
-            const translatedText = translateText(originalText);
-            if (originalText !== translatedText) {
-                textNode.nodeValue = translatedText;
-            }
-        });
-
-        // 翻译属性
+        // --- 属性翻译 ---
         const attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip'];
         const elementsWithAttributes = element.matches(`[${attributesToTranslate.join("], [")}]`)
             ? [element, ...element.querySelectorAll(`[${attributesToTranslate.join("], [")}]`)]
             : [...element.querySelectorAll(`[${attributesToTranslate.join("], [")}]`)];
 
         elementsWithAttributes.forEach(el => {
+            let current = el;
+            let isBlockedByContainer = false;
+            while (current && current !== element.parentElement) {
+                if (BLOCKS_ALL_TRANSLATION.has(current.tagName.toLowerCase())) {
+                    isBlockedByContainer = true;
+                    break;
+                }
+                if (current === element) break;
+                current = current.parentElement;
+            }
+
+            if (isBlockedByContainer) return;
+
             attributesToTranslate.forEach(attr => {
                 if (el.hasAttribute(attr)) {
                     const originalValue = el.getAttribute(attr);
@@ -272,39 +288,36 @@ import { masterTranslationMap } from './translations/index.js';
         }, 30); // 减少延迟以更快响应模型切换
     }
 
-    //  MutationObserver 逻辑以处理动态内容变化
+    //  MutationObserver 逻辑以处理动态内容变化 - 最终版
     const observer = new MutationObserver((mutations) => {
-        let hasChanges = false;
+        const dirtyRoots = new Set();
 
-        mutations.forEach((mutation) => {
-            // 1. 处理新添加到页面的节点
-            mutation.addedNodes.forEach((node) => {
-                pendingNodes.add(node);
-                hasChanges = true;
-            });
+        for (const mutation of mutations) {
+            let target = null;
+            // 将变更的“根”元素（通常是发生变更的组件的容器）作为目标
+            if (mutation.type === 'childList') {
+                target = mutation.target;
+            } else if (mutation.type === 'attributes') {
+                target = mutation.target;
+            } else if (mutation.type === 'characterData') {
+                target = mutation.target.parentElement;
+            }
 
-            // 2. 处理已有节点文本内容的变化（例如按钮文字改变）
-            if (mutation.type === 'characterData') {
-                const targetElement = mutation.target.parentElement;
-                if (targetElement) {
-                    // 从“已翻译”集合中移除该元素的标记，以便重新翻译
-                    translatedElements.delete(targetElement);
-                    pendingNodes.add(targetElement); // 将其加入待翻译队列
-                    hasChanges = true;
+            if (target instanceof Element) {
+                dirtyRoots.add(target);
+            }
+        }
+
+        if (dirtyRoots.size > 0) {
+            for (const root of dirtyRoots) {
+                // 清除根及其所有后代的翻译状态，以强制重翻整个“脏”区域
+                translatedElements.delete(root);
+                const descendants = root.getElementsByTagName('*');
+                for (let i = 0; i < descendants.length; i++) {
+                    translatedElements.delete(descendants[i]);
                 }
+                pendingNodes.add(root);
             }
-
-            // 3. 处理已有节点属性的变化（例如 placeholder 内容改变）
-            if (mutation.type === 'attributes') {
-                const targetElement = mutation.target;
-                // 同样地，移除该元素的“已翻译”标记
-                translatedElements.delete(targetElement);
-                pendingNodes.add(targetElement); // 将其加入待翻译队列
-                hasChanges = true;
-            }
-        });
-
-        if (hasChanges) {
             scheduleTranslation();
         }
     });
@@ -322,9 +335,12 @@ import { masterTranslationMap } from './translations/index.js';
             characterData: true
         });
 
-        document.body.classList.add('translation-ready');
+        // 移除“进行中”状态，添加“完成”状态，触发CSS过渡效果
+        document.documentElement.classList.remove('translation-in-progress');
+        document.documentElement.classList.add('translation-complete');
         if (DEBUG) console.log('[汉化脚本-优化版] 初次翻译完成，显示页面');
 
+        // 在过渡效果（0.3秒）结束后移除样式标签，清理DOM
         setTimeout(() => {
             document.getElementById('anti-flicker-style')?.remove();
         }, 500);
