@@ -11,5 +11,8 @@
 // @match        *://console.anthropic.com/*
 // @match        *://status.anthropic.com/*
 // @run-at       document-start
-// @grant        none
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_registerMenuCommand
+// @noframes
 // ==/UserScript==

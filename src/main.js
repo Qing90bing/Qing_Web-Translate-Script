@@ -83,8 +83,25 @@ import { masterTranslationMap } from './translations/index.js';
     }
 
     const translationCache = new Map();
-    // 是否启用调试模式 (默认 false)
-    const DEBUG = false;
+
+    // --- 日志记录模块 ---
+    // 用于在油猴菜单中存储日志开关状态的键
+    const LOG_KEY = 'web_translate_debug_mode';
+    // 从存储中读取当前日志模式，默认为 false (关闭)
+    let isDebugMode = GM_getValue(LOG_KEY, false);
+
+    /**
+     * 统一的日志记录函数。
+     * 只有当 isDebugMode 为 true 时，才会在控制台输出信息。
+     * @param {...any} args - 需要打印到控制台的参数。
+     */
+    function log(...args) {
+        if (isDebugMode) {
+            // 使用一个统一的前缀，方便用户在控制台过滤信息
+            console.log('[汉化脚本]', ...args);
+        }
+    }
+
 
     // 定义两种不可翻译的标签集合，以实现更精细的控制
     // 1. 完全阻塞型：这些标签内部的任何内容（包括子孙的文本和属性）都不会被翻译
@@ -119,7 +136,7 @@ import { masterTranslationMap } from './translations/index.js';
         for (let i = 1; i < textNodes.length; i++) {
             textNodes[i].nodeValue = '';
         }
-        if (DEBUG) console.log(`[元素内容合并翻译] "${fullText}" -> "${translation}"`);
+        log('整段翻译:', `"${fullText}"`, '->', `"${translation}"`);
         return true;
     }
 
@@ -256,7 +273,7 @@ import { masterTranslationMap } from './translations/index.js';
 
         if (currentModelInfo && currentModelInfo !== lastModelInfo) {
             lastModelInfo = currentModelInfo;
-            if (DEBUG) console.log('[模型变化检测] 检测到模型信息变化:', currentModelInfo);
+            log('检测到模型切换:', currentModelInfo);
 
             // 清除翻译缓存和元素标记，强制重新翻译
             translationCache.clear();
@@ -353,7 +370,7 @@ import { masterTranslationMap } from './translations/index.js';
         // 移除“进行中”状态，添加“完成”状态，触发CSS过渡效果
         document.documentElement.classList.remove('translation-in-progress');
         document.documentElement.classList.add('translation-complete');
-        if (DEBUG) console.log('[汉化脚本-优化版] 初次翻译完成，显示页面');
+        log('初次翻译完成，页面已显示。');
 
         // 在过渡效果（0.3秒）结束后移除样式标签，清理DOM
         setTimeout(() => {
@@ -363,7 +380,7 @@ import { masterTranslationMap } from './translations/index.js';
         // 初始化模型信息检测
         detectModelChange();
 
-        if (DEBUG) console.log('[汉化脚本-优化版] 初始化完成');
+        log('脚本初始化完成，开始监听页面变化。');
     }
 
     function startTranslation() {
@@ -390,7 +407,7 @@ import { masterTranslationMap } from './translations/index.js';
     const pageObserver = new MutationObserver(() => {
         if (window.location.href !== currentUrl) {
             currentUrl = window.location.href;
-            if (DEBUG) console.log('[汉化脚本] 检测到页面URL变化，准备重新翻译');
+            log('检测到页面导航，将重新翻译:', currentUrl);
 
             // 重置所有状态
             translationCache.clear();
@@ -399,7 +416,7 @@ import { masterTranslationMap } from './translations/index.js';
 
             // 在SPA导航后，DOM更新可能需要一点时间
             setTimeout(() => {
-                console.log('[汉化脚本] 开始重新翻译新页面内容');
+                log('开始重新翻译新页面内容...');
                 if (document.body) {
                     translateElement(document.body);
                 }
@@ -466,7 +483,7 @@ import { masterTranslationMap } from './translations/index.js';
 
     // 手动强制重新翻译功能（调试用）
     window.forceRetranslate = function () {
-        console.log('[汉化脚本] 手动强制重新翻译');
+        log('强制重新翻译已触发。');
         translationCache.clear();
         translatedElements = new WeakSet();
         lastModelInfo = '';
@@ -476,7 +493,7 @@ import { masterTranslationMap } from './translations/index.js';
     };
 
     // 暴露调试信息
-    if (DEBUG) {
+    if (isDebugMode) {
         window.translationDebug = {
             cache: translationCache,
             textMap: textTranslationMap,
@@ -484,5 +501,41 @@ import { masterTranslationMap } from './translations/index.js';
             lastModelInfo: () => lastModelInfo
         };
     }
+
+
+    // --- 菜单命令模块 (v2 - 稳定版) ---
+    // 为菜单项定义一个唯一的、固定的ID，这是实现动态更新的关键。
+    const MENU_COMMAND_ID = 'toggle_debug_log_command';
+
+    /**
+     * 更新油猴菜单的命令文本，以反映当前日志记录的状态 (开启/关闭)。
+     * 使用 ID 来更新现有菜单项，而不是删除和重建，这更可靠。
+     */
+    function updateMenuCommand() {
+        const status = isDebugMode ? '开启' : '关闭';
+        GM_registerMenuCommand(
+            `切换调试日志 (当前: ${status})`,
+            toggleDebugMode,
+            { id: MENU_COMMAND_ID } // 提供固定的ID
+        );
+    }
+
+    /**
+     * 切换调试模式的函数。
+     * 当用户点击油猴菜单中的命令时，此函数将被调用。
+     */
+    function toggleDebugMode() {
+        // 翻转当前的调试模式状态
+        isDebugMode = !isDebugMode;
+        // 将新状态保存到持久化存储中
+        GM_setValue(LOG_KEY, isDebugMode);
+        // 状态已变更，现在更新菜单命令的文本以反映新状态。
+        updateMenuCommand();
+    }
+
+    // --- 初始化 ---
+    // 脚本加载时立即初始化/更新菜单命令
+    updateMenuCommand();
+
 
 })(masterTranslationMap); // 将导入的 map 在这里作为参数传入

@@ -11,7 +11,10 @@
 // @match        *://console.anthropic.com/*
 // @match        *://status.anthropic.com/*
 // @run-at       document-start
-// @grant        none
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_registerMenuCommand
+// @noframes
 // ==/UserScript==
 
 (() => {
@@ -3508,7 +3511,13 @@
       head.appendChild(customStyleElement);
     }
     const translationCache = /* @__PURE__ */ new Map();
-    const DEBUG = false;
+    const LOG_KEY = "web_translate_debug_mode";
+    let isDebugMode = GM_getValue(LOG_KEY, false);
+    function log(...args) {
+      if (isDebugMode) {
+        console.log("[汉化脚本]", ...args);
+      }
+    }
     const BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(["script", "style", "pre", "code"]);
     const BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set(["textarea", "input"]);
     const ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
@@ -3534,7 +3543,7 @@
       for (let i = 1; i < textNodes.length; i++) {
         textNodes[i].nodeValue = "";
       }
-      if (DEBUG) console.log(`[元素内容合并翻译] "${fullText}" -> "${translation}"`);
+      log("整段翻译:", `"${fullText}"`, "->", `"${translation}"`);
       return true;
     }
     function translateText(text) {
@@ -3642,7 +3651,7 @@
       const currentModelInfo = Array.from(modelElements).map((el) => el.textContent?.trim()).join("|");
       if (currentModelInfo && currentModelInfo !== lastModelInfo) {
         lastModelInfo = currentModelInfo;
-        if (DEBUG) console.log("[模型变化检测] 检测到模型信息变化:", currentModelInfo);
+        log("检测到模型切换:", currentModelInfo);
         translationCache.clear();
         translatedElements = /* @__PURE__ */ new WeakSet();
         setTimeout(() => {
@@ -3714,12 +3723,12 @@
       });
       document.documentElement.classList.remove("translation-in-progress");
       document.documentElement.classList.add("translation-complete");
-      if (DEBUG) console.log("[汉化脚本-优化版] 初次翻译完成，显示页面");
+      log("初次翻译完成，页面已显示。");
       setTimeout(() => {
         document.getElementById("anti-flicker-style")?.remove();
       }, 500);
       detectModelChange();
-      if (DEBUG) console.log("[汉化脚本-优化版] 初始化完成");
+      log("脚本初始化完成，开始监听页面变化。");
     }
     function startTranslation() {
       if (document.body) {
@@ -3742,12 +3751,12 @@
     const pageObserver = new MutationObserver(() => {
       if (window.location.href !== currentUrl) {
         currentUrl = window.location.href;
-        if (DEBUG) console.log("[汉化脚本] 检测到页面URL变化，准备重新翻译");
+        log("检测到页面导航，将重新翻译:", currentUrl);
         translationCache.clear();
         translatedElements = /* @__PURE__ */ new WeakSet();
         lastModelInfo = "";
         setTimeout(() => {
-          console.log("[汉化脚本] 开始重新翻译新页面内容");
+          log("开始重新翻译新页面内容...");
           if (document.body) {
             translateElement(document.body);
           }
@@ -3798,7 +3807,7 @@
       });
     }
     window.forceRetranslate = function() {
-      console.log("[汉化脚本] 手动强制重新翻译");
+      log("强制重新翻译已触发。");
       translationCache.clear();
       translatedElements = /* @__PURE__ */ new WeakSet();
       lastModelInfo = "";
@@ -3806,7 +3815,7 @@
         translateElement(document.body);
       }
     };
-    if (DEBUG) {
+    if (isDebugMode) {
       window.translationDebug = {
         cache: translationCache,
         textMap: textTranslationMap,
@@ -3814,5 +3823,21 @@
         lastModelInfo: () => lastModelInfo
       };
     }
+    const MENU_COMMAND_ID = "toggle_debug_log_command";
+    function updateMenuCommand() {
+      const status = isDebugMode ? "开启" : "关闭";
+      GM_registerMenuCommand(
+        `切换调试日志 (当前: ${status})`,
+        toggleDebugMode,
+        { id: MENU_COMMAND_ID }
+        // 提供固定的ID
+      );
+    }
+    function toggleDebugMode() {
+      isDebugMode = !isDebugMode;
+      GM_setValue(LOG_KEY, isDebugMode);
+      updateMenuCommand();
+    }
+    updateMenuCommand();
   })(masterTranslationMap);
 })();
