@@ -83,6 +83,7 @@ export const claudeAi = [
     
     
     // --- 完整句子和短语翻译 ---
+    ["upstream connect error or disconnect/reset before headers. reset reason: connection termination", "连接后端服务器失败，或在收到其响应数据前连接被重置。重置原因：连接被终止。"],
     ["English (United States)", "英语（美国）"],
     ["français (France)", "法语（法国）"],
     ["Deutsch (Deutschland)", "德语（德国）"],
