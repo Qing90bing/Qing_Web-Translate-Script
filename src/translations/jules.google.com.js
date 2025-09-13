@@ -4,6 +4,8 @@ export const julesGoogleCom = [
     ['css', '.feedback-button { width: auto !important; white-space: nowrap !important; }'],
     // --- 正则表达式翻译 ---
     // 匹配 "Completed ... ago" 等完成状态
+    [/Ran command\s+"(.*?)"/i, '执行命令：“$1”'],
+    [/Read\s+([\w\.\-]+)/i, '读取文件：$1'],
     [/(\d{1,2})\s+(\d{1,2})月/, '$2 月 $1 日'],
     [/^Searching for\s+"(.+?)"$/i, '正在搜索“$1”'],
     [/^Searching for\s+(.+)$/i, '正在搜索：$1'],

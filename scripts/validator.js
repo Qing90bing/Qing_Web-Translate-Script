@@ -43,7 +43,8 @@ async function findTranslationFiles() {
  * @param {object} node - The AST node.
  * @returns {string|null} 返回提取的字符串值，如果节点类型不支持则返回null。
  */
-function getLiteralValue(node) {
+export function getLiteralValue(node) {
+  if (!node) return null;
   if (node.type === 'Literal') {
     return node.value;
   }
@@ -128,8 +129,24 @@ function validateFileContent(file, content) {
       continue; // 如果结构错误，则不进行后续的重复检查
     }
 
-    // 规则 2: 唯一性检查
     const originalNode = elementNode.elements[0];
+    const translationNode = elementNode.elements[1];
+
+    // 规则 2: 空翻译检查
+    const translationValue = getLiteralValue(translationNode);
+    if (translationValue === '') {
+      errors.push({
+        file,
+        line,
+        lineContent,
+        message: '译文不能为空字符串。',
+        type: 'empty-translation',
+        node: elementNode,
+      });
+      // 即使译文为空，也应继续进行重复性检查，所以这里不 `continue`
+    }
+    
+    // 规则 3: 唯一性检查
     const originalValue = getLiteralValue(originalNode);
 
     // 如果原文不是一个简单的字符串（例如，是正则表达式或变量），则跳过重复检查。
@@ -188,20 +205,19 @@ export async function validateTranslationFiles() {
                     'multi-duplicate': '重复的原文',
                     'structure': '结构错误',
                     'syntax': '语法错误',
+                    'empty-translation': '空翻译',
                 };
                 const errorName = errorTypeMap[e.type] || '未知错误';
 
+                console.log(`  问题 ${index + 1}: ${errorName} - ${e.message}`);
                 if (e.type === 'multi-duplicate') {
-                    console.log(`  问题 ${index + 1}: ${e.message}`);
                     e.occurrences.forEach((occ, i) => {
                         const label = i === 0 ? '首次定义' : '重复出现';
                         console.log(`    - ${label.padEnd(5, ' ')}: 第 ${String(occ.line).padEnd(4)}行 -> ${occ.lineContent}`);
                     });
                 } else {
-                    console.log(`  问题 ${index + 1}: ${errorName}`);
                     console.log(`    - 行号:   ${e.line}`);
                     console.log(`    - 内容:   ${e.lineContent}`);
-                    console.log(`    - 详情:   ${e.message}`);
                 }
                 console.log('--------------------------------------------------');
             });

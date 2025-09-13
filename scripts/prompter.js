@@ -1,5 +1,6 @@
 import inquirer from 'inquirer';
 import path from 'path';
+import { getLiteralValue } from './validator.js';
 
 /**
  * @typedef {import('./validator.js').ValidationError} ValidationError
@@ -22,20 +23,22 @@ import path from 'path';
  * @returns {Promise<'auto-fix' | 'manual-fix' | 'ignore' | 'cancel'>} 返回用户选择的操作标识符。
  */
 export async function promptUserAboutErrors(errors) {
-  const fixableErrorCount = errors.filter(e => e.type === 'multi-duplicate').length;
+  const duplicateErrorCount = errors.filter(e => e.type === 'multi-duplicate').length;
+  const emptyTranslationCount = errors.filter(e => e.type === 'empty-translation').length;
+  const manualFixErrorCount = duplicateErrorCount + emptyTranslationCount;
 
   const choices = [];
-  if (fixableErrorCount > 0) {
-    choices.push(
-      {
-        name: `✨ (自动) 保留第一个，快速修复 ${fixableErrorCount} 组重复条目`,
-        value: 'auto-fix',
-      },
-      {
-        name: `🔧 (手动) 逐个处理 ${fixableErrorCount} 组重复条目`,
-        value: 'manual-fix',
-      }
-    );
+  if (duplicateErrorCount > 0) {
+    choices.push({
+      name: `✨ (自动) 快速修复 ${duplicateErrorCount} 组“重复原文”问题 (保留第一个)`,
+      value: 'auto-fix',
+    });
+  }
+  if (manualFixErrorCount > 0) {
+    choices.push({
+      name: `🔧 (手动) 逐个处理 ${manualFixErrorCount} 个“重复原文”或“空翻译”问题`,
+      value: 'manual-fix',
+    });
   }
   choices.push(
     { name: '⚠️  (忽略) 忽略所有错误并继续构建', value: 'ignore' },
@@ -123,4 +126,61 @@ export async function promptForManualFix(duplicateErrors) {
   }
 
   return decisions;
+}
+
+
+/**
+ * @typedef {Object} EmptyTranslationFixDecision
+ * @description 定义一个空翻译修复决策对象的结构。
+ * @property {ValidationError} error - 原始的'empty-translation'错误对象。
+ * @property {string | null} newTranslation - 用户输入的新译文，如果用户选择跳过则为null。
+ */
+
+/**
+ * 交互式地提示用户修复每一个空翻译条目。
+ * @param {ValidationError[]} emptyTranslationErrors - `empty-translation`类型的错误对象数组。
+ * @returns {Promise<EmptyTranslationFixDecision[]>} 返回一个包含用户所有决策的数组。
+ */
+export async function promptForEmptyTranslationFix(emptyTranslationErrors) {
+  const decisions = [];
+  console.log('\n----------------------------------------');
+  console.log('📝 开始处理空翻译问题...');
+
+  for (let i = 0; i < emptyTranslationErrors.length; i++) {
+    const error = emptyTranslationErrors[i];
+    const originalValue = getLiteralValue(error.node.elements[0]);
+
+    const { newTranslation } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'newTranslation',
+        message: `--[ ${i + 1}/${emptyTranslationErrors.length} ]-- 文件: ${path.basename(error.file)}\n  - 原文: "${originalValue}"\n  - 请输入译文 (直接回车则跳过):`,
+      },
+    ]);
+
+    decisions.push({
+      error,
+      newTranslation: newTranslation || null,
+    });
+  }
+
+  return decisions;
+}
+
+
+/**
+ * 提示用户是否在最终的打包文件中保留注释和空白行。
+ * @returns {Promise<boolean>} 如果用户选择是，则返回 true，否则返回 false。
+ */
+export async function promptToPreserveFormatting() {
+    console.log('\n----------------------------------------');
+    const { preserve } = await inquirer.prompt([
+        {
+            type: 'confirm',
+            name: 'preserve',
+            message: '构建已准备就绪。您想在最终的脚本文件中保留注释和空白行吗？',
+            default: false,
+        }
+    ]);
+    return preserve;
 }

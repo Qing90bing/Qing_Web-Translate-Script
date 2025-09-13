@@ -3,6 +3,7 @@ import path from 'path';
 
 /**
  * @typedef {import('./prompter.js').ManualFixDecision} ManualFixDecision
+ * @typedef {import('./prompter.js').EmptyTranslationFixDecision} EmptyTranslationFixDecision
  * @typedef {import('./validator.js').ValidationError} ValidationError
  * @description 从其他模块导入类型定义，以实现类型提示和代码智能。
  */
@@ -117,5 +118,60 @@ export async function applyManualFixes(decisions) {
       console.log(`\n✨ 总共修复了 ${totalFixed} 个问题。`);
   } else {
       console.log('\n没有需要应用的修复（可能所有问题都被跳过了）。');
+  }
+}
+
+
+/**
+ * 根据用户的输入，应用对空翻译条目的修复。
+ * @param {EmptyTranslationFixDecision[]} decisions - 从交互式提示器返回的决策对象数组。
+ * @returns {Promise<void>}
+ */
+export async function applyEmptyTranslationFixes(decisions) {
+  const fixesToApply = decisions.filter(d => d.newTranslation !== null);
+
+  if (fixesToApply.length === 0) {
+    console.log('\n没有需要应用的空翻译修复（可能所有问题都被跳过了）。');
+    return;
+  }
+
+  // 按文件对修复进行分组
+  const fixesByFile = fixesToApply.reduce((acc, decision) => {
+    const file = decision.error.file;
+    if (!acc[file]) {
+      acc[file] = [];
+    }
+    acc[file].push(decision);
+    return acc;
+  }, {});
+
+  let totalFixed = 0;
+  for (const file in fixesByFile) {
+    const fileDecisions = fixesByFile[file];
+    totalFixed += fileDecisions.length;
+    
+    console.log(`\n🔧 正在修复文件 ${path.basename(file)}，更新 ${fileDecisions.length} 个空翻译...`);
+    let content = await fs.readFile(file, 'utf-8');
+
+    // 按节点在文件中的位置逆序排序，从后往前修改，避免位置索引失效
+    fileDecisions.sort((a, b) => b.error.node.range[0] - a.error.node.range[0]);
+
+    for (const decision of fileDecisions) {
+      const translationNode = decision.error.node.elements[1];
+      const start = translationNode.range[0];
+      const end = translationNode.range[1];
+      
+      // 使用 JSON.stringify 来确保字符串被正确地转义和引用
+      const newTranslationString = JSON.stringify(decision.newTranslation);
+      
+      content = content.slice(0, start) + newTranslationString + content.slice(end);
+    }
+
+    await fs.writeFile(file, content, 'utf-8');
+    console.log(`✅ 文件 ${path.basename(file)} 已成功修复。`);
+  }
+
+  if (totalFixed > 0) {
+    console.log(`\n✨ 总共更新了 ${totalFixed} 个空翻译条目。`);
   }
 }

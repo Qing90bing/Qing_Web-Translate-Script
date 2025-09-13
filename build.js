@@ -31,8 +31,17 @@ import fs from 'fs/promises';
 import path from 'path';
 import prettier from 'prettier';
 import { validateTranslationFiles } from './scripts/validator.js';
-import { promptUserAboutErrors, promptForManualFix } from './scripts/prompter.js';
-import { applyManualFixes, fixDuplicatesAutomatically } from './scripts/fixer.js';
+import { 
+  promptUserAboutErrors, 
+  promptForManualFix, 
+  promptForEmptyTranslationFix,
+  promptToPreserveFormatting
+} from './scripts/prompter.js';
+import { 
+  applyManualFixes, 
+  fixDuplicatesAutomatically,
+  applyEmptyTranslationFixes
+} from './scripts/fixer.js';
 
 
 /**
@@ -48,21 +57,39 @@ async function build() {
     if (validationErrors.length > 0) {
       const userAction = await promptUserAboutErrors(validationErrors);
       const duplicateErrors = validationErrors.filter(e => e.type === 'multi-duplicate');
+      const emptyTranslationErrors = validationErrors.filter(e => e.type === 'empty-translation');
 
       switch (userAction) {
         case 'auto-fix':
-          await fixDuplicatesAutomatically(duplicateErrors);
-          console.log('\n✅ 自动修复完成。建议您重新运行构建脚本，以确保所有问题都已解决。');
+          if(duplicateErrors.length > 0) {
+            await fixDuplicatesAutomatically(duplicateErrors);
+            console.log('\n✅ 自动修复完成。建议您重新运行构建脚本，以确保所有问题都已解决。');
+          } else {
+            console.log('\n🤷 没有可自动修复的问题。');
+          }
           process.exit(0);
           break;
         
         case 'manual-fix':
-          const decisions = await promptForManualFix(duplicateErrors);
-          if (decisions === null) {
-            console.log('\n🛑 已退出手动修复流程，构建已取消。');
-          } else {
+          let needsRebuild = false;
+          if (duplicateErrors.length > 0) {
+            const decisions = await promptForManualFix(duplicateErrors);
+            if (decisions === null) {
+              console.log('\n🛑 已退出手动修复流程，构建已取消。');
+              process.exit(0);
+            }
             await applyManualFixes(decisions);
+            needsRebuild = true;
+          }
+          if (emptyTranslationErrors.length > 0) {
+            const decisions = await promptForEmptyTranslationFix(emptyTranslationErrors);
+            await applyEmptyTranslationFixes(decisions);
+            needsRebuild = true;
+          }
+          if(needsRebuild){
             console.log('\n✅ 手动修复完成。建议您重新运行构建脚本，以确保所有问题都已解决。');
+          } else {
+            console.log('\n🤷 没有需要手动修复的问题。');
           }
           process.exit(0);
           break;
@@ -79,6 +106,9 @@ async function build() {
         console.log('\n✅ 所有翻译文件均通过校验！');
     }
 
+    // --- 新步骤: 询问是否保留格式 ---
+    const preserveFormatting = await promptToPreserveFormatting();
+
 
     // --- 步骤 3: 执行 esbuild 打包 ---
     console.log('\n🚀 开始构建...');
@@ -94,23 +124,38 @@ async function build() {
     const header = await fs.readFile(path.resolve('src/header.txt'), 'utf-8');
     
     let bundledCode = result.outputFiles[0].text;
-    
-    // 1. 移除所有注释
-    bundledCode = bundledCode.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
-    
-    // 2. 使用 Prettier 进行专业格式化
-    let formattedCode = await prettier.format(bundledCode, {
-        parser: 'babel',
-        semi: true,
-        singleQuote: true,
-        printWidth: 9999, // 设置一个很大的值来防止自动换行
-    });
+    let finalScript;
 
-    // 3. 移除 Prettier 可能留下的多余空白行
-    formattedCode = formattedCode.replace(/^\s*[\r\n]/gm, '');
+    if (preserveFormatting) {
+        // 如果保留格式，只进行 Prettier 格式化以保证基本代码风格
+        const formattedCode = await prettier.format(bundledCode, {
+            parser: 'babel',
+            semi: true,
+            singleQuote: true,
+            printWidth: 9999, // 设置一个很大的值来防止自动换行
+        });
+        finalScript = `${header}\n\n${formattedCode}`;
+        console.log('💅 已保留注释和空白行，仅执行基本格式化。');
+    } else {
+        // 否则，执行完整的清理流程
+        // 1. 移除所有注释
+        bundledCode = bundledCode.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
+        
+        // 2. 使用 Prettier 进行专业格式化
+        let formattedCode = await prettier.format(bundledCode, {
+            parser: 'babel',
+            semi: true,
+            singleQuote: true,
+            printWidth: 9999, // 设置一个很大的值来防止自动换行
+        });
 
-    // 将头部信息和处理后的代码拼接成最终脚本
-    const finalScript = `${header}\n\n${formattedCode}`;
+        // 3. 移除 Prettier 可能留下的多余空白行
+        formattedCode = formattedCode.replace(/^\s*[\r\n]/gm, '');
+
+        // 将头部信息和处理后的代码拼接成最终脚本
+        finalScript = `${header}\n\n${formattedCode}`;
+        console.log('🧹 已移除注释和多余空白行。');
+    }
 
     // --- 步骤 5: 写入最终文件 ---
     const distDir = path.resolve('dist');
