@@ -251,7 +251,9 @@
   // src/translations/aistudio.google.com.js
   var aistudioGoogleCom = [
     // 正则表达式翻译
-    [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, "↩  换行\nAlt + ↩  追加文本 (不执行)\nCtrl + ↩  执行指令"],
+    [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, `↩  换行
+Alt + ↩  追加文本 (不执行)
+Ctrl + ↩  执行指令`],
     [/Invalid JSON: SyntaxError: Unexpected token '(.+?)', "(.+?)" is not valid JSON/i, "无效的 JSON 语法错误：在 “$2” 中存在意外的字符 “$1”"],
     [/All context lengths\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, "所有上下文长度 | 输入: $$ $1 / 输出: $$ $2"],
     [/([<>]=?)\s*(\d+K)\s+tokens\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, "$1$2 Tokens | 输入: $$ $3 / 输出: $$ $4"],
@@ -261,7 +263,8 @@
     [/^Copied\s+models\/(.+)\s+to\s+clipboard$/i, "已将模型“$1”复制到剪贴板"],
     [/Last modified:\s*(\d{4})\/(\d{1,2})\/(\d{1,2})/, "最后修改于：$1 年 $2 月 $3 日"],
     ["Google Account: (.+?) \\((.+?)\\)", "Google 帐号：(.+?) \\((.+?)\\)"],
-    [/↩\s*Add a new line\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, "↩  换行\nCtrl + ↩  执行指令"],
+    [/↩\s*Add a new line\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, `↩  换行
+Ctrl + ↩  执行指令`],
     [/^Copied\s+(.+)\s+to\s+clipboard$/i, "已将模型“$1”复制到剪贴板"],
     [/Analyzed errors for (\d+) seconds/, "分析了 $1 秒的错误"],
     [/(\d+) tokens \/ image/, "$1 Tokens / 图像"],
@@ -1990,14 +1993,22 @@
     ["Use custom instructions (advanced)", "使用自定义指令（高级）"],
     ["Never mind, I’ll add an example", "我不介意，我会添加一个示例"],
     ["Describe the main purpose and goal of this writing style — whether to teach, analyze, persuade, inspire, etc.", "描述此写作风格的主要目的和目标 —— 是教学、分析、说服、激励等。"],
-    ["Try something like: \nI want to teach complex topics step-by-step, with a focus on building understanding.", "尝试这样的方法：\n我想一步一步地教授复杂的主题，重点是建立理解。"],
+    [`Try something like: 
+I want to teach complex topics step-by-step, with a focus on building understanding.`, `尝试这样的方法：
+我想一步一步地教授复杂的主题，重点是建立理解。`],
     ["Generate style", "生成样式"],
     ["Describe details of the target audience you’d like Claude to write for including relevant information, needs, or preferences.", "描述您希望 Claude 为其编写的受众的详细信息，包括相关信息、需求或偏好。"],
-    ["Try something like: \nWrite for marketing professionals. They’re tech-savvy and appreciate a dash of humor with their data.", "尝试这样的方法：\n我想为营销专业人员编写。他们技术 savvy，喜欢在数据中添加一些幽默。"],
+    [`Try something like: 
+Write for marketing professionals. They’re tech-savvy and appreciate a dash of humor with their data.`, `尝试这样的方法：
+我想为营销专业人员编写。他们技术 savvy，喜欢在数据中添加一些幽默。`],
     ["Think about characteristics like formality, emotion, personality, and how you want the written responses to feel.", "考虑写作风格的特征，如正式性、情感、人物特征，以及您希望回答的内容如何感觉。"],
-    ["Try something like: \nWrite in a warm, approachable tone with light professional humor - like a friendly mentor.", "尝试这样的方法：\n我想以一种温暖、平易近人的方式编写，同时添加一些专业的幽默 - 就像一个友好的导师。"],
+    [`Try something like: 
+Write in a warm, approachable tone with light professional humor - like a friendly mentor.`, `尝试这样的方法：
+我想以一种温暖、平易近人的方式编写，同时添加一些专业的幽默 - 就像一个友好的导师。`],
     ["Describe in detail how you would like Claude to write. Be as specific as you can.", "详细描述您希望 Claude 如何编写。请尽可能具体。"],
-    ["Try something like: \nWrite like an excited scientist explaining fascinating discoveries - technical but energetic.", "尝试这样的方法：\n我想以一种兴奋的科学家的方式编写，解释着有趣的发现 - 技术上但充满活力。"],
+    [`Try something like: 
+Write like an excited scientist explaining fascinating discoveries - technical but energetic.`, `尝试这样的方法：
+我想以一种兴奋的科学家的方式编写，解释着有趣的发现 - 技术上但充满活力。`],
     ["More description needed in order to generate style", "需要更多描述才能生成样式"],
     ["Upload from device", "从设备上传"],
     ["Paste text content", "粘贴文本内容"],
@@ -2488,6 +2499,10 @@
     ["Allow users to send feedback on model response to Anthropic. Reports include the full prompt, response, and feedback for future improvements to our models.", "允许用户向 Anthropic 发送有关模型响应的反馈。报告包括完整的提示、响应和反馈，用于未来改进我们的模型。"],
     ["Join our Development Partner Program to help improve Claude", "加入我们的开发合作伙伴计划以帮助改进 Claude"],
     ["New", "新"],
+    ["Join", "加入"],
+    ["Join", "加入"],
+    ["Join", "加入"],
+    ["Join", "加入"],
     ["Join", "加入"],
     ["You can be an active partner in Claude’s development by voluntarily sharing your organization’s Claude Code sessions with Anthropic to improve our services, including model training.", "您可以通过自愿与 Anthropic 分享您组织的 Claude Code 会话，成为 Claude 开发的积极合作伙伴，以改进我们的服务，包括模型训练。"],
     ["By joining this program, you agree to our", "加入此计划，即表示您同意我们的"],
@@ -3467,27 +3482,22 @@
   };
 
   // src/modules/utils/logger.js
-  var LOG_KEY = "web_translate_debug_mode";
-  var isDebugMode = GM_getValue(LOG_KEY, false);
+  var LOG_KEY = "web_translate_debug_mode", isDebugMode = GM_getValue(LOG_KEY, !1);
   function updateDebugState(newMode) {
     isDebugMode = newMode;
   }
   function log(...args) {
-    if (isDebugMode) {
-      console.log("[汉化脚本]", ...args);
-    }
+    isDebugMode && console.log("[汉化脚本]", ...args);
   }
 
   // src/modules/ui/menu.js
   var MENU_COMMAND_ID = "toggle_debug_log_command";
   function toggleDebugMode() {
-    const newMode = !isDebugMode;
-    GM_setValue(LOG_KEY, newMode);
-    updateDebugState(newMode);
-    updateMenuCommand();
+    let newMode = !isDebugMode;
+    GM_setValue(LOG_KEY, newMode), updateDebugState(newMode), updateMenuCommand();
   }
   function updateMenuCommand() {
-    const status = isDebugMode ? "开启" : "关闭";
+    let status = isDebugMode ? "开启" : "关闭";
     GM_registerMenuCommand(
       `切换调试日志 (当前: ${status})`,
       toggleDebugMode,
@@ -3502,9 +3512,8 @@
   var STYLE_ID = "anti-flicker-style";
   function injectAntiFlickerStyle() {
     document.documentElement.classList.add("translation-in-progress");
-    const antiFlickerStyle = document.createElement("style");
-    antiFlickerStyle.id = STYLE_ID;
-    antiFlickerStyle.textContent = `
+    let antiFlickerStyle = document.createElement("style");
+    antiFlickerStyle.id = STYLE_ID, antiFlickerStyle.textContent = `
         /* 在翻译进行中时，隐藏body，但保持加载指示器可见 */
         html.translation-in-progress body {
             visibility: hidden !important;
@@ -3526,158 +3535,110 @@
             opacity: 1 !important;
         }
     `;
-    const head = document.head || document.getElementsByTagName("head")[0] || document.documentElement;
+    let head = document.head || document.getElementsByTagName("head")[0] || document.documentElement;
     head.insertBefore(antiFlickerStyle, head.firstChild);
   }
   function removeAntiFlickerStyle() {
-    document.documentElement.classList.remove("translation-in-progress");
-    document.documentElement.classList.add("translation-complete");
-    setTimeout(() => {
+    document.documentElement.classList.remove("translation-in-progress"), document.documentElement.classList.add("translation-complete"), setTimeout(() => {
       document.getElementById(STYLE_ID)?.remove();
     }, 500);
   }
 
   // src/config.js
-  var BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(["script", "style", "pre", "code"]);
-  var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set(["textarea", "input"]);
-  var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
-  var attributesToTranslate = ["placeholder", "title", "aria-label", "alt", "mattooltip"];
+  var BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(["script", "style", "pre", "code"]), BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set(["textarea", "input"]), ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]), attributesToTranslate = ["placeholder", "title", "aria-label", "alt", "mattooltip"];
 
   // src/modules/core/translator.js
-  var textTranslationMap;
-  var regexRules;
-  var translationCache;
-  var translatedElements;
+  var textTranslationMap, regexRules, translationCache, translatedElements;
   function translateText(text) {
-    if (!text || typeof text !== "string") return text;
-    const originalText = text;
-    if (translationCache.has(originalText)) {
+    if (!text || typeof text != "string") return text;
+    let originalText = text;
+    if (translationCache.has(originalText))
       return translationCache.get(originalText);
-    }
-    const trimmedText = text.trim();
+    let trimmedText = text.trim();
     if (trimmedText === "") return text;
-    let translatedText = text;
-    let hasChanged = false;
-    const mapTranslation = textTranslationMap.get(trimmedText);
+    let translatedText = text, hasChanged = !1, mapTranslation = textTranslationMap.get(trimmedText);
     if (mapTranslation) {
-      const leadingSpace = originalText.match(/^\s*/)[0] || "";
-      const trailingSpace = originalText.match(/\s*$/)[0] || "";
-      translatedText = leadingSpace + mapTranslation + trailingSpace;
-      hasChanged = true;
-    } else {
-      for (const [match, replacement] of regexRules) {
-        const newText = translatedText.replace(match, replacement);
-        if (newText !== translatedText) {
-          translatedText = newText;
-          hasChanged = true;
-        }
+      let leadingSpace = originalText.match(/^\s*/)[0] || "", trailingSpace = originalText.match(/\s*$/)[0] || "";
+      translatedText = leadingSpace + mapTranslation + trailingSpace, hasChanged = !0;
+    } else
+      for (let [match, replacement] of regexRules) {
+        let newText = translatedText.replace(match, replacement);
+        newText !== translatedText && (translatedText = newText, hasChanged = !0);
       }
-    }
-    if (hasChanged) {
-      translationCache.set(originalText, translatedText);
-    }
-    return translatedText;
+    return hasChanged && translationCache.set(originalText, translatedText), translatedText;
   }
   function translateElementContent(element) {
-    const tagName = element.tagName?.toLowerCase();
-    if (!element || ALL_UNTRANSLATABLE_TAGS.has(tagName) || element.isContentEditable) {
-      return false;
-    }
-    if (element.querySelector(Array.from(ALL_UNTRANSLATABLE_TAGS).join(","))) {
-      return false;
-    }
-    const fullText = element.textContent?.trim();
-    if (!fullText) return false;
-    const translation = textTranslationMap.get(fullText);
-    if (!translation) return false;
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+    let tagName = element.tagName?.toLowerCase();
+    if (!element || ALL_UNTRANSLATABLE_TAGS.has(tagName) || element.isContentEditable || element.querySelector(Array.from(ALL_UNTRANSLATABLE_TAGS).join(",")))
+      return !1;
+    let fullText = element.textContent?.trim();
+    if (!fullText) return !1;
+    let translation = textTranslationMap.get(fullText);
+    if (!translation) return !1;
+    let walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
       acceptNode: (node) => node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
-    });
-    const textNodes = [];
-    while (walker.nextNode()) textNodes.push(walker.currentNode);
-    if (textNodes.length === 0) return false;
+    }), textNodes = [];
+    for (; walker.nextNode(); ) textNodes.push(walker.currentNode);
+    if (textNodes.length === 0) return !1;
     textNodes[0].nodeValue = translation;
-    for (let i = 1; i < textNodes.length; i++) {
+    for (let i = 1; i < textNodes.length; i++)
       textNodes[i].nodeValue = "";
-    }
-    log("整段翻译:", `"${fullText}"`, "->", `"${translation}"`);
-    return true;
+    return log("整段翻译:", `"${fullText}"`, "->", `"${translation}"`), !0;
   }
   function translateElement(element) {
     if (!element || translatedElements.has(element) || !(element instanceof Element)) return;
-    const tagName = element.tagName.toLowerCase();
+    let tagName = element.tagName.toLowerCase();
     if (BLOCKS_ALL_TRANSLATION.has(tagName) || element.isContentEditable) {
       translatedElements.add(element);
       return;
     }
-    const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
-    if (!isContentBlocked) {
+    if (!BLOCKS_CONTENT_ONLY.has(tagName)) {
       if (translateElementContent(element)) {
         translatedElements.add(element);
         return;
       }
-      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+      let walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
         acceptNode: function(node) {
           if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
           let parent = node.parentElement;
-          while (parent) {
-            if (ALL_UNTRANSLATABLE_TAGS.has(parent.tagName.toLowerCase()) || parent.isContentEditable) {
+          for (; parent; ) {
+            if (ALL_UNTRANSLATABLE_TAGS.has(parent.tagName.toLowerCase()) || parent.isContentEditable)
               return NodeFilter.FILTER_REJECT;
-            }
             if (parent === element) break;
             parent = parent.parentElement;
           }
           return NodeFilter.FILTER_ACCEPT;
         }
-      });
-      const nodesToTranslate = [];
-      while (walker.nextNode()) nodesToTranslate.push(walker.currentNode);
+      }), nodesToTranslate = [];
+      for (; walker.nextNode(); ) nodesToTranslate.push(walker.currentNode);
       nodesToTranslate.forEach((textNode) => {
-        const originalText = textNode.nodeValue;
-        const translatedText = translateText(originalText);
-        if (originalText !== translatedText) {
-          textNode.nodeValue = translatedText;
-        }
+        let originalText = textNode.nodeValue, translatedText = translateText(originalText);
+        originalText !== translatedText && (textNode.nodeValue = translatedText);
       });
     }
-    const elementsWithAttributes = element.matches(`[${attributesToTranslate.join("], [")}]`) ? [element, ...element.querySelectorAll(`[${attributesToTranslate.join("], [")}]`)] : [...element.querySelectorAll(`[${attributesToTranslate.join("], [")}]`)];
-    elementsWithAttributes.forEach((el) => {
-      let current = el;
-      let isBlockedByContainer = false;
-      while (current && current !== element.parentElement) {
+    (element.matches(`[${attributesToTranslate.join("], [")}]`) ? [element, ...element.querySelectorAll(`[${attributesToTranslate.join("], [")}]`)] : [...element.querySelectorAll(`[${attributesToTranslate.join("], [")}]`)]).forEach((el) => {
+      let current = el, isBlockedByContainer = !1;
+      for (; current && current !== element.parentElement; ) {
         if (BLOCKS_ALL_TRANSLATION.has(current.tagName.toLowerCase())) {
-          isBlockedByContainer = true;
+          isBlockedByContainer = !0;
           break;
         }
         if (current === element) break;
         current = current.parentElement;
       }
-      if (isBlockedByContainer) return;
-      attributesToTranslate.forEach((attr) => {
+      isBlockedByContainer || attributesToTranslate.forEach((attr) => {
         if (el.hasAttribute(attr)) {
-          const originalValue = el.getAttribute(attr);
-          const translatedValue = translateText(originalValue);
-          if (originalValue !== translatedValue) {
-            el.setAttribute(attr, translatedValue);
-          }
+          let originalValue = el.getAttribute(attr), translatedValue = translateText(originalValue);
+          originalValue !== translatedValue && el.setAttribute(attr, translatedValue);
         }
       });
-    });
-    if (element.shadowRoot) {
-      translateElement(element.shadowRoot);
-    }
-    translatedElements.add(element);
+    }), element.shadowRoot && translateElement(element.shadowRoot), translatedElements.add(element);
   }
   function createTranslator(textMap, regexArr) {
-    textTranslationMap = textMap;
-    regexRules = regexArr;
-    translationCache = /* @__PURE__ */ new Map();
-    translatedElements = /* @__PURE__ */ new WeakSet();
-    return {
+    return textTranslationMap = textMap, regexRules = regexArr, translationCache = /* @__PURE__ */ new Map(), translatedElements = /* @__PURE__ */ new WeakSet(), {
       translate: translateElement,
       resetState: () => {
-        translationCache.clear();
-        translatedElements = /* @__PURE__ */ new WeakSet();
+        translationCache.clear(), translatedElements = /* @__PURE__ */ new WeakSet();
       },
       // 允许 observer 删除单个元素的翻译记录
       deleteElement: (element) => {
@@ -3688,187 +3649,107 @@
 
   // src/modules/core/observers.js
   function initializeObservers(translator) {
-    let translationTimer;
-    let pendingNodes = /* @__PURE__ */ new Set();
-    let lastModelInfo = "";
+    let translationTimer, pendingNodes = /* @__PURE__ */ new Set(), lastModelInfo = "";
     function detectModelChange() {
-      const modelElements = document.querySelectorAll('.model-name, .model-info, [class*="model"]');
-      const currentModelInfo = Array.from(modelElements).map((el) => el.textContent?.trim()).join("|");
-      if (currentModelInfo && currentModelInfo !== lastModelInfo) {
-        lastModelInfo = currentModelInfo;
-        log("检测到模型切换:", currentModelInfo);
-        translator.resetState();
-        setTimeout(() => {
-          if (document.body) {
-            translator.translate(document.body);
-          }
-        }, 100);
-        return true;
-      }
-      return false;
+      let modelElements = document.querySelectorAll('.model-name, .model-info, [class*="model"]'), currentModelInfo = Array.from(modelElements).map((el) => el.textContent?.trim()).join("|");
+      return currentModelInfo && currentModelInfo !== lastModelInfo ? (lastModelInfo = currentModelInfo, log("检测到模型切换:", currentModelInfo), translator.resetState(), setTimeout(() => {
+        document.body && translator.translate(document.body);
+      }, 100), !0) : !1;
     }
     function scheduleTranslation() {
-      clearTimeout(translationTimer);
-      translationTimer = setTimeout(() => {
-        const hasModelChange = detectModelChange();
+      clearTimeout(translationTimer), translationTimer = setTimeout(() => {
+        let hasModelChange = detectModelChange();
         if (pendingNodes.size > 0) {
-          const nodesToProcess = Array.from(pendingNodes);
-          pendingNodes.clear();
-          nodesToProcess.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              translator.translate(node);
-            } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
-              translator.translate(node.parentElement);
-            }
+          let nodesToProcess = Array.from(pendingNodes);
+          pendingNodes.clear(), nodesToProcess.forEach((node) => {
+            node.nodeType === Node.ELEMENT_NODE ? translator.translate(node) : node.nodeType === Node.TEXT_NODE && node.parentElement && translator.translate(node.parentElement);
           });
         }
-        if (hasModelChange && pendingNodes.size === 0) {
-          if (document.body) {
-            translator.translate(document.body);
-          }
-        }
+        hasModelChange && pendingNodes.size === 0 && document.body && translator.translate(document.body);
       }, 0);
     }
-    const mainObserver = new MutationObserver((mutations) => {
-      const dirtyRoots = /* @__PURE__ */ new Set();
-      for (const mutation of mutations) {
+    let mainObserver = new MutationObserver((mutations) => {
+      let dirtyRoots = /* @__PURE__ */ new Set();
+      for (let mutation of mutations) {
         let target = null;
-        if (mutation.type === "childList" || mutation.type === "attributes") {
-          target = mutation.target;
-        } else if (mutation.type === "characterData") {
-          target = mutation.target.parentElement;
-        }
-        if (target instanceof Element) dirtyRoots.add(target);
+        mutation.type === "childList" || mutation.type === "attributes" ? target = mutation.target : mutation.type === "characterData" && (target = mutation.target.parentElement), target instanceof Element && dirtyRoots.add(target);
       }
       if (dirtyRoots.size > 0) {
-        for (const root of dirtyRoots) {
+        for (let root of dirtyRoots) {
           translator.deleteElement(root);
-          const descendants = root.getElementsByTagName("*");
-          for (let i = 0; i < descendants.length; i++) {
+          let descendants = root.getElementsByTagName("*");
+          for (let i = 0; i < descendants.length; i++)
             translator.deleteElement(descendants[i]);
-          }
           pendingNodes.add(root);
         }
         scheduleTranslation();
       }
-    });
-    let currentUrl = window.location.href;
-    const pageObserver = new MutationObserver(() => {
-      if (window.location.href !== currentUrl) {
-        currentUrl = window.location.href;
-        log("检测到页面导航，将重新翻译:", currentUrl);
-        translator.resetState();
-        lastModelInfo = "";
-        setTimeout(() => {
-          log("开始重新翻译新页面内容...");
-          if (document.body) translator.translate(document.body);
-        }, 300);
-      }
-    });
-    const modelChangeObserver = new MutationObserver((mutations) => {
-      let shouldCheckModel = false;
+    }), currentUrl = window.location.href, pageObserver = new MutationObserver(() => {
+      window.location.href !== currentUrl && (currentUrl = window.location.href, log("检测到页面导航，将重新翻译:", currentUrl), translator.resetState(), lastModelInfo = "", setTimeout(() => {
+        log("开始重新翻译新页面内容..."), document.body && translator.translate(document.body);
+      }, 300));
+    }), modelChangeObserver = new MutationObserver((mutations) => {
+      let shouldCheckModel = !1;
       mutations.forEach((mutation) => {
-        if (mutation.type === "childList") {
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              const element = node;
-              if (element.classList?.contains("mat-mdc-dialog-component-host") || element.querySelector?.(".model-name, .model-info") || element.classList?.contains("model-name") || element.classList?.contains("model-info")) {
-                shouldCheckModel = true;
-              }
-            }
-          });
-        }
-        if (mutation.type === "characterData") {
-          const parent = mutation.target.parentElement;
-          if (parent?.classList?.contains("model-name") || parent?.classList?.contains("model-info") || parent?.querySelector?.(".model-name, .model-info")) {
-            shouldCheckModel = true;
+        if (mutation.type === "childList" && mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            let element = node;
+            (element.classList?.contains("mat-mdc-dialog-component-host") || element.querySelector?.(".model-name, .model-info") || element.classList?.contains("model-name") || element.classList?.contains("model-info")) && (shouldCheckModel = !0);
           }
+        }), mutation.type === "characterData") {
+          let parent = mutation.target.parentElement;
+          (parent?.classList?.contains("model-name") || parent?.classList?.contains("model-info") || parent?.querySelector?.(".model-name, .model-info")) && (shouldCheckModel = !0);
         }
-      });
-      if (shouldCheckModel) {
-        setTimeout(() => detectModelChange(), 50);
-      }
+      }), shouldCheckModel && setTimeout(() => detectModelChange(), 50);
     });
     mainObserver.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
+      childList: !0,
+      subtree: !0,
+      attributes: !0,
       attributeFilter: ["placeholder", "title", "aria-label", "alt", "mattooltip"],
-      characterData: true
-    });
-    pageObserver.observe(document.body, { childList: true, subtree: true });
-    modelChangeObserver.observe(document.body, {
-      childList: true,
-      subtree: true,
-      characterData: true
-    });
-    window.forceRetranslate = function() {
-      log("强制重新翻译已触发。");
-      translator.resetState();
-      lastModelInfo = "";
-      if (document.body) {
-        translator.translate(document.body);
-      }
-    };
-    log("监听器初始化完成。");
+      characterData: !0
+    }), pageObserver.observe(document.body, { childList: !0, subtree: !0 }), modelChangeObserver.observe(document.body, {
+      childList: !0,
+      subtree: !0,
+      characterData: !0
+    }), window.forceRetranslate = function() {
+      log("强制重新翻译已触发。"), translator.resetState(), lastModelInfo = "", document.body && translator.translate(document.body);
+    }, log("监听器初始化完成。");
   }
 
   // src/main.js
   (function(translations) {
     "use strict";
     injectAntiFlickerStyle();
-    const siteDictionary = translations[window.location.hostname];
+    let siteDictionary = translations[window.location.hostname];
     if (!siteDictionary) {
       removeAntiFlickerStyle();
       return;
     }
-    const regexRules2 = [];
-    const textTranslationMap2 = /* @__PURE__ */ new Map();
-    const cssRules = [];
-    for (const item of siteDictionary) {
+    let regexRules2 = [], textTranslationMap2 = /* @__PURE__ */ new Map(), cssRules = [];
+    for (let item of siteDictionary) {
       if (!Array.isArray(item) || item.length !== 2) continue;
-      const [original, translation] = item;
+      let [original, translation] = item;
       if (original === "css") {
         cssRules.push(translation);
         continue;
       }
-      if (original instanceof RegExp) {
-        regexRules2.push(item);
-      } else if (typeof original === "string" && typeof translation === "string") {
-        textTranslationMap2.set(original.trim(), translation);
-      }
+      original instanceof RegExp ? regexRules2.push(item) : typeof original == "string" && typeof translation == "string" && textTranslationMap2.set(original.trim(), translation);
     }
     if (cssRules.length > 0) {
-      const customStyleElement = document.createElement("style");
-      customStyleElement.id = "web-translate-custom-styles";
-      customStyleElement.textContent = cssRules.join("\n");
-      const head = document.head || document.getElementsByTagName("head")[0] || document.documentElement;
-      head.appendChild(customStyleElement);
+      let customStyleElement = document.createElement("style");
+      customStyleElement.id = "web-translate-custom-styles", customStyleElement.textContent = cssRules.join(`
+`), (document.head || document.getElementsByTagName("head")[0] || document.documentElement).appendChild(customStyleElement);
     }
-    const translator = createTranslator(textTranslationMap2, regexRules2);
+    let translator = createTranslator(textTranslationMap2, regexRules2);
     function initializeTranslation() {
-      translator.translate(document.body);
-      log("初次翻译完成。");
-      removeAntiFlickerStyle();
-      initializeObservers(translator);
+      translator.translate(document.body), log("初次翻译完成。"), removeAntiFlickerStyle(), initializeObservers(translator);
     }
     function startTranslation() {
-      if (document.body) {
-        initializeTranslation();
-      } else {
-        new MutationObserver((_mutations, obs) => {
-          if (document.body) {
-            obs.disconnect();
-            initializeTranslation();
-          }
-        }).observe(document.documentElement, { childList: true });
-      }
+      document.body ? initializeTranslation() : new MutationObserver((_mutations, obs) => {
+        document.body && (obs.disconnect(), initializeTranslation());
+      }).observe(document.documentElement, { childList: !0 });
     }
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", startTranslation);
-    } else {
-      startTranslation();
-    }
-    initializeMenu();
+    document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", startTranslation) : startTranslation(), initializeMenu();
   })(masterTranslationMap);
 })();
