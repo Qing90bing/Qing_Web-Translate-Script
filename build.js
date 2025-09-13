@@ -248,15 +248,15 @@ async function main() {
       {
         type: 'list',
         name: 'action',
-        message: '您想做什么？',
+        message: ' 您想做什么？',
         prefix: '⚙️',
         choices: [
-          { name: '1. 仅检查“空翻译”问题', value: 'checkEmpty' },
-          { name: '2. 仅检查“重复原文”问题', value: 'checkDuplicates' },
+          { name: '1. 🔧 仅检查“空翻译”问题', value: 'checkEmpty' },
+          { name: '2. 🔧 仅检查“重复原文”问题', value: 'checkDuplicates' },
           new inquirer.Separator(),
-          { name: '3. 完整构建项目', value: 'fullBuild' },
+          { name: '3. 👟 完整构建项目', value: 'fullBuild' },
           new inquirer.Separator(),
-          { name: '4. 退出', value: 'exit' },
+          { name: '4. 🚪 退出', value: 'exit' },
         ],
       },
     ]);
