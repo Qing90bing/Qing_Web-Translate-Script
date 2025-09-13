@@ -20,9 +20,12 @@ import { getLiteralValue } from './validator.js';
 /**
  * 当发现校验错误时，提示用户决定下一步操作。
  * @param {ValidationError[]} errors - 从校验器返回的错误对象数组。
+ * @param {object} options - 提示选项。
+ * @param {boolean} [options.isFullBuild=false] - 当前是否在完整构建流程中。
  * @returns {Promise<'auto-fix' | 'manual-fix' | 'ignore' | 'cancel'>} 返回用户选择的操作标识符。
  */
-export async function promptUserAboutErrors(errors) {
+export async function promptUserAboutErrors(errors, options = {}) {
+  const { isFullBuild = false } = options;
   const duplicateErrorCount = errors.filter(e => e.type === 'multi-duplicate').length;
   const emptyTranslationCount = errors.filter(e => e.type === 'empty-translation').length;
   const manualFixErrorCount = duplicateErrorCount + emptyTranslationCount;
@@ -34,15 +37,31 @@ export async function promptUserAboutErrors(errors) {
       value: 'auto-fix',
     });
   }
+
   if (manualFixErrorCount > 0) {
+    const verb = manualFixErrorCount > 1 ? '逐个处理' : '处理';
+    let manualFixText = `🔧 (手动) ${verb} `;
+    
+    if (duplicateErrorCount > 0 && emptyTranslationCount > 0) {
+      manualFixText += `${manualFixErrorCount} 个“重复原文”或“空翻译”问题`;
+    } else if (duplicateErrorCount > 0) {
+      manualFixText += `${manualFixErrorCount} 组“重复原文”问题`;
+    } else {
+      manualFixText += `${manualFixErrorCount} 个“空翻译”问题`;
+    }
+
     choices.push({
-      name: `🔧 (手动) 逐个处理 ${manualFixErrorCount} 个“重复原文”或“空翻译”问题`,
+      name: manualFixText,
       value: 'manual-fix',
     });
   }
+
+  const ignoreText = isFullBuild ? '⚠️  (忽略) 忽略所有错误并继续构建' : '⚠️  (忽略) 忽略当前问题';
+  const cancelText = isFullBuild ? '❌ (取消) 取消构建' : '❌ (取消) 返回主菜单';
+
   choices.push(
-    { name: '⚠️  (忽略) 忽略所有错误并继续构建', value: 'ignore' },
-    { name: '❌ (取消) 取消构建', value: 'cancel' }
+    { name: ignoreText, value: 'ignore' },
+    { name: cancelText, value: 'cancel' }
   );
 
   console.log('\n----------------------------------------');

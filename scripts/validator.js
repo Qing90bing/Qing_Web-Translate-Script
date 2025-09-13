@@ -58,9 +58,12 @@ export function getLiteralValue(node) {
  * 校验单个翻译文件的内容。
  * @param {string} file - 翻译文件的路径。
  * @param {string} content - 文件的文本内容。
+ * @param {object} options - 校验选项。
+ * @param {boolean} options.checkEmpty - 是否检查空翻译。
+ * @param {boolean} options.checkDuplicates - 是否检查重复原文。
  * @returns {ValidationError[]} 返回在该文件中找到的错误对象数组。
  */
-function validateFileContent(file, content) {
+function validateFileContent(file, content, options) {
   const errors = [];
   let ast;
 
@@ -70,6 +73,7 @@ function validateFileContent(file, content) {
       ecmaVersion: 'latest', // 支持最新的ECMAScript标准
       sourceType: 'module', // 支持ES模块语法
       locations: true, // 包含节点的位置信息（行号/列号）
+      ranges: true, // 包含节点的字符索引范围
     });
   } catch (e) {
     // 捕获acorn解析阶段的语法错误
@@ -132,51 +136,51 @@ function validateFileContent(file, content) {
     const originalNode = elementNode.elements[0];
     const translationNode = elementNode.elements[1];
 
-    // 规则 2: 空翻译检查
-    const translationValue = getLiteralValue(translationNode);
-    if (translationValue === '') {
-      errors.push({
-        file,
-        line,
-        lineContent,
-        message: '译文不能为空字符串。',
-        type: 'empty-translation',
-        node: elementNode,
-      });
-      // 即使译文为空，也应继续进行重复性检查，所以这里不 `continue`
+    // 规则 2: 空翻译检查 (如果启用)
+    if (options.checkEmpty) {
+        const translationValue = getLiteralValue(translationNode);
+        if (translationValue === '') {
+          errors.push({
+            file,
+            line,
+            lineContent,
+            message: '译文不能为空字符串。',
+            type: 'empty-translation',
+            node: elementNode,
+          });
+        }
     }
     
-    // 规则 3: 唯一性检查
-    const originalValue = getLiteralValue(originalNode);
-
-    // 如果原文不是一个简单的字符串（例如，是正则表达式或变量），则跳过重复检查。
-    if (originalValue === null) {
-        continue;
+    // 规则 3: 唯一性检查 (如果启用)
+    if (options.checkDuplicates) {
+        const originalValue = getLiteralValue(originalNode);
+        if (originalValue !== null) {
+            if (!seenOriginals.has(originalValue)) {
+                seenOriginals.set(originalValue, []);
+            }
+            seenOriginals.get(originalValue).push({
+                line,
+                lineContent,
+                node: elementNode
+            });
+        }
     }
-
-    // 记录每次出现的原文
-    if (!seenOriginals.has(originalValue)) {
-      seenOriginals.set(originalValue, []);
-    }
-    seenOriginals.get(originalValue).push({
-      line,
-      lineContent,
-      node: elementNode
-    });
   }
   
-  // 在检查完所有条目后，统一处理重复项
-  for (const [originalValue, occurrences] of seenOriginals.entries()) {
-    if (occurrences.length > 1) {
-      errors.push({
-        file,
-        line: occurrences[0].line, // 对于聚合错误，行号指向第一次出现的位置
-        lineContent: '', // 聚合错误不需要单行的内容
-        message: `原文 "${originalValue}" 被多次定义。`,
-        type: 'multi-duplicate',
-        occurrences: occurrences, // 包含所有出现信息的数组
-        node: occurrences[0].node, // 引用第一个出现的节点
-      });
+  // 在检查完所有条目后，统一处理重复项 (如果启用)
+  if (options.checkDuplicates) {
+    for (const [originalValue, occurrences] of seenOriginals.entries()) {
+        if (occurrences.length > 1) {
+          errors.push({
+            file,
+            line: occurrences[0].line,
+            lineContent: '',
+            message: `原文 "${originalValue}" 被多次定义。`,
+            type: 'multi-duplicate',
+            occurrences: occurrences,
+            node: occurrences[0].node,
+          });
+        }
     }
   }
 
@@ -185,17 +189,21 @@ function validateFileContent(file, content) {
 
 
 /**
- * 校验所有翻译文件的结构和重复条目。
+ * 校验所有翻译文件。
+ * @param {object} options - 校验选项。
+ * @param {boolean} [options.checkEmpty=true] - 是否检查空翻译。
+ * @param {boolean} [options.checkDuplicates=true] - 是否检查重复原文。
  * @returns {Promise<ValidationError[]>} 返回一个包含所有文件中所有错误的数组。
  */
-export async function validateTranslationFiles() {
+export async function validateTranslationFiles(options = {}) {
+  const { checkEmpty = true, checkDuplicates = true } = options;
   const files = await findTranslationFiles();
   let allErrors = [];
 
   for (const file of files) {
     try {
         const content = await fs.readFile(file, 'utf-8');
-        const errorsInFile = validateFileContent(file, content);
+        const errorsInFile = validateFileContent(file, content, { checkEmpty, checkDuplicates });
         if (errorsInFile.length > 0) {
             console.log(`\n❌ 文件: ${path.basename(file)} (发现 ${errorsInFile.length} 个问题)`);
             console.log('--------------------------------------------------');

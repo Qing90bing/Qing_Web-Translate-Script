@@ -710,6 +710,7 @@
     [' if you have anything specific in mind. ', '，如果您有任何具体的想法。'],
     ['Ask questions about key details in a video', '就视频中的关键细节提问'],
     ['Dynamic text game using Gemini', '使用 Gemini 打造的动态文字冒险游戏'],
+    ['Unavailable', '暂不可用'],
     ['Example chat app built with Gemini', '使用 Gemini 构建的聊天应用示例'],
     ['The output resolution of the generated media', '生成媒体的输出分辨率'],
     ['Ground responses with Google Search.', '基于 Google 搜索结果生成回复'],

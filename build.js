@@ -30,6 +30,7 @@ import esbuild from 'esbuild';
 import fs from 'fs/promises';
 import path from 'path';
 import prettier from 'prettier';
+import inquirer from 'inquirer';
 import { validateTranslationFiles } from './scripts/validator.js';
 import { 
   promptUserAboutErrors, 
@@ -43,35 +44,104 @@ import {
   applyEmptyTranslationFixes
 } from './scripts/fixer.js';
 
+/**
+ * 暂停执行，等待用户按下任意键继续。
+ */
+async function pressAnyKeyToContinue() {
+  console.log('\n');
+  await inquirer.prompt({
+    type: 'input',
+    name: 'key',
+    message: '✅ 操作完成。按回车键返回主菜单...',
+  });
+}
 
 /**
- * 主构建函数，封装了整个构建流程。
+ * 处理特定的校验和修复流程。
+ * @param {object} options - 校验选项。
+ * @param {boolean} [options.checkEmpty=false] - 是否检查空翻译。
+ * @param {boolean} [options.checkDuplicates=false] - 是否检查重复原文。
  */
-async function build() {
+async function handleCheck(options) {
+  console.log('🔍 开始校验翻译文件...');
+  const errors = await validateTranslationFiles(options);
+
+  if (errors.length === 0) {
+    console.log('\n✅ 未发现相关问题。');
+    return;
+  }
+
+  const userAction = await promptUserAboutErrors(errors, { isFullBuild: false });
+
+  switch (userAction) {
+    case 'auto-fix':
+      await fixDuplicatesAutomatically(errors);
+      console.log('\n✅ 自动修复完成。建议您重新运行检查。');
+      break;
+    
+    case 'manual-fix':
+      if (options.checkDuplicates) {
+        const duplicateErrors = errors.filter(e => e.type === 'multi-duplicate');
+        if (duplicateErrors.length > 0) {
+          const decisions = await promptForManualFix(duplicateErrors);
+          if (decisions) {
+            await applyManualFixes(decisions);
+            console.log('\n✅ “重复原文”问题已修复。');
+          }
+        }
+      }
+      if (options.checkEmpty) {
+        // 在修复了重复项之后，文件可能已更改，因此我们需要重新校验以获取最新的“空翻译”错误及其位置
+        console.log('\n🔄 重新校验“空翻译”问题...');
+        const emptyErrors = await validateTranslationFiles({ checkEmpty: true, checkDuplicates: false });
+        if (emptyErrors.length > 0) {
+           console.log(`\n发现 ${emptyErrors.length} 个“空翻译”问题，现在开始处理...`);
+          const decisions = await promptForEmptyTranslationFix(emptyErrors);
+          await applyEmptyTranslationFixes(decisions);
+        } else {
+            console.log('\n✅ 未发现“空翻译”问题。');
+        }
+      }
+      console.log('\n✅ 手动修复流程完成。');
+      break;
+
+    case 'ignore':
+      console.log('\n⚠️  问题已忽略，未进行任何修复操作。');
+      break;
+    case 'cancel':
+      console.log('\n🛑 操作已取消。');
+      break;
+  }
+}
+
+/**
+ * 运行完整的构建流程，包括校验、修复、打包和输出。
+ */
+async function runFullBuild() {
   try {
     // --- 步骤 1: 执行翻译文件校验 ---
-    console.log('🔍 开始校验翻译文件...');
-    const validationErrors = await validateTranslationFiles();
+    console.log('🔍 开始执行完整构建流程...');
+    console.log('--- (阶段 1/3) 校验文件 ---');
+    const validationErrors = await validateTranslationFiles({ checkEmpty: true, checkDuplicates: true });
 
     // --- 步骤 2: 如果发现错误，则进入交互式处理流程 ---
     if (validationErrors.length > 0) {
-      const userAction = await promptUserAboutErrors(validationErrors);
+      const userAction = await promptUserAboutErrors(validationErrors, { isFullBuild: true });
       const duplicateErrors = validationErrors.filter(e => e.type === 'multi-duplicate');
       const emptyTranslationErrors = validationErrors.filter(e => e.type === 'empty-translation');
 
+      let shouldContinue = false;
       switch (userAction) {
         case 'auto-fix':
-          if(duplicateErrors.length > 0) {
+          if (duplicateErrors.length > 0) {
             await fixDuplicatesAutomatically(duplicateErrors);
-            console.log('\n✅ 自动修复完成。建议您重新运行构建脚本，以确保所有问题都已解决。');
+            console.log('\n✅ 自动修复完成。建议您退出并重新运行构建脚本以确保所有问题已解决。');
           } else {
             console.log('\n🤷 没有可自动修复的问题。');
           }
           process.exit(0);
-          break;
-        
+
         case 'manual-fix':
-          let needsRebuild = false;
           if (duplicateErrors.length > 0) {
             const decisions = await promptForManualFix(duplicateErrors);
             if (decisions === null) {
@@ -79,29 +149,33 @@ async function build() {
               process.exit(0);
             }
             await applyManualFixes(decisions);
-            needsRebuild = true;
+            console.log('\n✅ “重复原文”问题已修复。');
           }
           if (emptyTranslationErrors.length > 0) {
-            const decisions = await promptForEmptyTranslationFix(emptyTranslationErrors);
-            await applyEmptyTranslationFixes(decisions);
-            needsRebuild = true;
+            // Re-validate to get fresh locations for empty translation errors
+            console.log('\n🔄 重新校验“空翻译”问题...');
+            const freshEmptyErrors = await validateTranslationFiles({ checkEmpty: true, checkDuplicates: false });
+            if (freshEmptyErrors.length > 0) {
+                console.log(`\n发现 ${freshEmptyErrors.length} 个“空翻译”问题，现在开始处理...`);
+                const decisions = await promptForEmptyTranslationFix(freshEmptyErrors);
+                await applyEmptyTranslationFixes(decisions);
+            } else {
+                console.log('\n✅ 未发现“空翻译”问题。');
+            }
           }
-          if(needsRebuild){
-            console.log('\n✅ 手动修复完成。建议您重新运行构建脚本，以确保所有问题都已解决。');
-          } else {
-            console.log('\n🤷 没有需要手动修复的问题。');
-          }
+          console.log('\n✅ 手动修复完成。建议您退出并重新运行构建脚本以确保所有问题已解决。');
           process.exit(0);
-          break;
 
         case 'ignore':
           console.log('\n⚠️  您选择忽略错误，构建将继续...');
+          shouldContinue = true;
           break;
+
         case 'cancel':
           console.log('\n🛑 构建已取消。');
-          process.exit(0);
-          break;
+          return; // 退出到主菜单
       }
+      if (!shouldContinue) return;
     } else {
         console.log('\n✅ 所有翻译文件均通过校验！');
     }
@@ -109,9 +183,8 @@ async function build() {
     // --- 新步骤: 询问是否保留格式 ---
     const preserveFormatting = await promptToPreserveFormatting();
 
-
     // --- 步骤 3: 执行 esbuild 打包 ---
-    console.log('\n🚀 开始构建...');
+    console.log('\n--- (阶段 2/3) 打包脚本 ---');
     const result = await esbuild.build({
       entryPoints: [path.resolve('src/main.js')],
       bundle: true,
@@ -121,38 +194,24 @@ async function build() {
     });
 
     // --- 步骤 4: 后处理并组合最终脚本 ---
+    console.log('\n--- (阶段 3/3) 生成最终文件 ---');
     const header = await fs.readFile(path.resolve('src/header.txt'), 'utf-8');
     
     let bundledCode = result.outputFiles[0].text;
     let finalScript;
 
     if (preserveFormatting) {
-        // 如果保留格式，只进行 Prettier 格式化以保证基本代码风格
         const formattedCode = await prettier.format(bundledCode, {
-            parser: 'babel',
-            semi: true,
-            singleQuote: true,
-            printWidth: 9999, // 设置一个很大的值来防止自动换行
+            parser: 'babel', semi: true, singleQuote: true, printWidth: 9999,
         });
         finalScript = `${header}\n\n${formattedCode}`;
-        console.log('💅 已保留注释和空白行，仅执行基本格式化。');
+        console.log('💅 已保留注释和空白行。');
     } else {
-        // 否则，执行完整的清理流程
-        // 1. 移除所有注释
         bundledCode = bundledCode.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
-        
-        // 2. 使用 Prettier 进行专业格式化
         let formattedCode = await prettier.format(bundledCode, {
-            parser: 'babel',
-            semi: true,
-            singleQuote: true,
-            printWidth: 9999, // 设置一个很大的值来防止自动换行
+            parser: 'babel', semi: true, singleQuote: true, printWidth: 9999,
         });
-
-        // 3. 移除 Prettier 可能留下的多余空白行
         formattedCode = formattedCode.replace(/^\s*[\r\n]/gm, '');
-
-        // 将头部信息和处理后的代码拼接成最终脚本
         finalScript = `${header}\n\n${formattedCode}`;
         console.log('🧹 已移除注释和多余空白行。');
     }
@@ -160,7 +219,6 @@ async function build() {
     // --- 步骤 5: 写入最终文件 ---
     const distDir = path.resolve('dist');
     await fs.mkdir(distDir, { recursive: true });
-
     const outputPath = path.join(distDir, 'Web-Translate-Script.user.js');
     await fs.writeFile(outputPath, finalScript);
 
@@ -173,9 +231,55 @@ async function build() {
     } else {
       console.error('❌ 构建过程中发生未知错误:', error);
     }
-    process.exit(1);
   }
 }
 
-// 执行构建流程
-build();
+/**
+ * 显示主菜单并处理用户输入。
+ */
+async function main() {
+  while (true) {
+    console.clear();
+    console.log('=======================================');
+    console.log('    构建工具 & 翻译文件校验器');
+    console.log('=======================================');
+    
+    const { action } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'action',
+        message: '您想做什么？',
+        prefix: '⚙️',
+        choices: [
+          { name: '1. 仅检查“空翻译”问题', value: 'checkEmpty' },
+          { name: '2. 仅检查“重复原文”问题', value: 'checkDuplicates' },
+          new inquirer.Separator(),
+          { name: '3. 完整构建项目', value: 'fullBuild' },
+          new inquirer.Separator(),
+          { name: '4. 退出', value: 'exit' },
+        ],
+      },
+    ]);
+
+    switch (action) {
+      case 'checkEmpty':
+        await handleCheck({ checkEmpty: true, checkDuplicates: false });
+        await pressAnyKeyToContinue();
+        break;
+      case 'checkDuplicates':
+        await handleCheck({ checkEmpty: false, checkDuplicates: true });
+        await pressAnyKeyToContinue();
+        break;
+      case 'fullBuild':
+        await runFullBuild();
+        await pressAnyKeyToContinue();
+        break;
+      case 'exit':
+        console.log('👋 再见！');
+        return;
+    }
+  }
+}
+
+// 执行主菜单流程
+main();
