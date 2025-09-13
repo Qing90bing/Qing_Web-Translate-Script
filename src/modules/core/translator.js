@@ -1,5 +1,5 @@
-import { ALL_UNTRANSLATABLE_TAGS, BLOCKS_ALL_TRANSLATION, BLOCKS_CONTENT_ONLY, attributesToTranslate } from '../config.js';
-import { log } from './logger.js';
+import { ALL_UNTRANSLATABLE_TAGS, BLOCKS_ALL_TRANSLATION, BLOCKS_CONTENT_ONLY, attributesToTranslate } from '../../config.js';
+import { log } from '../utils/logger.js';
 
 // 模块内部状态，将由工厂函数在闭包中管理
 let textTranslationMap;

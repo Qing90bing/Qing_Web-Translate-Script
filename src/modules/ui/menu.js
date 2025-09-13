@@ -1,4 +1,4 @@
-import { isDebugMode, updateDebugState, LOG_KEY } from './logger.js';
+import { isDebugMode, updateDebugState, LOG_KEY } from '../utils/logger.js';
 
 // 为菜单项定义一个唯一的、固定的ID
 const MENU_COMMAND_ID = 'toggle_debug_log_command';

@@ -3,11 +3,11 @@ import { masterTranslationMap } from './translations/index.js';
 
 
 // 导入模块
-import { log } from './modules/logger.js';
-import { initializeMenu } from './modules/menu.js';
-import { injectAntiFlickerStyle, removeAntiFlickerStyle } from './modules/anti-flicker.js';
-import { createTranslator } from './modules/translator.js';
-import { initializeObservers } from './modules/observers.js';
+import { log } from './modules/utils/logger.js';
+import { initializeMenu } from './modules/ui/menu.js';
+import { injectAntiFlickerStyle, removeAntiFlickerStyle } from './modules/ui/anti-flicker.js';
+import { createTranslator } from './modules/core/translator.js';
+import { initializeObservers } from './modules/core/observers.js';
 
 // 通过将整个 masterTranslationMap 作为参数传递
 // 我们可以防止构建工具错误地“摇树”优化掉未直接引用的部分

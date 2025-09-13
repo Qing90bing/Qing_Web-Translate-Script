@@ -307,6 +307,21 @@
     [/^(\d+)\s+years?$/i, "$1年"],
     [/^\s*(-?\d+(\.\d+)?)\s*s\s*$/i, "$1秒"],
     // 完整句子翻译（按长度排序）
+    ["Here are the changes:", "更改内容如下："],
+    ["Thinking...", "思考中..."],
+    ["Restored from", "恢复自："],
+    ["Added", "已添加"],
+    ["Saving…..", "保存中..."],
+    ["Save app", "保存应用"],
+    [" Running for ", "运行时间 "],
+    ["Upload a photo of yourself and an outfit to see how it looks on you. A virtual fitting room powered by Nano Banana.", "上传您的个人照片和心仪服装，即可轻松预览上身效果。这间虚拟试衣间由 Nano Banana™ 倾力打造。"],
+    ["Character consistency", "角色一致性"],
+    ["object consistency", "对象一致性"],
+    ["Image Editing", "图像编辑"],
+    ["Gemini 2.5 Flash Audio", "Gemini 2.5 Flash 音频"],
+    [" Enter an ", "输入一个"],
+    ["OpenAPI schema object", "OpenAPI 架构对象"],
+    [" to constrain the model output. See the ", " 来约束模型输出。请参阅"],
     ["Speech", "语音"],
     ["Temporary chat is not available for Veo", "临时聊天功能不适用于 Veo"],
     ["Only one option is supported", "仅支持一个选项"],
@@ -3451,7 +3466,7 @@
     "status.anthropic.com": statusAnthropicCom
   };
 
-  // src/modules/logger.js
+  // src/modules/utils/logger.js
   var LOG_KEY = "web_translate_debug_mode";
   var isDebugMode = GM_getValue(LOG_KEY, false);
   function updateDebugState(newMode) {
@@ -3463,7 +3478,7 @@
     }
   }
 
-  // src/modules/menu.js
+  // src/modules/ui/menu.js
   var MENU_COMMAND_ID = "toggle_debug_log_command";
   function toggleDebugMode() {
     const newMode = !isDebugMode;
@@ -3483,7 +3498,7 @@
     updateMenuCommand();
   }
 
-  // src/modules/anti-flicker.js
+  // src/modules/ui/anti-flicker.js
   var STYLE_ID = "anti-flicker-style";
   function injectAntiFlickerStyle() {
     document.documentElement.classList.add("translation-in-progress");
@@ -3528,7 +3543,7 @@
   var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
   var attributesToTranslate = ["placeholder", "title", "aria-label", "alt", "mattooltip"];
 
-  // src/modules/translator.js
+  // src/modules/core/translator.js
   var textTranslationMap;
   var regexRules;
   var translationCache;
@@ -3671,7 +3686,7 @@
     };
   }
 
-  // src/modules/observers.js
+  // src/modules/core/observers.js
   function initializeObservers(translator) {
     let translationTimer;
     let pendingNodes = /* @__PURE__ */ new Set();
