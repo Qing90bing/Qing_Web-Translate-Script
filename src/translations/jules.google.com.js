@@ -54,6 +54,7 @@ export const julesGoogleCom = [
 
     // --- 完整句子和短语翻译 ---
     // 按长度降序排列，以优先匹配长句
+    ["Jules is not yet available in your region.", "Jules 暂未在您的区域提供服务"],
     ["Jules attempts to setup your environment according to hints in your codebase and agents.md. Optionally, you can provide a setup script to be run explicitly. No need for clone commands, the repo will be cloned automatically into the /app directory.", "Jules 会根据您代码库中的线索和 `agents.md` 文件来尝试配置环境。您也可以提供一个设置脚本来精确执行。仓库会自动克隆到 /app 目录，无需手动执行克隆命令。"],
     ["Let Google use your future Jules conversations and code on content Jules receives from public repositories to train its generative AI models. Opting out does not apply to any feedback you may choose to provide.", "允许 Google 使用您未来与 Jules 的对话，以及 Jules 从公开代码库中获取的代码内容，用于训练其生成式 AI 模型。选择退出此项，不影响您主动提供的任何反馈。"],
     ["After a successful test of the setup script, your environment will be snapshotted for faster startups. For more information and a list of default toolsets installed see the ", "设置脚本成功通过测试后，系统将为您的环境创建快照，以便未来能更快启动。更多信息及默认安装的工具列表，请参阅"],
