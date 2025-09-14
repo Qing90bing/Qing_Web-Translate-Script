@@ -15,7 +15,7 @@ import path from 'path';
  */
 export async function fixDuplicatesAutomatically(duplicateErrors) {
   if (!duplicateErrors || duplicateErrors.length === 0) {
-    console.log('\n没有发现可自动修复的重复条目。');
+    console.log('\n 没有发现可自动修复的重复条目。');
     return;
   }
 
@@ -66,7 +66,7 @@ export async function fixDuplicatesAutomatically(duplicateErrors) {
  */
 export async function applyManualFixes(decisions) {
   if (!decisions || decisions.length === 0) {
-    console.log('\n没有需要应用的修复。');
+    console.log('\n 没有需要应用的修复。');
     return;
   }
 
@@ -272,4 +272,93 @@ export async function identifyHighConfidenceCommaErrors(errors) {
     highConfidenceFixes, 
     lowConfidenceSkips,
   };
+}
+
+export async function fixIdenticalAutomatically(decisions) {
+  const { type, errors } = decisions;
+
+  if (!errors || errors.length === 0) {
+    console.log('\n没有发现可自动修复的“原文与译文相同”条目。');
+    return;
+  }
+
+  // 按文件路径对所有修复操作进行分组
+  const fixesByFile = errors.reduce((acc, error) => {
+    if (!acc[error.file]) {
+      acc[error.file] = [];
+    }
+    acc[error.file].push(error);
+    return acc;
+  }, {});
+
+  let totalFixed = 0;
+  for (const file in fixesByFile) {
+    const fileErrors = fixesByFile[file];
+    totalFixed += fileErrors.length;
+    const actionText = type === 'remove' ? `移除 ${fileErrors.length} 个“原文与译文相同”条目` : `置空 ${fileErrors.length} 个“原文与译文相同”条目`;
+    console.log(`\n🔧 正在自动修复文件 ${path.basename(file)}，${actionText}...`);
+
+    let content = await fs.readFile(file, 'utf-8');
+    
+    // 自动修复时，移除和置空的操作方式不同
+    if (type === 'remove') {
+        const lines = content.split('\n');
+        // 创建一个包含所有待删除行号的 Set，以提高查找效率
+        const linesToRemove = new Set(fileErrors.map(e => e.line));
+        // 过滤掉需要删除的行
+        const newLines = lines.filter((_, index) => !linesToRemove.has(index + 1));
+        content = newLines.join('\n');
+    } else { // type === 'empty'
+        // 从后往前处理，避免 AST range 索引失效
+        fileErrors.sort((a, b) => b.node.range[0] - a.node.range[0]);
+        for (const error of fileErrors) {
+            const translationNode = error.node.elements[1];
+            const start = translationNode.range[0];
+            const end = translationNode.range[1];
+            // 使用 "" 替换原来的译文部分
+            content = content.slice(0, start) + '""' + content.slice(end);
+        }
+    }
+    
+    await fs.writeFile(file, content, 'utf-8');
+    console.log(`✅ 文件 ${path.basename(file)} 已成功自动修复。`);
+  }
+
+  if (totalFixed > 0) {
+    console.log(`\n✨ 总共自动修复了 ${totalFixed} 个“原文与译文相同”问题。`);
+  }
+}
+
+/**
+ * 应用用户在手动修复“原文与译文相同”流程中所做的决策。
+ * @param {Array<object>} decisions - 从 `promptForIdenticalManualFix` 函数返回的用户决策数组。
+ * @returns {Promise<void>}
+ */
+export async function applySingleIdenticalFix(decision) {
+    const { error, action, newTranslation } = decision;
+    const file = error.file;
+
+    const content = await fs.readFile(file, 'utf-8');
+    let lines = content.split('\n');
+    
+    const errorLineIndex = error.line - 1;
+
+    if (action === 'remove') {
+        lines.splice(errorLineIndex, 1);
+    } else if (action === 'modify') {
+        const originalLine = lines[errorLineIndex];
+        const originalIndent = originalLine.match(/^\s*/)[0] || '';
+        
+        const originalNode = error.node.elements[0];
+        const originalValue = originalNode.type === 'Literal' ? originalNode.raw : JSON.stringify(originalNode.value);
+
+        const newTranslationString = JSON.stringify(newTranslation);
+        
+        const lineEnding = originalLine.trim().endsWith(',') ? ',' : '';
+
+        lines[errorLineIndex] = `${originalIndent}[${originalValue}, ${newTranslationString}]${lineEnding}`;
+    }
+
+    const fixedContent = lines.join('\n');
+    await fs.writeFile(file, fixedContent, 'utf-8');
 }

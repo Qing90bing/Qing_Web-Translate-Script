@@ -276,7 +276,7 @@ export async function promptForCommaFixAction(errorCount) {
           value: 'manual-fix',
         },
         {
-          name: '⚠️  (忽略) 暂时不处理这些问题',
+          name: '⚠️ (忽略) 暂时不处理这些问题',
           value: 'ignore',
         },
       ],
@@ -345,4 +345,115 @@ ${lineBelow}
     },
   ]);
   return choice;
+}
+
+/**
+ * 提示用户如何自动修复“原文与译文相同”问题。
+ * @returns {Promise<string>} 返回用户的选择：'remove' 或 'empty'。
+ */
+async function promptForIdenticalAutoFix() {
+  const { choice } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'choice',
+      message: '请选择自动修复“原文与译文相同”问题的方式：',
+      choices: [
+        { name: '🗑️ (全部移除) 将所有原文与译文相同的词条从文件中移除', value: 'remove' },
+        { name: '✏️ (全部置空) 将所有原文与译文相同的词条的译文部分修改为空字符串 ""', value: 'empty' },
+        new inquirer.Separator(),
+        { name: '↩️ (返回) 返回上一级菜单', value: 'cancel' },
+      ],
+    },
+  ]);
+  return choice;
+}
+
+/**
+ * 提示用户手动修复“原文与译文相同”问题。
+ * @param {ValidationError[]} identicalErrors - 只包含 'identical-translation' 类型错误的数组。
+ * @returns {Promise<Array<object>|null>} 返回包含用户决策的数组，如果用户中途退出则返回 null。
+ */
+export async function promptForSingleIdenticalFix(error, remainingCount) {
+  const originalText = getLiteralValue(error.node.elements[0]);
+
+  const { action } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'action',
+      message: `--[ 发现 ${remainingCount} 个问题 ]--\n  - 文件: ${path.basename(error.file)}\n  - 原文: "${originalText}"\n  - 行号: ${error.line}\n  - 内容: ${error.lineContent}\n请选择如何处理此词条：`,
+      choices: [
+        { name: '✏️ (修改) 为此词条输入新的译文', value: 'modify' },
+        { name: '🗑️ (移除) 从文件中删除此词条', value: 'remove' },
+        new inquirer.Separator(),
+        { name: '➡️ (忽略) 忽略此项，处理下一个', value: 'skip' },
+        { name: '⏩ (全部忽略) 忽略所有剩余的问题', value: 'skip-all' },
+        { name: '🛑 (中止) 放弃并退出', value: 'abort' },
+      ],
+    },
+  ]);
+
+  // 如果用户选择中止，需要二次确认
+  if (action === 'abort') {
+      const { confirmExit } = await inquirer.prompt([
+        { type: 'confirm', name: 'confirmExit', message: '您确定要中止吗？', prefix: '⚠️', default: false }
+      ]);
+      if (!confirmExit) {
+        return { error, action: 'retry' }; // 返回一个特殊状态，让主循环重新处理此项
+      }
+  }
+
+  if (action === 'modify') {
+    const { newTranslation } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'newTranslation',
+        message: `请输入 "${originalText}" 的新译文:`,
+        validate: input => input.trim() !== '' ? true : '译文不能为空。'
+      }
+    ]);
+    return { error, action: 'modify', newTranslation };
+  }
+  
+  return { error, action };
+}
+
+
+/**
+ * 针对发现的“原文与译文相同”错误，提示用户选择操作。
+ * @param {ValidationError[]} errors - 'identical-translation' 类型的错误数组。
+ * @returns {Promise<{action: string, decisions: any}|null>} 返回用户的选择和具体决策。
+ */
+export async function promptUserAboutIdenticalTranslations(errors) {
+  console.log('\n----------------------------------------');
+  const { primaryAction } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'primaryAction',
+      message: `发现了 ${errors.length} 个“原文和译文”相同的问题。您想如何处理？`,
+      choices: [
+        { name: '✨ (自动修复) 选择一个方案，批量处理所有问题', value: 'auto-fix' },
+        { name: '🔧 (手动修复) 逐个预览并决定如何处理每个问题', value: 'manual-fix' },
+        new inquirer.Separator(),
+        { name: '⚠️ (忽略) 暂时不处理这些问题，返回主菜单', value: 'ignore' },
+      ],
+    },
+  ]);
+
+  switch (primaryAction) {
+    case 'auto-fix':
+      const autoFixType = await promptForIdenticalAutoFix();
+      if (autoFixType === 'cancel') {
+        return { action: 'cancel' };
+      }
+      return { action: 'auto-fix', decisions: { type: autoFixType, errors } };
+
+    case 'manual-fix':
+      return { action: 'manual-fix' };
+    
+    case 'ignore':
+      return { action: 'ignore' };
+
+    default:
+      return null;
+  }
 }

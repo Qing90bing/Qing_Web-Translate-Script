@@ -39,7 +39,9 @@ import {
   promptToPreserveFormatting,
   promptForSyntaxFix,
   promptForCommaFixAction,
-  promptForSingleCommaFix
+  promptForSingleCommaFix,
+  promptUserAboutIdenticalTranslations,
+  promptForSingleIdenticalFix
 } from './scripts/prompter.js';
 import { 
   applyManualFixes, 
@@ -47,7 +49,9 @@ import {
   applyEmptyTranslationFixes,
   applySyntaxFixes,
   identifyHighConfidenceCommaErrors,
-  applySingleCommaFix
+  applySingleCommaFix,
+  fixIdenticalAutomatically,
+  applySingleIdenticalFix
 } from './scripts/fixer.js';
 
 /**
@@ -131,7 +135,7 @@ async function handleCheck(options) {
       break;
 
     case 'ignore':
-      console.log('\n⚠️  问题已忽略，未进行任何修复操作。');
+      console.log('\n⚠️ 问题已忽略，未进行任何修复操作。');
       break;
     case 'cancel':
       console.log('\n🛑 操作已取消。');
@@ -328,35 +332,109 @@ async function main() {
   while (true) {
     console.clear();
     console.log('=======================================');
-    console.log('    构建工具 & 翻译文件校验器');
+    console.log('    构建工具 & 翻译文件校验工具');
     console.log('=======================================');
     
     const { action } = await inquirer.prompt([
       {
         type: 'list',
         name: 'action',
-        message: ' 欢迎使用构建工具 & 翻译文件校验器！\n 今天您想做什么？\n (个人推荐流程: 第一先检查“遗漏逗号”的问题并修复，再处理其他检查，最后构建项目，这样才是最稳定安全的)\n',
+        message: ' 请选择要执行的操作：(推荐流程: 先检查并修复所有问题，最后再完整构建项目)\n',
         prefix: '⚙️',
         choices: [
           new inquirer.Separator('--- 检查与修复 ---'),
           { name: '1. 🔧 检查“遗漏逗号”问题', value: 'checkMissingComma' },
           { name: '2. 🔧 检查“空翻译”问题', value: 'checkEmpty' },
           { name: '3. 🔧 检查“重复原文”问题', value: 'checkDuplicates' },
+          { name: '4. 🔧 检查“原文和译文相同”问题', value: 'checkIdentical' },
           new inquirer.Separator('--- 项目操作 ---'),
-          { name: '4. 👟 完整构建项目（不包含检查）', value: 'fullBuild' },
-          { name: '5. 🚪 退出', value: 'exit' },
+          { name: '5. 👟 完整构建项目（不包含检查）', value: 'fullBuild' },
+          { name: '6. 🚪 退出', value: 'exit' },
         ],
       },
     ]);
 
     switch (action) {
       case 'checkEmpty':
-        await handleCheck({ checkEmpty: true, checkDuplicates: false });
+        await handleCheck({ checkEmpty: true });
         await pressAnyKeyToContinue();
         break;
       case 'checkDuplicates':
-        await handleCheck({ checkEmpty: false, checkDuplicates: true });
+        await handleCheck({ checkDuplicates: true });
         await pressAnyKeyToContinue();
+        break;
+      case 'checkIdentical':
+        {
+          console.log('🔍 开始校验“原文与译文相同”文件...');
+          let identicalErrors = await validateTranslationFiles({ checkIdentical: true });
+          if (identicalErrors.length === 0) {
+              console.log('\n✅ 未发现“原文与译文相同”问题。');
+              await pressAnyKeyToContinue();
+              break;
+          }
+
+          const result = await promptUserAboutIdenticalTranslations(identicalErrors);
+          if (!result || result.action === 'cancel') {
+              console.log('\n🛑 操作已取消。');
+              await pressAnyKeyToContinue();
+              break;
+          }
+
+          if (result.action === 'auto-fix') {
+              await fixIdenticalAutomatically(result.decisions);
+          } else if (result.action === 'ignore') {
+              console.log('\n🤷‍ 已忽略所有“原文与译文相同”问题。');
+          } else if (result.action === 'manual-fix') {
+              console.log('\n🔧 进入手动修复模式...');
+              const ignoredPositions = new Set();
+              let quit = false;
+              let totalFixed = 0;
+              let totalSkipped = 0;
+
+              while (!quit) {
+                  let currentErrors = await validateTranslationFiles({ checkIdentical: true, ignoredPositions });
+                  if (currentErrors.length === 0) {
+                      console.log(totalFixed > 0 ? '\n✅ 所有问题已处理完毕。' : '\n没有需要处理的问题了。');
+                      break;
+                  }
+
+                  const errorToFix = currentErrors[0];
+                  const decision = await promptForSingleIdenticalFix(errorToFix, currentErrors.length);
+                  
+                  if (decision.action === 'retry') {
+                      continue;
+                  }
+                  if (decision.action === 'abort') {
+                      quit = true;
+                      continue;
+                  }
+                  if (decision.action === 'skip-all') {
+                      totalSkipped += currentErrors.length;
+                      quit = true;
+                      continue;
+                  }
+                  
+                  if (decision.action === 'skip') {
+                      ignoredPositions.add(errorToFix.node.range[0]);
+                      totalSkipped++;
+                      console.log('➡️  已忽略此问题。正在查找下一个...');
+                  } else {
+                      await applySingleIdenticalFix(decision);
+                      totalFixed++;
+                      console.log('✅ 已应用修复。正在重新扫描...');
+                  }
+              }
+              
+              console.log('\n----------------------------------------');
+              console.log('📋 操作总结:');
+              console.log(`  - 总共修复了 ${totalFixed} 个问题。`);
+              if (totalSkipped > 0) {
+                  console.log(`  - 总共忽略了 ${totalSkipped} 个问题。`);
+              }
+              console.log('----------------------------------------');
+          }
+          await pressAnyKeyToContinue();
+        }
         break;
       case 'checkMissingComma':
         await handleMissingCommaCheck();
