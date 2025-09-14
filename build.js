@@ -335,7 +335,7 @@ async function main() {
       {
         type: 'list',
         name: 'action',
-        message: '您想做什么？\n  (推荐流程: 先修复“遗漏逗号”，再处理其他检查，最后构建项目)\n',
+        message: ' 欢迎使用构建工具 & 翻译文件校验器！\n 今天您想做什么？\n (个人推荐流程: 第一先检查“遗漏逗号”的问题并修复，再处理其他检查，最后构建项目，这样才是最稳定安全的)\n',
         prefix: '⚙️',
         choices: [
           new inquirer.Separator('--- 检查与修复 ---'),
@@ -343,7 +343,7 @@ async function main() {
           { name: '2. 🔧 检查“空翻译”问题', value: 'checkEmpty' },
           { name: '3. 🔧 检查“重复原文”问题', value: 'checkDuplicates' },
           new inquirer.Separator('--- 项目操作 ---'),
-          { name: '4. 👟 完整构建项目', value: 'fullBuild' },
+          { name: '4. 👟 完整构建项目（不包含检查）', value: 'fullBuild' },
           { name: '5. 🚪 退出', value: 'exit' },
         ],
       },
