@@ -136,92 +136,17 @@ async function handleCheck(options) {
 }
 
 /**
- * 运行完整的构建流程，包括校验、修复、打包和输出。
+ * 运行完整的构建流程，包括打包和输出。
  */
 async function runFullBuild() {
   try {
-    // --- 步骤 1: 执行翻译文件校验 ---
-    console.log('🔍 开始执行完整构建流程...');
-    console.log('--- (阶段 1/3) 校验文件 ---');
-    const allErrors = await validateTranslationFiles({ checkEmpty: true, checkDuplicates: true });
+    console.log('👟 开始执行完整构建流程...');
 
-    const syntaxErrors = allErrors.filter(e => e.type === 'syntax');
-    const otherErrors = allErrors.filter(e => e.type !== 'syntax');
-
-    // --- 步骤 2: 如果发现语法错误，必须先修复 ---
-    if (syntaxErrors.length > 0) {
-        console.log('\n🚨 检测到语法错误！必须先解决这些问题才能继续构建。');
-        const decisions = await promptForSyntaxFix(syntaxErrors);
-        if (decisions && decisions.length > 0) {
-            await applySyntaxFixes(decisions);
-            console.log('\n✅ 语法修复已应用。请重新运行构建。');
-        } else {
-            console.log('\n🤷‍ 未进行任何语法修复。构建已取消。');
-        }
-        process.exit(0); // 退出脚本
-    }
-
-    // --- 步骤 3: 如果发现其他错误，则进入交互式处理流程 ---
-    if (otherErrors.length > 0) {
-      const userAction = await promptUserAboutErrors(otherErrors, { isFullBuild: true });
-      const duplicateErrors = otherErrors.filter(e => e.type === 'multi-duplicate');
-      const emptyTranslationErrors = otherErrors.filter(e => e.type === 'empty-translation');
-
-      let shouldContinue = false;
-      switch (userAction) {
-        case 'auto-fix':
-          if (duplicateErrors.length > 0) {
-            await fixDuplicatesAutomatically(duplicateErrors);
-            console.log('\n✅ 自动修复完成。建议您退出并重新运行构建脚本以确保所有问题已解决。');
-          } else {
-            console.log('\n🤷 没有可自动修复的问题。');
-          }
-          process.exit(0);
-
-        case 'manual-fix':
-          if (duplicateErrors.length > 0) {
-            const decisions = await promptForManualFix(duplicateErrors);
-            if (decisions === null) {
-              console.log('\n🛑 已退出手动修复流程，构建已取消。');
-              process.exit(0);
-            }
-            await applyManualFixes(decisions);
-            console.log('\n✅ “重复原文”问题已修复。');
-          }
-          if (emptyTranslationErrors.length > 0) {
-            console.log('\n🔄 重新校验“空翻译”问题...');
-            const freshEmptyErrorsResult = await validateTranslationFiles({ checkEmpty: true, checkDuplicates: false });
-            const freshEmptyErrors = freshEmptyErrorsResult.filter(e => e.type === 'empty-translation');
-            if (freshEmptyErrors.length > 0) {
-                console.log(`\n发现 ${freshEmptyErrors.length} 个“空翻译”问题，现在开始处理...`);
-                const decisions = await promptForEmptyTranslationFix(freshEmptyErrors);
-                await applyEmptyTranslationFixes(decisions);
-            } else {
-                console.log('\n✅ 未发现“空翻译”问题。');
-            }
-          }
-          console.log('\n✅ 手动修复完成。建议您退出并重新运行构建脚本以确保所有问题已解决。');
-          process.exit(0);
-
-        case 'ignore':
-          console.log('\n⚠️  您选择忽略错误，构建将继续...');
-          shouldContinue = true;
-          break;
-
-        case 'cancel':
-          console.log('\n🛑 构建已取消。');
-          return; // 退出到主菜单
-      }
-      if (!shouldContinue) return;
-    } else {
-        console.log('\n✅ 所有翻译文件均通过校验！');
-    }
-
-    // --- 新步骤: 询问是否保留格式 ---
+    // --- 步骤 1: 询问是否保留格式 ---
     const preserveFormatting = await promptToPreserveFormatting();
 
-    // --- 步骤 3: 执行 esbuild 打包 ---
-    console.log('\n--- (阶段 2/3) 打包脚本 ---');
+    // --- 步骤 2: 执行 esbuild 打包 ---
+    console.log('\n--- (阶段 1/2) 打包脚本 ---');
     const result = await esbuild.build({
       entryPoints: [path.resolve('src/main.js')],
       bundle: true,
@@ -230,8 +155,8 @@ async function runFullBuild() {
       minify: false,
     });
 
-    // --- 步骤 4: 后处理并组合最终脚本 ---
-    console.log('\n--- (阶段 3/3) 生成最终文件 ---');
+    // --- 步骤 3: 后处理并组合最终脚本 ---
+    console.log('\n--- (阶段 2/2) 生成最终文件 ---');
     const header = await fs.readFile(path.resolve('src/header.txt'), 'utf-8');
     
     let bundledCode = result.outputFiles[0].text;
@@ -253,7 +178,7 @@ async function runFullBuild() {
         console.log('🧹 已移除注释和多余空白行。');
     }
 
-    // --- 步骤 5: 写入最终文件 ---
+    // --- 步骤 4: 写入最终文件 ---
     const distDir = path.resolve('dist');
     await fs.mkdir(distDir, { recursive: true });
     const outputPath = path.join(distDir, 'Web-Translate-Script.user.js');
@@ -291,7 +216,7 @@ async function main() {
           { name: '1. 🔧 仅检查“空翻译”问题', value: 'checkEmpty' },
           { name: '2. 🔧 仅检查“重复原文”问题', value: 'checkDuplicates' },
           new inquirer.Separator(),
-          { name: '3. 👟 完整构建项目', value: 'fullBuild' },
+          { name: '3. 👟 构建项目(不包含检查)', value: 'fullBuild' },
           new inquirer.Separator(),
           { name: '4. 🚪 退出', value: 'exit' },
         ],
