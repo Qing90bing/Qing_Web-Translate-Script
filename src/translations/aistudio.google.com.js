@@ -1154,12 +1154,12 @@ export const aistudioGoogleCom = [
     ["Empty", "空"],
     ["HOT", "热门"],
     ["Cut", "剪切"],
-    ["Off", "关闭"],
+    ["Off", "关闭"],  
     ["Run", "运行"],
     ["High", "高"],
     ["Veo", "Veo"],
     ["and", "和"],
     ["Low", "低"],
     ["NEW", "新"],
-    
+
 ];

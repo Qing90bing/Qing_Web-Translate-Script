@@ -150,6 +150,96 @@ export async function promptForManualFix(duplicateErrors) {
 
 
 /**
+ * Prompts the user on how to proceed with found "missing comma" errors.
+ * @param {number} errorCount - The number of "missing-comma" errors found.
+ * @returns {Promise<'auto-fix' | 'manual-fix' | 'ignore'>}
+ */
+export async function promptForCommaFixAction(errorCount) {
+  console.log('\n----------------------------------------');
+  const { action } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'action',
+      message: `检测到 ${errorCount} 个可能的“遗漏逗号”问题。您想如何处理？`,
+      choices: [
+        {
+          name: '✨ (自动) 尝试自动修复所有高置信度的问题',
+          value: 'auto-fix',
+        },
+        {
+          name: '🔧 (手动) 逐个预览并确认修复',
+          value: 'manual-fix',
+        },
+        {
+          name: '⚠️  (忽略) 暂时不处理这些问题',
+          value: 'ignore',
+        },
+      ],
+    },
+  ]);
+  return action;
+}
+
+/**
+ * Interactively prompts the user to fix a single "missing comma" error.
+ * @param {ValidationError} error - The single 'missing-comma' error object to fix.
+ * @param {number} remainingCount - The total number of errors remaining.
+ * @returns {Promise<'fix' | 'skip' | 'skip-all' | 'abort'>} The user's decision.
+ */
+export async function promptForSingleCommaFix(error, remainingCount) {
+  const fileContent = await fs.readFile(error.file, 'utf-8');
+  const lines = fileContent.split('\n');
+
+  const errorLineIndex = error.line - 1;
+  const lineAbove = lines[errorLineIndex - 1] || '';
+  const errorLine = lines[errorLineIndex];
+  const lineBelow = lines[errorLineIndex + 1] || '';
+
+  // To generate an accurate preview, we must calculate the insertion column
+  // relative to the start of the line, using the absolute position `error.pos`.
+  let lineStartPos = 0;
+  for (let j = 0; j < errorLineIndex; j++) {
+    lineStartPos += lines[j].length + 1; // +1 for the newline char
+  }
+  const relativeColumn = error.pos - lineStartPos;
+
+  const fixedLine =
+    errorLine.slice(0, relativeColumn) +
+    '\x1b[32m,\x1b[0m' + // Insert green comma
+    errorLine.slice(relativeColumn);
+
+  const preview = `
+--- 问题代码 (文件: ${path.basename(error.file)}, 第 ${error.line} 行) ---
+${lineAbove}
+\x1b[31m${errorLine}\x1b[0m
+${lineBelow}
+----------------------------------
+
++++ 建议修复 (高亮部分为新增) +++
+${lineAbove}
+${fixedLine}
+${lineBelow}
+++++++++++++++++++++++++++++++++++`;
+
+  const { choice } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'choice',
+      message: `--[ 发现 ${remainingCount} 个问题 ]--\n  - ${error.message}\n${preview}\n\n  您想如何处理这个问题？`,
+      choices: [
+        { name: '✅ (修复) 应用此项修复', value: 'fix' },
+        { name: '➡️  (跳过) 忽略此项，处理下一个', value: 'skip' },
+        { name: '⏩ (全部跳过) 忽略所有剩余的问题', value: 'skip-all' },
+        { name: '🛑 (中止) 放弃并退出', value: 'abort' },
+      ],
+    },
+  ]);
+
+  return choice;
+}
+
+
+/**
  * @typedef {Object} EmptyTranslationFixDecision
  * @description 定义一个空翻译修复决策对象的结构。
  * @property {ValidationError} error - 原始的'empty-translation'错误对象。

@@ -229,3 +229,61 @@ export async function applySyntaxFixes(decisions) {
     console.log(`\n✨ 总共修复了 ${totalFixed} 个语法问题。`);
   }
 }
+
+
+/**
+ * Applies a single comma fix to a file.
+ * @param {ValidationError} error - The single 'missing-comma' error object to fix.
+ * @returns {Promise<void>}
+ */
+export async function applySingleCommaFix(error) {
+  const file = error.file;
+  let content = await fs.readFile(file, 'utf-8');
+  
+  // Insert the comma at the character position specified by the validator.
+  content = content.slice(0, error.pos) + ',' + content.slice(error.pos);
+
+  await fs.writeFile(file, content, 'utf-8');
+}
+
+
+/**
+ * Identifies high-confidence "missing comma" errors from a list of potential errors.
+ * This function READS files for context but DOES NOT write to them.
+ * @param {ValidationError[]} errors - An array of 'missing-comma' error objects.
+ * @returns {Promise<{highConfidenceFixes: ValidationError[], lowConfidenceSkips: ValidationError[]}>} 
+ *          An object containing arrays of high and low confidence errors.
+ */
+export async function identifyHighConfidenceCommaErrors(errors) {
+  const highConfidenceFixes = [];
+  const lowConfidenceSkips = [];
+
+  // Cache file contents to avoid reading the same file multiple times.
+  const fileContents = {};
+
+  for (const error of errors) {
+    if (!fileContents[error.file]) {
+      fileContents[error.file] = (await fs.readFile(error.file, 'utf-8')).split('\n');
+    }
+    const lines = fileContents[error.file];
+    
+    // The error is on the line that is MISSING the comma. We need to check the line AFTER it.
+    // The `unpackMemberExpression` gives us a node, but not its follower.
+    // So, we rely on a simpler text-based heuristic.
+    const errorLine = lines[error.line - 1] || '';
+    const nextLine = lines[error.line] || '';
+
+    // High-confidence heuristic: current line ends with ']' or '},' and next line starts with '['
+    const trimmedErrorLine = errorLine.trim();
+    if ((trimmedErrorLine.endsWith('],') || trimmedErrorLine.endsWith(']')) && nextLine.trim().startsWith('[')) {
+      highConfidenceFixes.push(error);
+    } else {
+      lowConfidenceSkips.push(error);
+    }
+  }
+
+  return { 
+    highConfidenceFixes, 
+    lowConfidenceSkips,
+  };
+}
