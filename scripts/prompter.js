@@ -1,5 +1,6 @@
 import inquirer from 'inquirer';
 import path from 'path';
+import fs from 'fs/promises';
 import { getLiteralValue } from './validator.js';
 
 /**
@@ -202,4 +203,79 @@ export async function promptToPreserveFormatting() {
         }
     ]);
     return preserve;
+}
+
+
+/**
+ * @typedef {Object} SyntaxFixDecision
+ * @description 定义一个语法修复决策对象的结构。
+ * @property {string} file - 发生错误的文件的路径。
+ * @property {number} line - 需要修改的行的行号 (1-based)。
+ * @property {string} fixedLine - 修正后的该行完整内容。
+ */
+
+/**
+ * 交互式地提示用户修复可自动处理的语法错误。
+ * @param {ValidationError[]} syntaxErrors - 'syntax' 类型的错误对象数组。
+ * @returns {Promise<SyntaxFixDecision[]>} 返回一个包含用户所有修复决策的数组。
+ */
+export async function promptForSyntaxFix(syntaxErrors) {
+  const decisions = [];
+  console.log('\n----------------------------------------');
+  console.log('📝 开始处理语法错误...');
+
+  for (let i = 0; i < syntaxErrors.length; i++) {
+    const error = syntaxErrors[i];
+    
+    // 一个简单的启发式方法，用于检测数组元素之间可能缺少的逗号。
+    // Acorn 对此的报错是 "Unexpected token"，当它看到一个 `[` 时。
+    const isMissingCommaError = error.message.includes('Unexpected token') && error.lineContent.trim().startsWith('[');
+
+    if (!isMissingCommaError) {
+      console.log(`\n--[ ${i + 1}/${syntaxErrors.length} ]-- 文件: ${path.basename(error.file)}`);
+      console.log(`  - 错误: ${error.message}`);
+      console.log(`  - 行号: ${error.line}`);
+      console.log(`  - 内容: ${error.lineContent}`);
+      console.log('  - 自动修复: ❌ 此类语法错误无法自动修复，请手动编辑文件。');
+      continue;
+    }
+
+    const fileContent = await fs.readFile(error.file, 'utf-8');
+    const lines = fileContent.split('\n');
+    // 行号是 1-based，我们需要的是错误行的前一行
+    const lineIndexToFix = error.line - 2; 
+    const originalLine = lines[lineIndexToFix];
+    const fixedLine = originalLine.trimEnd() + ',';
+
+    const preview = `
+--- 问题代码 (第 ${error.line - 1}-${error.line} 行) ---
+${originalLine}
+${error.lineContent}
+--------------------------
+
++++ 建议修复 (高亮部分为新增) +++
+${originalLine.trimEnd()}\x1b[32m,\x1b[0m
+${error.lineContent}
+++++++++++++++++++++++++++`;
+
+    const { confirm } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'confirm',
+        prefix: '❓',
+        message: `--[ ${i + 1}/${syntaxErrors.length} ]-- 文件: ${path.basename(error.file)}\n  - 检测到可能缺少逗号。预览如下:\n${preview}\n\n  您是否接受此项修复？`,
+        default: true,
+      },
+    ]);
+
+    if (confirm) {
+      decisions.push({
+        file: error.file,
+        line: error.line - 1, // 1-based line number
+        fixedLine: fixedLine,
+      });
+    }
+  }
+
+  return decisions;
 }

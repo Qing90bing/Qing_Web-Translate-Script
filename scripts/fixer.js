@@ -175,3 +175,57 @@ export async function applyEmptyTranslationFixes(decisions) {
     console.log(`\n✨ 总共更新了 ${totalFixed} 个空翻译条目。`);
   }
 }
+
+
+/**
+ * @typedef {import('./prompter.js').SyntaxFixDecision} SyntaxFixDecision
+ */
+
+/**
+ * 根据用户在交互式提示中的决定，应用语法修复。
+ * @param {SyntaxFixDecision[]} decisions - 从语法修复提示器返回的决策对象数组。
+ * @returns {Promise<void>}
+ */
+export async function applySyntaxFixes(decisions) {
+  if (!decisions || decisions.length === 0) {
+    // 如果没有决策，则不执行任何操作。
+    return;
+  }
+
+  // 按文件对修复进行分组，以便每个文件只读写一次。
+  const fixesByFile = decisions.reduce((acc, decision) => {
+    const file = decision.file;
+    if (!acc[file]) {
+      acc[file] = [];
+    }
+    acc[file].push(decision);
+    return acc;
+  }, {});
+
+  let totalFixed = 0;
+  for (const file in fixesByFile) {
+    const fileDecisions = fixesByFile[file];
+    totalFixed += fileDecisions.length;
+    
+    console.log(`\n🔧 正在修复文件 ${path.basename(file)} 中的 ${fileDecisions.length} 个语法问题...`);
+    const content = await fs.readFile(file, 'utf-8');
+    const lines = content.split('\n');
+
+    // 应用此文件的所有修复。
+    // 因为我们是整行替换，所以操作顺序不像拼接或删除那样重要。
+    for (const decision of fileDecisions) {
+      // decision.line 是 1-based，因此我们使用 `decision.line - 1` 作为 0-based 的数组索引。
+      if (decision.line > 0 && decision.line <= lines.length) {
+        lines[decision.line - 1] = decision.fixedLine;
+      }
+    }
+
+    const fixedContent = lines.join('\n');
+    await fs.writeFile(file, fixedContent, 'utf-8');
+    console.log(`✅ 文件 ${path.basename(file)} 已成功修复。`);
+  }
+
+  if (totalFixed > 0) {
+    console.log(`\n✨ 总共修复了 ${totalFixed} 个语法问题。`);
+  }
+}

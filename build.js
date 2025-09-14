@@ -36,12 +36,14 @@ import {
   promptUserAboutErrors, 
   promptForManualFix, 
   promptForEmptyTranslationFix,
-  promptToPreserveFormatting
+  promptToPreserveFormatting,
+  promptForSyntaxFix
 } from './scripts/prompter.js';
 import { 
   applyManualFixes, 
   fixDuplicatesAutomatically,
-  applyEmptyTranslationFixes
+  applyEmptyTranslationFixes,
+  applySyntaxFixes
 } from './scripts/fixer.js';
 
 /**
@@ -64,24 +66,41 @@ async function pressAnyKeyToContinue() {
  */
 async function handleCheck(options) {
   console.log('🔍 开始校验翻译文件...');
-  const errors = await validateTranslationFiles(options);
+  const allErrors = await validateTranslationFiles(options);
 
-  if (errors.length === 0) {
+  const syntaxErrors = allErrors.filter(e => e.type === 'syntax');
+  const otherErrors = allErrors.filter(e => e.type !== 'syntax');
+
+  if (syntaxErrors.length > 0) {
+    console.log('\n🚨 检测到语法错误！必须先解决这些问题才能继续。');
+    const decisions = await promptForSyntaxFix(syntaxErrors);
+    if (decisions && decisions.length > 0) {
+      await applySyntaxFixes(decisions);
+      console.log('\n✅ 语法修复已应用。建议重新运行检查以确认所有问题已解决。');
+    } else {
+      console.log('\n🤷‍ 未进行任何语法修复。操作已停止。');
+    }
+    return; // 停止执行，强制用户重新运行
+  }
+
+  if (otherErrors.length === 0) {
     console.log('\n✅ 未发现相关问题。');
     return;
   }
 
-  const userAction = await promptUserAboutErrors(errors, { isFullBuild: false });
+  const userAction = await promptUserAboutErrors(otherErrors, { isFullBuild: false });
 
   switch (userAction) {
     case 'auto-fix':
-      await fixDuplicatesAutomatically(errors);
+      // 自动修复仅适用于重复项
+      const duplicatesToAutoFix = otherErrors.filter(e => e.type === 'multi-duplicate');
+      await fixDuplicatesAutomatically(duplicatesToAutoFix);
       console.log('\n✅ 自动修复完成。建议您重新运行检查。');
       break;
     
     case 'manual-fix':
       if (options.checkDuplicates) {
-        const duplicateErrors = errors.filter(e => e.type === 'multi-duplicate');
+        const duplicateErrors = otherErrors.filter(e => e.type === 'multi-duplicate');
         if (duplicateErrors.length > 0) {
           const decisions = await promptForManualFix(duplicateErrors);
           if (decisions) {
@@ -91,9 +110,11 @@ async function handleCheck(options) {
         }
       }
       if (options.checkEmpty) {
-        // 在修复了重复项之后，文件可能已更改，因此我们需要重新校验以获取最新的“空翻译”错误及其位置
         console.log('\n🔄 重新校验“空翻译”问题...');
-        const emptyErrors = await validateTranslationFiles({ checkEmpty: true, checkDuplicates: false });
+        const validationResult = await validateTranslationFiles({ checkEmpty: true, checkDuplicates: false });
+        // 此时不应再有语法错误，但以防万一
+        const emptyErrors = validationResult.filter(e => e.type === 'empty-translation');
+        
         if (emptyErrors.length > 0) {
            console.log(`\n发现 ${emptyErrors.length} 个“空翻译”问题，现在开始处理...`);
           const decisions = await promptForEmptyTranslationFix(emptyErrors);
@@ -122,13 +143,29 @@ async function runFullBuild() {
     // --- 步骤 1: 执行翻译文件校验 ---
     console.log('🔍 开始执行完整构建流程...');
     console.log('--- (阶段 1/3) 校验文件 ---');
-    const validationErrors = await validateTranslationFiles({ checkEmpty: true, checkDuplicates: true });
+    const allErrors = await validateTranslationFiles({ checkEmpty: true, checkDuplicates: true });
 
-    // --- 步骤 2: 如果发现错误，则进入交互式处理流程 ---
-    if (validationErrors.length > 0) {
-      const userAction = await promptUserAboutErrors(validationErrors, { isFullBuild: true });
-      const duplicateErrors = validationErrors.filter(e => e.type === 'multi-duplicate');
-      const emptyTranslationErrors = validationErrors.filter(e => e.type === 'empty-translation');
+    const syntaxErrors = allErrors.filter(e => e.type === 'syntax');
+    const otherErrors = allErrors.filter(e => e.type !== 'syntax');
+
+    // --- 步骤 2: 如果发现语法错误，必须先修复 ---
+    if (syntaxErrors.length > 0) {
+        console.log('\n🚨 检测到语法错误！必须先解决这些问题才能继续构建。');
+        const decisions = await promptForSyntaxFix(syntaxErrors);
+        if (decisions && decisions.length > 0) {
+            await applySyntaxFixes(decisions);
+            console.log('\n✅ 语法修复已应用。请重新运行构建。');
+        } else {
+            console.log('\n🤷‍ 未进行任何语法修复。构建已取消。');
+        }
+        process.exit(0); // 退出脚本
+    }
+
+    // --- 步骤 3: 如果发现其他错误，则进入交互式处理流程 ---
+    if (otherErrors.length > 0) {
+      const userAction = await promptUserAboutErrors(otherErrors, { isFullBuild: true });
+      const duplicateErrors = otherErrors.filter(e => e.type === 'multi-duplicate');
+      const emptyTranslationErrors = otherErrors.filter(e => e.type === 'empty-translation');
 
       let shouldContinue = false;
       switch (userAction) {
@@ -152,9 +189,9 @@ async function runFullBuild() {
             console.log('\n✅ “重复原文”问题已修复。');
           }
           if (emptyTranslationErrors.length > 0) {
-            // Re-validate to get fresh locations for empty translation errors
             console.log('\n🔄 重新校验“空翻译”问题...');
-            const freshEmptyErrors = await validateTranslationFiles({ checkEmpty: true, checkDuplicates: false });
+            const freshEmptyErrorsResult = await validateTranslationFiles({ checkEmpty: true, checkDuplicates: false });
+            const freshEmptyErrors = freshEmptyErrorsResult.filter(e => e.type === 'empty-translation');
             if (freshEmptyErrors.length > 0) {
                 console.log(`\n发现 ${freshEmptyErrors.length} 个“空翻译”问题，现在开始处理...`);
                 const decisions = await promptForEmptyTranslationFix(freshEmptyErrors);
