@@ -139,9 +139,6 @@ async function handleCheck(options) {
   }
 }
 
-/**
- * 专用于处理“遗漏逗号”问题的最终工作流程。
- */
 async function handleMissingCommaCheck() {
   console.log('🔍 开始检查“遗漏逗号”问题...');
   
@@ -169,24 +166,22 @@ async function handleMissingCommaCheck() {
     console.log('\n🤖 正在以迭代方式自动修复高置信度问题...');
     let fixedInThisPass;
     let autoFixRounds = 0;
+    const initialErrorCount = initialErrors.length;
     do {
       fixedInThisPass = 0;
       autoFixRounds++;
       const allCurrentErrors = await validateTranslationFiles({
         checkMissingComma: true, checkEmpty: false, checkDuplicates: false
       });
-
       if (allCurrentErrors.length === 0) break;
       
       const { highConfidenceFixes } = await identifyHighConfidenceCommaErrors(allCurrentErrors);
-
       if (highConfidenceFixes.length > 0) {
         await applySingleCommaFix(highConfidenceFixes[0]);
         fixedInThisPass++;
         totalFixed++;
       }
-      // Safety break to prevent potential infinite loops in unforeseen edge cases.
-      if (autoFixRounds > initialErrors.length + 5) {
+      if (autoFixRounds > initialErrorCount + 5) {
           console.error('🚨 自动修复似乎进入了无限循环，已中止。');
           break;
       }
@@ -224,24 +219,17 @@ async function handleMissingCommaCheck() {
     console.log('\n🔧 进入手动修复模式...');
     const ignoredPositions = new Set();
     let quit = false;
-
     while (!quit) {
       const errors = await validateTranslationFiles({
-        checkMissingComma: true,
-        checkEmpty: false,
-        checkDuplicates: false,
-        ignoredPositions: ignoredPositions,
+        checkMissingComma: true, checkEmpty: false, checkDuplicates: false, ignoredPositions
       });
-
       if (errors.length === 0) {
         console.log('\n✅ 所有手动修复问题已处理完毕。');
         break;
       }
-
       const errorToFix = errors[0];
       const remaining = errors.length;
       const decision = await promptForSingleCommaFix(errorToFix, remaining);
-
       switch (decision) {
         case 'fix':
           await applySingleCommaFix(errorToFix);
@@ -263,7 +251,6 @@ async function handleMissingCommaCheck() {
       }
     }
   }
-
   console.log('\n----------------------------------------');
   console.log('📋 操作总结:');
   console.log(`  - 总共修复了 ${totalFixed} 个问题。`);
@@ -272,7 +259,6 @@ async function handleMissingCommaCheck() {
   }
   console.log('----------------------------------------');
 }
-
 
 /**
  * 运行完整的构建流程，包括打包和输出。
@@ -294,8 +280,8 @@ async function runFullBuild() {
       minify: false,
     });
 
-    // --- 步骤 3: 后处理并组合最终脚本 ---
-    console.log('\n--- (阶段 2/2) 生成最终文件 ---');
+    // --- 步骤 4: 后处理并组合最终脚本 ---
+    console.log('\n--- (阶段 3/3) 生成最终文件 ---');
     const header = await fs.readFile(path.resolve('src/header.txt'), 'utf-8');
     
     let bundledCode = result.outputFiles[0].text;
@@ -317,7 +303,7 @@ async function runFullBuild() {
         console.log('🧹 已移除注释和多余空白行。');
     }
 
-    // --- 步骤 4: 写入最终文件 ---
+    // --- 步骤 5: 写入最终文件 ---
     const distDir = path.resolve('dist');
     await fs.mkdir(distDir, { recursive: true });
     const outputPath = path.join(distDir, 'Web-Translate-Script.user.js');
@@ -349,15 +335,15 @@ async function main() {
       {
         type: 'list',
         name: 'action',
-        message: ' 您想做什么？',
+        message: '您想做什么？\n  (推荐流程: 先修复“遗漏逗号”，再处理其他检查，最后构建项目)\n',
         prefix: '⚙️',
         choices: [
-          { name: '1. 🔧 仅检查“空翻译”问题', value: 'checkEmpty' },
-          { name: '2. 🔧 仅检查“重复原文”问题', value: 'checkDuplicates' },
-          { name: '3. 🔧 仅检查“遗漏逗号”问题', value: 'checkMissingComma' },
-          new inquirer.Separator(),
+          new inquirer.Separator('--- 检查与修复 ---'),
+          { name: '1. 🔧 检查“遗漏逗号”问题', value: 'checkMissingComma' },
+          { name: '2. 🔧 检查“空翻译”问题', value: 'checkEmpty' },
+          { name: '3. 🔧 检查“重复原文”问题', value: 'checkDuplicates' },
+          new inquirer.Separator('--- 项目操作 ---'),
           { name: '4. 👟 完整构建项目', value: 'fullBuild' },
-          new inquirer.Separator(),
           { name: '5. 🚪 退出', value: 'exit' },
         ],
       },
