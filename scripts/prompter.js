@@ -34,7 +34,7 @@ export async function promptUserAboutErrors(errors, options = {}) {
     choices.push({ name: manualFixText, value: 'manual-fix' });
   }
 
-  const ignoreText = isFullBuild ? '⚠️  (忽略) 忽略所有错误并继续构建' : '⚠️  (忽略) 忽略当前问题';
+  const ignoreText = isFullBuild ? '⚠️ (忽略) 忽略所有错误并继续构建' : '⚠️ (忽略) 忽略当前问题';
   const cancelText = isFullBuild ? '❌ (取消) 取消构建' : '❌ (取消) 返回主菜单';
 
   choices.push({ name: ignoreText, value: 'ignore' }, { name: cancelText, value: 'cancel' });
@@ -66,7 +66,7 @@ export async function promptForManualFix(duplicateErrors) {
     }));
 
     choices.push(new inquirer.Separator());
-    choices.push({ name: '➡️  (跳过) 暂时不处理此问题', value: 'skip' });
+    choices.push({ name: '➡️ (跳过) 暂时不处理此问题', value: 'skip' });
     choices.push({ name: '🛑 (退出) 放弃所有手动修复并退出', value: 'exit' });
 
     const { userChoice } = await inquirer.prompt([
@@ -260,7 +260,7 @@ ${lineBelow}
       message: `--[ 发现 ${remainingCount} 个问题 ]--\n  - ${error.message}\n${preview}\n\n  您想如何处理这个问题？`,
       choices: [
         { name: '✅ (修复) 应用此项修复', value: 'fix' },
-        { name: '➡️  (跳过) 忽略此项，处理下一个', value: 'skip' },
+        { name: '➡️ (跳过) 忽略此项，处理下一个', value: 'skip' },
         { name: '⏩ (全部跳过) 忽略所有剩余的问题', value: 'skip-all' },
         { name: '🛑 (中止) 放弃并退出', value: 'abort' },
       ],
