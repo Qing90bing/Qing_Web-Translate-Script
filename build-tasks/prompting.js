@@ -1,10 +1,10 @@
 import inquirer from 'inquirer';
 import path from 'path';
 import fs from 'fs/promises';
-import { getLiteralValue } from './validator.js';
+import { getLiteralValue } from './validation.js';
 
 /**
- * @typedef {import('./validator.js').ValidationError} ValidationError
+ * @typedef {import('./validation.js').ValidationError} ValidationError
  */
 
 /**

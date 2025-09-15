@@ -2,9 +2,9 @@ import fs from 'fs/promises';
 import path from 'path';
 
 /**
- * @typedef {import('./prompter.js').ManualFixDecision} ManualFixDecision
- * @typedef {import('./prompter.js').EmptyTranslationFixDecision} EmptyTranslationFixDecision
- * @typedef {import('./validator.js').ValidationError} ValidationError
+ * @typedef {import('./prompting.js').ManualFixDecision} ManualFixDecision
+ * @typedef {import('./prompting.js').EmptyTranslationFixDecision} EmptyTranslationFixDecision
+ * @typedef {import('./validation.js').ValidationError} ValidationError
  */
 
 /**
