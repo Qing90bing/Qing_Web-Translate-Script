@@ -231,6 +231,8 @@ export const julesGoogleCom = [
     ["Code", "代码"],
     ["Copy", "复制"],
     ["Docs", "文档"],
+    ["Read","读取"],
+    ["and","和"],
     ["Hide", "隐藏"],
     ["More", "更多"],
     ["Stop", "停止"],
