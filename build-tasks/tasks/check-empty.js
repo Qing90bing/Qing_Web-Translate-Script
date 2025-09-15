@@ -15,6 +15,7 @@
  */
 
 // 导入核心库
+import path from 'path';
 import { validateTranslationFiles } from '../lib/validation.js';
 import { promptUserAboutErrors, promptForEmptyTranslationFix, promptForSyntaxFix } from '../lib/prompting.js';
 import { applyEmptyTranslationFixes, applySyntaxFixes } from '../lib/fixing.js';
@@ -60,11 +61,38 @@ export default async function handleEmptyCheck() {
   // 6. 根据用户的选择执行操作。
   switch (userAction) {
     case 'manual-fix':
-      // 逐个提示用户输入新译文。
-      const decisions = await promptForEmptyTranslationFix(emptyErrors);
-      // 应用用户输入的修复。
-      await applyEmptyTranslationFixes(decisions);
-      console.log('\n✅ “空翻译”问题已通过手动方式修复。');
+      // 按文件对错误进行分组
+      const errorsByFile = emptyErrors.reduce((acc, error) => {
+        const file = error.file;
+        if (!acc[file]) {
+          acc[file] = [];
+        }
+        acc[file].push(error);
+        return acc;
+      }, {});
+
+      console.log('\n🔧 开始逐个文件处理空翻译问题...');
+      const filePaths = Object.keys(errorsByFile);
+
+      for (let i = 0; i < filePaths.length; i++) {
+        const file = filePaths[i];
+        const errorsInFile = errorsByFile[file];
+        
+        console.log(`\n--[ 正在处理文件 ${i + 1}/${filePaths.length}: ${path.basename(file)} ]--`);
+        
+        // 1. 仅针对当前文件的错误，提示用户输入
+        const decisions = await promptForEmptyTranslationFix(errorsInFile);
+        
+        // 2. 立即应用并保存对当前文件的修复
+        if (decisions && decisions.filter(d => d.newTranslation !== null).length > 0) {
+          await applyEmptyTranslationFixes(decisions);
+          console.log(`  -> ✅ 文件 ${path.basename(file)} 已保存。`);
+        } else {
+          console.log(`  -> 🤷‍ 文件 ${path.basename(file)} 没有进行任何修改。`);
+        }
+      }
+      
+      console.log('\n✅ 所有文件的“空翻译”问题已处理完毕。');
       break;
 
     case 'ignore':
