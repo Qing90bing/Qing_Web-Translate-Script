@@ -222,7 +222,6 @@ export const julesGoogleCom = [
     ["Upgrade", "升级"],
     ["Delete", "删除"],
     ["Enable", "启用"],
-    ["Jules", "Jules"],
     ["Remove", "移除"],
     ["Submit", "提交"],
     ["Close", "关闭"],

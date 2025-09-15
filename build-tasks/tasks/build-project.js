@@ -23,6 +23,7 @@ import esbuild from 'esbuild'; // 高性能的 JavaScript 打包和压缩工具
 import fs from 'fs/promises'; // Node.js 文件系统模块的 Promise 版本
 import path from 'path'; // Node.js 路径处理模块
 import prettier from 'prettier'; // 流行的代码格式化工具
+import { color } from '../lib/colors.js'; // 导入颜色工具
 import { promptToPreserveFormatting } from '../lib/prompting.js'; // 从 prompting 库导入交互函数
 
 /**
@@ -31,13 +32,13 @@ import { promptToPreserveFormatting } from '../lib/prompting.js'; // 从 prompti
  */
 export default async function handleFullBuild() {
   try {
-    console.log('👟 开始执行完整构建流程...');
+    console.log(color.cyan('🚀 开始执行完整构建流程...'));
 
     // --- 步骤 1: 询问用户是否希望保留格式 ---
     const preserveFormatting = await promptToPreserveFormatting();
 
     // --- 步骤 2: 使用 esbuild 执行打包 ---
-    console.log('\n--- (阶段 1/2) 打包脚本 ---');
+    console.log(color.bold('\n--- (阶段 1/2) 正在打包脚本... ---'));
     const result = await esbuild.build({
       entryPoints: [path.resolve('src/main.js')], // 指定打包的入口文件
       bundle: true,      // 开启打包模式，将所有依赖打包进一个文件
@@ -47,7 +48,7 @@ export default async function handleFullBuild() {
     });
 
     // --- 步骤 3: 后处理代码并组合成最终脚本 ---
-    console.log('\n--- (阶段 2/2) 生成最终文件 ---');
+    console.log(color.bold('\n--- (阶段 2/2) 正在生成最终文件... ---'));
     // 读取油猴脚本的头部信息
     const header = await fs.readFile(path.resolve('src/header.txt'), 'utf-8');
 
@@ -62,7 +63,7 @@ export default async function handleFullBuild() {
         });
         // 将头部和格式化后的代码拼接起来
         finalScript = `${header}\n\n${formattedCode}`;
-        console.log('💅 已保留注释和空白行。');
+        console.log(color.green('  -> 💅 已保留注释和空白行。'));
     } else {
         // 如果用户选择不保留格式
         // 1. 使用正则表达式移除所有 JS 注释 (包括 `/**/` 和 `//`)
@@ -75,7 +76,7 @@ export default async function handleFullBuild() {
         formattedCode = formattedCode.replace(/^\s*[\r\n]/gm, '');
         // 4. 将头部和处理后的代码拼接起来
         finalScript = `${header}\n\n${formattedCode}`;
-        console.log('🧹 已移除注释和多余空白行。');
+        console.log(color.green('  -> 🧹 已移除注释和多余空白行。'));
     }
 
     // --- 步骤 4: 将最终脚本写入文件 ---
@@ -86,17 +87,17 @@ export default async function handleFullBuild() {
     // 将最终脚本内容写入文件
     await fs.writeFile(outputPath, finalScript);
 
-    console.log(`\n🎉 构建成功！最终脚本位于: ${outputPath}`);
+    console.log(color.bold(color.lightGreen(`\n🎉 构建成功！最终脚本位于: ${color.underline(outputPath)}`)));
 
   } catch (error) {
     // --- 异常处理 ---
     // 特别处理 esbuild 可能返回的详细错误信息
     if (error.errors && error.errors.length > 0) {
-      console.error('❌ esbuild 构建失败:');
-      error.errors.forEach(e => console.error(`  - 错误信息: ${e.text} [位置: ${e.location.file}:${e.location.line}]`));
+      console.error(color.lightRed('❌ esbuild 构建失败:'));
+      error.errors.forEach(e => console.error(color.red(`  - 错误: ${e.text} [位置: ${e.location.file}:${e.location.line}]`)));
     } else {
       // 处理其他未知错误
-      console.error('❌ 构建过程中发生未知错误:', error);
+      console.error(color.lightRed('❌ 构建过程中发生未知错误:'), error);
     }
   }
 }

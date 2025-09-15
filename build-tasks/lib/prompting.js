@@ -13,6 +13,8 @@ import inquirer from 'inquirer';
 import path from 'path';
 // 导入 Node.js 的 `fs.promises` 模块，用于异步文件系统操作。
 import fs from 'fs/promises';
+// 从本地 `colors.js` 模块导入颜色工具。
+import { color } from './colors.js';
 // 从本地 `validation.js` 模块导入辅助函数。
 import { getLiteralValue } from './validation.js';
 
@@ -74,12 +76,13 @@ export async function promptUserAboutErrors(errors, options = {}) {
   choices.push({ name: ignoreText, value: 'ignore' }, { name: cancelText, value: 'cancel' });
 
   // 4. 显示一个分隔线，然后使用 `inquirer` 弹出提示框。
-  console.log('\n----------------------------------------');
+  const separator = '\n----------------------------------------';
+  console.log(color.dim(separator));
   const { action } = await inquirer.prompt([
     {
       type: 'list',
       name: 'action',
-      message: `构建前发现 ${errors.length} 个问题，您想怎么做？`,
+      message: `构建前发现 ${color.yellow(errors.length)} 个问题，您想怎么做？`,
       choices: choices,
     },
   ]);
@@ -120,11 +123,12 @@ export async function promptForManualFix(duplicateErrors) {
     choices.push({ name: '🛑 (退出) 放弃所有手动修复并退出', value: 'exit' });
 
     // 3. 使用 `inquirer` 显示提示，并附上进度信息（例如 "正在处理 1 / 5"）。
+    const progress = color.dim(`[${i + 1}/${duplicateErrors.length}]`);
     const { userChoice } = await inquirer.prompt([
       {
         type: 'list',
         name: 'userChoice',
-        message: `--[ 正在处理重复问题 ${i + 1} / ${duplicateErrors.length} ]--\n原文 "${originalText}" 被多次定义。请选择您想保留的版本：`,
+        message: `--[ 正在处理重复问题 ${progress} ]--\n原文 ${color.yellow(`"${originalText}"`)} 被多次定义。请选择您想保留的版本：`,
         choices: choices,
       },
     ]);
@@ -168,8 +172,9 @@ export async function promptForManualFix(duplicateErrors) {
  */
 export async function promptForEmptyTranslationFix(emptyTranslationErrors) {
   const decisions = [];
-  console.log('\n----------------------------------------');
-  console.log('📝 开始处理空翻译问题...');
+  const separator = color.dim('\n----------------------------------------');
+  console.log(separator);
+  console.log(color.bold('📝 开始处理空翻译问题...'));
 
   for (let i = 0; i < emptyTranslationErrors.length; i++) {
     const error = emptyTranslationErrors[i];
@@ -177,11 +182,12 @@ export async function promptForEmptyTranslationFix(emptyTranslationErrors) {
     const originalValue = getLiteralValue(error.node.elements[0]);
 
     // 弹出一个输入框，显示文件名、原文，并请求用户输入译文。
+    const progress = color.dim(`[${i + 1}/${emptyTranslationErrors.length}]`);
     const { newTranslation } = await inquirer.prompt([
       {
         type: 'input',
         name: 'newTranslation',
-        message: `--[ ${i + 1}/${emptyTranslationErrors.length} ]-- 文件: ${path.basename(error.file)}\n  - 原文: "${originalValue}"\n  - 请输入译文 (直接回车则跳过):`,
+        message: `--[ ${progress} ]-- 文件: ${color.underline(path.basename(error.file))}\n  - 原文: ${color.yellow(`"${originalValue}"`)}\n  - ${color.cyan('请输入译文 (直接回车则跳过):')}`,
       },
     ]);
 
@@ -203,12 +209,13 @@ export async function promptForEmptyTranslationFix(emptyTranslationErrors) {
  * @returns {Promise<boolean>} 如果用户选择是，则返回 `true`；否则返回 `false`。
  */
 export async function promptToPreserveFormatting() {
-    console.log('\n----------------------------------------');
+    const separator = color.dim('\n----------------------------------------');
+    console.log(separator);
     const { preserve } = await inquirer.prompt([
         {
             type: 'confirm', // 确认框类型
             name: 'preserve',
-            message: '构建已准备就绪。您想在最终的脚本文件中保留注释和空白行吗？',
+            message: `构建已准备就绪。您想在最终的脚本文件中保留注释和空白行吗？\n${color.dim('  (选择“是”会增大文件体积，但便于调试；选择“否”则会移除所有注释和多余空行。)')}`,
             default: false, // 默认不保留
         }
     ]);
@@ -226,8 +233,9 @@ export async function promptToPreserveFormatting() {
  */
 export async function promptForSyntaxFix(syntaxErrors) {
   const decisions = [];
-  console.log('\n----------------------------------------');
-  console.log('📝 开始处理语法错误...');
+  const separator = color.dim('\n----------------------------------------');
+  console.log(separator);
+  console.log(color.bold('📝 开始处理语法错误...'));
 
   for (let i = 0; i < syntaxErrors.length; i++) {
     const error = syntaxErrors[i];
@@ -239,11 +247,12 @@ export async function promptForSyntaxFix(syntaxErrors) {
 
     // 2. 如果不是我们能处理的特定错误类型，则只显示信息，让用户去手动修复。
     if (!isMissingCommaError) {
-      console.log(`\n--[ ${i + 1}/${syntaxErrors.length} ]-- 文件: ${path.basename(error.file)}`);
-      console.log(`  - 错误: ${error.message}`);
-      console.log(`  - 行号: ${error.line}`);
-      console.log(`  - 内容: ${error.lineContent}`);
-      console.log('  - 自动修复: ❌ 此类语法错误无法自动修复，请手动编辑文件。');
+      const progress = color.dim(`[${i + 1}/${syntaxErrors.length}]`);
+      console.log(`\n--[ ${progress} ]-- 文件: ${color.underline(path.basename(error.file))}`);
+      console.log(`  - ${color.red('错误')}: ${error.message}`);
+      console.log(`  - ${color.dim('行号')}: ${error.line}`);
+      console.log(`  - ${color.dim('内容')}: ${error.lineContent}`);
+      console.log(color.yellow('  - 自动修复: ❌ 此类语法错误无法自动修复，请手动编辑文件。'));
       continue; // 继续处理下一个错误
     }
 
@@ -255,7 +264,7 @@ export async function promptForSyntaxFix(syntaxErrors) {
     const originalLine = lines[lineIndexToFix];
     const fixedLine = originalLine.trimEnd() + ','; // 在行尾添加逗号
 
-    // 4. 使用 ANSI 转义码创建带颜色的代码预览，高亮新增的逗号，让用户一目了然。
+    // 4. 使用颜色工具创建带高亮的预览，让用户一目了然。
     const preview = `
 --- 问题代码 (第 ${error.line - 1}-${error.line} 行) ---
 ${originalLine}
@@ -263,17 +272,18 @@ ${error.lineContent}
 --------------------------
 
 +++ 建议修复 (高亮部分为新增) +++
-${originalLine.trimEnd()}\x1b[32m,\x1b[0m
+${originalLine.trimEnd()}${color.green(',')}
 ${error.lineContent}
 ++++++++++++++++++++++++++`;
 
     // 5. 弹出确认框，显示预览图，让用户决定是否接受此修复。
+    const progress = color.dim(`[${i + 1}/${syntaxErrors.length}]`);
     const { confirm } = await inquirer.prompt([
       {
         type: 'confirm',
         name: 'confirm',
         prefix: '❓',
-        message: `--[ ${i + 1}/${syntaxErrors.length} ]-- 文件: ${path.basename(error.file)}\n  - 检测到可能缺少逗号。预览如下:\n${preview}\n\n  您是否接受此项修复？`,
+        message: `--[ ${progress} ]-- 文件: ${color.underline(path.basename(error.file))}\n  - ${color.yellow('检测到可能缺少逗号。')}预览如下:\n${preview}\n\n  您是否接受此项修复？`,
         default: true,
       },
     ]);
@@ -298,12 +308,13 @@ ${error.lineContent}
  * @returns {Promise<string>} 返回用户选择的操作：'auto-fix'（自动修复）, 'manual-fix'（手动修复）, 或 'ignore'（忽略）。
  */
 export async function promptForCommaFixAction(errorCount) {
-  console.log('\n----------------------------------------');
+  const separator = color.dim('\n----------------------------------------');
+  console.log(separator);
   const { action } = await inquirer.prompt([
     {
       type: 'list',
       name: 'action',
-      message: `检测到 ${errorCount} 个可能的“遗漏逗号”问题。您想如何处理？`,
+      message: `检测到 ${color.yellow(errorCount)} 个可能的“遗漏逗号”问题。您想如何处理？`,
       choices: [
         {
           name: '✨ (自动) 尝试自动修复所有高置信度的问题',
@@ -349,18 +360,18 @@ export async function promptForSingleCommaFix(error, remainingCount) {
   }
   const relativeColumn = error.pos - lineStartPos;
 
-  // 3. 构建带有 ANSI 颜色代码的建议修复行，使新增的逗号高亮（绿色），视觉上更醒目。
+  // 3. 构建带有颜色高亮的建议修复行，使新增的逗号在视觉上更醒目。
   //    `\x1b[32m` 是设置颜色为绿色的转义码, `\x1b[0m` 是重置颜色的转义码。
   const fixedLine =
     errorLine.slice(0, relativeColumn) +
-    '\x1b[32m,\x1b[0m' +
+    color.green(',') +
     errorLine.slice(relativeColumn);
   
   // 4. 构建完整的预览文本，包括原始问题代码和建议的修复方案。
   const preview = `
 --- 问题代码 (文件: ${path.basename(error.file)}, 第 ${error.line} 行) ---
 ${lineAbove}
-\x1b[31m${errorLine}\x1b[0m
+${color.red(errorLine)}
 ${lineBelow}
 ----------------------------------
 
@@ -371,11 +382,12 @@ ${lineBelow}
 ++++++++++++++++++++++++++++++++++`;
 
   // 5. 显示交互式列表提示，让用户做出选择。
+  const progress = color.dim(`[发现 ${remainingCount} 个问题]`);
   const { choice } = await inquirer.prompt([
     {
       type: 'list',
       name: 'choice',
-      message: `--[ 发现 ${remainingCount} 个问题 ]--\n  - ${error.message}\n${preview}\n\n  您想如何处理这个问题？`,
+      message: `-- ${progress} --\n  - ${color.yellow(error.message)}\n${preview}\n\n  您想如何处理这个问题？`,
       choices: [
         { name: '✅ (修复) 应用此项修复', value: 'fix' },
         { name: '➡️ (跳过) 忽略此项，处理下一个', value: 'skip' },
@@ -397,7 +409,7 @@ async function promptForIdenticalAutoFix() {
     {
       type: 'list',
       name: 'choice',
-      message: '请选择自动修复“原文与译文相同”问题的方式：',
+      message: `请选择自动修复“原文与译文相同”问题的方式：\n${color.cyan('  (此操作将一次性处理所有文件中的所有此类问题)')}`,
       choices: [
         { name: '🗑️ (全部移除) 将所有原文与译文相同的词条从文件中移除', value: 'remove' },
         { name: '✏️ (全部置空) 将所有原文与译文相同的词条的译文部分修改为空字符串 ""', value: 'empty' },
@@ -420,11 +432,12 @@ export async function promptForSingleIdenticalFix(error, remainingCount) {
   const originalText = getLiteralValue(error.node.elements[0]);
 
   // 1. 提供多个处理选项：修改、移除、忽略、全部忽略、中止。
+  const progress = color.cyan(`[发现 ${remainingCount} 个问题]`);
   const { action } = await inquirer.prompt([
     {
       type: 'list',
       name: 'action',
-      message: `--[ 发现 ${remainingCount} 个问题 ]--\n  - 文件: ${path.basename(error.file)}\n  - 原文: "${originalText}"\n  - 行号: ${error.line}\n  - 内容: ${error.lineContent}\n请选择如何处理此词条：`,
+      message: `-- ${progress} --\n  - 文件: ${color.underline(path.basename(error.file))}\n  - 原文: ${color.yellow(`"${originalText}"`)}\n  - 行号: ${error.line}\n  - 内容: ${color.cyan(error.lineContent.trim())}\n请选择如何处理此词条：`,
       choices: [
         { name: '✏️ (修改) 为此词条输入新的译文', value: 'modify' },
         { name: '🗑️ (移除) 从文件中删除此词条', value: 'remove' },
@@ -453,7 +466,7 @@ export async function promptForSingleIdenticalFix(error, remainingCount) {
       {
         type: 'input',
         name: 'newTranslation',
-        message: `请输入 "${originalText}" 的新译文:`,
+        message: `请输入 ${color.yellow(`"${originalText}"`)} 的新译文:`,
         // 验证确保输入不为空。
         validate: input => input.trim() !== '' ? true : '译文不能为空。'
       }
@@ -473,13 +486,14 @@ export async function promptForSingleIdenticalFix(error, remainingCount) {
  * @returns {Promise<{action: string, decisions: any}|null>} 返回一个对象，包含用户的顶层选择和后续需要的数据。
  */
 export async function promptUserAboutIdenticalTranslations(errors) {
-  console.log('\n----------------------------------------');
+  const separator = '\n----------------------------------------';
+  console.log(color.dim(separator));
   // 1. 首先询问用户是想自动处理、手动处理还是直接忽略。
   const { primaryAction } = await inquirer.prompt([
     {
       type: 'list',
       name: 'primaryAction',
-      message: `发现了 ${errors.length} 个“原文和译文”相同的问题。您想如何处理？`,
+      message: `发现了 ${color.yellow(errors.length)} 个“原文和译文”相同的问题。您想如何处理？`,
       choices: [
         { name: '✨ (自动修复) 选择一个方案，批量处理所有问题', value: 'auto-fix' },
         { name: '🔧 (手动修复) 逐个预览并决定如何处理每个问题', value: 'manual-fix' },

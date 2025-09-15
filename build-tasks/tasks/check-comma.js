@@ -23,6 +23,7 @@
 
 import inquirer from 'inquirer';
 // 导入核心库
+import { color } from '../lib/colors.js';
 import { validateTranslationFiles } from '../lib/validation.js';
 import { promptForCommaFixAction, promptForSingleCommaFix } from '../lib/prompting.js';
 import { identifyHighConfidenceCommaErrors, applySingleCommaFix } from '../lib/fixing.js';
@@ -32,7 +33,7 @@ import { identifyHighConfidenceCommaErrors, applySingleCommaFix } from '../lib/f
  * @description “检查遗漏逗号”任务的主处理函数。
  */
 export default async function handleCommaCheck() {
-  console.log('🔍 开始检查“遗漏逗号”问题...');
+  console.log(color.cyan('🔍 开始检查“遗漏逗号”问题...'));
 
   // 1. 初次校验，找出所有潜在的逗号问题。
   let initialErrors = await validateTranslationFiles({
@@ -40,7 +41,7 @@ export default async function handleCommaCheck() {
   });
 
   if (initialErrors.length === 0) {
-    console.log('\n✅ 未发现可能的“遗漏逗号”问题。');
+    console.log(color.green('\n✅ 未发现可能的“遗漏逗号”问题。'));
     return;
   }
 
@@ -48,7 +49,7 @@ export default async function handleCommaCheck() {
   const action = await promptForCommaFixAction(initialErrors.length);
 
   if (action === 'ignore') {
-    console.log('\n🤷‍ 已忽略所有问题。');
+    console.log(color.yellow('\n🤷‍ 已忽略所有问题。'));
     return;
   }
 
@@ -59,7 +60,7 @@ export default async function handleCommaCheck() {
 
   // 3. 如果用户选择自动修复...
   if (action === 'auto-fix') {
-    console.log('\n🤖 正在以迭代方式自动修复高置信度问题...');
+    console.log(color.cyan('\n🤖 正在以迭代方式自动修复高置信度问题...'));
     let fixedInThisPass;
     let autoFixRounds = 0;
     const initialErrorCount = initialErrors.length;
@@ -85,12 +86,12 @@ export default async function handleCommaCheck() {
 
       // 安全阀：防止因意外逻辑导致无限循环
       if (autoFixRounds > initialErrorCount + 5) {
-          console.error('🚨 自动修复似乎进入了无限循环，已中止。');
+          console.error(color.lightRed('🚨 自动修复似乎进入了无限循环，已中止。'));
           break;
       }
     } while (fixedInThisPass > 0); // 只要上一轮成功修复了问题，就继续循环
 
-    console.log(`...自动修复完成，共修复了 ${totalFixed} 个问题。`);
+    console.log(color.cyan(`...自动修复完成，共修复了 ${color.bold(totalFixed)} 个问题。`));
 
     // 自动修复后，再次检查是否还有剩余的（低置信度）错误
     const remainingErrors = await validateTranslationFiles({
@@ -102,17 +103,17 @@ export default async function handleCommaCheck() {
       const { continueWithManual } = await inquirer.prompt([{
           type: 'confirm',
           name: 'continueWithManual',
-          message: `\n仍有 ${remainingErrors.length} 个低置信度问题未解决，您想现在手动处理它们吗？`,
+          message: `\n仍有 ${color.yellow(remainingErrors.length)} 个低置信度问题未解决，您想现在手动处理它们吗？`,
           default: true
       }]);
       if (continueWithManual) {
         manualMode = true; // 设置标志，以便后续进入手动模式
       } else {
         totalSkipped = remainingErrors.length;
-        console.log('\n🤷‍ 已跳过剩余的低置信度问题。');
+        console.log(color.yellow('\n🤷‍ 已跳过剩余的低置信度问题。'));
       }
     } else if (totalFixed > 0) {
-        console.log('\n✅ 所有问题已在自动修复阶段处理完毕。');
+        console.log(color.green('\n✅ 所有问题已在自动修复阶段处理完毕。'));
     }
   }
 
@@ -123,7 +124,7 @@ export default async function handleCommaCheck() {
 
   // 4. 如果需要进入手动模式...
   if (manualMode) {
-    console.log('\n🔧 进入手动修复模式...');
+    console.log(color.cyan('\n🔧 进入手动修复模式...'));
     const ignoredPositions = new Set(); // 用于存储用户选择“跳过”的错误位置
     let quit = false;
     while (!quit) {
@@ -132,7 +133,7 @@ export default async function handleCommaCheck() {
         checkMissingComma: true, checkEmpty: false, checkDuplicates: false, ignoredPositions
       });
       if (errors.length === 0) {
-        console.log('\n✅ 所有手动修复问题已处理完毕。');
+        console.log(color.green('\n✅ 所有手动修复问题已处理完毕。'));
         break;
       }
       const errorToFix = errors[0]; // 一次只处理一个错误
@@ -145,13 +146,13 @@ export default async function handleCommaCheck() {
         case 'fix':
           await applySingleCommaFix(errorToFix);
           totalFixed++;
-          console.log('✅ 已应用修复。正在重新扫描...');
+          console.log(color.green('✅ 已应用修复。正在重新扫描...'));
           break;
         case 'skip':
           // 将错误位置加入忽略集合，下次扫描时将跳过此错误
           ignoredPositions.add(errorToFix.pos);
           totalSkipped++;
-          console.log('➡️ 已跳过此问题。正在查找下一个...');
+          console.log(color.yellow('➡️ 已跳过此问题。正在查找下一个...'));
           break;
         case 'skip-all':
           totalSkipped += remaining;
@@ -165,11 +166,12 @@ export default async function handleCommaCheck() {
   }
 
   // 5. 打印最终的操作总结
-  console.log('\n----------------------------------------');
-  console.log('📋 操作总结:');
-  console.log(`  - 总共修复了 ${totalFixed} 个问题。`);
+  const separator = color.dim('----------------------------------------');
+  console.log(`\n${separator}`);
+  console.log(color.bold('📋 操作总结:'));
+  console.log(`  - ${color.green(`总共修复了 ${totalFixed} 个问题。`)}`);
   if (totalSkipped > 0) {
-    console.log(`  - 总共跳过了 ${totalSkipped} 个问题。`);
+    console.log(`  - ${color.yellow(`总共跳过了 ${totalSkipped} 个问题。`)}`);
   }
-  console.log('----------------------------------------');
+  console.log(separator);
 }

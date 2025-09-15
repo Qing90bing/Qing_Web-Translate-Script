@@ -9,6 +9,7 @@
 
 import fs from 'fs/promises';
 import path from 'path';
+import { color } from './colors.js';
 
 /**
  * @typedef {import('./prompting.js').ManualFixDecision} ManualFixDecision
@@ -26,7 +27,7 @@ import path from 'path';
  */
 export async function fixDuplicatesAutomatically(duplicateErrors) {
   if (!duplicateErrors || duplicateErrors.length === 0) {
-    console.log('\n没有发现可自动修复的重复条目。');
+    console.log(color.yellow('\n没有发现可自动修复的重复条目。'));
     return;
   }
 
@@ -48,7 +49,7 @@ export async function fixDuplicatesAutomatically(duplicateErrors) {
     const linesToRemove = Array.from(linesToRemoveByFile[file]);
     if (linesToRemove.length === 0) continue;
     totalFixed += linesToRemove.length;
-    console.log(`\n🔧 正在自动修复文件 ${path.basename(file)}，移除 ${linesToRemove.length} 个重复条目...`);
+    console.log(`\n${color.cyan(`🔧 正在自动修复文件 ${color.underline(path.basename(file))}，移除 ${color.bold(linesToRemove.length)} 个重复条目...`)}`);
     
     const content = await fs.readFile(file, 'utf-8');
     const lines = content.split('\n');
@@ -66,11 +67,15 @@ export async function fixDuplicatesAutomatically(duplicateErrors) {
     // 5. 将修改后的行数组重新组合成文件内容，并写回文件。
     const fixedContent = lines.join('\n');
     await fs.writeFile(file, fixedContent, 'utf-8');
-    console.log(`✅ 文件 ${path.basename(file)} 已成功自动修复。`);
+    console.log(color.green(`  -> ✅ 文件 ${color.underline(path.basename(file))} 已成功自动修复。`));
   }
 
   if (totalFixed > 0) {
-      console.log(`\n✨ 总共自动修复了 ${totalFixed} 个问题。`);
+      const separator = color.dim('----------------------------------------');
+      console.log(`\n${separator}`);
+      console.log(color.bold('📋 自动修复总结:'));
+      console.log(`  - ${color.green(`总共自动移除了 ${totalFixed} 个重复条目。`)}`);
+      console.log(separator);
   }
 }
 
@@ -83,7 +88,7 @@ export async function fixDuplicatesAutomatically(duplicateErrors) {
  */
 export async function applyManualFixes(decisions) {
   if (!decisions || decisions.length === 0) {
-    console.log('\n没有需要应用的修复。');
+    console.log(color.yellow('\n没有需要应用的修复。'));
     return;
   }
 
@@ -115,7 +120,7 @@ export async function applyManualFixes(decisions) {
     if (linesToRemove.length === 0) continue;
     
     totalFixed += linesToRemove.length;
-    console.log(`\n🔧 正在修复文件 ${path.basename(file)}，移除 ${linesToRemove.length} 个重复条目...`);
+    console.log(`\n${color.cyan(`🔧 正在修复文件 ${color.underline(path.basename(file))}，移除 ${color.bold(linesToRemove.length)} 个重复条目...`)}`);
     
     const content = await fs.readFile(file, 'utf-8');
     const lines = content.split('\n');
@@ -129,13 +134,13 @@ export async function applyManualFixes(decisions) {
     
     const fixedContent = lines.join('\n');
     await fs.writeFile(file, fixedContent, 'utf-8');
-    console.log(`✅ 文件 ${path.basename(file)} 已成功修复。`);
+    console.log(color.green(`  -> ✅ 文件 ${color.underline(path.basename(file))} 已成功修复。`));
   }
 
   if (totalFixed > 0) {
-      console.log(`\n✨ 总共修复了 ${totalFixed} 个问题。`);
+      console.log(color.green(`\n✨ 总共修复了 ${totalFixed} 个问题。`));
   } else {
-      console.log('\n没有需要应用的修复（可能所有问题都被跳过了）。');
+      console.log(color.yellow('\n没有需要应用的修复（可能所有问题都被跳过了）。'));
   }
 }
 
@@ -152,7 +157,7 @@ export async function applyEmptyTranslationFixes(decisions) {
   // 1. 首先，过滤掉所有用户选择跳过（即 `newTranslation` 为 null）的决策。
   const fixesToApply = decisions.filter(d => d.newTranslation !== null);
   if (fixesToApply.length === 0) {
-    console.log('\n没有需要应用的空翻译修复（可能所有问题都被跳过了）。');
+    // This case is handled by the calling function, no need to log here.
     return;
   }
 
@@ -170,7 +175,6 @@ export async function applyEmptyTranslationFixes(decisions) {
   for (const file in fixesByFile) {
     const fileDecisions = fixesByFile[file];
     totalFixed += fileDecisions.length;
-    console.log(`\n🔧 正在修复文件 ${path.basename(file)}，更新 ${fileDecisions.length} 个空翻译...`);
     
     let content = await fs.readFile(file, 'utf-8');
     
@@ -190,11 +194,10 @@ export async function applyEmptyTranslationFixes(decisions) {
     }
     
     await fs.writeFile(file, content, 'utf-8');
-    console.log(`✅ 文件 ${path.basename(file)} 已成功修复。`);
   }
 
   if (totalFixed > 0) {
-    console.log(`\n✨ 总共更新了 ${totalFixed} 个空翻译条目。`);
+    console.log(color.green(`\n✨ 总共更新了 ${color.bold(totalFixed)} 个空翻译条目。`));
   }
 }
 
@@ -224,7 +227,7 @@ export async function applySyntaxFixes(decisions) {
   for (const file in fixesByFile) {
     const fileDecisions = fixesByFile[file];
     totalFixed += fileDecisions.length;
-    console.log(`\n🔧 正在修复文件 ${path.basename(file)} 中的 ${fileDecisions.length} 个语法问题...`);
+    console.log(`\n${color.cyan(`🔧 正在修复文件 ${color.underline(path.basename(file))} 中的 ${color.bold(fileDecisions.length)} 个语法问题...`)}`);
     
     const content = await fs.readFile(file, 'utf-8');
     const lines = content.split('\n');
@@ -239,11 +242,11 @@ export async function applySyntaxFixes(decisions) {
     
     const fixedContent = lines.join('\n');
     await fs.writeFile(file, fixedContent, 'utf-8');
-    console.log(`✅ 文件 ${path.basename(file)} 已成功修复。`);
+    console.log(color.green(`  -> ✅ 文件 ${color.underline(path.basename(file))} 已成功修复。`));
   }
 
   if (totalFixed > 0) {
-    console.log(`\n✨ 总共修复了 ${totalFixed} 个语法问题。`);
+    console.log(color.green(`\n✨ 总共修复了 ${totalFixed} 个语法问题。`));
   }
 }
 
@@ -315,7 +318,7 @@ export async function fixIdenticalAutomatically(decisions) {
   const { type, errors } = decisions;
 
   if (!errors || errors.length === 0) {
-    console.log('\n没有发现可自动修复的“原文与译文相同”条目。');
+    console.log(color.yellow('\n没有发现可自动修复的“原文与译文相同”条目。'));
     return;
   }
 
@@ -332,8 +335,8 @@ export async function fixIdenticalAutomatically(decisions) {
   for (const file in fixesByFile) {
     const fileErrors = fixesByFile[file];
     totalFixed += fileErrors.length;
-    const actionText = type === 'remove' ? `移除 ${fileErrors.length} 个“原文与译文相同”条目` : `置空 ${fileErrors.length} 个“原文与译文相同”条目`;
-    console.log(`\n🔧 正在自动修复文件 ${path.basename(file)}，${actionText}...`);
+    const actionText = type === 'remove' ? `移除 ${color.bold(fileErrors.length)} 个条目` : `置空 ${color.bold(fileErrors.length)} 个条目`;
+    console.log(`\n${color.cyan(`🔧 正在自动修复文件 ${color.underline(path.basename(file))}，${actionText}...`)}`);
 
     let content = await fs.readFile(file, 'utf-8');
     
@@ -359,11 +362,16 @@ export async function fixIdenticalAutomatically(decisions) {
     }
     
     await fs.writeFile(file, content, 'utf-8');
-    console.log(`✅ 文件 ${path.basename(file)} 已成功自动修复。`);
+    console.log(color.green(`  -> ✅ 文件 ${color.underline(path.basename(file))} 已成功自动修复。`));
   }
 
   if (totalFixed > 0) {
-    console.log(`\n✨ 总共自动修复了 ${totalFixed} 个“原文与译文相同”问题。`);
+      const separator = color.dim('----------------------------------------');
+      console.log(`\n${separator}`);
+      console.log(color.bold('📋 自动修复总结:'));
+      const actionText = type === 'remove' ? `移除了` : `置空了`;
+      console.log(`  - ${color.green(`总共${actionText} ${totalFixed} 个“原文与译文相同”问题。`)}`);
+      console.log(separator);
   }
 }
 

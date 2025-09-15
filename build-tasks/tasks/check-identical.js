@@ -19,6 +19,7 @@
  */
 
 // 导入核心库
+import { color } from '../lib/colors.js';
 import { validateTranslationFiles } from '../lib/validation.js';
 import { promptUserAboutIdenticalTranslations, promptForSingleIdenticalFix } from '../lib/prompting.js';
 import { fixIdenticalAutomatically, applySingleIdenticalFix } from '../lib/fixing.js';
@@ -28,19 +29,19 @@ import { fixIdenticalAutomatically, applySingleIdenticalFix } from '../lib/fixin
  * @description “检查原文与译文相同”任务的主处理函数。
  */
 export default async function handleIdenticalCheck() {
-  console.log('🔍 开始校验“原文与译文相同”文件...');
+  console.log(color.cyan('🔍 开始校验“原文与译文相同”文件...'));
 
   // 1. 查找所有原文和译文相同的错误。
   let identicalErrors = await validateTranslationFiles({ checkIdentical: true });
   if (identicalErrors.length === 0) {
-      console.log('\n✅ 未发现“原文与译文相同”问题。');
+      console.log(color.green('\n✅ 未发现“原文与译文相同”问题。'));
       return;
   }
 
   // 2. 询问用户希望采取哪种顶层操作。
   const result = await promptUserAboutIdenticalTranslations(identicalErrors);
   if (!result || result.action === 'cancel') {
-      console.log('\n🛑 操作已取消。');
+      console.log(color.dim('\n🛑 操作已取消。'));
       return;
   }
 
@@ -48,12 +49,13 @@ export default async function handleIdenticalCheck() {
   if (result.action === 'auto-fix') {
       // 自动修复流程
       await fixIdenticalAutomatically(result.decisions);
+      // `fixIdenticalAutomatically` 内部会打印自己的日志，这里不再重复
   } else if (result.action === 'ignore') {
       // 忽略流程
-      console.log('\n🤷‍ 已忽略所有“原文与译文相同”问题。');
+      console.log(color.yellow('\n🤷‍ 已忽略所有“原文与译文相同”问题。'));
   } else if (result.action === 'manual-fix') {
       // 手动修复流程
-      console.log('\n🔧 进入手动修复模式...');
+      console.log(color.cyan('\n🔧 进入手动修复模式...'));
       const ignoredPositions = new Set(); // 存储用户选择跳过的问题的起始位置
       let quit = false;
       let totalFixed = 0;
@@ -63,7 +65,7 @@ export default async function handleIdenticalCheck() {
           // 每次循环都重新扫描，以获取最新的错误列表（并排除已忽略的）
           let currentErrors = await validateTranslationFiles({ checkIdentical: true, ignoredPositions });
           if (currentErrors.length === 0) {
-              console.log(totalFixed > 0 ? '\n✅ 所有问题已处理完毕。' : '\n没有需要处理的问题了。');
+              console.log(totalFixed > 0 ? color.green('\n✅ 所有问题已处理完毕。') : color.yellow('\n🤷‍ 没有需要处理的问题了。'));
               break;
           }
 
@@ -90,22 +92,23 @@ export default async function handleIdenticalCheck() {
               // 将问题加入忽略列表
               ignoredPositions.add(errorToFix.node.range[0]);
               totalSkipped++;
-              console.log('➡️ 已忽略此问题。正在查找下一个...');
+              console.log(color.yellow('➡️ 已忽略此问题。正在查找下一个...'));
           } else {
               // 应用修复（修改或移除）
               await applySingleIdenticalFix(decision);
               totalFixed++;
-              console.log('✅ 已应用修复。正在重新扫描...');
+              console.log(color.green('✅ 已应用修复。正在重新扫描...'));
           }
       }
 
       // 打印手动修复的总结
-      console.log('\n----------------------------------------');
-      console.log('📋 操作总结:');
-      console.log(`  - 总共修复了 ${totalFixed} 个问题。`);
+      const separator = color.dim('----------------------------------------');
+      console.log(`\n${separator}`);
+      console.log(color.bold('📋 手动修复总结:'));
+      console.log(`  - ${color.green(`总共处理了 ${totalFixed} 个问题。`)}`);
       if (totalSkipped > 0) {
-          console.log(`  - 总共忽略了 ${totalSkipped} 个问题。`);
+          console.log(`  - ${color.yellow(`总共忽略了 ${totalSkipped} 个问题。`)}`);
       }
-      console.log('----------------------------------------');
+      console.log(separator);
   }
 }

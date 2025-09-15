@@ -16,6 +16,7 @@
 
 // 导入核心库
 import path from 'path';
+import { color } from '../lib/colors.js';
 import { validateTranslationFiles } from '../lib/validation.js';
 import { promptUserAboutErrors, promptForEmptyTranslationFix, promptForSyntaxFix } from '../lib/prompting.js';
 import { applyEmptyTranslationFixes, applySyntaxFixes } from '../lib/fixing.js';
@@ -25,7 +26,7 @@ import { applyEmptyTranslationFixes, applySyntaxFixes } from '../lib/fixing.js';
  * @description “检查空翻译”任务的主处理函数。
  */
 export default async function handleEmptyCheck() {
-  console.log('🔍 开始校验“空翻译”问题...');
+  console.log(color.cyan('🔍 开始校验“空翻译”问题...'));
 
   // 1. 调用验证器，只开启空翻译检查。
   const options = { checkEmpty: true };
@@ -37,20 +38,20 @@ export default async function handleEmptyCheck() {
 
   // 3. 优先处理语法错误。
   if (syntaxErrors.length > 0) {
-    console.log('\n🚨 检测到语法错误！必须先解决这些问题才能继续。');
+    console.log(color.lightRed('\n🚨 检测到语法错误！必须先解决这些问题才能继续。'));
     const decisions = await promptForSyntaxFix(syntaxErrors);
     if (decisions && decisions.length > 0) {
       await applySyntaxFixes(decisions);
-      console.log('\n✅ 语法修复已应用。建议重新运行检查以确认所有问题已解决。');
+      console.log(color.green('\n✅ 语法修复已应用。建议重新运行检查以确认所有问题已解决。'));
     } else {
-      console.log('\n🤷‍ 未进行任何语法修复。操作已停止。');
+      console.log(color.yellow('\n🤷‍ 未进行任何语法修复。操作已停止。'));
     }
     return; // 中止任务，强制用户重新运行
   }
 
   // 4. 如果没有空翻译错误，则告知用户并退出。
   if (emptyErrors.length === 0) {
-    console.log('\n✅ 未发现“空翻译”问题。');
+    console.log(color.green('\n✅ 未发现“空翻译”问题。'));
     return;
   }
 
@@ -71,40 +72,42 @@ export default async function handleEmptyCheck() {
         return acc;
       }, {});
 
-      console.log('\n🔧 开始逐个文件处理空翻译问题...');
+      console.log(color.cyan('\n🔧 开始逐个文件处理空翻译问题...'));
       const filePaths = Object.keys(errorsByFile);
 
       for (let i = 0; i < filePaths.length; i++) {
         const file = filePaths[i];
         const errorsInFile = errorsByFile[file];
         
-        console.log(`\n--[ 正在处理文件 ${i + 1}/${filePaths.length}: ${path.basename(file)} ]--`);
+        const progress = color.dim(`[${i + 1}/${filePaths.length}]`);
+        console.log(color.cyan(`\n--[ 正在处理文件 ${progress}: ${color.underline(path.basename(file))} ]--`));
         
         // 1. 仅针对当前文件的错误，提示用户输入
         const decisions = await promptForEmptyTranslationFix(errorsInFile);
         
         // 2. 立即应用并保存对当前文件的修复
-        if (decisions && decisions.filter(d => d.newTranslation !== null).length > 0) {
+        const fixesApplied = decisions && decisions.filter(d => d.newTranslation !== null).length > 0;
+        if (fixesApplied) {
           await applyEmptyTranslationFixes(decisions);
-          console.log(`  -> ✅ 文件 ${path.basename(file)} 已保存。`);
+          console.log(color.green(`  -> ✅ 文件 ${color.underline(path.basename(file))} 已保存。`));
         } else {
-          console.log(`  -> 🤷‍ 文件 ${path.basename(file)} 没有进行任何修改。`);
+          console.log(color.yellow(`  -> 🤷‍ 文件 ${color.underline(path.basename(file))} 没有进行任何修改。`));
         }
       }
       
-      console.log('\n✅ 所有文件的“空翻译”问题已处理完毕。');
+      console.log(color.green('\n✅ 所有文件的“空翻译”问题已处理完毕。'));
       break;
 
     case 'ignore':
-      console.log('\n⚠️ 问题已忽略，未进行任何修复操作。');
+      console.log(color.yellow('\n🤷‍ 问题已忽略，未进行任何修复操作。'));
       break;
     case 'cancel':
-      console.log('\n🛑 操作已取消。');
+      console.log(color.dim('\n🛑 操作已取消。'));
       break;
 
     case 'auto-fix': // `promptUserAboutErrors` 可能会显示此选项（如果混合了其他错误类型），但它不适用于此任务。
     default:
-      console.log('\n🤷‍ 无适用操作，已忽略问题。');
+      console.log(color.yellow('\n🤷‍ 无适用操作，已忽略问题。'));
       break;
   }
 }
