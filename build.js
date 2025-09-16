@@ -30,6 +30,7 @@ import handleEmptyCheck from './build-tasks/tasks/check/check-empty.js';
 import handleIdenticalCheck from './build-tasks/tasks/check/check-identical.js';
 import handleFullBuild from './build-tasks/tasks/build-project.js';
 import handleManageTranslations from './build-tasks/tasks/translation/manage-translations.js';
+import handleSortTranslations from './build-tasks/tasks/translation/sort-translations.js';
 
 /**
  * 主函数，负责显示主菜单并根据用户输入执行相应操作。
@@ -68,8 +69,9 @@ async function main() {
           new inquirer.Separator(color.dim('--- 项目操作 ---')), // 分隔线
           { name: `5. ${color.lightGreen('🚀 完整构建项目 (不包含检查)')}`, value: 'fullBuild' },
           { name: `6. ${color.cyan('🗂️ 管理网站翻译文件')}`, value: 'manageTranslations' },
+          { name: `7. ${color.magenta('✨ 整理与排序翻译文件')}`, value: 'sortTranslations' },
           new inquirer.Separator(),
-          { name: `7. ${color.cyan('🚪 退出')}`, value: 'exit' },
+          { name: `8. ${color.cyan('🚪 退出')}`, value: 'exit' },
         ],
       },
     ]);
@@ -98,6 +100,10 @@ async function main() {
         await handleManageTranslations(); // 调用管理子菜单
         // 子菜单自己处理暂停，所以这里不需要暂停
         shouldPause = false;
+        break;
+      case 'sortTranslations':
+        await handleSortTranslations(); // 调用排序任务
+        shouldPause = false; // 假设该任务也会自己处理暂停
         break;
       case 'exit':
         console.log(color.cyan('👋 再见！'));
