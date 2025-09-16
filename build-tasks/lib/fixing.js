@@ -202,6 +202,33 @@ export async function applyEmptyTranslationFixes(decisions) {
 }
 
 /**
+ * @function applySingleEmptyTranslationFix
+ * @description 应用对单个“空翻译”错误的修复。
+ * @param {object} decision - 包含错误对象和新译文的决策对象。
+ * @param {ValidationError} decision.error - 需要修复的单个错误对象。
+ * @param {string} decision.newTranslation - 用户输入的新译文。
+ * @returns {Promise<void>}
+ */
+export async function applySingleEmptyTranslationFix(decision) {
+  const { error, newTranslation } = decision;
+  const file = error.file;
+
+  let content = await fs.readFile(file, 'utf-8');
+  
+  const translationNode = error.node.elements[1]; // 获取代表译文的 AST 节点
+  const start = translationNode.range[0]; // 译文节点的起始位置
+  const end = translationNode.range[1];   // 译文节点的结束位置
+  
+  // 将用户输入的字符串转换为带引号的 JSON 字符串格式。
+  const newTranslationString = JSON.stringify(newTranslation);
+  
+  // 通过字符串切片和拼接，用新的翻译内容替换旧的（空的）翻译内容。
+  content = content.slice(0, start) + newTranslationString + content.slice(end);
+  
+  await fs.writeFile(file, content, 'utf-8');
+}
+
+/**
  * @function applySyntaxFixes
  * @description 应用用户确认的“遗漏逗号”等语法修复。
  * 此函数通过替换整个行来应用修复，这适用于在 `promptForSyntaxFix` 中生成的、已经包含完整新行内容的修复决策。

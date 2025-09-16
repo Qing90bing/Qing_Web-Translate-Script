@@ -203,6 +203,64 @@ export async function promptForEmptyTranslationFix(emptyTranslationErrors) {
 }
 
 /**
+ * @function promptForSingleEmptyTranslationFix
+ * @description 在手动模式下，向用户逐个展示“空翻译”问题。
+ * @param {ValidationError} error - 当前需要处理的单个“空翻译”错误对象。
+ * @param {number} remainingCount - 剩余待处理的错误数量。
+ * @returns {Promise<object>} 返回一个包含用户决策的对象，例如 `{ action: 'fix', newTranslation: '...' }`。
+ */
+export async function promptForSingleEmptyTranslationFix(error, remainingCount) {
+  const originalText = getLiteralValue(error.node.elements[0]);
+
+  const progress = color.cyan(`[还剩 ${remainingCount} 个问题]`);
+  const { action } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'action',
+      message: `-- ${progress} --\n  - 文件: ${color.underline(path.basename(error.file))}\n  - 原文: ${color.yellow(`"${originalText}"`)}\n  - 行号: ${error.line}\n请选择如何处理此空翻译词条：`,
+      choices: [
+        { name: '✏️ (修复) 为此词条输入新的译文', value: 'fix' },
+        new inquirer.Separator(),
+        { name: '➡️ (跳过) 忽略此项，处理下一个', value: 'skip' },
+        { name: '⏩ (全部跳过) 忽略所有剩余的问题', value: 'skip-all' },
+        { name: '🛑 (中止) 放弃并退出', value: 'abort' },
+      ],
+    },
+  ]);
+
+  // 如果用户选择中止，进行二次确认。
+  if (action === 'abort') {
+      const { confirmExit } = await inquirer.prompt([
+        { type: 'confirm', name: 'confirmExit', message: '您确定要中止吗？', prefix: '⚠️', default: false }
+      ]);
+      // 如果用户取消中止，返回一个特殊状态 `retry`，让调用者可以重新处理此项。
+      if (!confirmExit) {
+        return { action: 'retry' };
+      }
+  }
+
+  // 如果用户选择修复，则弹出输入框让其输入新译文。
+  if (action === 'fix') {
+    const { newTranslation } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'newTranslation',
+        message: `请输入 ${color.yellow(`"${originalText}"`)} 的新译文 (直接回车则跳过):`,
+      }
+    ]);
+    // 如果用户直接回车，则视为跳过
+    if (!newTranslation) {
+        return { action: 'skip' };
+    }
+    return { action: 'fix', newTranslation };
+  }
+  
+  // 对于其他情况（如 'skip', 'skip-all', 'abort' 等），直接返回决策。
+  return { action };
+}
+
+
+/**
  * @function promptToPreserveFormatting
  * @description 在构建项目前，询问用户是否希望在最终的脚本文件中保留源代码的格式（注释和空白行）。
  * 这是一个简单的“是/否”确认提示。

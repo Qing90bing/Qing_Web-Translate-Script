@@ -18,8 +18,8 @@
 import path from 'path';
 import { color } from '../lib/colors.js';
 import { validateTranslationFiles } from '../lib/validation.js';
-import { promptUserAboutErrors, promptForEmptyTranslationFix, promptForSyntaxFix } from '../lib/prompting.js';
-import { applyEmptyTranslationFixes, applySyntaxFixes } from '../lib/fixing.js';
+import { promptUserAboutErrors, promptForSingleEmptyTranslationFix, promptForSyntaxFix } from '../lib/prompting.js';
+import { applySingleEmptyTranslationFix, applySyntaxFixes } from '../lib/fixing.js';
 
 /**
  * @function handleEmptyCheck
@@ -58,47 +58,60 @@ export default async function handleEmptyCheck() {
   // 5. 如果存在空翻译错误，询问用户如何操作。
   // 注意：对于空翻译，唯一真正的选项是手动修复或忽略。
   const userAction = await promptUserAboutErrors(emptyErrors, { isFullBuild: false });
+  
+  let totalFixed = 0;
+  let totalSkipped = 0;
 
   // 6. 根据用户的选择执行操作。
   switch (userAction) {
     case 'manual-fix':
-      // 按文件对错误进行分组
-      const errorsByFile = emptyErrors.reduce((acc, error) => {
-        const file = error.file;
-        if (!acc[file]) {
-          acc[file] = [];
+      console.log(color.cyan('\n🔧 进入手动修复模式...'));
+      const ignoredPositions = new Set();
+      let quit = false;
+
+      while (!quit) {
+        // 每次循环都重新校验，以获取最新的错误列表，并排除已忽略的
+        const currentErrors = (await validateTranslationFiles({ checkEmpty: true, ignoredPositions }))
+          .filter(e => e.type === 'empty-translation');
+
+        if (currentErrors.length === 0) {
+          console.log(color.green('\n✅ 所有“空翻译”问题已处理完毕。'));
+          break;
         }
-        acc[file].push(error);
-        return acc;
-      }, {});
 
-      console.log(color.cyan('\n🔧 开始逐个文件处理空翻译问题...'));
-      const filePaths = Object.keys(errorsByFile);
+        const errorToFix = currentErrors[0];
+        const remaining = currentErrors.length;
+        
+        // 提示用户对单个问题进行操作
+        const decision = await promptForSingleEmptyTranslationFix(errorToFix, remaining);
 
-      for (let i = 0; i < filePaths.length; i++) {
-        const file = filePaths[i];
-        const errorsInFile = errorsByFile[file];
-        
-        const progress = color.dim(`[${i + 1}/${filePaths.length}]`);
-        console.log(color.cyan(`\n--[ 正在处理文件 ${progress}: ${color.underline(path.basename(file))} ]--`));
-        
-        // 1. 仅针对当前文件的错误，提示用户输入
-        const decisions = await promptForEmptyTranslationFix(errorsInFile);
-        
-        // 2. 立即应用并保存对当前文件的修复
-        const fixesApplied = decisions && decisions.filter(d => d.newTranslation !== null).length > 0;
-        if (fixesApplied) {
-          await applyEmptyTranslationFixes(decisions);
-          console.log(color.green(`  -> ✅ 文件 ${color.underline(path.basename(file))} 已保存。`));
-        } else {
-          console.log(color.yellow(`  -> 🤷‍ 文件 ${color.underline(path.basename(file))} 没有进行任何修改。`));
+        switch (decision.action) {
+          case 'fix':
+            await applySingleEmptyTranslationFix({ error: errorToFix, newTranslation: decision.newTranslation });
+            totalFixed++;
+            console.log(color.green('  -> ✅ 已应用修复并保存。正在重新扫描...'));
+            break;
+          case 'skip':
+            ignoredPositions.add(errorToFix.pos);
+            totalSkipped++;
+            console.log(color.yellow('  -> ➡️ 已跳过此问题。正在查找下一个...'));
+            break;
+          case 'skip-all':
+            totalSkipped += remaining;
+            quit = true;
+            break;
+          case 'abort':
+            quit = true;
+            break;
+          case 'retry':
+            // 不做任何事，循环将再次处理同一个错误
+            break;
         }
       }
-      
-      console.log(color.green('\n✅ 所有文件的“空翻译”问题已处理完毕。'));
       break;
 
     case 'ignore':
+      totalSkipped = emptyErrors.length;
       console.log(color.yellow('\n🤷‍ 问题已忽略，未进行任何修复操作。'));
       break;
     case 'cancel':
@@ -109,5 +122,19 @@ export default async function handleEmptyCheck() {
     default:
       console.log(color.yellow('\n🤷‍ 无适用操作，已忽略问题。'));
       break;
+  }
+
+  // 7. 打印最终的操作总结
+  if (totalFixed > 0 || totalSkipped > 0) {
+    const separator = color.dim('----------------------------------------');
+    console.log(`\n${separator}`);
+    console.log(color.bold('📋 操作总结:'));
+    if (totalFixed > 0) {
+      console.log(`  - ${color.green(`总共修复了 ${totalFixed} 个问题。`)}`);
+    }
+    if (totalSkipped > 0) {
+      console.log(`  - ${color.yellow(`总共跳过了 ${totalSkipped} 个问题。`)}`);
+    }
+    console.log(separator);
   }
 }
