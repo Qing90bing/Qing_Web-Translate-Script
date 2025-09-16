@@ -125,6 +125,7 @@ export const ${variableName} = {
     
     // --- 更新 index.js ---
     let indexJsContent = originalIndexJsContent;
+    // 插入 import 语句
     const importStatement = `import { ${variableName} } from './${fileName}';\n`;
     const lastImportIndex = indexJsContent.lastIndexOf('import');
     const nextLineIndexAfterLastImport = indexJsContent.indexOf('\n', lastImportIndex);
@@ -133,8 +134,21 @@ export const ${variableName} = {
       importStatement + 
       indexJsContent.slice(nextLineIndexAfterLastImport + 1);
 
-    const mapEntry = `  "${trimmedDomain}": ${variableName},\n};`;
-    indexJsContent = indexJsContent.replace(/};/g, mapEntry);
+    // 插入 masterTranslationMap 条目
+    const lastBraceIndex = indexJsContent.lastIndexOf('}');
+    if (lastBraceIndex === -1) {
+        throw new Error('在 index.js 中找不到 masterTranslationMap 的结束括号 "}"');
+    }
+    // 检查右花括号前是否有换行符，如果没有则添加，以确保格式正确
+    const precedingChar = indexJsContent.substring(lastBraceIndex - 1, lastBraceIndex).trim();
+    const needsNewline = precedingChar === ',';
+    const mapEntry = `${needsNewline ? '\n' : ''}  "${trimmedDomain}": ${variableName},\n`;
+    
+    indexJsContent = 
+        indexJsContent.slice(0, lastBraceIndex) +
+        mapEntry +
+        indexJsContent.slice(lastBraceIndex);
+
     fs.writeFileSync(indexJsPath, indexJsContent);
     console.log(color.green(`✅ 成功更新索引文件: ${color.yellow(indexJsPath)}`));
 
