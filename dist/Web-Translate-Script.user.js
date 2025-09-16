@@ -19,43 +19,35 @@
 
 
 (() => {
-  // src/translations/jules.google.com.js
   var julesGoogleCom = {
-    // 样式（CSS）
     styles: ['.feedback-button { width: auto !important; white-space: nowrap !important; }'],
-    // 正则表达式翻译规则
     regexRules: [
-      // 匹配 "Completed ... ago" 等完成状态
-      [/Ran command\s+"(.*?)"/i, '执行命令：“$1”'],
-      [/Read\s+([\w\.\-]+)/i, '读取文件：$1'],
-      [/(\d{1,2})\s+(\d{1,2})月/, '$2 月 $1 日'],
-      [/^Searching for\s+"(.+?)"$/i, '正在搜索“$1”'],
-      [/^Searching for\s+(.+)$/i, '正在搜索：$1'],
       [/^Step\s+(\d+)\s+of the plan is complete\.$/i, '“计划”的第 $1 步已完成。'],
-      [/Completed\s+<1 minute\s+ago/i, '刚刚完成'],
-      [/Completed\s+(\d+)\s+days?\s+ago/i, '$1 天前完成'],
-      [/Completed\s+(\d+)\s+hours?\s+ago/i, '$1 小时前完成'],
       [/Completed\s+(\d+)\s+minutes?\s+ago/i, '$1 分钟前完成'],
+      [/Completed\s+(\d+)\s+hours?\s+ago/i, '$1 小时前完成'],
       [/Completed\s+(\d+)\s+seconds?\s+ago/i, '$1 秒前完成'],
-      // 匹配日期和时间 (例如: Jan 1 14:30)
-      [/Jan\s+(\d{1,2})\s+(\d{2}:\d{2})/, '1 月 $1 日 $2'],
-      [/Feb\s+(\d{1,2})\s+(\d{2}:\d{2})/, '2 月 $1 日 $2'],
-      [/Mar\s+(\d{1,2})\s+(\d{2}:\d{2})/, '3 月 $1 日 $2'],
-      [/Apr\s+(\d{1,2})\s+(\d{2}:\d{2})/, '4 月 $1 日 $2'],
-      [/May\s+(\d{1,2})\s+(\d{2}:\d{2})/, '5 月 $1 日 $2'],
-      [/Jun\s+(\d{1,2})\s+(\d{2}:\d{2})/, '6 月 $1 日 $2'],
-      [/Jul\s+(\d{1,2})\s+(\d{2}:\d{2})/, '7 月 $1 日 $2'],
-      [/Aug\s+(\d{1,2})\s+(\d{2}:\d{2})/, '8 月 $1 日 $2'],
-      [/Sep\s+(\d{1,2})\s+(\d{2}:\d{2})/, '9 月 $1 日 $2'],
-      [/Oct\s+(\d{1,2})\s+(\d{2}:\d{2})/, '10 月 $1 日 $2'],
-      [/Nov\s+(\d{1,2})\s+(\d{2}:\d{2})/, '11 月 $1 日 $2'],
       [/Dec\s+(\d{1,2})\s+(\d{2}:\d{2})/, '12 月 $1 日 $2'],
+      [/Nov\s+(\d{1,2})\s+(\d{2}:\d{2})/, '11 月 $1 日 $2'],
+      [/Oct\s+(\d{1,2})\s+(\d{2}:\d{2})/, '10 月 $1 日 $2'],
+      [/Apr\s+(\d{1,2})\s+(\d{2}:\d{2})/, '4 月 $1 日 $2'],
+      [/Aug\s+(\d{1,2})\s+(\d{2}:\d{2})/, '8 月 $1 日 $2'],
+      [/Feb\s+(\d{1,2})\s+(\d{2}:\d{2})/, '2 月 $1 日 $2'],
+      [/Jan\s+(\d{1,2})\s+(\d{2}:\d{2})/, '1 月 $1 日 $2'],
+      [/Jul\s+(\d{1,2})\s+(\d{2}:\d{2})/, '7 月 $1 日 $2'],
+      [/Jun\s+(\d{1,2})\s+(\d{2}:\d{2})/, '6 月 $1 日 $2'],
+      [/Mar\s+(\d{1,2})\s+(\d{2}:\d{2})/, '3 月 $1 日 $2'],
+      [/May\s+(\d{1,2})\s+(\d{2}:\d{2})/, '5 月 $1 日 $2'],
+      [/Sep\s+(\d{1,2})\s+(\d{2}:\d{2})/, '9 月 $1 日 $2'],
+      [/Completed\s+(\d+)\s+days?\s+ago/i, '$1 天前完成'],
+      [/^Searching for\s+"(.+?)"$/i, '正在搜索“$1”'],
+      [/Completed\s+<1 minute\s+ago/i, '刚刚完成'],
+      [/Ran command\s+"(.*?)"/i, '执行命令：“$1”'],
+      [/(\d{1,2})\s+(\d{1,2})月/, '$2 月 $1 日'],
+      [/^Searching for\s+(.+)$/i, '正在搜索：$1'],
       [/Today\s+(\d{1,2}:\d{2})/i, '今天 $1'],
+      [/Read\s+([\w\.\-]+)/i, '读取文件：$1'],
     ],
-    // 纯文本翻译规则
     textRules: [
-      // 按长度降序排列，以优先匹配长句
-      ['Jules is not yet available in your region.', 'Jules 暂未在您的区域提供服务'],
       ['Jules attempts to setup your environment according to hints in your codebase and agents.md. Optionally, you can provide a setup script to be run explicitly. No need for clone commands, the repo will be cloned automatically into the /app directory.', 'Jules 会根据您代码库中的线索和 `agents.md` 文件来尝试配置环境。您也可以提供一个设置脚本来精确执行。仓库会自动克隆到 /app 目录，无需手动执行克隆命令。'],
       ['Let Google use your future Jules conversations and code on content Jules receives from public repositories to train its generative AI models. Opting out does not apply to any feedback you may choose to provide.', '允许 Google 使用您未来与 Jules 的对话，以及 Jules 从公开代码库中获取的代码内容，用于训练其生成式 AI 模型。选择退出此项，不影响您主动提供的任何反馈。'],
       ['After a successful test of the setup script, your environment will be snapshotted for faster startups. For more information and a list of default toolsets installed see the ', '设置脚本成功通过测试后，系统将为您的环境创建快照，以便未来能更快启动。更多信息及默认安装的工具列表，请参阅'],
@@ -75,58 +67,49 @@
       ['You have unsaved changes. Are you sure you want to leave?', '您有未保存的变更,确定要离开吗？'],
       ['Jules encountered an error when working on the task.', 'Jules 在处理任务时遇到了一个错误。'],
       ['This step was already completed in the previous plan.', '此步骤在上一个计划中已经完成。'],
-      ['The data structures and logic were updated as planned.', '数据结构和逻辑已按计划更新。'],
       ['Jules is waiting for your input to continue working', 'Jules 正等待您的指示以继续操作'],
+      ['The data structures and logic were updated as planned.', '数据结构和逻辑已按计划更新。'],
       ["I've inspected the frontend changes visually: ", '我已通过视觉方式检查了前端的变更：'],
       ['Tell us more - what went right or wrong', '请告诉我们更多细节——哪些地方做得好或不好'],
       ['Deleting a task is permanent and cannot be undone', '删除任务是永久性操作，无法撤销'],
+      ['Jules is not yet available in your region.', 'Jules 暂未在您的区域提供服务'],
     ],
   };
-
-  // src/translations/aistudio.google.com.js
   var aistudioGoogleCom = {
-    // 样式（CSS）
-    styles: [
-      // 在这里添加CSS规则，例如：
-      // 'body { font-family: "Arial", sans-serif; }'
-    ],
-    // 正则表达式翻译规则
+    styles: [],
     regexRules: [
       [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  换行\nAlt + ↩  追加文本 (不执行)\nCtrl + ↩  执行指令'],
       [/Invalid JSON: SyntaxError: Unexpected token '(.+?)', "(.+?)" is not valid JSON/i, '无效的 JSON 语法错误：在 “$2” 中存在意外的字符 “$1”'],
-      [/All context lengths\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '所有上下文长度 | 输入: $$ $1 / 输出: $$ $2'],
       [/([<>]=?)\s*(\d+K)\s+tokens\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '$1$2 Tokens | 输入: $$ $3 / 输出: $$ $4'],
       [/Image \(\*Output per image\) • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, '图像 (*每张图片输出) | 输入: $$ $1 / 输出: $$ $2'],
+      [/All context lengths\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '所有上下文长度 | 输入: $$ $1 / 输出: $$ $2'],
       [/Text • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, '文本 | 输入：$$ $1，输出：$ $2'],
-      // 月份 日, 年份 格式 (例如: Jul 2, 2025)
-      [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
-      [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
-      [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
-      [/Apr\s+(\d{1,2}),\s+(\d{4})/, '$2年4月$1日'],
-      [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
-      [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2年6月$1日'],
-      [/Jul\s+(\d{1,2}),\s+(\d{4})/, '$2年7月$1日'],
-      [/Aug\s+(\d{1,2}),\s+(\d{4})/, '$2年8月$1日'],
-      [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
-      [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
-      [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
       [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
+      [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
+      [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
+      [/Apr\s+(\d{1,2}),\s+(\d{4})/, '$2年4月$1日'],
+      [/Aug\s+(\d{1,2}),\s+(\d{4})/, '$2年8月$1日'],
+      [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
+      [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
+      [/Jul\s+(\d{1,2}),\s+(\d{4})/, '$2年7月$1日'],
+      [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2年6月$1日'],
+      [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
+      [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
+      [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
     ],
-    // 纯文本翻译规则
     textRules: [
-      // 完整句子翻译（按长度排序）
-      ['Here are the changes:', '更改内容如下：'],
-      ['Thinking...', '思考中...'],
-      ['Restored from', '恢复自：'],
-      ['Added', '添加'],
-      ['Saving…..', '保存中...'],
-      ['Save app', '保存应用'],
-      [' Running for ', '运行时间 '],
       ['Upload a photo of yourself and an outfit to see how it looks on you. A virtual fitting room powered by Nano Banana.', '上传您的个人照片和心仪服装，即可轻松预览上身效果。这间虚拟试衣间由 Nano Banana™ 倾力打造。'],
+      ['Gemini 2.5 Flash Audio', 'Gemini 2.5 Flash 音频'],
+      ['Here are the changes:', '更改内容如下：'],
       ['Character consistency', '角色一致性'],
       ['object consistency', '客观的'],
+      [' Running for ', '运行时间 '],
       ['Image Editing', '图像编辑'],
-      ['Gemini 2.5 Flash Audio', 'Gemini 2.5 Flash 音频'],
+      ['Restored from', '恢复自：'],
+      ['Thinking...', '思考中...'],
+      ['Saving…..', '保存中...'],
+      ['Save app', '保存应用'],
+      ['Added', '添加'],
       ['Live', '实时'],
       ['Medium', '中'],
       ['Move', '移动'],
@@ -139,9 +122,9 @@
       ['Type', '类型'],
       ['User', '用户'],
       ['All', '全部'],
+      ['Cut', '剪切'],
       ['Empty', '空'],
       ['HOT', '热门'],
-      ['Cut', '剪切'],
       ['Off', '关闭'],
       ['Run', '运行'],
       ['High', '高'],
@@ -150,45 +133,39 @@
       ['NEW', '新'],
     ],
   };
-
-  // src/translations/claude.ai.js
   var claudeAi = {
-    // 样式（CSS）
     styles: [],
-    // 正则表达式翻译规则
     regexRules: [
       [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, '每人/月，享受年度订阅折扣。按月计费则为 SGD $1。最少 $2 名成员。'],
       [/Per person \/ month\. Minimum (\d+)\s+members\./i, '每人/月。最少 $1 名成员。'],
-      [/SGD\s+([\d.]+)/i, 'SGD $1'],
       [/Delete\s+(\d+)\s+selected\s+items?/i, '删除 $1 个选定的项目'],
       [/(\d+)\s+chats?\s+with\s+(.+)/i, '与 $2 共有 $1 条聊天记录'],
-      // 月份 日, 年份 格式 (例如: Jul 2, 2025)
-      [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
-      [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
-      [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
-      [/Apr\s+(\d{1,2}),\s+(\d{4})/, '$2年4月$1日'],
-      [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
-      [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2年6月$1日'],
-      [/Jul\s+(\d{1,2}),\s+(\d{4})/, '$2年7月$1日'],
-      [/Aug\s+(\d{1,2}),\s+(\d{4})/, '$2年8月$1日'],
-      [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
-      [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
-      [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
       [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
+      [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
+      [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
+      [/Apr\s+(\d{1,2}),\s+(\d{4})/, '$2年4月$1日'],
+      [/Aug\s+(\d{1,2}),\s+(\d{4})/, '$2年8月$1日'],
+      [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
+      [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
+      [/Jul\s+(\d{1,2}),\s+(\d{4})/, '$2年7月$1日'],
+      [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2年6月$1日'],
+      [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
+      [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
+      [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
+      [/SGD\s+([\d.]+)/i, 'SGD $1'],
     ],
-    // 纯文本翻译规则
     textRules: [
       ['upstream connect error or disconnect/reset before headers. reset reason: connection termination', '连接后端服务器失败，或在收到其响应数据前连接被重置。重置原因：连接被终止。'],
-      ['English (United States)', '英语（美国）'],
-      ['français (France)', '法语（法国）'],
-      ['Deutsch (Deutschland)', '德语（德国）'],
+      ['Don’t share personal information or third-party content without permission, and see our ', '不要分享个人信息或第三方内容，否则会违反我们的'],
       ['Only messages up until now will be shared', '仅分享到目前为止的对话'],
       ['Chat on web, iOS, and Android', '在网页、iOS和Android上聊天'],
-      ['Try Claude', '体验 Claude'],
-      ['Analyze text and images', '分析文本和图片'],
-      ['Ability to search the web', '能够搜索网络'],
       ['Private (only you have access)', '私人（仅您可见）'],
-      ['Don’t share personal information or third-party content without permission, and see our ', '不要分享个人信息或第三方内容，否则会违反我们的'],
+      ['Ability to search the web', '能够搜索网络'],
+      ['Analyze text and images', '分析文本和图片'],
+      ['English (United States)', '英语（美国）'],
+      ['Deutsch (Deutschland)', '德语（德国）'],
+      ['français (France)', '法语（法国）'],
+      ['Try Claude', '体验 Claude'],
       ['Latest', '最新的'],
       ['Connect', '连接'],
       ['Log out', '登出'],
@@ -213,12 +190,8 @@
       ['Star', '收藏'],
     ],
   };
-
-  // src/translations/console.anthropic.com.js
   var consoleAnthropicCom = {
-    // 样式（CSS）
     styles: [],
-    // 正则表达式翻译规则
     regexRules: [
       [/Confirm Development Partner Program enrollment for (.+)/i, '确认为 $1 加入开发合作伙伴计划'],
       [/(\d+)\s+day\s+retention period/i, '$1 天保留期'],
@@ -227,7 +200,6 @@
       [/\$([\d,\.]+)\s+of\s+\$([\d,\.]+)/i, '共 $2 美元，已用 $1 美元'],
       [/US\$\s*([\d,\.]+)/i, '美元$1'],
       [/^(\d{1,3}(?:,\d{3})*)\s+keys?$/i, '$1 个密钥'],
-      // 月份 日, 年份 格式 (例如: Jul 2, 2025)
       [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
       [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
       [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
@@ -241,91 +213,80 @@
       [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
       [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
     ],
-    // 纯文本翻译规则
     textRules: [
+      ['Disabling web search may break existing services that have web search enabled. Are you sure you want to disable web search for your organization?', '禁用Web搜索可能会破坏启用Web搜索的现有服务。您确定要禁用网络搜索您的组织吗？'],
+      ['This will permanently delete all metrics data collected from Claude Code. This action cannot be undone. Are you sure you want to continue?', '这将永久删除从Claude Code收集的所有指标数据。此操作无法撤消。您确定要继续吗？'],
+      ['Search and cite content from any domain', '搜索和引用任何域名的内容'],
+      ['Delete Claude Code metrics data', '删除 Claude Code 度量数据'],
+      ['Code for Anthropic API', 'Anthropic API 的代码'],
+      ['How was your experience?', '你的体验怎么样？'],
+      ['Need help instead? Visit', '需要帮助吗？访问'],
+      ['Give us more details', '告诉我们更多细节'],
+      ['Write me an email', '给我写一封电子邮件'],
+      ['Your Privacy Choices', '您的隐私选择'],
+      ['Disable web search', '禁止网页搜索'],
+      ['Summarize a document', '总结文档'],
+      ['Recommend a product', '推荐产品'],
+      ['Content moderation', '内容审核'],
+      ['Help & Support ', '帮助和支持'],
+      ['Submit Feedback', '提交反馈'],
+      ['Data retention', '数据保留'],
+      ['Translate code', '翻译代码'],
       ['Legal center', '法律中心'],
       ['Log out', '登出'],
-      ['Data retention', '数据保留'],
-      ['Your Privacy Choices', '您的隐私选择'],
-      ['Submit Feedback', '提交反馈'],
-      ['How was your experience?', '你的体验怎么样？'],
-      ['Give us more details', '告诉我们更多细节'],
-      ['Need help instead? Visit', '需要帮助吗？访问'],
-      ['Help & Support ', '帮助和支持'],
-      ['Summarize a document', '总结文档'],
-      ['Write me an email', '给我写一封电子邮件'],
-      ['Translate code', '翻译代码'],
-      ['Content moderation', '内容审核'],
-      ['Recommend a product', '推荐产品'],
-      ['Code for Anthropic API', 'Anthropic API 的代码'],
-      ['Delete Claude Code metrics data', '删除 Claude Code 度量数据'],
-      ['This will permanently delete all metrics data collected from Claude Code. This action cannot be undone. Are you sure you want to continue?', '这将永久删除从Claude Code收集的所有指标数据。此操作无法撤消。您确定要继续吗？'],
-      ['Disable web search', '禁止网页搜索'],
-      ['Disabling web search may break existing services that have web search enabled. Are you sure you want to disable web search for your organization?', '禁用Web搜索可能会破坏启用Web搜索的现有服务。您确定要禁用网络搜索您的组织吗？'],
-      ['Search and cite content from any domain', '搜索和引用任何域名的内容'],
     ],
   };
-
-  // src/translations/status.anthropic.com.js
   var statusAnthropicCom = {
-    // 样式（CSS）
     styles: [],
-    // 正则表达式翻译规则
     regexRules: [
-      // 月份缩写 (Abbreviated Month Name):
-      [/^(\d{1,2})\s+Jan\s+(\d{4})$/i, '$2年1月$1日'],
-      [/^(\d{1,2})\s+Feb\s+(\d{4})$/i, '$2年2月$1日'],
-      [/^(\d{1,2})\s+Mar\s+(\d{4})$/i, '$2年3月$1日'],
-      [/^(\d{1,2})\s+Apr\s+(\d{4})$/i, '$2年4月$1日'],
-      [/^(\d{1,2})\s+May\s+(\d{4})$/i, '$2年5月$1日'],
-      [/^(\d{1,2})\s+Jun\s+(\d{4})$/i, '$2年6月$1日'],
-      [/^(\d{1,2})\s+Jul\s+(\d{4})$/i, '$2年7月$1日'],
-      [/^(\d{1,2})\s+Aug\s+(\d{4})$/i, '$2年8月$1日'],
-      [/^(\d{1,2})\s+Sep\s+(\d{4})$/i, '$2年9月$1日'],
-      [/^(\d{1,2})\s+Oct\s+(\d{4})$/i, '$2年10月$1日'],
-      [/^(\d{1,2})\s+Nov\s+(\d{4})$/i, '$2年11月$1日'],
-      [/^(\d{1,2})\s+Dec\s+(\d{4})$/i, '$2年12月$1日'],
-      [/^(\d+)\s*hrs?$/i, '$1小时'],
-      [/^(\d+)\s*mins?$/i, '$1分钟'],
-      [/^(\d+)\s*secs?$/i, '$1秒'],
-      [/Uptime over the past\s+(\d+)\s+days\./i, '过去 $1 天的正常运行时间。'],
-      [/(\d+)\s+days ago/i, '$1 天前'],
-      [/([\d\.]+)\s*%\s*uptime/i, '正常运行时间 $1%'],
-      [/Resend OTP in:\s*(\d+)\s*seconds/i, '在 $1 秒后重新发送 OTP'],
-      [/(\d+)\s+hrs/i, '$1 小时'],
-      [/(\d+)\s+mins/i, '$1 分钟'],
-      [/(\d+)\s+components?/i, '$1 个组件'],
-      [/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s+(\d{4})/i, 'YYYY年MM月DD日'],
-      // 注意：月份的翻译需要额外处理
       [/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s+(\d{2}:\d{2})\s+UTC/i, 'MM月DD日, $3 UTC'],
-      // 注意：月份的翻译需要额外处理
+      [/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s+(\d{4})/i, 'YYYY年MM月DD日'],
+      [/Uptime over the past\s+(\d+)\s+days\./i, '过去 $1 天的正常运行时间。'],
+      [/Resend OTP in:\s*(\d+)\s*seconds/i, '在 $1 秒后重新发送 OTP'],
+      [/^(\d{1,2})\s+Dec\s+(\d{4})$/i, '$2年12月$1日'],
+      [/^(\d{1,2})\s+Nov\s+(\d{4})$/i, '$2年11月$1日'],
+      [/^(\d{1,2})\s+Oct\s+(\d{4})$/i, '$2年10月$1日'],
+      [/([\d\.]+)\s*%\s*uptime/i, '正常运行时间 $1%'],
+      [/^(\d{1,2})\s+Apr\s+(\d{4})$/i, '$2年4月$1日'],
+      [/^(\d{1,2})\s+Aug\s+(\d{4})$/i, '$2年8月$1日'],
+      [/^(\d{1,2})\s+Feb\s+(\d{4})$/i, '$2年2月$1日'],
+      [/^(\d{1,2})\s+Jan\s+(\d{4})$/i, '$2年1月$1日'],
+      [/^(\d{1,2})\s+Jul\s+(\d{4})$/i, '$2年7月$1日'],
+      [/^(\d{1,2})\s+Jun\s+(\d{4})$/i, '$2年6月$1日'],
+      [/^(\d{1,2})\s+Mar\s+(\d{4})$/i, '$2年3月$1日'],
+      [/^(\d{1,2})\s+May\s+(\d{4})$/i, '$2年5月$1日'],
+      [/^(\d{1,2})\s+Sep\s+(\d{4})$/i, '$2年9月$1日'],
+      [/(\d+)\s+components?/i, '$1 个组件'],
+      [/(\d+)\s+days ago/i, '$1 天前'],
+      [/^(\d+)\s*mins?$/i, '$1分钟'],
+      [/^(\d+)\s*hrs?$/i, '$1小时'],
+      [/(\d+)\s+mins/i, '$1 分钟'],
+      [/^(\d+)\s*secs?$/i, '$1秒'],
+      [/(\d+)\s+hrs/i, '$1 小时'],
     ],
-    // 纯文本翻译规则
     textRules: [
-      ['Team plan organizations unable to add more members', '团队计划组织无法添加更多成员'],
-      ['Uptime over the past ', '正常运行时间'],
-      [' days. ', '天'],
-      [' days ago', '天前'],
-      ['% uptime', '% 正常运行时间'],
-      ['Anthropic Status', 'Anthropic 服务状态'],
-      ["Welcome to Anthropic's home for real-time and historical data on system performance.", '欢迎访问 Anthropic，在此查看系统性能的实时和历史数据。'],
       ['Atlassian uses cookies to improve your browsing experience, perform analytics and research, and conduct advertising. Accept all cookies to indicate that you agree to our use of cookies on your device.', 'Atlassian 使用 Cookie 来改善您的浏览体验、进行分析和研究以及开展广告。接受所有 Cookie 即表示您同意我们在您的设备上使用 Cookie。'],
+      ["Welcome to Anthropic's home for real-time and historical data on system performance.", '欢迎访问 Anthropic，在此查看系统性能的实时和历史数据。'],
+      ['Team plan organizations unable to add more members', '团队计划组织无法添加更多成员'],
       ['Atlassian cookies and tracking notice', 'Atlassian Cookie 和跟踪声明'],
+      ['Subscribe via webhook', '通过 Webhook 订阅'],
       [', (opens new window)', '（在新窗口中打开）'],
-      ['Preferences', '偏好设置'],
-      ['Only necessary', '仅限必要'],
-      ['Accept all', '全部接受'],
-      ['Page logo', '页面标志'],
-      ['Subscribe to updates', '订阅更新'],
       ['Subscribe via email', '通过电子邮件订阅'],
-      ['Subscribe via SMS', '通过短信订阅'],
+      ['Anthropic Status', 'Anthropic 服务状态'],
       ['Subscribe via slack', '通过 Slack 订阅'],
       ['Subscribe via teams', '通过 Teams 订阅'],
-      ['Subscribe via webhook', '通过 Webhook 订阅'],
+      ['Uptime over the past ', '正常运行时间'],
+      ['Subscribe via SMS', '通过短信订阅'],
+      ['Subscribe to updates', '订阅更新'],
+      ['% uptime', '% 正常运行时间'],
+      ['Only necessary', '仅限必要'],
+      ['Preferences', '偏好设置'],
+      ['Accept all', '全部接受'],
+      ['Page logo', '页面标志'],
+      [' days ago', '天前'],
+      [' days. ', '天'],
     ],
   };
-
-  // src/translations/index.js
   var masterTranslationMap = {
     'jules.google.com': julesGoogleCom,
     'aistudio.google.com': aistudioGoogleCom,
@@ -333,8 +294,6 @@
     'console.anthropic.com': consoleAnthropicCom,
     'status.anthropic.com': statusAnthropicCom,
   };
-
-  // src/modules/utils/logger.js
   var LOG_KEY = 'web_translate_debug_mode';
   var isDebugMode = GM_getValue(LOG_KEY, false);
   function updateDebugState(newMode) {
@@ -345,8 +304,6 @@
       console.log('[汉化脚本]', ...args);
     }
   }
-
-  // src/modules/ui/menu.js
   var MENU_COMMAND_ID = 'toggle_debug_log_command';
   function toggleDebugMode() {
     const newMode = !isDebugMode;
@@ -361,15 +318,12 @@
   function initializeMenu() {
     updateMenuCommand();
   }
-
-  // src/modules/ui/anti-flicker.js
   var STYLE_ID = 'anti-flicker-style';
   function injectAntiFlickerStyle() {
     document.documentElement.classList.add('translation-in-progress');
     const antiFlickerStyle = document.createElement('style');
     antiFlickerStyle.id = STYLE_ID;
     antiFlickerStyle.textContent = `
-        /* 在翻译进行中时，隐藏body，但保持加载指示器可见 */
         html.translation-in-progress body {
             visibility: hidden !important;
             opacity: 0 !important;
@@ -400,14 +354,10 @@
       document.getElementById(STYLE_ID)?.remove();
     }, 500);
   }
-
-  // src/config.js
-  var BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(['script', 'style', 'pre', 'code']);
-  var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set(['textarea', 'input']);
-  var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
+  var BLOCKS_ALL_TRANSLATION = new Set(['script', 'style', 'pre', 'code']);
+  var BLOCKS_CONTENT_ONLY = new Set(['textarea', 'input']);
+  var ALL_UNTRANSLATABLE_TAGS = new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
   var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip'];
-
-  // src/modules/core/translator.js
   var textTranslationMap;
   var regexRules;
   var translationCache;
@@ -535,25 +485,22 @@
   function createTranslator(textMap, regexArr) {
     textTranslationMap = textMap;
     regexRules = regexArr;
-    translationCache = /* @__PURE__ */ new Map();
-    translatedElements = /* @__PURE__ */ new WeakSet();
+    translationCache = new Map();
+    translatedElements = new WeakSet();
     return {
       translate: translateElement,
       resetState: () => {
         translationCache.clear();
-        translatedElements = /* @__PURE__ */ new WeakSet();
+        translatedElements = new WeakSet();
       },
-      // 允许 observer 删除单个元素的翻译记录
       deleteElement: (element) => {
         translatedElements.delete(element);
       },
     };
   }
-
-  // src/modules/core/observers.js
   function initializeObservers(translator) {
     let translationTimer;
-    let pendingNodes = /* @__PURE__ */ new Set();
+    let pendingNodes = new Set();
     let lastModelInfo = '';
     function detectModelChange() {
       const modelElements = document.querySelectorAll('.model-name, .model-info, [class*="model"]');
@@ -596,7 +543,7 @@
       }, 0);
     }
     const mainObserver = new MutationObserver((mutations) => {
-      const dirtyRoots = /* @__PURE__ */ new Set();
+      const dirtyRoots = new Set();
       for (const mutation of mutations) {
         let target = null;
         if (mutation.type === 'childList' || mutation.type === 'attributes') {
@@ -678,8 +625,6 @@
     };
     log('监听器初始化完成。');
   }
-
-  // src/main.js
   (function (translations) {
     'use strict';
     injectAntiFlickerStyle();
@@ -689,7 +634,7 @@
       return;
     }
     const { styles: cssRules = [], regexRules: regexRules2 = [], textRules = [] } = siteDictionary;
-    const textTranslationMap2 = /* @__PURE__ */ new Map();
+    const textTranslationMap2 = new Map();
     for (const rule of textRules) {
       if (Array.isArray(rule) && rule.length === 2 && typeof rule[0] === 'string' && typeof rule[1] === 'string') {
         textTranslationMap2.set(rule[0].trim(), rule[1]);
