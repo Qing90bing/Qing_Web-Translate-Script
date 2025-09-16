@@ -29,7 +29,7 @@ import handleDuplicatesCheck from './build-tasks/tasks/check-duplicates.js';
 import handleEmptyCheck from './build-tasks/tasks/check-empty.js';
 import handleIdenticalCheck from './build-tasks/tasks/check-identical.js';
 import handleFullBuild from './build-tasks/tasks/build-project.js';
-import handleAddNewTranslation from './build-tasks/tasks/add-translation.js';
+import handleManageTranslations from './build-tasks/tasks/manage-translations.js';
 
 /**
  * 主函数，负责显示主菜单并根据用户输入执行相应操作。
@@ -67,7 +67,7 @@ async function main() {
           { name: `4. ${color.yellow('🔧 检查“原文和译文相同”问题')}`, value: 'checkIdentical' },
           new inquirer.Separator(color.dim('--- 项目操作 ---')), // 分隔线
           { name: `5. ${color.lightGreen('🚀 完整构建项目 (不包含检查)')}`, value: 'fullBuild' },
-          { name: `6. ${color.cyan('✨ 添加新的网站翻译文件')}`, value: 'addTranslation' },
+          { name: `6. ${color.cyan('🗂️ 管理网站翻译文件')}`, value: 'manageTranslations' },
           new inquirer.Separator(),
           { name: `7. ${color.cyan('🚪 退出')}`, value: 'exit' },
         ],
@@ -94,8 +94,10 @@ async function main() {
       case 'fullBuild':
         await handleFullBuild(); // 调用完整构建项目的函数
         break;
-      case 'addTranslation':
-        await handleAddNewTranslation(); // 调用添加新翻译文件的函数
+      case 'manageTranslations':
+        await handleManageTranslations(); // 调用管理子菜单
+        // 子菜单自己处理暂停，所以这里不需要暂停
+        shouldPause = false;
         break;
       case 'exit':
         console.log(color.cyan('👋 再见！'));
