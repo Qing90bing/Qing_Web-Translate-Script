@@ -146,13 +146,13 @@ async function handleSortTranslations() {
         name: 'fileToSort',
         message: '请选择您想要排序的网站翻译文件:',
         choices: [
+          new inquirer.Separator('--- 单个文件 ---'),
+          ...files, 
           new inquirer.Separator('--- 全局操作 ---'),
           { name: '🌐 [全局] 整理所有文件的 regexRules', value: 'all_regex' },
           { name: '🌐 [全局] 整理所有文件的 textRules', value: 'all_text' },
-          { name: '🌐 [全局] 整理所有文件的 全部规则', value: 'all_all' },
-          new inquirer.Separator('--- 单个文件 ---'),
-          ...files, 
-          new inquirer.Separator(), 
+          { name: '🌐 [全局] 整理所有文件的 全部规则', value: 'all_all' }, 
+          new inquirer.Separator(),
           { name: '↩️ 返回主菜单', value: 'back' }
         ],
         prefix: '📂',
