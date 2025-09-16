@@ -29,6 +29,7 @@ import handleDuplicatesCheck from './build-tasks/tasks/check-duplicates.js';
 import handleEmptyCheck from './build-tasks/tasks/check-empty.js';
 import handleIdenticalCheck from './build-tasks/tasks/check-identical.js';
 import handleFullBuild from './build-tasks/tasks/build-project.js';
+import handleAddNewTranslation from './build-tasks/tasks/add-translation.js';
 
 /**
  * 主函数，负责显示主菜单并根据用户输入执行相应操作。
@@ -66,8 +67,9 @@ async function main() {
           { name: `4. ${color.yellow('🔧 检查“原文和译文相同”问题')}`, value: 'checkIdentical' },
           new inquirer.Separator(color.dim('--- 项目操作 ---')), // 分隔线
           { name: `5. ${color.lightGreen('🚀 完整构建项目 (不包含检查)')}`, value: 'fullBuild' },
+          { name: `6. ${color.cyan('✨ 添加新的网站翻译文件')}`, value: 'addTranslation' },
           new inquirer.Separator(),
-          { name: `6. ${color.cyan('🚪 退出')}`, value: 'exit' },
+          { name: `7. ${color.cyan('🚪 退出')}`, value: 'exit' },
         ],
       },
     ]);
@@ -91,6 +93,9 @@ async function main() {
         break;
       case 'fullBuild':
         await handleFullBuild(); // 调用完整构建项目的函数
+        break;
+      case 'addTranslation':
+        await handleAddNewTranslation(); // 调用添加新翻译文件的函数
         break;
       case 'exit':
         console.log(color.cyan('👋 再见！'));
