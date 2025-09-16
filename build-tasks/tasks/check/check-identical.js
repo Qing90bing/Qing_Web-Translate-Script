@@ -4,29 +4,30 @@
  * 此任务负责检查并修复翻译文件中“原文与译文相同”的问题。
  * 这种情况通常意味着翻译尚未完成，或者是一个占位符。
  *
- * 工作流程：
- * 1. 调用 `validateTranslationFiles` 并开启 `checkIdentical` 选项，找出所有原文和译文相同的条目。
- * 2. 如果没有问题，则退出。
- * 3. 如果发现问题，调用 `promptUserAboutIdenticalTranslations` 询问用户希望如何处理（自动、手动、忽略）。
- * 4. **自动修复**: 用户可以选择是将所有问题条目**全部移除**，还是将其译文**全部置空** (`""`)。
- *    然后调用 `fixIdenticalAutomatically` 执行此批量操作。
- * 5. **手动修复**:
- *    - 进入一个循环，每次循环都重新校验文件（并忽略用户已选择跳过的问题）。
- *    - 调用 `promptForSingleIdenticalFix`，向用户逐个展示问题条目。
- *    - 用户可以为每个条目选择**修改**（输入新译文）、**移除**、**忽略**、**全部忽略**或**中止**。
- *    - 调用 `applySingleIdenticalFix` 应用用户的单项修复决策。
- * 6. 结束时打印操作总结。
+ * **核心工作流程**:
+ * 1. **检查问题**: 调用 `validateTranslationFiles` 并开启 `checkIdentical` 选项，找出所有错误。
+ *    （注意：与其他检查不同，此任务将语法检查的逻辑委托给了 `validateTranslationFiles` 内部处理）。
+ * 2. 如果没有发现问题，则退出。
+ * 3. **顶层决策**: 调用 `promptUserAboutIdenticalTranslations` 让用户首先做出一个高层次的决策：
+ *    是希望“自动修复”、“手动修复”还是“忽略”所有问题。
+ * 4. **执行分支**:
+ *    - **自动修复**: 如果用户选择自动，`promptUserAboutIdenticalTranslations` 会继续询问具体的自动修复策略
+ *      （全部移除 vs 全部置空），然后此任务调用 `fixIdenticalAutomatically` 执行批量操作。
+ *    - **手动修复**: 如果用户选择手动，任务会进入一个循环，逐个调用 `promptForSingleIdenticalFix` 和
+ *      `applySingleIdenticalFix` 来处理每个问题。
+ *    - **忽略/取消**: 打印信息并退出。
  */
 
 // 导入核心库
-import { color } from '../lib/colors.js';
-import { validateTranslationFiles } from '../lib/validation.js';
-import { promptUserAboutIdenticalTranslations, promptForSingleIdenticalFix } from '../lib/prompting.js';
-import { fixIdenticalAutomatically, applySingleIdenticalFix } from '../lib/fixing.js';
+import { color } from '../../lib/colors.js';
+import { validateTranslationFiles } from '../../lib/validation.js';
+import { promptUserAboutIdenticalTranslations, promptForSingleIdenticalFix } from '../../lib/prompting.js';
+import { fixIdenticalAutomatically, applySingleIdenticalFix } from '../../lib/fixing.js';
 
 /**
  * @function handleIdenticalCheck
  * @description “检查原文与译文相同”任务的主处理函数。
+ * @returns {Promise<void>}
  */
 export default async function handleIdenticalCheck() {
   console.log(color.cyan('🔍 开始校验“原文与译文相同”文件...'));
@@ -39,6 +40,7 @@ export default async function handleIdenticalCheck() {
   }
 
   // 2. 询问用户希望采取哪种顶层操作。
+  // `result` 对象会包含用户的顶层决策，例如 { action: 'auto-fix', decisions: { type: 'remove', errors: [...] } }
   const result = await promptUserAboutIdenticalTranslations(identicalErrors);
   if (!result || result.action === 'cancel') {
       console.log(color.dim('\n🛑 操作已取消。'));

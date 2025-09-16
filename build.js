@@ -24,12 +24,12 @@ import inquirer from 'inquirer';
 import { color } from './build-tasks/lib/colors.js';
 import { pressAnyKeyToContinue } from './build-tasks/lib/utils.js';
 // 从 `tasks` 目录导入各个具体的检查和构建任务。
-import handleCommaCheck from './build-tasks/tasks/check-comma.js';
-import handleDuplicatesCheck from './build-tasks/tasks/check-duplicates.js';
-import handleEmptyCheck from './build-tasks/tasks/check-empty.js';
-import handleIdenticalCheck from './build-tasks/tasks/check-identical.js';
+import handleCommaCheck from './build-tasks/tasks/check/check-comma.js';
+import handleDuplicatesCheck from './build-tasks/tasks/check/check-duplicates.js';
+import handleEmptyCheck from './build-tasks/tasks/check/check-empty.js';
+import handleIdenticalCheck from './build-tasks/tasks/check/check-identical.js';
 import handleFullBuild from './build-tasks/tasks/build-project.js';
-import handleManageTranslations from './build-tasks/tasks/manage-translations.js';
+import handleManageTranslations from './build-tasks/tasks/translation/manage-translations.js';
 
 /**
  * 主函数，负责显示主菜单并根据用户输入执行相应操作。
@@ -63,7 +63,7 @@ async function main() {
           new inquirer.Separator(color.dim('--- 检查与修复 ---')), // 分隔线
           { name: `1. ${color.yellow('🔧 检查“遗漏逗号”问题')}`, value: 'checkMissingComma' },
           { name: `2. ${color.yellow('🔧 检查“空翻译”问题')}`, value: 'checkEmpty' },
-          { name: `3. ${color.yellow('🔧 检查“重复原文”问题')}`, value: 'checkDuplicates' },
+          { name: `3. ${color.yellow('🔧 检查“重复的翻译”问题')}`, value: 'checkDuplicates' },
           { name: `4. ${color.yellow('🔧 检查“原文和译文相同”问题')}`, value: 'checkIdentical' },
           new inquirer.Separator(color.dim('--- 项目操作 ---')), // 分隔线
           { name: `5. ${color.lightGreen('🚀 完整构建项目 (不包含检查)')}`, value: 'fullBuild' },
@@ -86,7 +86,7 @@ async function main() {
         await handleEmptyCheck(); // 调用处理空翻译检查的函数
         break;
       case 'checkDuplicates':
-        await handleDuplicatesCheck(); // 调用处理重复原文检查的函数
+        await handleDuplicatesCheck(); // 调用处理重复的翻译检查的函数
         break;
       case 'checkIdentical':
         await handleIdenticalCheck(); // 调用处理原文译文相同检查的函数

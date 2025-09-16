@@ -6,14 +6,31 @@ import path from 'path';
 import inquirer from 'inquirer';
 
 // 导入本地模块
-import { color } from '../lib/colors.js';
+import { color } from '../../lib/colors.js';
+
+/**
+ * @file build-tasks/tasks/translation/remove-translation.js
+ * @description
+ * 此任务负责引导用户移除一个现有的网站翻译配置文件。
+ * 这是一个破坏性操作，涉及多个步骤：
+ * 1. 扫描 `src/translations` 目录，列出所有可移除的翻译文件。
+ * 2. 提示用户选择要移除的文件。
+ * 3. 要求用户进行最终确认，以防误操作。
+ * 4. 删除对应的 `.js` 翻译文件。
+ * 5. 从 `src/translations/index.js` 中移除相关的 `import` 语句和 `masterTranslationMap` 条目。
+ * 6. 从 `src/header.txt` 中移除相关的 `// @match` 指令。
+ *
+ * **重要**: 与“添加”任务不同，此任务**不具备**自动回滚功能。如果在操作中途失败，
+ * 项目文件可能处于不一致状态，需要开发者手动修复。
+ */
 
 // --- 辅助函数 ---
 
 /**
- * 将域名转换为驼峰式命名。
- * @param {string} domain - 要转换的域名 (例如 "example.com.js")。
- * @returns {string} 驼峰式命名的字符串 (例如 "exampleCom")。
+ * @function toCamelCase
+ * @description 将文件名（如 "example.com.js"）转换为驼峰式命名（如 "exampleCom"）。
+ * @param {string} domain - 要转换的文件名。
+ * @returns {string} 转换后的驼峰式命名的字符串。
  */
 function toCamelCase(domain) {
   // 移除 .js 后缀
@@ -24,7 +41,8 @@ function toCamelCase(domain) {
 }
 
 /**
- * 清理删除操作后的文件内容，移除所有空行。
+ * @function aggressiveCleanup
+ * @description 对文件内容进行积极的清理，主要用于移除因删除行而产生的多余空行。
  * @param {string} content - 要清理的原始文件内容。
  * @returns {string} 清理后的文件内容。
  */
@@ -44,14 +62,16 @@ function aggressiveCleanup(content) {
 // --- 主函数 ---
 
 /**
- * 处理移除现有翻译文件的主要函数。
+ * @function handleRemoveTranslation
+ * @description 处理移除现有翻译文件的主要函数。
+ * @returns {Promise<void>}
  */
 async function handleRemoveTranslation() {
   console.log(color.bold(color.cyan('🔍 开始扫描可移除的翻译文件...')));
 
   const translationsDir = path.join(process.cwd(), 'src', 'translations');
   
-  // 1. 读取所有翻译文件
+  // --- 步骤 1: 扫描并列出所有可移除的翻译文件 ---
   let files;
   try {
     files = fs.readdirSync(translationsDir).filter(file => file.endsWith('.js') && file !== 'index.js');
@@ -65,7 +85,7 @@ async function handleRemoveTranslation() {
     return;
   }
 
-  // 2. 使用 inquirer 让用户选择要移除的文件
+  // --- 步骤 2: 提示用户选择要移除的文件 ---
   const { fileToRemove } = await inquirer.prompt([
     {
       type: 'list',
@@ -85,7 +105,7 @@ async function handleRemoveTranslation() {
     return;
   }
 
-  // 3. 最终确认
+  // --- 步骤 3: 要求用户最终确认 ---
   const { confirm } = await inquirer.prompt([
     {
       type: 'confirm',
@@ -100,7 +120,7 @@ async function handleRemoveTranslation() {
     return;
   }
 
-  // 4. 执行删除操作
+  // --- 步骤 4: 执行删除和文件更新操作 ---
   const domain = fileToRemove.replace(/\.js$/, '');
   const variableName = toCamelCase(fileToRemove);
   const filePath = path.join(translationsDir, fileToRemove);
@@ -108,23 +128,31 @@ async function handleRemoveTranslation() {
   const headerTxtPath = path.join(process.cwd(), 'src', 'header.txt');
 
   try {
-    // a. 删除 .js 文件
+    // 4a. 删除翻译文件本身
     fs.unlinkSync(filePath);
     console.log(color.green(`✅ 已删除文件: ${fileToRemove}`));
 
-    // b. 更新 index.js (使用正则表达式和清理)
+    // 4b. 更新 index.js
     let indexJsContent = fs.readFileSync(indexJsPath, 'utf-8');
+    // 构建正则表达式以匹配并移除对应的 import 语句。
+    // 例如: `import { exampleCom } from './example.com.js';`
     const importRegex = new RegExp(`^import\\s+\\{\\s*${variableName}\\s*\\}\\s+from\\s+'\\./${fileToRemove}';?\\s*$`, 'gm');
     indexJsContent = indexJsContent.replace(importRegex, '');
+    // 构建正则表达式以匹配并移除在 masterTranslationMap 中的条目。
+    // 例如: `"example.com": exampleCom,`
     const mapEntryRegex = new RegExp(`^\\s*"${domain}":\\s*${variableName},?\\s*$`, 'gm');
     indexJsContent = indexJsContent.replace(mapEntryRegex, '');
+    // 写入清理后的内容
     fs.writeFileSync(indexJsPath, aggressiveCleanup(indexJsContent));
     console.log(color.green(`✅ 已更新: index.js`));
 
-    // c. 更新 header.txt (使用正则表达式和清理)
+    // 4c. 更新 header.txt
     let headerTxtContent = fs.readFileSync(headerTxtPath, 'utf-8');
+    // 构建正则表达式以匹配并移除对应的 @match 指令。
+    // 例如: `// @match        *://example.com/*`
     const matchRegex = new RegExp(`^// @match\\s+\\*://${domain}/\\*\\s*$`, 'gm');
     headerTxtContent = headerTxtContent.replace(matchRegex, '');
+    // 写入清理后的内容
     fs.writeFileSync(headerTxtPath, aggressiveCleanup(headerTxtContent));
     console.log(color.green(`✅ 已更新: header.txt`));
 

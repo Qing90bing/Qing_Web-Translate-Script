@@ -17,6 +17,7 @@
 // @noframes
 // ==/UserScript==
 
+
 (() => {
   // src/translations/jules.google.com.js
   var julesGoogleCom = {
@@ -117,20 +118,19 @@
       ['Here are the changes:', '更改内容如下：'],
       ['Thinking...', '思考中...'],
       ['Restored from', '恢复自：'],
-      ['Added', '已添加'],
+      ['Added', '添加'],
       ['Saving…..', '保存中...'],
       ['Save app', '保存应用'],
       [' Running for ', '运行时间 '],
       ['Upload a photo of yourself and an outfit to see how it looks on you. A virtual fitting room powered by Nano Banana.', '上传您的个人照片和心仪服装，即可轻松预览上身效果。这间虚拟试衣间由 Nano Banana™ 倾力打造。'],
       ['Character consistency', '角色一致性'],
-      ['object consistency', '对象一致性'],
+      ['object consistency', '客观的'],
       ['Image Editing', '图像编辑'],
       ['Gemini 2.5 Flash Audio', 'Gemini 2.5 Flash 音频'],
       ['Live', '实时'],
       ['Medium', '中'],
-      ['Mode', '模式'],
       ['Move', '移动'],
-      ['Name', '名称'],
+      ['Name', '新明'],
       ['Save', '保存'],
       ['Send', '发送'],
       ['Stop', '停止'],

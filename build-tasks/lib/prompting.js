@@ -5,6 +5,10 @@
  * 它基于 `inquirer` 库，提供了一系列函数，用于向用户提出问题、
  * 显示选项、请求输入，并根据用户的选择返回相应的结果。
  * 这个模块是实现交互式修复流程的核心。
+ *
+ * **设计理念**: 此模块中的函数力求提供上下文感知（Context-Aware）的提示。
+ * 例如，同一个操作（如“取消”）在不同场景下会显示不同的文本（“取消构建” vs “返回主菜单”），
+ * 以便为用户提供最清晰的指引。
  */
 
 // 导入第三方库 `inquirer`，用于创建交互式的命令行界面。
@@ -46,22 +50,22 @@ export async function promptUserAboutErrors(errors, options = {}) {
 
   // 2. 根据存在的错误类型，动态构建提供给用户的选项列表 (`choices`)。
   const choices = [];
-  // 仅当存在“重复原文”错误时，才提供自动修复选项，因为这是唯一可以被安全地自动修复的场景（保留第一个）。
+  // 仅当存在“重复的翻译”错误时，才提供自动修复选项，因为这是唯一可以被安全地自动修复的场景（保留第一个）。
   if (duplicateErrorCount > 0) {
     choices.push({
-      name: `✨ (自动) 快速修复 ${duplicateErrorCount} 组“重复原文”问题 (保留第一个)`,
+      name: `✨ (自动) 快速修复 ${duplicateErrorCount} 组“重复的翻译”问题 (保留第一个)`,
       value: 'auto-fix',
     });
   }
 
-  // 仅当存在可手动修复的错误（重复原文或空翻译）时，才提供手动修复选项。
+  // 仅当存在可手动修复的错误（重复的翻译或空翻译）时，才提供手动修复选项。
   if (manualFixErrorCount > 0) {
     const verb = manualFixErrorCount > 1 ? '逐个处理' : '处理';
     let manualFixText = `🔧 (手动) ${verb} `;
     if (duplicateErrorCount > 0 && emptyTranslationCount > 0) {
-      manualFixText += `${manualFixErrorCount} 个“重复原文”或“空翻译”问题`;
+      manualFixText += `${manualFixErrorCount} 个“重复的翻译”或“空翻译”问题`;
     } else if (duplicateErrorCount > 0) {
-      manualFixText += `${manualFixErrorCount} 组“重复原文”问题`;
+      manualFixText += `${manualFixErrorCount} 组“重复的翻译”问题`;
     } else {
       manualFixText += `${manualFixErrorCount} 个“空翻译”问题`;
     }
@@ -93,8 +97,8 @@ export async function promptUserAboutErrors(errors, options = {}) {
 
 /**
  * @function promptForManualFix
- * @description 提示用户手动解决“重复原文”的错误。
- * 该函数会遍历所有“重复原文”的错误。对于每一组重复，它都会提供一个交互式列表，
+ * @description 提示用户手动解决“重复的翻译”的错误。
+ * 该函数会遍历所有“重复的翻译”的错误。对于每一组重复，它都会提供一个交互式列表，
  * 列出所有出现该原文的位置，并让用户选择要保留哪一个版本。
  * 用户可以选择保留某一个、跳过当前错误，或者中途退出整个修复流程。
  * @param {ValidationError[]} duplicateErrors - 一个只包含 'multi-duplicate' 类型错误的数组。
@@ -462,6 +466,12 @@ ${lineBelow}
  * @description 提示用户选择自动修复“原文与译文相同”问题的方式。
  * @returns {Promise<string>} 返回用户的选择：'remove'（移除词条）或 'empty'（将译文置空）。
  */
+/**
+ * @function promptForIdenticalAutoFix
+ * @description 提示用户选择自动修复“原文与译文相同”问题的具体方式（全部移除或全部置空）。
+ * @private
+ * @returns {Promise<'remove'|'empty'|'cancel'>} 返回用户的选择。
+ */
 async function promptForIdenticalAutoFix() {
   const { choice } = await inquirer.prompt([
     {
@@ -541,7 +551,7 @@ export async function promptForSingleIdenticalFix(error, remainingCount) {
  * @function promptUserAboutIdenticalTranslations
  * @description 针对发现的“原文与译文相同”错误，提示用户选择顶层操作（自动修复、手动修复、忽略）。
  * @param {ValidationError[]} errors - 'identical-translation' 类型的错误数组。
- * @returns {Promise<{action: string, decisions: any}|null>} 返回一个对象，包含用户的顶层选择和后续需要的数据。
+ * @returns {Promise<{action: string, decisions?: any}|null>} 返回一个包含用户顶层选择的对象，如果用户取消则返回 null。
  */
 export async function promptUserAboutIdenticalTranslations(errors) {
   const separator = '\n----------------------------------------';

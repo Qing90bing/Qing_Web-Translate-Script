@@ -29,6 +29,7 @@ import { promptToPreserveFormatting } from '../lib/prompting.js'; // 从 prompti
 /**
  * @function handleFullBuild
  * @description “完整构建项目”任务的主处理函数。
+ * @returns {Promise<void>}
  */
 export default async function handleFullBuild() {
   try {
@@ -59,7 +60,10 @@ export default async function handleFullBuild() {
     if (preserveFormatting) {
         // 如果用户选择保留格式，直接使用 Prettier 格式化代码
         const formattedCode = await prettier.format(bundledCode, {
-            parser: 'babel', semi: true, singleQuote: true, printWidth: 9999,
+            parser: 'babel', // 使用 babel 解析器
+            semi: true, // 在语句末尾添加分号
+            singleQuote: true, // 使用单引号
+            printWidth: 9999, // 设置一个极大的打印宽度，以防止 Prettier 自动换行
         });
         // 将头部和格式化后的代码拼接起来
         finalScript = `${header}\n\n${formattedCode}`;
@@ -91,7 +95,8 @@ export default async function handleFullBuild() {
 
   } catch (error) {
     // --- 异常处理 ---
-    // 特别处理 esbuild 可能返回的详细错误信息
+    // esbuild 在构建失败时，会返回一个包含 `errors` 数组的特定错误对象。
+    // 我们需要优先处理这种结构化错误，因为它能提供更详细、更精确的错误信息（如具体文件和行号）。
     if (error.errors && error.errors.length > 0) {
       console.error(color.lightRed('❌ esbuild 构建失败:'));
       error.errors.forEach(e => console.error(color.red(`  - 错误: ${e.text} [位置: ${e.location.file}:${e.location.line}]`)));

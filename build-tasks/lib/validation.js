@@ -7,6 +7,9 @@
  * 3. 遍历 AST，根据指定的校验选项（如检查重复、空值等）来发现问题。
  * 4. 收集并返回一个包含所有错误信息的数组。
  * 它是所有检查功能的基础。
+ *
+ * **核心方法**: 此校验器采用基于 AST 的方法，而不是简单的正则表达式匹配。
+ * 这使得校验更精确、更健壮，能够准确处理代码结构，并为后续的自动修复提供精确的位置信息（range）。
  */
 
 import fs from 'fs/promises';
@@ -76,9 +79,11 @@ export function getLiteralValue(node) {
 /**
  * @function unpackMemberExpression
  * @description 将一个链式成员表达式（如 `a.b.c`）拆解成一个节点数组（`[a, b, c]`）。
- * 这个函数主要用于检测“遗漏逗号”的场景。当 Acorn 解析器遇到 `[...] [...]` 这样的代码时，
- * 它会误将其解析为一个成员表达式 `([..])[...]`。通过拆解这个表达式，我们可以定位到第一个 `]` 的位置，
- * 从而准确地报告可能遗漏的逗号。
+ * 这个函数主要用于检测“遗漏逗号”的场景。当 Acorn 解析器遇到 `['a'], ['b']` 中间缺少逗号时，
+ * 它不会直接报错，而是会将其错误地解析为一个成员表达式（MemberExpression），
+ * 其结构等价于 `(['a'])['b']`。
+ * 此函数的作用就是将这个错误的 MemberExpression 拆开，暴露出原始的 `['a']` 和 `['b']` 节点，
+ * 从而让我们能够定位到第一个 `]` 的位置，并报告可能遗漏的逗号。
  * @param {object} node - 一个类型为 'MemberExpression' 的 AST 节点。
  * @returns {object[]} 返回一个包含所有成员的节点数组。
  */
@@ -186,7 +191,7 @@ function validateFileContent(file, content, options) {
       }
     }
 
-    // 3d. 检查“重复原文”。
+    // 3d. 检查“重复的翻译”。
     if (options.checkDuplicates) {
       // 对正则表达式进行特殊处理，将其转换为字符串进行比较
       const originalValue = originalNode.type === 'Literal'
@@ -211,7 +216,7 @@ function validateFileContent(file, content, options) {
     }
   }
 
-  // 4. 遍历结束后，处理收集到的重复原文信息。
+  // 4. 遍历结束后，处理收集到的重复的翻译信息。
   if (options.checkDuplicates) {
     for (const [originalValue, occurrences] of seenOriginals.entries()) {
       if (occurrences.length > 1) {
@@ -223,8 +228,14 @@ function validateFileContent(file, content, options) {
 }
 
 /**
+/**
  * @function validateTranslationFiles
  * @description 校验所有翻译文件并打印结果的主函数。
+ * 此函数作为校验流程的入口，它会调用 `findTranslationFiles` 找到所有目标文件，
+ * 然后对每个文件执行 `validateFileContent`。
+ * 它承担了双重职责：
+ * 1. **打印日志**: 在校验过程中，直接向控制台打印格式化的、用户友好的错误报告，以便用户立即看到结果。
+ * 2. **返回数据**: 返回一个包含所有错误的扁平化数组，供调用它的上层任务（如 `check-duplicates.js`）进行后续的编程处理（如提示、修复）。
  * @param {object} [options={}] - 包含要执行哪些检查的选项对象。
  * @returns {Promise<ValidationError[]>} 返回一个包含所有文件中发现的所有错误的扁平化数组。
  */

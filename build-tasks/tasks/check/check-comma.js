@@ -2,35 +2,36 @@
  * @file build-tasks/tasks/check-comma.js
  * @description
  * 此任务负责检查并修复翻译文件中“可能遗漏的逗号”问题。
- * 这是所有检查任务中最复杂的一个，因为它结合了自动修复和手动修复两种模式。
+ * 这是所有检查任务中最复杂的一个，因为它结合了复杂的自动修复和手动修复两种模式。
  *
- * 工作流程：
- * 1. 调用 `validateTranslationFiles` 找出所有可能的逗号遗漏问题。
+ * **核心工作流程**:
+ * 1. **初步检查**: 调用 `validateTranslationFiles` 找出所有可能的逗号遗漏问题。
  * 2. 如果没有问题，则退出。
- * 3. 如果有问题，调用 `promptForCommaFixAction` 询问用户是想自动修复、手动修复还是忽略。
+ * 3. **顶层决策**: 调用 `promptForCommaFixAction` 询问用户是想“自动修复”、“手动修复”还是“忽略”。
  * 4. **自动修复模式**:
- *    - 进入一个循环，每次循环都重新校验文件。
- *    - 调用 `identifyHighConfidenceCommaErrors` 将问题分为“高置信度”和“低置信度”。
- *    - 对第一个“高置信度”问题应用修复 `applySingleCommaFix`。
- *    - 重复此过程，直到没有高置信度问题为止。这种迭代式修复是为了处理修复一个问题后可能出现的连锁反应。
- *    - 自动修复后，如果仍有（低置信度）问题，会询问用户是否进入手动模式。
+ *    - 此模式采用**迭代修复**策略。它会进入一个循环，每次循环都重新扫描文件，
+ *      找出所有“高置信度”的错误，然后只修复*第一个*。
+ *    - 这么做的原因是，修复一个逗号错误可能会解决掉后续的另一个错误（或引入新错误），
+ *      因此每次只修复一个并重新扫描，可以确保修复的准确性。
+ *    - 循环在没有更多高置信度错误时结束。之后，如果仍有低置信度问题，会询问用户是否转为手动处理。
  * 5. **手动修复模式**:
- *    - 进入一个循环，每次循环都重新校验文件。
- *    - 调用 `promptForSingleCommaFix`，向用户展示第一个错误的详细信息和修复预览。
- *    - 根据用户的选择（修复、跳过、全部跳过、中止）执行相应操作。
- * 6. 结束时打印操作总结。
+ *    - 此模式也采用循环，每次都重新扫描文件（并排除用户已忽略的问题）。
+ *    - 每次循环都调用 `promptForSingleCommaFix`，向用户展示第一个错误的详细信息和修复预览，
+ *      然后根据用户的选择（修复、跳过、全部跳过、中止）执行相应操作。
+ * 6. **总结**: 结束时打印操作总结。
  */
 
 import inquirer from 'inquirer';
 // 导入核心库
-import { color } from '../lib/colors.js';
-import { validateTranslationFiles } from '../lib/validation.js';
-import { promptForCommaFixAction, promptForSingleCommaFix } from '../lib/prompting.js';
-import { identifyHighConfidenceCommaErrors, applySingleCommaFix } from '../lib/fixing.js';
+import { color } from '../../lib/colors.js';
+import { validateTranslationFiles } from '../../lib/validation.js';
+import { promptForCommaFixAction, promptForSingleCommaFix } from '../../lib/prompting.js';
+import { identifyHighConfidenceCommaErrors, applySingleCommaFix } from '../../lib/fixing.js';
 
 /**
  * @function handleCommaCheck
  * @description “检查遗漏逗号”任务的主处理函数。
+ * @returns {Promise<void>}
  */
 export default async function handleCommaCheck() {
   console.log(color.cyan('🔍 开始检查“遗漏逗号”问题...'));
@@ -84,7 +85,8 @@ export default async function handleCommaCheck() {
         totalFixed++;
       }
 
-      // 安全阀：防止因意外逻辑导致无限循环
+      // 安全阀：为了防止因意外的逻辑错误（例如，修复操作引入了新的、同样高置信度的错误）
+      // 导致无限循环，这里设置一个最大修复轮数。如果修复轮数远超初始错误数，则强制中止。
       if (autoFixRounds > initialErrorCount + 5) {
           console.error(color.lightRed('🚨 自动修复似乎进入了无限循环，已中止。'));
           break;

@@ -11,9 +11,9 @@
  * console.log(`Warning: ${color.yellow('File not found')}`);
  */
 
-// 定义 ANSI 颜色和样式代码
+// 定义 ANSI 颜色和样式代码，用于在终端输出中控制文本格式。
 const styles = {
-  reset: '\x1b[0m',
+  reset: '\x1b[0m', // 重置所有样式
   bold: '\x1b[1m',
   dim: '\x1b[2m',
   italic: '\x1b[3m',

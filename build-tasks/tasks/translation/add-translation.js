@@ -6,12 +6,28 @@ import path from 'path';
 import inquirer from 'inquirer';
 
 // 导入本地模块
-import { color } from '../lib/colors.js';
+import { color } from '../../lib/colors.js';
 
 /**
- * 将域名转换为驼峰式命名。
- * @param {string} domain - 要转换的域名 (例如 "example.com")。
- * @returns {string} 驼峰式命名的字符串 (例如 "exampleCom")。
+ * @file build-tasks/tasks/translation/add-translation.js
+ * @description
+ * 此任务负责引导用户添加一个新的网站翻译配置文件。
+ * 这是一个具有事务性的复杂操作，包含多个步骤：
+ * 1. 提示用户输入域名，并进行有效性验证（格式、是否已存在）。
+ * 2. 根据域名生成一个包含标准模板的新翻译文件（`.js`）。
+ * 3. 自动更新 `src/translations/index.js`，以导入并注册新的翻译模块。
+ * 4. 自动更新 `src/header.txt`，为油猴脚本添加新的 `@match` 指令。
+ * 5. **具备回滚能力**: 如果在更新 `index.js` 或 `header.txt` 的过程中发生任何错误，
+ *    脚本会自动撤销所有已做的更改（删除新创建的文件，恢复被修改文件的原始内容），
+ *    以确保项目状态的一致性。
+ */
+
+/**
+ * @function toCamelCase
+ * @description 将域名字符串（如 "example.com"）转换为驼峰式命名（如 "exampleCom"），
+ * 以便用作有效的 JavaScript 变量名。
+ * @param {string} domain - 要转换的域名。
+ * @returns {string} 转换后的驼峰式命名的字符串。
  */
 function toCamelCase(domain) {
   return domain.replace(/\./g, ' ').replace(/(?:^|\s)\w/g, (match, index) => {
@@ -20,11 +36,14 @@ function toCamelCase(domain) {
 }
 
 /**
- * 处理添加新翻译文件的主要函数。
+ * @function handleAddNewTranslation
+ * @description 处理添加新翻译文件的主要函数。
+ * @returns {Promise<void>}
  */
 async function handleAddNewTranslation() {
   console.log(color.bold(color.cyan('✨ 开始添加新的网站翻译文件...')));
   
+  // --- 步骤 1: 提示用户输入并验证域名 ---
   const { domain } = await inquirer.prompt([
     {
       type: 'input',
@@ -77,8 +96,9 @@ async function handleAddNewTranslation() {
     return;
   }
 
-  // --- 1. 创建新的翻译文件 ---
+  // --- 步骤 2: 创建新的翻译文件 ---
   const filePath = path.join(process.cwd(), 'src', 'translations', fileName);
+  // 定义新翻译文件的模板字符串，包含基本的结构和注释，方便用户直接填写。
   const template = `// 翻译目标网站: ${trimmedDomain}
 
 export const ${variableName} = {
@@ -113,20 +133,21 @@ export const ${variableName} = {
     return;
   }
   
-  // --- 2. 更新 index.js 和 header.txt ---
+  // --- 步骤 3: 更新 index.js 和 header.txt (事务性操作) ---
   const indexJsPath = path.join(process.cwd(), 'src', 'translations', 'index.js');
   const headerTxtPath = path.join(process.cwd(), 'src', 'header.txt');
   let originalIndexJsContent, originalHeaderTxtContent;
 
   try {
-    // 读取原始文件内容以备回滚
+    // 在修改前，先读取并保存原始文件内容，以便在发生错误时能够回滚。
     originalIndexJsContent = fs.readFileSync(indexJsPath, 'utf-8');
     originalHeaderTxtContent = fs.readFileSync(headerTxtPath, 'utf-8');
     
-    // --- 更新 index.js ---
+    // --- 3a. 更新 index.js ---
     let indexJsContent = originalIndexJsContent;
-    // 插入 import 语句
+    // 构造新的 import 语句。
     const importStatement = `import { ${variableName} } from './${fileName}';\n`;
+    // 找到最后一个 'import' 语句的位置，在其后插入新的 import，以保持代码整洁。
     const lastImportIndex = indexJsContent.lastIndexOf('import');
     const nextLineIndexAfterLastImport = indexJsContent.indexOf('\n', lastImportIndex);
     indexJsContent = 
@@ -134,12 +155,12 @@ export const ${variableName} = {
       importStatement + 
       indexJsContent.slice(nextLineIndexAfterLastImport + 1);
 
-    // 插入 masterTranslationMap 条目
+    // 找到 `masterTranslationMap` 对象的结束括号 `}`，在其前插入新的翻译条目。
     const lastBraceIndex = indexJsContent.lastIndexOf('}');
     if (lastBraceIndex === -1) {
         throw new Error('在 index.js 中找不到 masterTranslationMap 的结束括号 "}"');
     }
-    // 检查右花括号前是否有换行符，如果没有则添加，以确保格式正确
+    // 这是一个小技巧，用于判断是否需要在新条目前加一个换行符，以维持代码格式。
     const precedingChar = indexJsContent.substring(lastBraceIndex - 1, lastBraceIndex).trim();
     const needsNewline = precedingChar === ',';
     const mapEntry = `${needsNewline ? '\n' : ''}  "${trimmedDomain}": ${variableName},\n`;
@@ -152,9 +173,11 @@ export const ${variableName} = {
     fs.writeFileSync(indexJsPath, indexJsContent);
     console.log(color.green(`✅ 成功更新索引文件: ${color.yellow(indexJsPath)}`));
 
-    // --- 更新 header.txt ---
+    // --- 3b. 更新 header.txt ---
     let headerTxtContent = originalHeaderTxtContent;
+    // 构造新的 @match 指令。
     const matchDirective = `// @match        *://${trimmedDomain}/*\n`;
+    // 找到最后一个 '// @match' 指令，在其后插入新指令，以保持指令的分组。
     const lastMatchIndex = headerTxtContent.lastIndexOf('// @match');
     const nextLineIndexAfterLastMatch = headerTxtContent.indexOf('\n', lastMatchIndex);
     headerTxtContent = 
@@ -168,7 +191,9 @@ export const ${variableName} = {
   } catch (error) {
     console.error(color.red(`❌ 更新文件时出错: ${error.message}`));
     
-    // --- 回滚所有更改 ---
+    // --- 自动回滚 ---
+    // 这是关键的容错机制。如果在 try 块中的任何文件操作失败，
+    // catch 块会立即执行，将所有被修改的文件恢复到其原始状态，并删除新创建的文件。
     console.log(color.yellow('正在尝试回滚所有更改...'));
     if (originalIndexJsContent) {
       fs.writeFileSync(indexJsPath, originalIndexJsContent);
@@ -178,6 +203,7 @@ export const ${variableName} = {
       fs.writeFileSync(headerTxtPath, originalHeaderTxtContent);
       console.log(color.yellow(`  -> 已恢复: ${headerTxtPath}`));
     }
+    // 使用 unlinkSync 确保即使在错误处理中也能可靠地删除文件。
     fs.unlinkSync(filePath); 
     console.log(color.yellow(`  -> 已删除: ${fileName}`));
     return;

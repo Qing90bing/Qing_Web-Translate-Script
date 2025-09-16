@@ -5,6 +5,9 @@
  * 这些函数根据从 `prompting.js` 中获取的用户决策，来执行具体的修复操作，
  * 例如删除行、替换文本、插入字符等。
  * 它是将用户的修复意图转化为实际文件更改的核心模块。
+ *
+ * **核心策略**: 许多函数采用从文件末尾向前修改的策略（无论是按行号还是按字符范围降序排序）。
+ * 这是为了防止在修改过程中，文件内容的长度发生变化，从而导致后续操作的定位（行号或索引）失效。
  */
 
 import fs from 'fs/promises';
@@ -19,7 +22,7 @@ import { color } from './colors.js';
 
 /**
  * @function fixDuplicatesAutomatically
- * @description 自动修复“重复原文”的错误。
+ * @description 自动修复“重复的翻译”的错误。
  * 修复策略非常简单：对于每一组重复的条目，保留其第一次出现的版本，并删除所有后续的重复版本。
  * 这是一个安全的、非破坏性的默认行为。
  * @param {ValidationError[]} duplicateErrors - 一个只包含 'multi-duplicate' 类型错误的数组。
@@ -81,7 +84,7 @@ export async function fixDuplicatesAutomatically(duplicateErrors) {
 
 /**
  * @function applyManualFixes
- * @description 应用用户在手动修复“重复原文”流程中所做的决策。
+ * @description 应用用户在手动修复“重复的翻译”流程中所做的决策。
  * 此函数接收一个决策数组，根据用户为每个重复组选择要保留的行，来删除组内其他所有重复的行。
  * @param {Array<object>} decisions - 从 `promptForManualFix` 函数返回的用户决策数组。
  * @returns {Promise<void>}
@@ -157,7 +160,8 @@ export async function applyEmptyTranslationFixes(decisions) {
   // 1. 首先，过滤掉所有用户选择跳过（即 `newTranslation` 为 null）的决策。
   const fixesToApply = decisions.filter(d => d.newTranslation !== null);
   if (fixesToApply.length === 0) {
-    // This case is handled by the calling function, no need to log here.
+    // 如果没有需要应用的修复（例如用户选择全部跳过），则直接返回。
+    // 调用此函数的上层逻辑会处理相应的日志输出。
     return;
   }
 
@@ -421,22 +425,21 @@ export async function applySingleIdenticalFix(decision) {
         // 如果是移除操作，直接删除该行。
         lines.splice(errorLineIndex, 1);
     } else if (action === 'modify') {
-        // 如果是修改操作，需要重建该行。
+        // 如果是修改操作，需要用新内容重建该行。
         const originalLine = lines[errorLineIndex];
-        // 保留原始的缩进。
-        const originalIndent = originalLine.match(/^\s*/)[0] || '';
+        const originalIndent = originalLine.match(/^\s*/)[0] || ''; // 保留原始的缩进。
         
         const originalNode = error.node.elements[0];
-        // 保留原始的原文部分，包括其引号类型。
+        // 保留原始的原文部分，包括其引号类型，以避免不必要的格式变动。
         const originalValue = originalNode.type === 'Literal' ? originalNode.raw : JSON.stringify(originalNode.value);
 
-        // 将用户输入的新译文格式化为 JSON 字符串。
+        // 将用户输入的新译文格式化为带引号的 JSON 字符串。
         const newTranslationString = JSON.stringify(newTranslation);
         
-        // 检查原始行是否以逗号结尾，并保留它。
+        // 检查原始行是否以逗号结尾，并保留该逗号，以维持 JSON 数组的语法正确性。
         const lineEnding = originalLine.trim().endsWith(',') ? ',' : '';
 
-        // 重建成新行 `[ "原文", "新译文" ],`
+        // 重建成新行，格式为：`  [ "原文", "新译文" ],`
         lines[errorLineIndex] = `${originalIndent}[${originalValue}, ${newTranslationString}]${lineEnding}`;
     }
 

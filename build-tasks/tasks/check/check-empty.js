@@ -3,27 +3,27 @@
  * @description
  * 此任务负责检查并修复翻译文件中的“空翻译”问题（即 `["原文", ""]` 这样的条目）。
  *
- * 工作流程：
- * 1. 调用 `validateTranslationFiles` 并开启 `checkEmpty` 选项，找出所有错误。
- * 2. 与 `check-duplicates` 任务类似，优先处理语法错误，如果存在则中止并提示用户修复。
- * 3. 如果没有发现空翻译错误，则退出。
+ * **核心工作流程**:
+ * 1. **语法预检**: 与其他检查任务类似，首先进行语法检查。如果发现语法错误，
+ *    任务将中止并提示用户先修复语法问题，以保证后续检查的准确性。
+ * 2. **空翻译检查**: 调用 `validateTranslationFiles` 并开启 `checkEmpty` 选项，找出所有错误。
+ * 3. 如果没有发现错误，则退出。
  * 4. 如果发现错误，调用 `promptUserAboutErrors` 询问用户如何处理。
- * 5. 对于空翻译问题，不存在“自动修复”的可能，因为程序无法猜测正确的译文。
- *    因此，唯一有效的修复选项是“手动修复”。
- * 6. **手动修复**: 调用 `promptForEmptyTranslationFix`，逐个提示用户为每个空翻译条目输入新的译文。
- *    然后调用 `applyEmptyTranslationFixes` 将用户输入的新译文写入文件。
+ * 5. 对于“空翻译”问题，不存在“自动修复”的可能，因为程序无法猜测正确的译文。
+ *    因此，唯一的修复选项是“手动修复”，即逐个为问题词条输入新译文。
  */
 
 // 导入核心库
 import path from 'path';
-import { color } from '../lib/colors.js';
-import { validateTranslationFiles } from '../lib/validation.js';
-import { promptUserAboutErrors, promptForSingleEmptyTranslationFix, promptForSyntaxFix } from '../lib/prompting.js';
-import { applySingleEmptyTranslationFix, applySyntaxFixes } from '../lib/fixing.js';
+import { color } from '../../lib/colors.js';
+import { validateTranslationFiles } from '../../lib/validation.js';
+import { promptUserAboutErrors, promptForSingleEmptyTranslationFix, promptForSyntaxFix } from '../../lib/prompting.js';
+import { applySingleEmptyTranslationFix, applySyntaxFixes } from '../../lib/fixing.js';
 
 /**
  * @function handleEmptyCheck
  * @description “检查空翻译”任务的主处理函数。
+ * @returns {Promise<void>}
  */
 export default async function handleEmptyCheck() {
   console.log(color.cyan('🔍 开始校验“空翻译”问题...'));
@@ -46,7 +46,8 @@ export default async function handleEmptyCheck() {
     } else {
       console.log(color.yellow('\n🤷‍ 未进行任何语法修复。操作已停止。'));
     }
-    return; // 中止任务，强制用户重新运行
+    // 中止任务，强制用户在修复语法错误后重新运行。
+    return;
   }
 
   // 4. 如果没有空翻译错误，则告知用户并退出。

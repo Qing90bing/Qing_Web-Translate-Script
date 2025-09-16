@@ -1,12 +1,13 @@
 /**
  * @file build-tasks/tasks/check-duplicates.js
  * @description
- * 此任务负责检查并修复翻译文件中的“重复原文”问题。
+ * 此任务负责检查并修复翻译文件中的“重复的翻译”问题。
  *
- * 工作流程：
- * 1. 调用 `validateTranslationFiles` 并开启 `checkDuplicates` 选项，找出所有错误。
- * 2. **前置检查**: 首先检查是否存在语法错误。如果存在，必须先处理语法错误，因为它们会影响重复检查的准确性。
- *    该任务会提示用户修复语法错误，然后中止，强制用户重新运行检查。
+ * **核心工作流程**:
+ * 1. **语法预检**: 首先调用 `validateTranslationFiles` 检查所有文件是否存在语法错误。
+ *    如果存在，会优先处理语法修复，然后中止任务。这是因为语法错误会破坏 AST 的准确性，
+ *    导致后续的重复检查结果不可靠。用户必须在修复语法问题后重新运行此任务。
+ * 2. **重复检查**: 调用 `validateTranslationFiles` 并开启 `checkDuplicates` 选项，找出所有错误。
  * 3. 如果没有发现重复错误，则退出。
  * 4. 如果发现重复错误，调用 `promptUserAboutErrors` 询问用户如何处理（自动、手动、忽略、取消）。
  * 5. 根据用户的选择：
@@ -16,17 +17,18 @@
  */
 
 // 导入核心库
-import { color } from '../lib/colors.js';
-import { validateTranslationFiles } from '../lib/validation.js';
-import { promptUserAboutErrors, promptForManualFix, promptForSyntaxFix } from '../lib/prompting.js';
-import { fixDuplicatesAutomatically, applyManualFixes, applySyntaxFixes } from '../lib/fixing.js';
+import { color } from '../../lib/colors.js';
+import { validateTranslationFiles } from '../../lib/validation.js';
+import { promptUserAboutErrors, promptForManualFix, promptForSyntaxFix } from '../../lib/prompting.js';
+import { fixDuplicatesAutomatically, applyManualFixes, applySyntaxFixes } from '../../lib/fixing.js';
 
 /**
  * @function handleDuplicatesCheck
- * @description “检查重复原文”任务的主处理函数。
+ * @description “检查重复的翻译”任务的主处理函数。
+ * @returns {Promise<void>}
  */
 export default async function handleDuplicatesCheck() {
-  console.log(color.cyan('🔍 开始校验“重复原文”问题...'));
+  console.log(color.cyan('🔍 开始校验“重复的翻译”问题...'));
 
   // 1. 调用验证器，只开启重复检查。
   const options = { checkDuplicates: true };
@@ -48,13 +50,13 @@ export default async function handleDuplicatesCheck() {
     } else {
       console.log(color.yellow('\n🤷‍ 未进行任何语法修复。操作已停止。'));
     }
-    // 中止当前任务，强制用户在修复语法错误后重新运行。
+    // 中止当前任务，强制用户在修复语法错误后重新运行，以确保在干净的 AST 上进行重复检查。
     return;
   }
 
   // 4. 如果没有重复错误，则告知用户并退出。
   if (duplicateErrors.length === 0) {
-    console.log(color.green('\n✅ 未发现“重复原文”问题。'));
+    console.log(color.green('\n✅ 未发现“重复的翻译”问题。'));
     return;
   }
 
@@ -74,7 +76,7 @@ export default async function handleDuplicatesCheck() {
       const decisions = await promptForManualFix(duplicateErrors);
       if (decisions) { // 如果用户没有中途退出手动修复流程
         await applyManualFixes(decisions);
-        console.log(color.green('\n🔧 “重复原文”问题已通过手动方式修复。'));
+        console.log(color.green('\n🔧 “重复的翻译”问题已通过手动方式修复。'));
       } else {
         console.log(color.yellow('\n🛑 手动修复已中途退出。'));
       }
