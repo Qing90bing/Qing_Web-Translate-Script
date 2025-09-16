@@ -1,8 +1,13 @@
 // src/translations/jules.google.com.js
 
-export const julesGoogleCom = [
-    ['css', '.feedback-button { width: auto !important; white-space: nowrap !important; }'],
-    // --- 正则表达式翻译 ---
+export const julesGoogleCom = {
+  // 样式（CSS）
+  styles: [
+    '.feedback-button { width: auto !important; white-space: nowrap !important; }'
+  ],
+
+  // 正则表达式翻译规则
+  regexRules: [
     // 匹配 "Completed ... ago" 等完成状态
     [/Ran command\s+"(.*?)"/i, '执行命令：“$1”'],
     [/Read\s+([\w\.\-]+)/i, '读取文件：$1'],
@@ -15,7 +20,6 @@ export const julesGoogleCom = [
     [/Completed\s+(\d+)\s+hours?\s+ago/i, '$1 小时前完成'],
     [/Completed\s+(\d+)\s+minutes?\s+ago/i, '$1 分钟前完成'],
     [/Completed\s+(\d+)\s+seconds?\s+ago/i, '$1 秒前完成'],
-
     // 匹配日期和时间 (例如: Jan 1 14:30)
     [/Jan\s+(\d{1,2})\s+(\d{2}:\d{2})/, '1 月 $1 日 $2'],
     [/Feb\s+(\d{1,2})\s+(\d{2}:\d{2})/, '2 月 $1 日 $2'],
@@ -30,8 +34,10 @@ export const julesGoogleCom = [
     [/Nov\s+(\d{1,2})\s+(\d{2}:\d{2})/, '11 月 $1 日 $2'],
     [/Dec\s+(\d{1,2})\s+(\d{2}:\d{2})/, '12 月 $1 日 $2'],
     [/Today\s+(\d{1,2}:\d{2})/i, '今天 $1'],
+  ],
 
-    // --- 完整句子和短语翻译 ---
+  // 纯文本翻译规则
+  textRules: [
     // 按长度降序排列，以优先匹配长句
     ["Jules is not yet available in your region.", "Jules 暂未在您的区域提供服务"],
     ["Jules attempts to setup your environment according to hints in your codebase and agents.md. Optionally, you can provide a setup script to be run explicitly. No need for clone commands, the repo will be cloned automatically into the /app directory.", "Jules 会根据您代码库中的线索和 `agents.md` 文件来尝试配置环境。您也可以提供一个设置脚本来精确执行。仓库会自动克隆到 /app 目录，无需手动执行克隆命令。"],
@@ -58,5 +64,5 @@ export const julesGoogleCom = [
     ["I've inspected the frontend changes visually: ", "我已通过视觉方式检查了前端的变更："],
     ["Tell us more - what went right or wrong", "请告诉我们更多细节——哪些地方做得好或不好"],
     ["Deleting a task is permanent and cannot be undone", "删除任务是永久性操作，无法撤销"],
-
-];
+  ],
+};

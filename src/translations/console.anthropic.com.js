@@ -1,7 +1,11 @@
 // src/translations/console.anthropic.com.js
 
-export const consoleAnthropicCom = [
-    // --- 正则表达式翻译 ---
+export const consoleAnthropicCom = {
+  // 样式（CSS）
+  styles: [],
+
+  // 正则表达式翻译规则
+  regexRules: [
     [/Confirm Development Partner Program enrollment for (.+)/i, '确认为 $1 加入开发合作伙伴计划'],
     [/(\d+)\s+day\s+retention period/i, '$1 天保留期'],
     [/Save up to (\d+)% on Claude Code input tokens when you join our Development Partner Program today/i, '立即加入我们的开发合作伙伴计划，Claude Code 输入令牌可节省高达 $1% 的费用'],
@@ -9,7 +13,6 @@ export const consoleAnthropicCom = [
     [/\$([\d,\.]+)\s+of\s+\$([\d,\.]+)/i, '共 $2 美元，已用 $1 美元'],
     [/US\$\s*([\d,\.]+)/i, '美元$1'],
     [/^(\d{1,3}(?:,\d{3})*)\s+keys?$/i, '$1 个密钥'],
-
     // 月份 日, 年份 格式 (例如: Jul 2, 2025)
     [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
     [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
@@ -23,8 +26,10 @@ export const consoleAnthropicCom = [
     [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
     [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
     [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
+  ],
 
-    // --- 完整句子和短语翻译 ---
+  // 纯文本翻译规则
+  textRules: [
     ["Legal center", "法律中心"],
     ["Log out", "登出"],
     ["Data retention", "数据保留"],
@@ -45,5 +50,5 @@ export const consoleAnthropicCom = [
     ["Disable web search", "禁止网页搜索"],
     ["Disabling web search may break existing services that have web search enabled. Are you sure you want to disable web search for your organization?", "禁用Web搜索可能会破坏启用Web搜索的现有服务。您确定要禁用网络搜索您的组织吗？"],
     ["Search and cite content from any domain", "搜索和引用任何域名的内容"],
-
-];
+  ],
+};

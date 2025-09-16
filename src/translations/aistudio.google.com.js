@@ -1,14 +1,20 @@
 // src/translations/aistudio.google.com.js
 
-export const aistudioGoogleCom = [
-    // 正则表达式翻译
+export const aistudioGoogleCom = {
+  // 样式（CSS）
+  styles: [
+    // 在这里添加CSS规则，例如：
+    // 'body { font-family: "Arial", sans-serif; }'
+  ],
+
+  // 正则表达式翻译规则
+  regexRules: [
     [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  换行\nAlt + ↩  追加文本 (不执行)\nCtrl + ↩  执行指令'],
     [/Invalid JSON: SyntaxError: Unexpected token '(.+?)', "(.+?)" is not valid JSON/i, '无效的 JSON 语法错误：在 “$2” 中存在意外的字符 “$1”'],
     [/All context lengths\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '所有上下文长度 | 输入: $$ $1 / 输出: $$ $2'],
     [/([<>]=?)\s*(\d+K)\s+tokens\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '$1$2 Tokens | 输入: $$ $3 / 输出: $$ $4'],
     [/Image \(\*Output per image\) • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, '图像 (*每张图片输出) | 输入: $$ $1 / 输出: $$ $2'],
     [/Text • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, '文本 | 输入：$$ $1，输出：$ $2'],
-
     // 月份 日, 年份 格式 (例如: Jul 2, 2025)
     [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
     [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
@@ -22,7 +28,10 @@ export const aistudioGoogleCom = [
     [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
     [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
     [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
+  ],
 
+  // 纯文本翻译规则
+  textRules: [
     // 完整句子翻译（按长度排序）
     ["Here are the changes:","更改内容如下："],
     ["Thinking...","思考中..."],
@@ -52,11 +61,11 @@ export const aistudioGoogleCom = [
     ["Empty", "空"],
     ["HOT", "热门"],
     ["Cut", "剪切"],
-    ["Off", "关闭"],  
+    ["Off", "关闭"],
     ["Run", "运行"],
     ["High", "高"],
     ["and", "和"],
     ["Low", "低"],
     ["NEW", "新"],
-
-];
+  ],
+};

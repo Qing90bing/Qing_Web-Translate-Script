@@ -1,13 +1,16 @@
 // src/translations/claude.ai.js
 
-export const claudeAi = [
-    // --- 正则表达式翻译 ---
+export const claudeAi = {
+  // 样式（CSS）
+  styles: [],
+
+  // 正则表达式翻译规则
+  regexRules: [
     [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, '每人/月，享受年度订阅折扣。按月计费则为 SGD $1。最少 $2 名成员。'],
     [/Per person \/ month\. Minimum (\d+)\s+members\./i, '每人/月。最少 $1 名成员。'],
     [/SGD\s+([\d.]+)/i, 'SGD $1'],
     [/Delete\s+(\d+)\s+selected\s+items?/i, '删除 $1 个选定的项目'],
     [/(\d+)\s+chats?\s+with\s+(.+)/i, '与 $2 共有 $1 条聊天记录'],
-    
     // 月份 日, 年份 格式 (例如: Jul 2, 2025)
     [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
     [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
@@ -21,8 +24,10 @@ export const claudeAi = [
     [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
     [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
     [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
-    
-    // --- 完整句子和短语翻译 ---
+  ],
+
+  // 纯文本翻译规则
+  textRules: [
     ["upstream connect error or disconnect/reset before headers. reset reason: connection termination", "连接后端服务器失败，或在收到其响应数据前连接被重置。重置原因：连接被终止。"],
     ["English (United States)", "英语（美国）"],
     ["français (France)", "法语（法国）"],
@@ -55,5 +60,6 @@ export const claudeAi = [
     ["Edit", "编辑"],
     ["Save", "保存"],
     ["Skip", "跳过"],
-    ["Star", "收藏"]
-];
+    ["Star", "收藏"],
+  ],
+};

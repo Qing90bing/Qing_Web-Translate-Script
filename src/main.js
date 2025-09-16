@@ -25,31 +25,19 @@ import { initializeObservers } from './modules/core/observers.js';
         return;
     }
 
-    // 将所有字符串规则放入一个Map中，key为trim后的英文，便于快速查找
-    // 正则表达式规则保持独立
-    const regexRules = [];
+    // 从新的数据结构中提取规则
+    const { styles: cssRules = [], regexRules = [], textRules = [] } = siteDictionary;
+
+    // 将所有纯文本翻译规则放入一个Map中，以便快速查找
     const textTranslationMap = new Map();
-
-    const cssRules = [];
-    for (const item of siteDictionary) {
-        if (!Array.isArray(item) || item.length !== 2) continue;
-        const [original, translation] = item;
-
-        // 提取自定义CSS规则
-        if (original === 'css') {
-            cssRules.push(translation);
-            continue;
-        }
-
-        if (original instanceof RegExp) {
-            regexRules.push(item);
-        } else if (typeof original === 'string' && typeof translation === 'string') {
+    for (const rule of textRules) {
+        if (Array.isArray(rule) && rule.length === 2 && typeof rule[0] === 'string' && typeof rule[1] === 'string') {
             // 将trim后的原文作为key，以实现稳定的匹配
-            textTranslationMap.set(original.trim(), translation);
+            textTranslationMap.set(rule[0].trim(), rule[1]);
         }
     }
 
-    // 注入自定义CSS
+    // 注入自定义CSS样式
     if (cssRules.length > 0) {
         const customStyleElement = document.createElement('style');
         customStyleElement.id = 'web-translate-custom-styles';

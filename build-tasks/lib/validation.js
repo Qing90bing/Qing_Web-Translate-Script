@@ -112,36 +112,45 @@ function validateFileContent(file, content, options) {
   try {
     ast = parse(content, { ecmaVersion: 'latest', sourceType: 'module', locations: true, ranges: true });
   } catch (e) {
-    // 捕获语法错误，记录必要信息，并直接返回。后续检查将无法进行。
+    // 捕获语法错误
     errors.push({ file, line: e.loc.line, column: e.loc.column, pos: e.pos, lineContent: content.split('\n')[e.loc.line - 1] || '', message: `文件无法解析: ${e.message.replace(/ \(\d+:\d+\)$/, '')}`, type: 'syntax', node: null });
     return errors;
   }
 
-  // 2. 在 AST 中找到我们关心的翻译数组。它可能是一个默认导出 `export default [...]` 或命名导出 `export const CJK = [...]`。
-  let translationArrayNode = null;
+  // 2. 在 AST 中找到导出的翻译对象
+  let translationObjectNode = null;
   for (const node of ast.body) {
-    if (node.type === 'ExportDefaultDeclaration' && node.declaration.type === 'ArrayExpression') {
-      translationArrayNode = node.declaration;
-      break;
-    }
     if (node.type === 'ExportNamedDeclaration' && node.declaration && node.declaration.declarations) {
       for (const declarator of node.declaration.declarations) {
-        if (declarator.init && declarator.init.type === 'ArrayExpression') {
-          translationArrayNode = declarator.init;
+        if (declarator.init && declarator.init.type === 'ObjectExpression') {
+          translationObjectNode = declarator.init;
           break;
         }
       }
     }
+    if (translationObjectNode) break;
   }
 
-  // 如果找不到翻译数组，则无需继续检查。
-  if (!translationArrayNode) return errors;
+  // 如果找不到翻译对象，则无需继续检查。
+  if (!translationObjectNode) return errors;
+
+  // 提取 `regexRules` 和 `textRules` 数组节点
+  const regexRulesNode = translationObjectNode.properties.find(p => p.key.name === 'regexRules')?.value;
+  const textRulesNode = translationObjectNode.properties.find(p => p.key.name === 'textRules')?.value;
+
+  const allRuleNodes = [];
+  if (regexRulesNode && regexRulesNode.type === 'ArrayExpression') {
+    allRuleNodes.push(...regexRulesNode.elements);
+  }
+  if (textRulesNode && textRulesNode.type === 'ArrayExpression') {
+    allRuleNodes.push(...textRulesNode.elements);
+  }
 
   const lines = content.split('\n');
   const seenOriginals = new Map(); // 用于跟踪已见过的原文，以检查重复。
 
-  // 3. 遍历翻译数组中的每一个元素。
-  for (const elementNode of translationArrayNode.elements) {
+  // 3. 遍历所有规则数组中的每一个元素。
+  for (const elementNode of allRuleNodes) {
     if (!elementNode) continue; // 忽略数组中的空位, e.g. `[a,,b]`
 
     // 3a. 处理“遗漏逗号”的情况。
@@ -150,19 +159,17 @@ function validateFileContent(file, content, options) {
         const chainedNodes = unpackMemberExpression(elementNode);
         for (let i = 0; i < chainedNodes.length - 1; i++) {
           const currentNode = chainedNodes[i];
-          if (options.ignoredPositions && options.ignoredPositions.has(currentNode.end)) {
-            continue;
-          }
+          if (options.ignoredPositions && options.ignoredPositions.has(currentNode.end)) continue;
           errors.push({ file, line: currentNode.loc.end.line, column: currentNode.loc.end.column, pos: currentNode.end, lineContent: lines[currentNode.loc.end.line - 1].trim(), message: '在此行末尾可能遗漏了逗号。', type: 'missing-comma', node: currentNode });
         }
       }
       continue;
     }
 
-    // 3b. 检查条目结构是否正确，即 `[原文, 译文]` 的形式。
+    // 3b. 检查条目结构是否正确
     if (elementNode.type !== 'ArrayExpression' || elementNode.elements.length !== 2) {
       const isSpecificCheck = options.checkEmpty || options.checkDuplicates || options.checkMissingComma || options.checkIdentical;
-      if (!isSpecificCheck) { // 只有在进行通用检查时才报告结构错误
+      if (!isSpecificCheck) {
         errors.push({ file, line: elementNode.loc.start.line, lineContent: lines[elementNode.loc.start.line - 1].trim(), message: '翻译条目必须是 `[原文, 译文]` 的数组格式。', type: 'structure', node: elementNode });
       }
       continue;
@@ -181,7 +188,11 @@ function validateFileContent(file, content, options) {
 
     // 3d. 检查“重复原文”。
     if (options.checkDuplicates) {
-      const originalValue = getLiteralValue(originalNode);
+      // 对正则表达式进行特殊处理，将其转换为字符串进行比较
+      const originalValue = originalNode.type === 'Literal'
+        ? originalNode.value
+        : (originalNode.type === 'RegExpLiteral' ? `/${originalNode.pattern}/${originalNode.flags}` : null);
+
       if (originalValue !== null) {
         if (!seenOriginals.has(originalValue)) {
           seenOriginals.set(originalValue, []);
@@ -192,20 +203,19 @@ function validateFileContent(file, content, options) {
 
     // 3e. 检查“原文和译文相同”。
     if (options.checkIdentical) {
-        const originalValue = getLiteralValue(originalNode);
-        const translationValue = getLiteralValue(translationNode);
-        if (originalValue !== null && originalValue === translationValue) {
-            errors.push({ file, line: elementNode.loc.start.line, lineContent: lines[elementNode.loc.start.line - 1].trim(), message: '原文和译文完全相同。', type: 'identical-translation', node: elementNode });
-        }
+      const originalValue = getLiteralValue(originalNode);
+      const translationValue = getLiteralValue(translationNode);
+      if (originalValue !== null && originalValue === translationValue) {
+        errors.push({ file, line: elementNode.loc.start.line, lineContent: lines[elementNode.loc.start.line - 1].trim(), message: '原文和译文完全相同。', type: 'identical-translation', node: elementNode });
+      }
     }
   }
 
   // 4. 遍历结束后，处理收集到的重复原文信息。
   if (options.checkDuplicates) {
     for (const [originalValue, occurrences] of seenOriginals.entries()) {
-      if (occurrences.length > 1) { // 如果一个原文出现了超过一次
-        // 创建一个 'multi-duplicate' 类型的聚合错误。
-        errors.push({ file, line: occurrences[0].line, lineContent: '', message: `原文 "${originalValue}" 被多次定义。`, type: 'multi-duplicate', occurrences: occurrences, node: occurrences[0].node });
+      if (occurrences.length > 1) {
+        errors.push({ file, line: occurrences[0].line, lineContent: '', message: `原文 "${originalValue}" 被多次定义。`, type: 'multi-duplicate', occurrences, node: occurrences[0].node });
       }
     }
   }
