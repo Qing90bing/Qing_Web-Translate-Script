@@ -90,7 +90,7 @@ async function handleRemoveTranslation() {
     {
       type: 'list',
       name: 'fileToRemove',
-      message: '请选择您想要移除的网站翻译文件:',
+      message: ' 请选择您想要移除的网站翻译文件:',
       choices: [
         ...files,
         new inquirer.Separator(),
