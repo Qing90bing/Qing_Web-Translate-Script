@@ -81,6 +81,53 @@ export function getLiteralValue(node) {
 }
 
 /**
+ * @function getRuleParts
+ * @description 从 AST 节点中提取规则的核心部分（pattern 和 flags），确保比较的对称性。
+ * 此函数能够智能处理多种情况：
+ * 1.  `RegExpLiteral` (e.g., `/.../g`): 从节点的原始文本（`node.raw`）中解析出 pattern 和 flags。
+ * 2.  `Literal` string (e.g., `'/.../g'`): 也从其原始文本中解析，以绕过JS转义。
+ * 3.  普通字符串: 将其整个值作为 pattern。
+ * @param {object} node - AST 节点。
+ * @returns {{pattern: string, flags: string}|null} 如果成功，返回包含 pattern 和 flags 的对象；否则返回 `null`。
+ */
+function getRuleParts(node) {
+    if (!node) return null;
+
+    // Case 1: 处理真正的正则表达式字面量, e.g. /hello/g
+    // 通过解析原始文本来确保与字符串形式的正则表达式的对称性。
+    if (node.type === 'RegExpLiteral') {
+        const raw = node.raw; // e.g. /.../g
+        const lastSlashIndex = raw.lastIndexOf('/');
+        const pattern = raw.substring(1, lastSlashIndex);
+        const flags = raw.substring(lastSlashIndex + 1);
+        return { pattern, flags };
+    }
+
+    // Case 2: 处理字符串字面量, e.g. '/hello/g'
+    if (node.type === 'Literal' && typeof node.value === 'string') {
+        // 对于字符串，检查其内容是否像正则表达式
+        const rawContent = node.raw.slice(1, -1); // 移除外部引号, e.g. '/.../g'
+        if (rawContent.startsWith('/') && rawContent.lastIndexOf('/') > 0) {
+            const lastSlashIndex = rawContent.lastIndexOf('/');
+            const pattern = rawContent.substring(1, lastSlashIndex);
+            const flags = rawContent.substring(lastSlashIndex + 1);
+            return { pattern, flags };
+        }
+        // 否则，作为普通字符串
+        return { pattern: node.value, flags: '' };
+    }
+    
+    // Case 3: 处理模板字符串, e.g. `hello`
+    if (node.type === 'TemplateLiteral' && node.quasis.length === 1) {
+        // 模板字符串不用于正则规则，直接返回值
+        return { pattern: node.quasis[0].value.cooked, flags: '' };
+    }
+    
+    return null;
+}
+
+
+/**
  * @function unpackMemberExpression
  * @description 将一个链式成员表达式（如 `a.b.c`）拆解成一个节点数组（`[a, b, c]`）。
  * 这个函数主要用于检测“遗漏逗号”的场景。当 Acorn 解析器遇到 `['a'], ['b']` 中间缺少逗号时，
@@ -249,10 +296,27 @@ function validateFileContent(file, content, options) {
 
     // 3e. 检查“原文和译文相同”。
     if (options.checkIdentical) {
-      const originalValue = getLiteralValue(originalNode);
-      const translationValue = getLiteralValue(translationNode);
-      if (originalValue !== null && originalValue === translationValue) {
-        errors.push({ file, line: elementNode.loc.start.line, lineContent: lines[elementNode.loc.start.line - 1].trim(), message: '原文和译文完全相同。', type: 'identical-translation', node: elementNode });
+      // 如果此节点已被用户选择忽略，则跳过。
+      if (!(options.ignoredPositions && options.ignoredPositions.has(elementNode.range[0]))) {
+        const originalParts = getRuleParts(originalNode);
+        const translationParts = getRuleParts(translationNode);
+
+        if (
+          originalParts &&
+          translationParts &&
+          originalParts.pattern === translationParts.pattern &&
+          originalParts.flags === translationParts.flags
+        ) {
+          errors.push({
+            file,
+            line: elementNode.loc.start.line,
+            pos: elementNode.range[0], // 添加 pos 属性，用于忽略列表
+            lineContent: lines[elementNode.loc.start.line - 1].trim(),
+            message: '原文和译文完全相同。',
+            type: 'identical-translation',
+            node: elementNode,
+          });
+        }
       }
     }
   }
