@@ -112,8 +112,8 @@ export async function promptForManualFix(duplicateErrors) {
 
   for (let i = 0; i < duplicateErrors.length; i++) {
     const error = duplicateErrors[i];
-    // 从错误消息中提取出重复的原文文本。
-    const originalText = error.message.match(/"(.*?)"/)[1] || '未知原文';
+    // 从错误对象中直接获取原文文本，避免依赖易变的错误消息格式。
+    const originalText = error.occurrences[0].originalValue || '未知原文';
     
     // 1. 为每个出现的位置（occurrence）创建一个选项，显示其行号和行内容。
     const choices = error.occurrences.map(occ => ({

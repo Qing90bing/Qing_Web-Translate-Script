@@ -73,6 +73,10 @@ export function getLiteralValue(node) {
   if (node.type === 'TemplateLiteral' && node.quasis.length === 1) {
     return node.quasis[0].value.cooked;
   }
+  // 处理 /hello/g
+  if (node.type === 'RegExpLiteral') {
+    return `/${node.pattern}/${node.flags}`;
+  }
   return null;
 }
 
@@ -203,24 +207,43 @@ function validateFileContent(file, content, options) {
 
     // 3c. 检查“空翻译”。
     if (options.checkEmpty) {
+      // 如果此节点已被用户选择忽略，则跳过。
+      if (options.ignoredPositions && options.ignoredPositions.has(elementNode.range[0])) {
+        continue;
+      }
       const translationValue = getLiteralValue(translationNode);
       if (translationValue === '') {
-        errors.push({ file, line: elementNode.loc.start.line, lineContent: lines[elementNode.loc.start.line - 1].trim(), message: '译文不能为空字符串。', type: 'empty-translation', node: elementNode });
+        errors.push({
+          file,
+          line: elementNode.loc.start.line,
+          pos: elementNode.range[0], // 添加 pos 属性，用于忽略列表
+          lineContent: lines[elementNode.loc.start.line - 1].trim(),
+          message: '译文不能为空字符串。',
+          type: 'empty-translation',
+          node: elementNode
+        });
       }
     }
 
     // 3d. 检查“重复的翻译”。
     if (options.checkDuplicates) {
-      // 对正则表达式进行特殊处理，将其转换为字符串进行比较
-      const originalValue = originalNode.type === 'Literal'
-        ? originalNode.value
-        : (originalNode.type === 'RegExpLiteral' ? `/${originalNode.pattern}/${originalNode.flags}` : null);
+      const originalValue = getLiteralValue(originalNode);
+      const translationValue = getLiteralValue(translationNode);
 
       if (originalValue !== null) {
-        if (!seenOriginals.has(originalValue)) {
-          seenOriginals.set(originalValue, []);
+        // 使用组合键来唯一标识一个翻译规则
+        const key = `${originalValue}::${translationValue}`;
+        if (!seenOriginals.has(key)) {
+          seenOriginals.set(key, []);
         }
-        seenOriginals.get(originalValue).push({ line: elementNode.loc.start.line, lineContent: lines[elementNode.loc.start.line - 1].trim(), node: elementNode });
+        seenOriginals.get(key).push({
+          line: elementNode.loc.start.line,
+          lineContent: lines[elementNode.loc.start.line - 1].trim(),
+          node: elementNode,
+          // 将原始值和翻译值存起来，方便后续生成错误信息
+          originalValue: originalValue,
+          translationValue: translationValue,
+        });
       }
     }
 
@@ -236,9 +259,26 @@ function validateFileContent(file, content, options) {
 
   // 4. 遍历结束后，处理收集到的重复的翻译信息。
   if (options.checkDuplicates) {
-    for (const [originalValue, occurrences] of seenOriginals.entries()) {
+    for (const [key, occurrences] of seenOriginals.entries()) {
       if (occurrences.length > 1) {
-        errors.push({ file, line: occurrences[0].line, lineContent: '', message: `原文 "${originalValue}" 被多次定义。`, type: 'multi-duplicate', occurrences, node: occurrences[0].node });
+        // 从第一次出现的地方获取原文和译文，用于生成更清晰的错误信息
+        const firstOccurrence = occurrences[0];
+        const { originalValue, translationValue } = firstOccurrence;
+
+        // 截断长字符串，避免错误信息过长
+        const truncate = (str, len = 30) => (str.length > len ? `${str.substring(0, len)}...` : str);
+        const displayOriginal = truncate(originalValue);
+        const displayTranslation = truncate(translationValue);
+
+        errors.push({
+          file,
+          line: firstOccurrence.line,
+          lineContent: '',
+          message: `规则 [${displayOriginal}, ${displayTranslation}] 被重复定义了 ${occurrences.length} 次。`,
+          type: 'multi-duplicate',
+          occurrences,
+          node: firstOccurrence.node
+        });
       }
     }
   }

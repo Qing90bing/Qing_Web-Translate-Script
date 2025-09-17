@@ -223,8 +223,11 @@ export async function applySingleEmptyTranslationFix(decision) {
   const start = translationNode.range[0]; // 译文节点的起始位置
   const end = translationNode.range[1];   // 译文节点的结束位置
   
-  // 将用户输入的字符串转换为带引号的 JSON 字符串格式。
-  const newTranslationString = JSON.stringify(newTranslation);
+  // 保持原始的引号风格（单引号或双引号）。
+  const quote = translationNode.raw[0];
+  // 转义新译文中的反斜杠和与外部引号相同的引号。
+  const escapedTranslation = newTranslation.replace(/\\/g, '\\\\').replace(new RegExp(quote, 'g'), `\\${quote}`);
+  const newTranslationString = `${quote}${escapedTranslation}${quote}`;
   
   // 通过字符串切片和拼接，用新的翻译内容替换旧的（空的）翻译内容。
   content = content.slice(0, start) + newTranslationString + content.slice(end);
