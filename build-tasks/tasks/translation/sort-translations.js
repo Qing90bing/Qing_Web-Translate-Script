@@ -4,10 +4,13 @@ import path from 'path';
 
 // 导入第三方库
 import inquirer from 'inquirer';
+import { parse } from 'acorn';
 
 // 导入本地模块
 import { color } from '../../lib/colors.js';
 import { pressAnyKeyToContinue } from '../../lib/utils.js';
+import { getLiteralValue } from '../../lib/validation.js';
+
 
 function visualLength(str) {
   let len = 0;
@@ -65,56 +68,96 @@ function formatArrayAsString(arr, keyType) {
   return `[\n${items.join(',\n')}\n  ]`;
 }
 
+/**
+ * @function runSort (Refactored)
+ * @description Uses an AST-based approach to safely sort translation rules.
+ */
 async function runSort(filePath, keyToSort) {
   console.log(color.cyan(`\n正在处理 ${color.yellow(keyToSort)}...`));
   try {
     const originalContent = await fs.readFile(filePath, 'utf-8');
-    const searchString = `${keyToSort}: [`;
-    const startIndex = originalContent.indexOf(searchString);
-    if (startIndex === -1) { 
-      // Not an error, the key just might not exist in this file.
-      console.log(color.dim(`  - 在 ${path.basename(filePath)} 中未找到键 ${keyToSort}，已跳过。`));
-      return true; 
-    }
-    const arrayStartIndex = startIndex + searchString.length - 1;
+    let ast;
 
-    let balance = 0;
-    let endIndex = -1;
-    for (let i = arrayStartIndex; i < originalContent.length; i++) {
-      if (originalContent[i] === '[') balance++;
-      else if (originalContent[i] === ']') balance--;
-      if (balance === 0) {
-        endIndex = i;
+    // 1. Parse the file content into an AST
+    try {
+      ast = parse(originalContent, { ecmaVersion: 'latest', sourceType: 'module', ranges: true });
+    } catch (e) {
+      throw new Error(`文件解析失败: ${e.message}`);
+    }
+
+    // 2. Find the translation object and the target array node
+    let translationObjectNode = null;
+    for (const node of ast.body) {
+      if (node.type === 'ExportNamedDeclaration' && node.declaration && node.declaration.declarations) {
+        translationObjectNode = node.declaration.declarations[0]?.init;
         break;
       }
     }
-    if (endIndex === -1) { throw new Error('无法为数组找到匹配的闭括号。'); }
+    if (!translationObjectNode || translationObjectNode.type !== 'ObjectExpression') {
+      throw new Error('在文件中未找到导出的翻译对象。');
+    }
 
-    const arrayString = originalContent.substring(arrayStartIndex, endIndex + 1);
-    const originalArray = new Function(`return ${arrayString}`)();
-    
+    const targetProperty = translationObjectNode.properties.find(p => p.key.name === keyToSort);
+    if (!targetProperty) {
+      console.log(color.dim(`  - 在 ${path.basename(filePath)} 中未找到键 ${keyToSort}，已跳过。`));
+      return true;
+    }
+
+    const arrayNode = targetProperty.value;
+    if (arrayNode.type !== 'ArrayExpression') {
+      throw new Error(`属性 "${keyToSort}" 不是一个数组。`);
+    }
+
+    // 3. Convert AST array elements to a standard JS array
+    const originalArray = arrayNode.elements.map(element => {
+        if (element.type !== 'ArrayExpression' || element.elements.length !== 2) {
+            return null; // Invalid format
+        }
+        const keyNode = element.elements[0];
+        const valueNode = element.elements[1];
+
+        let key;
+        if (keyNode.type === 'RegExpLiteral') {
+            // Re-construct the RegExp object from the AST node
+            key = new RegExp(keyNode.pattern, keyNode.flags);
+        } else {
+            key = getLiteralValue(keyNode);
+        }
+
+        const value = getLiteralValue(valueNode);
+
+        if (key === null || value === null) return null;
+        return [key, value];
+    }).filter(Boolean); // Filter out any null (invalid) entries
+
+    // 4. Sort the array
     let sortedArray;
     if (keyToSort === 'textRules') {
       sortedArray = sortTextRules(originalArray);
     } else if (keyToSort === 'regexRules') {
       sortedArray = sortRegexRules(originalArray);
     } else {
+      // This case should not be hit due to the interactive menu constraints
       throw new Error(`未知的排序键类型: ${keyToSort}`);
     }
 
+    // 5. Format the sorted array back to a string
     const sortedArrayString = formatArrayAsString(sortedArray, keyToSort);
-    const contentBefore = originalContent.substring(0, arrayStartIndex);
-    const contentAfter = originalContent.substring(endIndex + 1);
+
+    // 6. Replace the old array string with the new one in the original content
+    const contentBefore = originalContent.substring(0, arrayNode.range[0]);
+    const contentAfter = originalContent.substring(arrayNode.range[1]);
     const updatedContent = contentBefore + sortedArrayString + contentAfter;
     
     await fs.writeFile(filePath, updatedContent, 'utf-8');
     console.log(color.green(`  - ${color.yellow(keyToSort)} 排序成功！`));
     return true;
   } catch (error) {
-    console.error(color.red(`\n❌ 处理 ${color.yellow(keyToSort)} 时发生错误: ${error.message}`));
+    console.error(color.red(`\n❌ 处理 ${color.yellow(keyToSort)} 时在文件 ${path.basename(filePath)} 中发生错误: ${error.message}`));
     return false;
   }
 }
+
 
 async function handleSortTranslations() {
   const translationsDir = path.join(process.cwd(), 'src', 'translations');

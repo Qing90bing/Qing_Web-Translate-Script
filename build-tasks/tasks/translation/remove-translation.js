@@ -134,26 +134,23 @@ async function handleRemoveTranslation() {
 
     // 4b. 更新 index.js
     let indexJsContent = fs.readFileSync(indexJsPath, 'utf-8');
-    // 构建正则表达式以匹配并移除对应的 import 语句。
-    // 例如: `import { exampleCom } from './example.com.js';`
-    const importRegex = new RegExp(`^import\\s+\\{\\s*${variableName}\\s*\\}\\s+from\\s+'\\./${fileToRemove}';?\\s*$`, 'gm');
+    // 构建更精确的正则表达式，以匹配并移除整行（包括换行符），从而避免留下空行。
+    // 使用 'm' (multiline) 标志，使 '^' 匹配行的开头。
+    const importRegex = new RegExp(`^import\\s+\\{\\s*${variableName}\\s*\\}\\s+from\\s+'\\./${fileToRemove}';?\\s*\\r?\\n`, 'm');
     indexJsContent = indexJsContent.replace(importRegex, '');
-    // 构建正则表达式以匹配并移除在 masterTranslationMap 中的条目。
-    // 例如: `"example.com": exampleCom,`
-    const mapEntryRegex = new RegExp(`^\\s*"${domain}":\\s*${variableName},?\\s*$`, 'gm');
+
+    const mapEntryRegex = new RegExp(`^\\s*"${domain}":\\s*${variableName},?\\s*\\r?\\n`, 'm');
     indexJsContent = indexJsContent.replace(mapEntryRegex, '');
-    // 写入清理后的内容
-    fs.writeFileSync(indexJsPath, aggressiveCleanup(indexJsContent));
+
+    fs.writeFileSync(indexJsPath, indexJsContent);
     console.log(color.green(`✅ 已更新: index.js`));
 
     // 4c. 更新 header.txt
     let headerTxtContent = fs.readFileSync(headerTxtPath, 'utf-8');
-    // 构建正则表达式以匹配并移除对应的 @match 指令。
-    // 例如: `// @match        *://example.com/*`
-    const matchRegex = new RegExp(`^// @match\\s+\\*://${domain}/\\*\\s*$`, 'gm');
+    const matchRegex = new RegExp(`^// @match\\s+\\*://${domain}/\\*\\s*\\r?\\n`, 'm');
     headerTxtContent = headerTxtContent.replace(matchRegex, '');
-    // 写入清理后的内容
-    fs.writeFileSync(headerTxtPath, aggressiveCleanup(headerTxtContent));
+
+    fs.writeFileSync(headerTxtPath, headerTxtContent);
     console.log(color.green(`✅ 已更新: header.txt`));
 
     console.log(color.bold(color.lightGreen('\n🎉 所有相关内容均已成功移除！')));

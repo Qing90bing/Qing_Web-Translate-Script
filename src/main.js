@@ -26,7 +26,7 @@ import { initializeObservers } from './modules/core/observers.js';
     }
 
     // 从新的数据结构中提取规则
-    const { styles: cssRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    const { styles: cssRules = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
 
     // 将所有纯文本翻译规则放入一个Map中，以便快速查找
     const textTranslationMap = new Map();
@@ -44,6 +44,19 @@ import { initializeObservers } from './modules/core/observers.js';
         customStyleElement.textContent = cssRules.join('\n');
         const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
         head.appendChild(customStyleElement);
+    }
+
+    // 注入并执行自定义JS脚本
+    if (jsRules.length > 0) {
+        const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
+        for (const scriptText of jsRules) {
+            if (typeof scriptText === 'string' && scriptText.trim()) {
+                const scriptElement = document.createElement('script');
+                scriptElement.type = 'text/javascript';
+                scriptElement.textContent = scriptText;
+                head.appendChild(scriptElement);
+            }
+        }
     }
 
     // 创建翻译器实例

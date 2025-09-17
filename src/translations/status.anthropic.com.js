@@ -4,6 +4,12 @@ export const statusAnthropicCom = {
   // 样式（CSS）
   styles: [],
 
+  // 注入脚本（JavaScript）
+  jsRules: [
+    // 在这里添加JavaScript代码，例如：
+    // "alert('Hello, World!');"
+  ],
+
   // 正则表达式翻译规则
   regexRules: [
     [/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s+(\d{2}:\d{2})\s+UTC/i, "MM月DD日, $3 UTC"],

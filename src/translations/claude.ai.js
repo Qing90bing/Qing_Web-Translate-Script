@@ -4,6 +4,12 @@ export const claudeAi = {
   // 样式（CSS）
   styles: [],
 
+  // 注入脚本（JavaScript）
+  jsRules: [
+    // 在这里添加JavaScript代码，例如：
+    // "alert('Hello, World!');"
+  ],
+
   // 正则表达式翻译规则
   regexRules: [
     [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, "每人/月，享受年度订阅折扣。按月计费则为 SGD $1。最少 $2 名成员。"],

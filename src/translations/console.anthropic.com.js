@@ -4,6 +4,12 @@ export const consoleAnthropicCom = {
   // 样式（CSS）
   styles: [],
 
+  // 注入脚本（JavaScript）
+  jsRules: [
+    // 在这里添加JavaScript代码，例如：
+    // "alert('Hello, World!');"
+  ],
+
   // 正则表达式翻译规则
   regexRules: [
     [/Confirm Development Partner Program enrollment for (.+)/i, '确认为 $1 加入开发合作伙伴计划'],

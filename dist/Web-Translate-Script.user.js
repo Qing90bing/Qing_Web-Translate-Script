@@ -17,10 +17,10 @@
 // @noframes
 // ==/UserScript==
 
-
 (() => {
   var julesGoogleCom = {
     styles: ['.feedback-button { width: auto !important; white-space: nowrap !important; }'],
+    jsRules: [],
     regexRules: [
       [/^Step\s+(\d+)\s+of the plan is complete\.$/i, '“计划”的第 $1 步已完成。'],
       [/Completed\s+(\d+)\s+minutes?\s+ago/i, '$1 分钟前完成'],
@@ -77,6 +77,7 @@
   };
   var aistudioGoogleCom = {
     styles: [],
+    jsRules: [],
     regexRules: [
       [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  换行\nAlt + ↩  追加文本 (不执行)\nCtrl + ↩  执行指令'],
       [/Invalid JSON: SyntaxError: Unexpected token '(.+?)', "(.+?)" is not valid JSON/i, '无效的 JSON 语法错误：在 “$2” 中存在意外的字符 “$1”'],
@@ -108,7 +109,7 @@
       ['Restored from', '恢复自：'],
       ['Thinking...', '思考中...'],
       ['Saving…..', '保存中...'],
-      ['Save app', '保存应用'],
+      ['Save app', '保存 App'],
       ['Added', '添加'],
       ['Live', '实时'],
       ['Medium', '中'],
@@ -135,6 +136,7 @@
   };
   var claudeAi = {
     styles: [],
+    jsRules: [],
     regexRules: [
       [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, '每人/月，享受年度订阅折扣。按月计费则为 SGD $1。最少 $2 名成员。'],
       [/Per person \/ month\. Minimum (\d+)\s+members\./i, '每人/月。最少 $1 名成员。'],
@@ -192,6 +194,7 @@
   };
   var consoleAnthropicCom = {
     styles: [],
+    jsRules: [],
     regexRules: [
       [/Confirm Development Partner Program enrollment for (.+)/i, '确认为 $1 加入开发合作伙伴计划'],
       [/(\d+)\s+day\s+retention period/i, '$1 天保留期'],
@@ -238,6 +241,7 @@
   };
   var statusAnthropicCom = {
     styles: [],
+    jsRules: [],
     regexRules: [
       [/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s+(\d{2}:\d{2})\s+UTC/i, 'MM月DD日, $3 UTC'],
       [/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s+(\d{4})/i, 'YYYY年MM月DD日'],
@@ -633,7 +637,7 @@
       removeAntiFlickerStyle();
       return;
     }
-    const { styles: cssRules = [], regexRules: regexRules2 = [], textRules = [] } = siteDictionary;
+    const { styles: cssRules = [], jsRules = [], regexRules: regexRules2 = [], textRules = [] } = siteDictionary;
     const textTranslationMap2 = new Map();
     for (const rule of textRules) {
       if (Array.isArray(rule) && rule.length === 2 && typeof rule[0] === 'string' && typeof rule[1] === 'string') {
@@ -646,6 +650,17 @@
       customStyleElement.textContent = cssRules.join('\n');
       const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
       head.appendChild(customStyleElement);
+    }
+    if (jsRules.length > 0) {
+      const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
+      for (const scriptText of jsRules) {
+        if (typeof scriptText === 'string' && scriptText.trim()) {
+          const scriptElement = document.createElement('script');
+          scriptElement.type = 'text/javascript';
+          scriptElement.textContent = scriptText;
+          head.appendChild(scriptElement);
+        }
+      }
     }
     const translator = createTranslator(textTranslationMap2, regexRules2);
     function initializeTranslation() {

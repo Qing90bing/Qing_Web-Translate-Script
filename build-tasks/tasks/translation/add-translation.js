@@ -106,6 +106,10 @@ export const ${variableName} = {
   // 在这里添加网站所需的自定义样式
   styles: [],
 
+  // 注入脚本 (JavaScript)
+  // 在这里添加JavaScript代码
+  jsRules: [],
+
   // 正则表达式翻译规则
   // 规则会自动应用于匹配的文本
   // 格式: [/原始文本正则表达式/i, '翻译后的文本']

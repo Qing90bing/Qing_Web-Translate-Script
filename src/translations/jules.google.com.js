@@ -6,6 +6,12 @@ export const julesGoogleCom = {
     '.feedback-button { width: auto !important; white-space: nowrap !important; }'
   ],
 
+  // 注入脚本（JavaScript）
+  jsRules: [
+    // 在这里添加JavaScript代码，例如：
+    // "alert('Hello, World!');"
+  ],
+
   // 正则表达式翻译规则
   regexRules: [
     [/^Step\s+(\d+)\s+of the plan is complete\.$/i, "“计划”的第 $1 步已完成。"],

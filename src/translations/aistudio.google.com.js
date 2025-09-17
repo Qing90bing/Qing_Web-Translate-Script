@@ -7,6 +7,12 @@ export const aistudioGoogleCom = {
     // 'body { font-family: "Arial", sans-serif; }'
   ],
 
+  // 注入脚本（JavaScript）
+  jsRules: [
+    // 在这里添加JavaScript代码，例如：
+    // "alert('Hello, World!');"
+  ],
+
   // 正则表达式翻译规则
   regexRules: [
     [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, "↩  换行\nAlt + ↩  追加文本 (不执行)\nCtrl + ↩  执行指令"],
@@ -41,7 +47,7 @@ export const aistudioGoogleCom = {
     ["Restored from", "恢复自："],
     ["Thinking...", "思考中..."],
     ["Saving…..", "保存中..."],
-    ["Save app", "保存应用"],
+    ["Save app", "保存 App"],
     ["Added", "添加"],
     ["Live", "实时"],
     ["Medium", "中"],

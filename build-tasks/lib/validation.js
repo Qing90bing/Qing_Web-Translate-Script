@@ -139,7 +139,25 @@ function validateFileContent(file, content, options) {
   // 如果找不到翻译对象，则无需继续检查。
   if (!translationObjectNode) return errors;
 
-  // 提取 `regexRules` 和 `textRules` 数组节点
+  // 定义所有已知的、合法的顶级属性
+  const KNOWN_PROPERTIES = new Set(['styles', 'jsRules', 'regexRules', 'textRules']);
+
+  // 检查是否存在未知的属性
+  for (const prop of translationObjectNode.properties) {
+    const keyName = prop.key.name;
+    if (!KNOWN_PROPERTIES.has(keyName)) {
+      errors.push({
+        file,
+        line: prop.key.loc.start.line,
+        lineContent: lines[prop.key.loc.start.line - 1].trim(),
+        message: `翻译对象中存在未知的属性: "${keyName}"。`,
+        type: 'structure',
+        node: prop,
+      });
+    }
+  }
+
+  // 提取 `regexRules` 和 `textRules` 数组节点用于后续校验
   const regexRulesNode = translationObjectNode.properties.find(p => p.key.name === 'regexRules')?.value;
   const textRulesNode = translationObjectNode.properties.find(p => p.key.name === 'textRules')?.value;
 
