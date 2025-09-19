@@ -28,6 +28,7 @@ import handleCommaCheck from './build-tasks/tasks/check/check-comma.js';
 import handleDuplicatesCheck from './build-tasks/tasks/check/check-duplicates.js';
 import handleEmptyCheck from './build-tasks/tasks/check/check-empty.js';
 import handleIdenticalCheck from './build-tasks/tasks/check/check-identical.js';
+import handleSourceDuplicatesCheck from './build-tasks/tasks/check/check-source-duplicates.js';
 import handleFullBuild from './build-tasks/tasks/build-project.js';
 import handleManageTranslations from './build-tasks/tasks/translation/manage-translations.js';
 import handleSortTranslations from './build-tasks/tasks/translation/sort-translations.js';
@@ -62,16 +63,17 @@ async function main() {
         prefix: '✨', // 在问题前的缀饰符
         choices: [
           new inquirer.Separator(color.dim('--- 检查与修复 ---')), // 分隔线
-          { name: `1. ${color.yellow('🔧 检查“遗漏逗号”问题')}`, value: 'checkMissingComma' },
-          { name: `2. ${color.yellow('🔧 检查“空翻译”问题')}`, value: 'checkEmpty' },
-          { name: `3. ${color.yellow('🔧 检查“重复的翻译”问题')}`, value: 'checkDuplicates' },
-          { name: `4. ${color.yellow('🔧 检查“原文和译文相同”问题')}`, value: 'checkIdentical' },
+          { name: `1. ${color.yellow('🔧 检查"遗漏逗号"问题')}`, value: 'checkMissingComma' },
+          { name: `2. ${color.yellow('🔧 检查"空翻译"问题')}`, value: 'checkEmpty' },
+          { name: `3. ${color.yellow('🔧 检查"重复的翻译"问题')}`, value: 'checkDuplicates' },
+          { name: `4. ${color.yellow('🔧 检查"原文和译文相同"问题')}`, value: 'checkIdentical' },
+          { name: `5. ${color.yellow('🔧 检查"原文重复"问题')}`, value: 'checkSourceDuplicates' },
           new inquirer.Separator(color.dim('--- 项目操作 ---')), // 分隔线
-          { name: `5. ${color.lightGreen('🚀 完整构建项目 (不包含检查)')}`, value: 'fullBuild' },
-          { name: `6. ${color.cyan('🗂️ 管理网站翻译文件')}`, value: 'manageTranslations' },
-          { name: `7. ${color.magenta('✨ 整理与排序翻译文件')}`, value: 'sortTranslations' },
+          { name: `6. ${color.lightGreen('🚀 完整构建项目 (不包含检查)')}`, value: 'fullBuild' },
+          { name: `7. ${color.cyan('🗂️ 管理网站翻译文件')}`, value: 'manageTranslations' },
+          { name: `8. ${color.magenta('✨ 整理与排序翻译文件')}`, value: 'sortTranslations' },
           new inquirer.Separator(),
-          { name: `8. ${color.cyan('🚪 退出')}`, value: 'exit' },
+          { name: `9. ${color.cyan('🚪 退出')}`, value: 'exit' },
         ],
       },
     ]);
@@ -92,6 +94,9 @@ async function main() {
         break;
       case 'checkIdentical':
         await handleIdenticalCheck(); // 调用处理原文译文相同检查的函数
+        break;
+      case 'checkSourceDuplicates':
+        await handleSourceDuplicatesCheck(); // 调用处理原文重复检查的函数
         break;
       case 'fullBuild':
         await handleFullBuild(); // 调用完整构建项目的函数

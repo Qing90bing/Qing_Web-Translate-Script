@@ -41,35 +41,49 @@ import { getLiteralValue } from './validation.js';
  *   （例如 'auto-fix', 'manual-fix', 'ignore', 'cancel'）。
  */
 export async function promptUserAboutErrors(errors, options = {}) {
-  const { isFullBuild = false } = options;
+  const { isFullBuild = false, isSourceDuplicate = false } = options;
 
   // 1. 统计不同类型的错误数量，以便在提示信息中清晰地展示，并据此决定提供哪些修复选项。
   const duplicateErrorCount = errors.filter(e => e.type === 'multi-duplicate').length;
+  const sourceDuplicateErrorCount = errors.filter(e => e.type === 'source-duplicate').length;
   const emptyTranslationCount = errors.filter(e => e.type === 'empty-translation').length;
-  const manualFixErrorCount = duplicateErrorCount + emptyTranslationCount;
+  const manualFixErrorCount = duplicateErrorCount + sourceDuplicateErrorCount + emptyTranslationCount;
 
   // 2. 根据存在的错误类型，动态构建提供给用户的选项列表 (`choices`)。
   const choices = [];
-  // 仅当存在“重复的翻译”错误时，才提供自动修复选项，因为这是唯一可以被安全地自动修复的场景（保留第一个）。
+  // 仅当存在"重复的翻译"错误时，才提供自动修复选项，因为这是唯一可以被安全地自动修复的场景（保留第一个）。
   if (duplicateErrorCount > 0) {
     choices.push({
-      name: `✨ (自动) 快速修复 ${duplicateErrorCount} 组“重复的翻译”问题 (保留第一个)`,
+      name: `✨ (自动) 快速修复 ${duplicateErrorCount} 组"重复的翻译"问题 (保留第一个)`,
       value: 'auto-fix',
     });
   }
+  
+  // 为原文重复错误提供自动修复选项（保留第一个出现的译文）
+  if (sourceDuplicateErrorCount > 0) {
+    choices.push({
+      name: `✨ (自动) 快速修复 ${sourceDuplicateErrorCount} 组"原文重复"问题 (保留第一个)`,
+      value: 'auto-fix-source',
+    });
+  }
 
-  // 仅当存在可手动修复的错误（重复的翻译或空翻译）时，才提供手动修复选项。
+  // 仅当存在可手动修复的错误（重复的翻译、原文重复或空翻译）时，才提供手动修复选项。
   if (manualFixErrorCount > 0) {
     const verb = manualFixErrorCount > 1 ? '逐个处理' : '处理';
     let manualFixText = `🔧 (手动) ${verb} `;
-    if (duplicateErrorCount > 0 && emptyTranslationCount > 0) {
-      manualFixText += `${manualFixErrorCount} 个“重复的翻译”或“空翻译”问题`;
+    if (sourceDuplicateErrorCount > 0) {
+      manualFixText += `${sourceDuplicateErrorCount} 组"原文重复"问题 (逐个处理)`;
+      choices.push({ name: manualFixText, value: 'manual-fix-immediate' });
+    } else if (duplicateErrorCount > 0 && emptyTranslationCount > 0) {
+      manualFixText += `${manualFixErrorCount} 个"重复的翻译"或"空翻译"问题`;
+      choices.push({ name: manualFixText, value: 'manual-fix' });
     } else if (duplicateErrorCount > 0) {
-      manualFixText += `${manualFixErrorCount} 组“重复的翻译”问题`;
+      manualFixText += `${manualFixErrorCount} 组"重复的翻译"问题`;
+      choices.push({ name: manualFixText, value: 'manual-fix' });
     } else {
-      manualFixText += `${manualFixErrorCount} 个“空翻译”问题`;
+      manualFixText += `${manualFixErrorCount} 个"空翻译"问题`;
+      choices.push({ name: manualFixText, value: 'manual-fix' });
     }
-    choices.push({ name: manualFixText, value: 'manual-fix' });
   }
 
   // 3. 根据 `isFullBuild` 标志，定制“忽略”和“取消”选项的提示文本，使其更贴合当前的操作流程。
@@ -221,7 +235,11 @@ export async function promptForSingleEmptyTranslationFix(error, remainingCount) 
     {
       type: 'list',
       name: 'action',
-      message: `-- ${progress} --\n  - 文件: ${color.underline(path.basename(error.file))}\n  - 原文: ${color.yellow(`"${originalText}"`)}\n  - 行号: ${error.line}\n请选择如何处理此空翻译词条：`,
+      message: `-- ${progress} --
+  - 文件: ${color.underline(path.basename(error.file))}
+  - 原文: ${color.yellow(`"${originalText}"`)}
+  - 行号: ${error.line}
+请选择如何处理此空翻译词条：`,
       choices: [
         { name: '✏️ (修复) 为此词条输入新的译文', value: 'fix' },
         new inquirer.Separator(),
@@ -345,7 +363,11 @@ ${error.lineContent}
         type: 'confirm',
         name: 'confirm',
         prefix: '❓',
-        message: `--[ ${progress} ]-- 文件: ${color.underline(path.basename(error.file))}\n  - ${color.yellow('检测到可能缺少逗号。')}预览如下:\n${preview}\n\n  您是否接受此项修复？`,
+        message: `--[ ${progress} ]-- 文件: ${color.underline(path.basename(error.file))}
+  - ${color.yellow('检测到可能缺少逗号。')}预览如下:
+${preview}
+
+  您是否接受此项修复？`,
         default: true,
       },
     ]);
@@ -449,7 +471,11 @@ ${lineBelow}
     {
       type: 'list',
       name: 'choice',
-      message: `-- ${progress} --\n  - ${color.yellow(error.message)}\n${preview}\n\n  您想如何处理这个问题？`,
+      message: `-- ${progress} --
+  - ${color.yellow(error.message)}
+${preview}
+
+  您想如何处理这个问题？`,
       choices: [
         { name: '✅ (修复) 应用此项修复', value: 'fix' },
         { name: '➡️ (跳过) 忽略此项，处理下一个', value: 'skip' },
@@ -505,7 +531,12 @@ export async function promptForSingleIdenticalFix(error, remainingCount) {
     {
       type: 'list',
       name: 'action',
-      message: `-- ${progress} --\n  - 文件: ${color.underline(path.basename(error.file))}\n  - 原文: ${color.yellow(`"${originalText}"`)}\n  - 行号: ${error.line}\n  - 内容: ${color.cyan(error.lineContent.trim())}\n请选择如何处理此词条：`,
+      message: `-- ${progress} --
+  - 文件: ${color.underline(path.basename(error.file))}
+  - 原文: ${color.yellow(`"${originalText}"`)}
+  - 行号: ${error.line}
+  - 内容: ${color.cyan(error.lineContent.trim())}
+请选择如何处理此词条：`,
       choices: [
         { name: '✏️ (修改) 为此词条输入新的译文', value: 'modify' },
         { name: '🗑️ (移除) 从文件中删除此词条', value: 'remove' },
@@ -593,4 +624,186 @@ export async function promptUserAboutIdenticalTranslations(errors) {
     default:
       return null;
   }
+}
+
+/**
+ * @function promptForSourceDuplicateManualFix
+ * @description 提示用户手动解决"原文重复"的错误。
+ * 该函数会遍历所有"原文重复"的错误。对于每一组重复，它都会提供一个交互式列表，
+ * 列出所有使用该原文的位置，并让用户选择要保留哪一个版本。
+ * 用户可以选择保留某一个、跳过当前错误，或者中途退出整个修复流程。
+ * @param {ValidationError[]} sourceDuplicateErrors - 一个只包含 'source-duplicate' 类型错误的数组。
+ * @returns {Promise<Array<object>|null>} 返回一个包含用户决策的数组。
+ *   每个决策对象都指明了文件、原文、要保留的行号以及所有出现的位置。
+ *   如果用户选择中途退出，则返回 `null`。
+ */
+export async function promptForSourceDuplicateManualFix(sourceDuplicateErrors) {
+  const decisions = [];
+  let userExited = false;
+
+  for (let i = 0; i < sourceDuplicateErrors.length; i++) {
+    const error = sourceDuplicateErrors[i];
+    // 从错误对象中直接获取原文文本，避免依赖易变的错误消息格式。
+    const originalText = error.occurrences[0].originalValue || '未知原文';
+    
+    // 1. 为每个出现的位置（occurrence）创建一个选项，显示其行号、对应的译文和行内容。
+    const choices = error.occurrences.map((occ, index) => {
+      const translationText = occ.translationValue || '未知译文';
+      const truncate = (str, len = 25) => (str.length > len ? `${str.substring(0, len)}...` : str);
+      const displayTranslation = truncate(translationText);
+      return {
+        name: `✅ (保留) 第 ${occ.line} 行 -> ["${originalText}", "${displayTranslation}"]`,
+        value: occ.line, // `value` 是该选项的实际返回值
+      };
+    });
+
+    // 2. 添加"跳过"和"退出"这两个特殊操作选项。
+    choices.push(new inquirer.Separator());
+    choices.push({ name: '➡️ (跳过) 暂时不处理此问题', value: 'skip' });
+    choices.push({ name: '🛑 (退出) 放弃所有手动修复并退出', value: 'exit' });
+
+    // 3. 使用 `inquirer` 显示提示，并附上进度信息（例如 "正在处理 1 / 5"）。
+    const progress = color.dim(`[${i + 1}/${sourceDuplicateErrors.length}]`);
+    const { userChoice } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'userChoice',
+        message: `--[ 正在处理原文重复问题 ${progress} ]--\n原文 ${color.yellow(`"${originalText}"`)} 被多次使用对应不同的译文。请选择您想保留的版本：`,
+        choices: choices,
+      },
+    ]);
+
+    // 4. 处理用户的选择。
+    if (userChoice === 'exit') {
+      // 如果用户选择退出，需要二次确认，防止误操作。
+      const { confirmExit } = await inquirer.prompt([
+        { type: 'confirm', name: 'confirmExit', message: '您确定要退出吗？所有在此次手动修复中所做的选择都将丢失。', prefix: '⚠️', default: false }
+      ]);
+      if (confirmExit) {
+        userExited = true;
+        break; // 退出循环
+      }
+      // 如果用户取消退出，则重新处理当前错误。
+      i--; // 重复当前迭代
+      continue;
+    }
+
+    if (userChoice === 'skip') {
+      // 如果用户选择跳过，则不记录任何决定，直接继续处理下一个错误。
+      continue;
+    }
+
+    // 如果用户选择了一个具体的行号，则记录这个决定。
+    decisions.push({
+      file: error.file,
+      originalText: originalText,
+      lineToKeep: userChoice, // 用户选择保留的行号
+      occurrences: error.occurrences, // 所有出现的位置，便于在修复时删除其他项
+    });
+  }
+
+  // 如果用户中途退出，返回 `null`。
+  if (userExited) {
+    return null;
+  }
+
+  // 否则，返回用户的所有决定。
+  return decisions;
+}
+
+/**
+ * @function promptForSourceDuplicateManualFixImmediate
+ * @description 提示用户手动解决"原文重复"的错误，但每次选择后立即保存，而不是批量处理。
+ * 该函数会遍历所有"原文重复"的错误。对于每一组重复，它都会提供一个交互式列表，
+ * 列出所有使用该原文的位置，让用户选择要保留哪一个版本，然后立即应用修复。
+ * @param {ValidationError[]} sourceDuplicateErrors - 一个只包含 'source-duplicate' 类型错误的数组。
+ * @param {Function} applyFunction - 用于立即应用单个修复的函数。
+ * @param {Function} revalidateFunction - 用于重新验证并获取最新错误列表的函数。
+ * @returns {Promise<number>} 返回成功修复的错误数量。
+ */
+export async function promptForSourceDuplicateManualFixImmediate(sourceDuplicateErrors, applyFunction, revalidateFunction) {
+  let fixedCount = 0;
+  let remainingErrors = [...sourceDuplicateErrors]; // 创建副本
+
+  while (remainingErrors.length > 0) {
+    const error = remainingErrors[0]; // 始终处理第一个错误
+    // 从错误对象中直接获取原文文本，避免依赖易变的错误消息格式。
+    const originalText = error.occurrences[0].originalValue || '未知原文';
+    
+    // 1. 为每个出现的位置（occurrence）创建一个选项，显示其行号、对应的译文和行内容。
+    const choices = error.occurrences.map((occ, index) => {
+      const translationText = occ.translationValue || '未知译文';
+      const truncate = (str, len = 25) => (str.length > len ? `${str.substring(0, len)}...` : str);
+      const displayTranslation = truncate(translationText);
+      return {
+        name: `✅ (保留) 第 ${occ.line} 行 -> ["${originalText}", "${displayTranslation}"]`,
+        value: occ.line, // `value` 是该选项的实际返回值
+      };
+    });
+
+    // 2. 添加"跳过"和"退出"这两个特殊操作选项。
+    choices.push(new inquirer.Separator());
+    choices.push({ name: '➡️ (跳过) 暂时不处理此问题', value: 'skip' });
+    choices.push({ name: '🛑 (退出) 放弃剩余修复并退出', value: 'exit' });
+
+    // 3. 使用 `inquirer` 显示提示，并附上进度信息。
+    const progress = color.dim(`[剩余 ${remainingErrors.length} 个问题]`);
+    const { userChoice } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'userChoice',
+        message: `--[ 正在处理原文重复问题 ${progress} ]--\n原文 ${color.yellow(`"${originalText}"`)} 被多次使用对应不同的译文。请选择您想保留的版本：`,
+        choices: choices,
+      },
+    ]);
+
+    // 4. 处理用户的选择。
+    if (userChoice === 'exit') {
+      // 如果用户选择退出，需要二次确认，防止误操作。
+      const { confirmExit } = await inquirer.prompt([
+        { type: 'confirm', name: 'confirmExit', message: '您确定要退出吗？', prefix: '⚠️', default: false }
+      ]);
+      if (confirmExit) {
+        break; // 退出循环
+      }
+      // 如果用户取消退出，则继续处理当前错误。
+      continue;
+    }
+
+    if (userChoice === 'skip') {
+      // 如果用户选择跳过，则不做任何操作，移除当前错误并继续处理下一个。
+      remainingErrors.shift(); // 移除第一个元素
+      continue;
+    }
+
+    // 如果用户选择了一个具体的行号，则立即应用修复。
+    const decision = {
+      file: error.file,
+      originalText: originalText,
+      lineToKeep: userChoice, // 用户选择保留的行号
+      occurrences: error.occurrences, // 所有出现的位置，便于在修复时删除其他项
+    };
+
+    try {
+      await applyFunction([decision]); // 立即应用单个修复
+      console.log(color.green(`✅ 原文 "${originalText}" 的重复问题已立即修复。`));
+      fixedCount++;
+      
+      // 关键步骤：修复后重新验证并更新剩余错误列表
+      if (revalidateFunction) {
+        const newErrors = await revalidateFunction();
+        const sourceDuplicateErrors = newErrors.filter(e => e.type === 'source-duplicate');
+        remainingErrors = sourceDuplicateErrors;
+      } else {
+        // 如果没有提供重新验证函数，则只是移除当前错误
+        remainingErrors.shift();
+      }
+    } catch (err) {
+      console.error(color.red(`❌ 修复原文 "${originalText}" 时出错：${err.message}`));
+      // 出错时也移除当前错误，避免无限循环
+      remainingErrors.shift();
+    }
+  }
+
+  return fixedCount;
 }

@@ -103,7 +103,12 @@ function getRuleParts(node) {
         return { pattern, flags };
     }
 
-    // Case 2: 处理字符串字面量, e.g. '/hello/g'
+    // Case 2: 处理 Acorn 解析器生成的正则表达式 Literal 节点 (node.regex 存在)
+    if (node.type === 'Literal' && node.regex) {
+        return { pattern: node.regex.pattern, flags: node.regex.flags || '' };
+    }
+
+    // Case 3: 处理字符串字面量, e.g. '/hello/g'
     if (node.type === 'Literal' && typeof node.value === 'string') {
         // 对于字符串，检查其内容是否像正则表达式
         const rawContent = node.raw.slice(1, -1); // 移除外部引号, e.g. '/.../g'
@@ -117,7 +122,7 @@ function getRuleParts(node) {
         return { pattern: node.value, flags: '' };
     }
     
-    // Case 3: 处理模板字符串, e.g. `hello`
+    // Case 4: 处理模板字符串, e.g. `hello`
     if (node.type === 'TemplateLiteral' && node.quasis.length === 1) {
         // 模板字符串不用于正则规则，直接返回值
         return { pattern: node.quasis[0].value.cooked, flags: '' };
@@ -222,6 +227,7 @@ function validateFileContent(file, content, options) {
 
   const lines = content.split('\n');
   const seenOriginals = new Map(); // 用于跟踪已见过的原文，以检查重复。
+  const seenOriginalTexts = new Map(); // 用于跟踪已见过的原文，以检查原文重复。
 
   // 3. 遍历所有规则数组中的每一个元素。
   for (const elementNode of allRuleNodes) {
@@ -294,7 +300,29 @@ function validateFileContent(file, content, options) {
       }
     }
 
-    // 3e. 检查“原文和译文相同”。
+    // 3e. 检查"原文重复"。
+    if (options.checkSourceDuplicates) {
+      const originalParts = getRuleParts(originalNode);
+      const translationParts = getRuleParts(translationNode);
+
+      if (originalParts !== null) {
+        // 使用原文的pattern和flags作为组合键来检查重复
+        const originalKey = `${originalParts.pattern}::${originalParts.flags}`;
+        if (!seenOriginalTexts.has(originalKey)) {
+          seenOriginalTexts.set(originalKey, []);
+        }
+        seenOriginalTexts.get(originalKey).push({
+          line: elementNode.loc.start.line,
+          lineContent: lines[elementNode.loc.start.line - 1].trim(),
+          node: elementNode,
+          originalValue: originalParts.pattern, // 保存pattern作为原文显示
+          originalParts: originalParts,
+          translationValue: translationParts ? translationParts.pattern : 'null',
+        });
+      }
+    }
+
+    // 3f. 检查“原文和译文相同”。
     if (options.checkIdentical) {
       // 如果此节点已被用户选择忽略，则跳过。
       if (!(options.ignoredPositions && options.ignoredPositions.has(elementNode.range[0]))) {
@@ -346,6 +374,41 @@ function validateFileContent(file, content, options) {
       }
     }
   }
+
+  // 5. 遍历结束后，处理收集到的原文重复信息。
+  if (options.checkSourceDuplicates) {
+    for (const [originalKey, occurrences] of seenOriginalTexts.entries()) {
+      if (occurrences.length > 1) {
+        // 从第一次出现的地方获取原文，用于生成更清晰的错误信息
+        const firstOccurrence = occurrences[0];
+        const originalParts = firstOccurrence.originalParts;
+
+        // 截断长字符串，避免错误信息过长
+        const truncate = (str, len = 30) => (str.length > len ? `${str.substring(0, len)}...` : str);
+        
+        // 根据是否是正则表达式来显示不同的格式
+        let displayOriginal;
+        if (originalParts.flags) {
+          // 正则表达式显示为 /.../flags 格式
+          displayOriginal = truncate(`/${originalParts.pattern}/${originalParts.flags}`);
+        } else {
+          // 纯文本显示为字符串
+          displayOriginal = truncate(originalParts.pattern);
+        }
+
+        errors.push({
+          file,
+          line: firstOccurrence.line,
+          lineContent: '',
+          message: `原文 "${displayOriginal}" 被重复使用了 ${occurrences.length} 次，分别对应不同的译文。`,
+          type: 'source-duplicate',
+          occurrences,
+          node: firstOccurrence.node
+        });
+      }
+    }
+  }
+
   return errors;
 }
 
@@ -362,7 +425,7 @@ function validateFileContent(file, content, options) {
  * @returns {Promise<ValidationError[]>} 返回一个包含所有文件中发现的所有错误的扁平化数组。
  */
 export async function validateTranslationFiles(options = {}) {
-  const { checkEmpty = false, checkDuplicates = false, checkMissingComma = false, checkIdentical = false, ignoredPositions = new Set() } = options;
+  const { checkEmpty = false, checkDuplicates = false, checkMissingComma = false, checkIdentical = false, checkSourceDuplicates = false, ignoredPositions = new Set() } = options;
   const files = await findTranslationFiles();
   let allErrors = [];
 
@@ -370,14 +433,14 @@ export async function validateTranslationFiles(options = {}) {
     try {
         const content = await fs.readFile(file, 'utf-8');
         // 对每个文件调用核心校验逻辑。
-        const errorsInFile = validateFileContent(file, content, { checkEmpty, checkDuplicates, checkMissingComma, checkIdentical, ignoredPositions });
+        const errorsInFile = validateFileContent(file, content, { checkEmpty, checkDuplicates, checkMissingComma, checkIdentical, checkSourceDuplicates, ignoredPositions });
 
         // 根据是否有错误以及检查类型，格式化并打印结果到控制台。
         if (errorsInFile.length > 0) {
             // 这部分复杂的逻辑是为了在特定检查模式下提供更友好的输出。
             // 例如，如果用户只要求检查空值，且该文件没有空值错误（但可能有其他错误），则不打印文件名和标题。
-            const isOnlySpecificCheck = checkEmpty || checkDuplicates || checkMissingComma || checkIdentical;
-            if (isOnlySpecificCheck && errorsInFile.every(e => e.type !== 'missing-comma' && e.type !== 'empty-translation' && e.type !== 'multi-duplicate' && e.type !== 'identical-translation')) {
+            const isOnlySpecificCheck = checkEmpty || checkDuplicates || checkMissingComma || checkIdentical || checkSourceDuplicates;
+            if (isOnlySpecificCheck && errorsInFile.every(e => e.type !== 'missing-comma' && e.type !== 'empty-translation' && e.type !== 'multi-duplicate' && e.type !== 'identical-translation' && e.type !== 'source-duplicate')) {
                 // 如果是特定检查，但没有发现该类错误，则不打印文件标题
             } else if (checkMissingComma && errorsInFile.every(e => e.type !== 'missing-comma')) {
                 // 如果是逗号检查，但没有发现逗号错误，则不打印
@@ -387,10 +450,10 @@ export async function validateTranslationFiles(options = {}) {
                 console.log(`\n❌ 文件: ${path.basename(file)} (发现 ${errorsInFile.length} 个问题)`);
                 console.log('--------------------------------------------------');
                 errorsInFile.forEach((e, index) => {
-                    const errorTypeMap = { 'multi-duplicate': '重复的原文', 'structure': '结构错误', 'syntax': '语法错误', 'empty-translation': '空翻译', 'missing-comma': '可能的遗漏逗号', 'identical-translation': '原文与译文相同' };
+                    const errorTypeMap = { 'multi-duplicate': '重复的翻译', 'source-duplicate': '重复的原文', 'structure': '结构错误', 'syntax': '语法错误', 'empty-translation': '空翻译', 'missing-comma': '可能的遗漏逗号', 'identical-translation': '原文与译文相同' };
                     const errorName = errorTypeMap[e.type] || '未知错误';
                     console.log(`  问题 ${index + 1}: ${errorName} - ${e.message}`);
-                    if (e.type === 'multi-duplicate') {
+                    if (e.type === 'multi-duplicate' || e.type === 'source-duplicate') {
                         // 对重复错误，特殊格式化以显示所有出现位置。
                         e.occurrences.forEach((occ, i) => {
                             const label = i === 0 ? '首次定义' : '重复出现';
@@ -405,7 +468,7 @@ export async function validateTranslationFiles(options = {}) {
             }
         } else {
             // 如果文件没有错误，并且是特定检查模式，则打印通过信息。
-            if (checkEmpty || checkDuplicates || checkMissingComma || checkIdentical) {
+            if (checkEmpty || checkDuplicates || checkMissingComma || checkIdentical || checkSourceDuplicates) {
                 console.log(`✅ 文件 ${path.basename(file)} 通过检查。`);
             }
         }

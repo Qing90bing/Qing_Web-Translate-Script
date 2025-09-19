@@ -449,3 +449,124 @@ export async function applySingleIdenticalFix(decision) {
     const fixedContent = lines.join('\n');
     await fs.writeFile(file, fixedContent, 'utf-8');
 }
+
+/**
+ * @function fixSourceDuplicatesAutomatically
+ * @description 自动修复"原文重复"的错误。
+ * 修复策略：对于每一组重复的原文，保留其第一次出现的版本，并删除所有后续的重复版本。
+ * @param {ValidationError[]} sourceDuplicateErrors - 一个只包含 'source-duplicate' 类型错误的数组。
+ * @returns {Promise<void>}
+ */
+export async function fixSourceDuplicatesAutomatically(sourceDuplicateErrors) {
+  if (!sourceDuplicateErrors || sourceDuplicateErrors.length === 0) {
+    console.log(color.yellow('\n没有发现可自动修复的原文重复条目。'));
+    return;
+  }
+
+  // 1. 按文件路径将所有需要删除的行号进行分组，以优化I/O操作。
+  const linesToRemoveByFile = {};
+  for (const error of sourceDuplicateErrors) {
+    if (!linesToRemoveByFile[error.file]) {
+      linesToRemoveByFile[error.file] = new Set();
+    }
+    // 2. `slice(1)` 会跳过第一次出现的版本（保留它），将其余所有重复项的行号添加到待删除集合中。
+    error.occurrences.slice(1).forEach(occ => {
+      linesToRemoveByFile[error.file].add(occ.line);
+    });
+  }
+
+  let totalFixed = 0;
+  // 3. 遍历每个需要修改的文件。
+  for (const file in linesToRemoveByFile) {
+    const linesToRemove = Array.from(linesToRemoveByFile[file]);
+    if (linesToRemove.length === 0) continue;
+    totalFixed += linesToRemove.length;
+    console.log(`\n${color.cyan(`🔧 正在自动修复文件 ${color.underline(path.basename(file))}，移除 ${color.bold(linesToRemove.length)} 个重复条目...`)}`);
+    
+    const content = await fs.readFile(file, 'utf-8');
+    const lines = content.split('\n');
+    
+    // 4. **关键步骤**: 对行号进行降序排序。
+    // 这是为了确保在删除行时，不会影响到后续待删除行的索引。
+    linesToRemove.sort((a, b) => b - a);
+    
+    for (const lineNumber of linesToRemove) {
+      // lineNumber 是从1开始的，而数组索引是从0开始的，所以需要-1。
+      lines.splice(lineNumber - 1, 1);
+    }
+    
+    // 5. 将修改后的行数组重新组合成文件内容，并写回文件。
+    const fixedContent = lines.join('\n');
+    await fs.writeFile(file, fixedContent, 'utf-8');
+    console.log(color.green(`  -> ✅ 文件 ${color.underline(path.basename(file))} 已成功自动修复。`));
+  }
+
+  if (totalFixed > 0) {
+      const separator = color.dim('----------------------------------------');
+      console.log(`\n${separator}`);
+      console.log(color.bold('📋 自动修复总结:'));
+      console.log(`  - ${color.green(`总共自动移除了 ${totalFixed} 个原文重复条目。`)}`);
+      console.log(separator);
+  }
+}
+
+/**
+ * @function applySourceDuplicateManualFixes
+ * @description 应用用户在手动修复"原文重复"流程中所做的决策。
+ * 此函数接收一个决策数组，根据用户为每个重复组选择要保留的行，来删除组内其他所有重复的行。
+ * @param {Array<object>} decisions - 从 `promptForSourceDuplicateManualFix` 函数返回的用户决策数组。
+ * @returns {Promise<void>}
+ */
+export async function applySourceDuplicateManualFixes(decisions) {
+  if (!decisions || decisions.length === 0) {
+    console.log(color.yellow('\n没有需要应用的修复。'));
+    return;
+  }
+
+  // 1. 同样，按文件路径将所有需要删除的行号进行分组。
+  const linesToRemoveByFile = {};
+  for (const decision of decisions) {
+    if (!linesToRemoveByFile[decision.file]) {
+      linesToRemoveByFile[decision.file] = new Set();
+    }
+    
+    // 2. 遍历该重复组的所有出现位置。
+    decision.occurrences.forEach(occ => {
+      // 如果某个出现的行号不等于用户选择要保留的行号，则将其添加到待删除集合中。
+      if (occ.line !== decision.lineToKeep) {
+        linesToRemoveByFile[decision.file].add(occ.line);
+      }
+    });
+  }
+
+  let totalFixed = 0;
+  // 3. 后续的文件读写和删除逻辑与 `fixDuplicatesAutomatically` 完全相同。
+  for (const file in linesToRemoveByFile) {
+    const linesToRemove = Array.from(linesToRemoveByFile[file]);
+    if (linesToRemove.length === 0) continue;
+    
+    totalFixed += linesToRemove.length;
+    console.log(`\n${color.cyan(`🔧 正在修复文件 ${color.underline(path.basename(file))}，移除 ${color.bold(linesToRemove.length)} 个重复条目...`)}`);
+    
+    const content = await fs.readFile(file, 'utf-8');
+    const lines = content.split('\n');
+    
+    // 同样，对行号进行降序排序以安全地删除。
+    linesToRemove.sort((a, b) => b - a);
+    
+    for (const lineNumber of linesToRemove) {
+      lines.splice(lineNumber - 1, 1);
+    }
+    
+    const fixedContent = lines.join('\n');
+    await fs.writeFile(file, fixedContent, 'utf-8');
+    console.log(color.green(`  -> ✅ 文件 ${color.underline(path.basename(file))} 已成功修复。`));
+  }
+
+  if (totalFixed > 0) {
+      console.log(color.green(`\n✨ 总共修复了 ${totalFixed} 个问题。`));
+  } else {
+      console.log(color.yellow('\n没有需要应用的修复（可能所有问题都被跳过了）。'));
+  }
+}
+
