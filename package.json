@@ -19,9 +19,10 @@
   "description": "",
   "type": "module",
   "devDependencies": {
+    "@sveltejs/adapter-static": "^3.0.9",
+    "acorn": "^8.12.1",
     "esbuild": "^0.25.9",
     "inquirer": "^9.3.5",
-    "acorn": "^8.12.1",
     "prettier": "^3.3.3"
   }
 }
