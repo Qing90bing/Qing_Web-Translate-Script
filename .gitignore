@@ -1,2 +1,15 @@
 # 安装的依赖工具，体积很大，不需要上传
-/node_modules/
+node_modules/
+
+# 构建产物
+dist/
+
+# 管理界面相关
+manager-ui/node_modules/
+manager-ui/frontend/node_modules/
+manager-ui/public/dist/
+
+# 开发工具
+.DS_Store
+.vscode/
+*.log
