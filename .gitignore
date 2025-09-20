@@ -12,6 +12,10 @@ manager-ui/public/dist/
 manager-ui/frontend/build/
 manager-ui/frontend/.svelte-kit/
 
+# SvelteKit 生成的文件
+.svelte-kit/
+manager-ui/frontend/.svelte-kit/generated/
+
 # 开发工具
 .DS_Store
 .vscode/
