@@ -5,7 +5,7 @@
 
 <script>
   import { notifications, removeNotification } from '../../stores/app.js';
-  import { fly } from 'svelte/transition';
+  import { fly, slide } from 'svelte/transition';
   
   function getNotificationIcon(type) {
     switch (type) {
@@ -30,7 +30,8 @@
   {#each $notifications as notification (notification.id)}
     <div 
       class="notification {getNotificationClass(notification.type)}"
-      transition:fly={{ x: 300, duration: 300 }}
+      in:fly={{ x: 300, duration: 300 }}
+      out:fly={{ x: 300, duration: 300 }}
     >
       <div class="notification-content">
         <i class={getNotificationIcon(notification.type)}></i>
@@ -50,39 +51,42 @@
 <style>
   .notification-container {
     position: fixed;
-    top: 1rem;
+    bottom: 1rem;
     right: 1rem;
     z-index: 1000;
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    max-width: 400px;
+    flex-direction: column-reverse; /* 反向排列，新通知在上面 */
+    gap: 0.75rem;
+    max-width: 450px;
   }
   
   .notification {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem; /* 增加内边距 */
+    border-radius: var(--radius-lg); /* 增加圆角 */
     box-shadow: var(--shadow-lg);
     background-color: var(--bg-primary);
     border: 1px solid var(--border-color);
-    min-height: 3rem;
+    min-height: 4.5rem; /* 增加最小高度 */
+    width: 100%;
+    font-size: 1rem; /* 增加字体大小 */
   }
   
   .notification-content {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
     flex: 1;
     min-width: 0;
   }
   
   .notification-message {
-    font-size: 0.875rem;
-    line-height: 1.4;
+    font-size: 1rem; /* 增加字体大小 */
+    line-height: 1.5;
     word-wrap: break-word;
+    flex: 1;
   }
   
   .notification-close {
@@ -90,10 +94,12 @@
     border: none;
     color: var(--text-muted);
     cursor: pointer;
-    padding: 0.25rem;
+    padding: 0.5rem;
     border-radius: var(--radius-sm);
     transition: var(--transition);
     flex-shrink: 0;
+    align-self: flex-start; /* 顶部对齐 */
+    margin-left: 1rem;
   }
   
   .notification-close:hover {
@@ -107,6 +113,7 @@
   
   .notification-success i {
     color: var(--success-color);
+    font-size: 1.5rem; /* 增加图标大小 */
   }
   
   .notification-warning {
@@ -115,6 +122,7 @@
   
   .notification-warning i {
     color: var(--warning-color);
+    font-size: 1.5rem;
   }
   
   .notification-error {
@@ -123,6 +131,7 @@
   
   .notification-error i {
     color: var(--error-color);
+    font-size: 1.5rem;
   }
   
   .notification-info {
@@ -131,15 +140,24 @@
   
   .notification-info i {
     color: var(--accent-color);
+    font-size: 1.5rem;
   }
   
   /* 响应式设计 */
   @media (max-width: 768px) {
     .notification-container {
-      top: 0.5rem;
-      right: 0.5rem;
-      left: 0.5rem;
+      bottom: 0.75rem;
+      right: 0.75rem;
+      left: 0.75rem;
       max-width: none;
+    }
+    
+    .notification {
+      padding: 1rem;
+    }
+    
+    .notification-message {
+      font-size: 0.95rem;
     }
   }
 </style>

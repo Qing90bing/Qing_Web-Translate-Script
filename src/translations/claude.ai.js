@@ -1,6 +1,17 @@
 // src/translations/claude.ai.js
 
 export const claudeAi = {
+  // === 文件元数据 ===
+  // 文件描述
+  description: "Claude AI 网站翻译配置",
+  
+  // 测试链接 
+  testUrl: "https://claude.ai",
+  
+  // 创建日期
+  creationDate: "2024-01-01",
+
+  // === 翻译规则 ===
   // 样式（CSS）
   styles: [],
 

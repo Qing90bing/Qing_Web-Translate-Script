@@ -17,6 +17,9 @@ export const loading = writable(false);
 // 当前选中的文件
 export const currentFile = writable(null);
 
+// 当前选中查看详情的文件
+export const selectedFileForDetails = writable(null);
+
 // 翻译文件列表
 export const translationFiles = writable([]);
 

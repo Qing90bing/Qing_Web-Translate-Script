@@ -25,7 +25,7 @@ console.log(`📍 项目根目录: ${projectRoot}`);
 console.log(`📍 当前工作目录: ${process.cwd()}`);
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3008; // 修改端口号为3008
 
 // 中间件
 app.use(cors());

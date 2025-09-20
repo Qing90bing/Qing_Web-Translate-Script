@@ -5,12 +5,15 @@
 
 <script>
   import { onMount } from 'svelte';
+  import { fly, fade } from 'svelte/transition';
   import { translationApi } from '../lib/api.js';
-  import { translationFiles, currentFile, currentView, addNotification } from '../stores/app.js';
+  import { translationFiles, currentFile, currentView, addNotification, selectedFileForDetails } from '../stores/app.js';
   
   let files = [];
   let loading = false;
   let showCreateDialog = false;
+  let showDeleteDialog = false;
+  let fileToDelete = null;
   let newDomain = '';
   
   // 订阅store
@@ -57,25 +60,39 @@
     }
   }
   
-  async function deleteFile(filename) {
-    if (!confirm(`确定要删除文件 ${filename} 吗？此操作不可恢复。`)) {
-      return;
-    }
+  // 显示删除确认对话框
+  function showDeleteConfirmation(file) {
+    fileToDelete = file;
+    showDeleteDialog = true;
+  }
+  
+  // 确认删除文件
+  async function confirmDelete() {
+    if (!fileToDelete) return;
     
     loading = true;
+    showDeleteDialog = false;
+    
     try {
-      const response = await translationApi.delete(filename);
+      const response = await translationApi.delete(fileToDelete.name);
       if (response.success) {
         addNotification('文件删除成功', 'success');
         await loadFiles();
         // 如果删除的是当前编辑的文件，清空当前文件
-        currentFile.update(current => current?.filename === filename ? null : current);
+        currentFile.update(current => current?.filename === fileToDelete.name ? null : current);
       }
     } catch (error) {
       addNotification('删除文件失败: ' + error.message, 'error');
     } finally {
       loading = false;
+      fileToDelete = null;
     }
+  }
+  
+  // 取消删除
+  function cancelDelete() {
+    showDeleteDialog = false;
+    fileToDelete = null;
   }
   
   function editFile(file) {
@@ -83,19 +100,75 @@
     currentView.set('editor');
   }
   
+  // 查看详情时获取完整的文件信息（包含元数据）
+  async function viewDetails(file) {
+    loading = true;
+    try {
+      const response = await translationApi.get(file.name);
+      if (response.success) {
+        selectedFileForDetails.set(response.data);
+      } else {
+        addNotification('获取文件详情失败: ' + response.message, 'error');
+        // 如果获取详情失败，仍然显示基本信息
+        selectedFileForDetails.set(file);
+      }
+    } catch (error) {
+      addNotification('获取文件详情失败: ' + error.message, 'error');
+      // 如果获取详情失败，仍然显示基本信息
+      selectedFileForDetails.set(file);
+    } finally {
+      loading = false;
+    }
+  }
+  
   function cancelCreate() {
     showCreateDialog = false;
     newDomain = '';
   }
   
-  function formatFileSize(path) {
-    // 模拟文件大小计算，实际项目中可以从后端获取
-    return Math.floor(Math.random() * 50 + 10) + 'KB';
+  // 格式化文件大小
+  function formatFileSize(bytes) {
+    if (!bytes || bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
   
-  function getLastModified() {
-    // 模拟最后修改时间，实际项目中从后端获取
-    return new Date().toLocaleDateString('zh-CN');
+  // 获取最后修改时间
+  function getLastModified(file) {
+    try {
+      // 检查文件对象中是否有 lastModified 字段
+      if (file.lastModified) {
+        // 如果是字符串格式的日期
+        if (typeof file.lastModified === 'string') {
+          // 如果是 ISO 格式的时间戳
+          if (file.lastModified.includes('T')) {
+            return new Date(file.lastModified).toLocaleDateString('zh-CN');
+          }
+          // 如果是其他格式的日期字符串
+          else {
+            const date = new Date(file.lastModified);
+            if (!isNaN(date.getTime())) {
+              return date.toLocaleDateString('zh-CN');
+            }
+          }
+        }
+        // 如果是 Date 对象
+        else if (file.lastModified instanceof Date) {
+          return file.lastModified.toLocaleDateString('zh-CN');
+        }
+        // 如果是时间戳数字
+        else if (typeof file.lastModified === 'number') {
+          return new Date(file.lastModified).toLocaleDateString('zh-CN');
+        }
+      }
+      // 如果没有 lastModified 字段，返回未知
+      return '未知';
+    } catch (error) {
+      console.error('解析最后修改时间出错:', error);
+      return '未知';
+    }
   }
 </script>
 
@@ -151,7 +224,7 @@
     {:else}
       <div class="files-grid">
         {#each files as file}
-          <div class="file-card card">
+          <div class="file-card card" on:click={() => viewDetails(file)}>
             <div class="file-icon">
               <i class="fas fa-file-code"></i>
             </div>
@@ -159,25 +232,45 @@
               <h3 class="file-name">{file.domain}</h3>
               <p class="file-filename">{file.name}</p>
               <div class="file-meta">
-                <span class="file-size">{formatFileSize(file.path)}</span>
-                <span class="file-date">{getLastModified()}</span>
+                <span class="file-size">{formatFileSize(file.size || 0)}</span>
+                <span class="file-date">{getLastModified(file)}</span>
+              </div>
+              <div class="file-stats">
+                <div class="stat-item">
+                  <i class="fas fa-font"></i>
+                  <span>{file.textRuleCount || 0} 文本</span>
+                </div>
+                <div class="stat-item">
+                  <i class="fas fa-code"></i>
+                  <span>{file.regexRuleCount || 0} 正则</span>
+                </div>
               </div>
             </div>
-            <div class="file-actions">
+            <div class="file-actions" on:click|stopPropagation>
+              <button 
+                class="btn btn-sm btn-secondary"
+                on:click={() => viewDetails(file)}
+                title="查看详情"
+              >
+                <i class="fas fa-eye"></i>
+                查看
+              </button>
               <button 
                 class="btn btn-sm btn-primary"
                 on:click={() => editFile(file)}
                 title="编辑文件"
               >
                 <i class="fas fa-edit"></i>
+                编辑
               </button>
               <button 
                 class="btn btn-sm btn-error"
-                on:click={() => deleteFile(file.name)}
+                on:click={() => showDeleteConfirmation(file)}
                 title="删除文件"
                 disabled={loading}
               >
                 <i class="fas fa-trash"></i>
+                删除
               </button>
             </div>
           </div>
@@ -228,6 +321,44 @@
             <i class="fas fa-plus"></i>
           {/if}
           创建文件
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+<!-- 删除确认对话框 -->
+{#if showDeleteDialog}
+  <div class="modal-overlay" on:click={cancelDelete} transition:fade>
+    <div class="modal delete-modal" on:click|stopPropagation transition:fly|local={{ y: -100, duration: 300 }}>
+      <div class="modal-header delete-modal-header">
+        <h2>确认删除文件</h2>
+        <button class="close-btn" on:click={cancelDelete}>
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body delete-modal-body">
+        <div class="delete-warning">
+          <i class="fas fa-exclamation-triangle warning-icon"></i>
+          <p>您确定要删除文件 <strong>{fileToDelete?.name}</strong> 吗？</p>
+          <p class="warning-text">此操作不可恢复，请谨慎操作。</p>
+        </div>
+      </div>
+      <div class="modal-footer delete-modal-footer">
+        <button class="btn btn-secondary" on:click={cancelDelete} disabled={loading}>
+          取消
+        </button>
+        <button 
+          class="btn btn-error"
+          on:click={confirmDelete}
+          disabled={loading}
+        >
+          {#if loading}
+            <div class="loading"></div>
+          {:else}
+            <i class="fas fa-trash"></i>
+          {/if}
+          确认删除
         </button>
       </div>
     </div>
@@ -306,6 +437,12 @@
     margin-bottom: 1.5rem;
   }
   
+  /* 修复空状态下的按钮图标大小 */
+  .empty-state .btn i {
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+  }
+  
   .files-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -319,6 +456,7 @@
     gap: 1rem;
     transition: var(--transition);
     cursor: pointer;
+    position: relative;
   }
   
   .file-card:hover {
@@ -356,12 +494,50 @@
     gap: 1rem;
     font-size: 0.75rem;
     color: var(--text-muted);
+    margin-bottom: 0.75rem;
   }
   
-  .file-actions {
+  .file-stats {
     display: flex;
-    gap: 0.5rem;
-    flex-shrink: 0;
+    gap: 1rem;
+    font-size: 0.75rem;
+  }
+  
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--text-secondary);
+  }
+  
+  .stat-item i {
+    font-size: 0.625rem;
+  }
+  
+  /* 修改文件卡片按钮为垂直排列（从上往下显示） */
+  .file-actions {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* 增加间距，使其平均分布 */
+  }
+  
+  .file-actions .btn {
+    padding: 0.5rem 0.75rem; /* 增大按钮尺寸 */
+    font-size: 0.875rem;
+  }
+  
+  .file-actions .btn i {
+    margin-right: 0.25rem;
+  }
+  
+  /* 调整文件信息区域，避免与操作按钮冲突 */
+  .file-info {
+    flex: 1;
+    min-width: 0;
+    padding-right: 5rem; /* 为操作按钮留出空间 */
   }
   
   /* 模态框样式 */
@@ -447,6 +623,40 @@
     color: var(--text-muted);
   }
   
+  /* 删除确认对话框特殊样式 */
+  .delete-modal {
+    max-width: 450px;
+  }
+  
+  .delete-modal-header {
+    background-color: var(--bg-secondary);
+  }
+  
+  .delete-modal-body {
+    text-align: center;
+  }
+  
+  .delete-warning {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .warning-icon {
+    font-size: 3rem;
+    color: var(--warning-color);
+  }
+  
+  .warning-text {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+  
+  .delete-modal-footer {
+    background-color: var(--bg-secondary);
+  }
+  
   /* 响应式设计 */
   @media (max-width: 768px) {
     .header-content {
@@ -465,6 +675,16 @@
     
     .file-card {
       padding: 1rem;
+    }
+    
+    .file-actions {
+      padding: 0.25rem;
+      gap: 0.25rem;
+    }
+    
+    .file-actions .btn {
+      padding: 0.25rem;
+      font-size: 0.75rem;
     }
   }
 </style>

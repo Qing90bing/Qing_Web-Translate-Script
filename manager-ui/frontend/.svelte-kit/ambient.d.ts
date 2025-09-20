@@ -39,10 +39,7 @@ declare module '$env/static/private' {
 	export const ComSpec: string;
 	export const DriverData: string;
 	export const EDITOR: string;
-	export const EFC_15268_1262719628: string;
-	export const EFC_15268_2283032206: string;
-	export const EFC_15268_2775293581: string;
-	export const EFC_15268_3789132940: string;
+	export const FEATURE_FLAGS: string;
 	export const GEMINI_CLI_IDE_SERVER_PORT: string;
 	export const GEMINI_CLI_IDE_WORKSPACE_PATH: string;
 	export const GIT_ASKPASS: string;
@@ -58,8 +55,6 @@ declare module '$env/static/private' {
 	export const LOGONSERVER: string;
 	export const NODE: string;
 	export const NODE_ENV: string;
-	export const NODE_EXE: string;
-	export const NPM_CLI_JS: string;
 	export const npm_command: string;
 	export const npm_config_cache: string;
 	export const npm_config_globalconfig: string;
@@ -79,8 +74,6 @@ declare module '$env/static/private' {
 	export const npm_package_json: string;
 	export const npm_package_name: string;
 	export const npm_package_version: string;
-	export const NPM_PREFIX_JS: string;
-	export const NPM_PREFIX_NPM_CLI_JS: string;
 	export const NUMBER_OF_PROCESSORS: string;
 	export const OneDrive: string;
 	export const ORIGINAL_XDG_CURRENT_DESKTOP: string;
@@ -94,7 +87,6 @@ declare module '$env/static/private' {
 	export const ProgramData: string;
 	export const ProgramFiles: string;
 	export const ProgramW6432: string;
-	export const PROJECT_ROOT: string;
 	export const PROMPT: string;
 	export const PSModulePath: string;
 	export const PUBLIC: string;
@@ -116,7 +108,6 @@ declare module '$env/static/private' {
 	export const VSCODE_GIT_ASKPASS_NODE: string;
 	export const VSCODE_GIT_IPC_HANDLE: string;
 	export const VSCODE_INJECTION: string;
-	export const VSCODE_PYTHON_AUTOACTIVATE_GUARD: string;
 	export const windir: string;
 	export const ZES_ENABLE_SYSMAN: string;
 }
@@ -161,10 +152,7 @@ declare module '$env/dynamic/private' {
 		ComSpec: string;
 		DriverData: string;
 		EDITOR: string;
-		EFC_15268_1262719628: string;
-		EFC_15268_2283032206: string;
-		EFC_15268_2775293581: string;
-		EFC_15268_3789132940: string;
+		FEATURE_FLAGS: string;
 		GEMINI_CLI_IDE_SERVER_PORT: string;
 		GEMINI_CLI_IDE_WORKSPACE_PATH: string;
 		GIT_ASKPASS: string;
@@ -180,8 +168,6 @@ declare module '$env/dynamic/private' {
 		LOGONSERVER: string;
 		NODE: string;
 		NODE_ENV: string;
-		NODE_EXE: string;
-		NPM_CLI_JS: string;
 		npm_command: string;
 		npm_config_cache: string;
 		npm_config_globalconfig: string;
@@ -201,8 +187,6 @@ declare module '$env/dynamic/private' {
 		npm_package_json: string;
 		npm_package_name: string;
 		npm_package_version: string;
-		NPM_PREFIX_JS: string;
-		NPM_PREFIX_NPM_CLI_JS: string;
 		NUMBER_OF_PROCESSORS: string;
 		OneDrive: string;
 		ORIGINAL_XDG_CURRENT_DESKTOP: string;
@@ -216,7 +200,6 @@ declare module '$env/dynamic/private' {
 		ProgramData: string;
 		ProgramFiles: string;
 		ProgramW6432: string;
-		PROJECT_ROOT: string;
 		PROMPT: string;
 		PSModulePath: string;
 		PUBLIC: string;
@@ -238,7 +221,6 @@ declare module '$env/dynamic/private' {
 		VSCODE_GIT_ASKPASS_NODE: string;
 		VSCODE_GIT_IPC_HANDLE: string;
 		VSCODE_INJECTION: string;
-		VSCODE_PYTHON_AUTOACTIVATE_GUARD: string;
 		windir: string;
 		ZES_ENABLE_SYSMAN: string;
 		[key: `PUBLIC_${string}`]: undefined;

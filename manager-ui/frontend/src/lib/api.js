@@ -3,7 +3,7 @@
  * @description API请求辅助函数
  */
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = 'http://localhost:3008/api'; // 更新端口号为3008
 
 /**
  * 通用API请求函数

@@ -99,9 +99,23 @@ async function handleAddNewTranslation() {
   // --- 步骤 2: 创建新的翻译文件 ---
   const filePath = path.join(process.cwd(), 'src', 'translations', fileName);
   // 定义新翻译文件的模板字符串，包含基本的结构和注释，方便用户直接填写。
+  const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD格式
+  const testUrl = `https://${trimmedDomain}`; // 根据域名生成测试链接
+  
   const template = `// 翻译目标网站: ${trimmedDomain}
 
 export const ${variableName} = {
+  // === 文件元数据 ===
+  // 文件描述
+  description: "${trimmedDomain} 网站翻译配置",
+  
+  // 测试链接 
+  testUrl: "${testUrl}",
+  
+  // 创建日期
+  creationDate: "${currentDate}",
+
+  // === 翻译规则 ===
   // 样式 (CSS)
   // 在这里添加网站所需的自定义样式
   styles: [],
@@ -215,3 +229,5 @@ export const ${variableName} = {
 }
 
 export default handleAddNewTranslation;
+
+

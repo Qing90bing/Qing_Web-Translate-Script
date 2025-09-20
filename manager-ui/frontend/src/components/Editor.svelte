@@ -16,6 +16,11 @@
   let loading = false;
   let saving = false;
   
+  // 元数据字段
+  let description = '';
+  let testUrl = '';
+  let creationDate = '';
+  
   // 订阅当前文件
   currentFile.subscribe(value => {
     file = value;
@@ -41,6 +46,11 @@
         regexRules = data.regexRules || [];
         styles = data.styles || [];
         jsRules = data.jsRules || [];
+        
+        // 加载元数据
+        description = data.description || '';
+        testUrl = data.testUrl || '';
+        creationDate = data.creationDate || '';
         
         console.log('设置后的规则:', {
           textRules: textRules.length,
@@ -70,7 +80,11 @@
         textRules: textRules.filter(rule => rule.source.trim() || rule.target.trim()),
         regexRules: regexRules.filter(rule => rule.pattern.trim() || rule.replacement.trim()),
         styles: styles.filter(style => style.trim()),
-        jsRules: jsRules.filter(rule => rule.trim())
+        jsRules: jsRules.filter(rule => rule.trim()),
+        // 包含元数据
+        description: description.trim(),
+        testUrl: testUrl.trim(),
+        creationDate: creationDate.trim()
       };
       
       const response = await translationApi.update(file.name, data);
@@ -268,6 +282,62 @@
     {:else}
       <!-- 编辑区域 -->
       <div class="editor-content">
+        <!-- 元数据编辑区域 -->
+        <div class="section metadata-section">
+          <div class="section-header">
+            <h2>
+              <i class="fas fa-info-circle"></i>
+              文件元数据
+            </h2>
+          </div>
+          <div class="metadata-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="description">文件描述</label>
+                <input 
+                  type="text" 
+                  id="description"
+                  class="input"
+                  bind:value={description}
+                  placeholder="请输入文件描述..."
+                />
+              </div>
+              <div class="form-group">
+                <label for="testUrl">测试链接</label>
+                <input 
+                  type="url" 
+                  id="testUrl"
+                  class="input"
+                  bind:value={testUrl}
+                  placeholder="https://example.com"
+                />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="creationDate">创建日期</label>
+                <input 
+                  type="date" 
+                  id="creationDate"
+                  class="input"
+                  bind:value={creationDate}
+                />
+              </div>
+              <div class="form-group">
+                <label for="domain">域名（只读）</label>
+                <input 
+                  type="text" 
+                  id="domain"
+                  class="input"
+                  value={file ? file.domain : ''}
+                  readonly
+                  style="background-color: var(--bg-secondary); color: var(--text-muted);"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <!-- 纯文本翻译规则 -->
         <div class="section">
           <div class="section-header">
@@ -690,6 +760,39 @@
     margin-bottom: 1rem;
   }
   
+  .metadata-section {
+    border-color: var(--accent-color);
+    border-width: 2px;
+    margin-bottom: 2rem;
+  }
+  
+  .metadata-form {
+    padding: 2rem;
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-row:last-child {
+    margin-bottom: 0;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .form-group label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  
   .section-header {
     padding: 1.5rem 2rem;
     background-color: var(--bg-secondary);
@@ -821,6 +924,14 @@
     .style-item,
     .script-item {
       flex-direction: column;
+    }
+    
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+    
+    .metadata-form {
+      padding: 1rem;
     }
   }
 </style>

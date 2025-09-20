@@ -16,23 +16,41 @@ function toCamelCase(domain) {
 }
 
 /**
- * 获取所有翻译文件列表
+ * 获取所有翻译文件列表（增强版，包含统计信息）
  */
 export async function getTranslationFiles() {
   const translationsDir = path.join(process.cwd(), 'src', 'translations');
   const files = await fs.promises.readdir(translationsDir);
   
-  return files
-    .filter(file => file.endsWith('.js') && file !== 'index.js')
-    .map(file => ({
-      name: file,
-      domain: file.replace('.js', ''),
-      path: path.join(translationsDir, file)
-    }));
+  const fileList = [];
+  
+  for (const file of files) {
+    if (file.endsWith('.js') && file !== 'index.js') {
+      const filePath = path.join(translationsDir, file);
+      const stats = await fs.promises.stat(filePath);
+      
+      // 读取文件内容以计算规则数量
+      const content = await fs.promises.readFile(filePath, 'utf-8');
+      const textRules = extractRules(content, 'textRules');
+      const regexRules = extractRules(content, 'regexRules');
+      
+      fileList.push({
+        name: file,
+        domain: file.replace('.js', ''),
+        path: filePath,
+        size: stats.size,
+        textRuleCount: textRules.length,
+        regexRuleCount: regexRules.length,
+        lastModified: stats.mtime
+      });
+    }
+  }
+  
+  return fileList;
 }
 
 /**
- * 读取单个翻译文件内容
+ * 读取单个翻译文件内容（增强版，包含元数据）
  */
 export async function getTranslationFile(filename) {
   const filePath = path.join(process.cwd(), 'src', 'translations', filename);
@@ -52,16 +70,27 @@ export async function getTranslationFile(filename) {
   const styles = extractRules(content, 'styles');
   const jsRules = extractRules(content, 'jsRules');
   
+  // 提取元数据
+  const description = extractMetadata(content, 'description') || `${filename.replace('.js', '')} 网站翻译配置`;
+  const testUrl = extractMetadata(content, 'testUrl') || `https://${filename.replace('.js', '')}`;
+  const creationDate = extractMetadata(content, 'creationDate') || '2024-01-01';
+  
   console.log('解析结果:', {
     textRules: textRules.length,
     regexRules: regexRules.length,
     styles: styles.length,
-    jsRules: jsRules.length
+    jsRules: jsRules.length,
+    description,
+    testUrl,
+    creationDate
   });
 
   return {
     filename,
     domain: filename.replace('.js', ''),
+    description,
+    testUrl,
+    creationDate,
     textRules,
     regexRules,
     styles,
@@ -104,6 +133,21 @@ function extractRules(content, ruleType) {
   } catch (error) {
     console.error(`解析 ${ruleType} 时出错:`, error);
     return [];
+  }
+}
+
+/**
+ * 从文件内容中提取元数据字段
+ */
+function extractMetadata(content, fieldName) {
+  try {
+    // 匹配元数据字段，支持单引号和双引号
+    const pattern = new RegExp(`${fieldName}\\s*:\\s*["']([^"']*)["']`, 'i');
+    const match = content.match(pattern);
+    return match ? match[1] : null;
+  } catch (error) {
+    console.error(`提取元数据 ${fieldName} 时出错:`, error);
+    return null;
   }
 }
 
@@ -184,9 +228,23 @@ export async function createTranslationFile(domain) {
   }
 
   // 创建文件模板
+  const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD格式
+  const testUrl = `https://${domain}`; // 根据域名生成测试链接
+  
   const template = `// 翻译目标网站: ${domain}
 
 export const ${variableName} = {
+  // === 文件元数据 ===
+  // 文件描述
+  description: "${domain} 网站翻译配置",
+  
+  // 测试链接 
+  testUrl: "${testUrl}",
+  
+  // 创建日期
+  creationDate: "${currentDate}",
+
+  // === 翻译规则 ===
   // 样式 (CSS)
   styles: [],
 
@@ -239,10 +297,18 @@ export async function updateTranslationFile(filename, data) {
 }
 
 /**
- * 生成翻译文件内容
+ * 生成翻译文件内容（增强版，包含元数据）
  */
 function generateFileContent(domain, variableName, data) {
-  const { textRules = [], regexRules = [], styles = [], jsRules = [] } = data;
+  const { 
+    textRules = [], 
+    regexRules = [], 
+    styles = [], 
+    jsRules = [],
+    description = `${domain} 网站翻译配置`,
+    testUrl = `https://${domain}`,
+    creationDate = new Date().toISOString().split('T')[0]
+  } = data;
 
   // 生成 textRules 数组
   const textRulesStr = textRules.length > 0 
@@ -267,6 +333,17 @@ function generateFileContent(domain, variableName, data) {
   return `// 翻译目标网站: ${domain}
 
 export const ${variableName} = {
+  // === 文件元数据 ===
+  // 文件描述
+  description: "${description}",
+  
+  // 测试链接 
+  testUrl: "${testUrl}",
+  
+  // 创建日期
+  creationDate: "${creationDate}",
+
+  // === 翻译规则 ===
   // 样式 (CSS)
   styles: [
 ${stylesStr}

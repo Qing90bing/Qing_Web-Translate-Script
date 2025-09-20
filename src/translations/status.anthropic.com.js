@@ -1,6 +1,17 @@
 // src/translations/status.anthropic.com.js
 
 export const statusAnthropicCom = {
+  // === 文件元数据 ===
+  // 文件描述
+  description: "Anthropic Status 网站翻译配置",
+  
+  // 测试链接 
+  testUrl: "https://status.anthropic.com",
+  
+  // 创建日期
+  creationDate: "2024-01-01",
+
+  // === 翻译规则 ===
   // 样式（CSS）
   styles: [],
 

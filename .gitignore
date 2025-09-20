@@ -3,13 +3,26 @@ node_modules/
 
 # 构建产物
 dist/
+build/
 
 # 管理界面相关
 manager-ui/node_modules/
 manager-ui/frontend/node_modules/
 manager-ui/public/dist/
+manager-ui/frontend/build/
+manager-ui/frontend/.svelte-kit/
 
 # 开发工具
 .DS_Store
 .vscode/
 *.log
+
+# 操作系统文件
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# IDE相关
+*.swp
+*.swo
+*~
