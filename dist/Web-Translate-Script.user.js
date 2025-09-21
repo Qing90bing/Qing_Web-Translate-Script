@@ -18,24 +18,10 @@
 // ==/UserScript==
 
 (() => {
-  // src/translations/jules.google.com.js
   var julesGoogleCom = {
-    // 描述：此翻译配置的描述信息
-    description: '此翻译配置适用于 jules.google.com 网站的本地化。',
-    // 测试链接：用于开发者测试网站显示效果的URL
-    testUrl: 'https://jules.google.com/',
-    // 创建日期：此翻译配置的创建日期
-    createdAt: '2025-08-21',
-    // 启用状态：控制此翻译配置是否启用
     enabled: true,
-    // 样式（CSS）
     styles: ['.feedback-button { width: auto !important; white-space: nowrap !important; }'],
-    // 注入脚本（JavaScript）
-    jsRules: [
-      // 在这里添加JavaScript代码，例如：
-      // "alert('Hello, World!');"
-    ],
-    // 正则表达式翻译规则
+    jsRules: [],
     regexRules: [
       [/^Step\s+(\d+)\s+of the plan is complete\.$/i, '“计划”的第 $1 步已完成。'],
       [/Completed\s+(\d+)\s+minutes?\s+ago/i, '$1 分钟前完成'],
@@ -61,7 +47,6 @@
       [/Today\s+(\d{1,2}:\d{2})/i, '今天 $1'],
       [/Read\s+([\w\.\-]+)/i, '读取文件：$1'],
     ],
-    // 纯文本翻译规则
     textRules: [
       ['Jules attempts to setup your environment according to hints in your codebase and agents.md. Optionally, you can provide a setup script to be run explicitly. No need for clone commands, the repo will be cloned automatically into the /app directory.', 'Jules 会根据您代码库中的线索和 `agents.md` 文件来尝试配置环境。您也可以提供一个设置脚本来精确执行。仓库会自动克隆到 /app 目录，无需手动执行克隆命令。'],
       ['Let Google use your future Jules conversations and code on content Jules receives from public repositories to train its generative AI models. Opting out does not apply to any feedback you may choose to provide.', '允许 Google 使用您未来与 Jules 的对话，以及 Jules 从公开代码库中获取的代码内容，用于训练其生成式 AI 模型。选择退出此项，不影响您主动提供的任何反馈。'],
@@ -89,28 +74,10 @@
       ['Jules is not yet available in your region.', 'Jules 暂未在您的区域提供服务'],
     ],
   };
-
-  // src/translations/aistudio.google.com.js
   var aistudioGoogleCom = {
-    // 描述：此翻译配置的描述信息
-    description: '此翻译配置适用于 aistudio.google.com 网站的本地化。',
-    // 测试链接：用于开发者测试网站显示效果的URL
-    testUrl: 'https://aistudio.google.com/',
-    // 创建日期：此翻译配置的创建日期
-    createdAt: '2025-08-21',
-    // 启用状态：控制此翻译配置是否启用
     enabled: true,
-    // 样式（CSS）
-    styles: [
-      // 在这里添加CSS规则，例如：
-      // 'body { font-family: "Arial", sans-serif; }'
-    ],
-    // 注入脚本（JavaScript）
-    jsRules: [
-      // 在这里添加JavaScript代码，例如：
-      // "alert('Hello, World!');"
-    ],
-    // 正则表达式翻译规则
+    styles: [],
+    jsRules: [],
     regexRules: [
       [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  换行\nAlt + ↩  追加文本 (不执行)\nCtrl + ↩  执行指令'],
       [/Invalid JSON: SyntaxError: Unexpected token '(.+?)', "(.+?)" is not valid JSON/i, '无效的 JSON 语法错误：在 “$2” 中存在意外的字符 “$1”'],
@@ -131,7 +98,6 @@
       [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
       [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
     ],
-    // 纯文本翻译规则
     textRules: [
       ['Upload a photo of yourself and an outfit to see how it looks on you. A virtual fitting room powered by Nano Banana.', '上传您的个人照片和心仪服装，即可轻松预览上身效果。这间虚拟试衣间由 Nano Banana™ 倾力打造。'],
       ['Gemini 2.5 Flash Audio', 'Gemini 2.5 Flash 音频'],
@@ -168,25 +134,10 @@
       ['NEW', '新'],
     ],
   };
-
-  // src/translations/claude.ai.js
   var claudeAi = {
-    // 描述：此翻译配置的描述信息
-    description: '此翻译配置适用于 claude.ai 网站的本地化。',
-    // 测试链接：用于开发者测试网站显示效果的URL
-    testUrl: 'https://claude.ai/',
-    // 创建日期：此翻译配置的创建日期
-    createdAt: '2025-08-21',
-    // 启用状态：控制此翻译配置是否启用
     enabled: true,
-    // 样式（CSS）
     styles: [],
-    // 注入脚本（JavaScript）
-    jsRules: [
-      // 在这里添加JavaScript代码，例如：
-      // "alert('Hello, World!');"
-    ],
-    // 正则表达式翻译规则
+    jsRules: [],
     regexRules: [
       [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, '每人/月，享受年度订阅折扣。按月计费则为 SGD $1。最少 $2 名成员。'],
       [/Per person \/ month\. Minimum (\d+)\s+members\./i, '每人/月。最少 $1 名成员。'],
@@ -206,7 +157,6 @@
       [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
       [/SGD\s+([\d.]+)/i, 'SGD $1'],
     ],
-    // 纯文本翻译规则
     textRules: [
       ['upstream connect error or disconnect/reset before headers. reset reason: connection termination', '连接后端服务器失败，或在收到其响应数据前连接被重置。重置原因：连接被终止。'],
       ['Don’t share personal information or third-party content without permission, and see our ', '不要分享个人信息或第三方内容，否则会违反我们的'],
@@ -243,25 +193,10 @@
       ['Star', '收藏'],
     ],
   };
-
-  // src/translations/platform.claude.com.js
   var platformClaudeCom = {
-    // 描述：此翻译配置的描述信息
-    description: '此翻译配置适用于 platform.claude.com 网站的本地化。',
-    // 测试链接：用于开发者测试网站显示效果的URL
-    testUrl: 'https://platform.claude.com/',
-    // 创建日期：此翻译配置的创建日期
-    createdAt: '2025-08-21',
-    // 启用状态：控制此翻译配置是否启用
     enabled: true,
-    // 样式（CSS）
     styles: [],
-    // 注入脚本（JavaScript）
-    jsRules: [
-      // 在这里添加JavaScript代码，例如：
-      // "alert('Hello, World!');"
-    ],
-    // 正则表达式翻译规则
+    jsRules: [],
     regexRules: [
       [/Save up to (\d+)% on Claude Code input tokens when you join our Development Partner Program today/i, '立即加入我们的开发合作伙伴计划，Claude Code 输入令牌可节省高达 $1% 的费用'],
       [/Confirm Development Partner Program enrollment for (.+)/i, '确认为 $1 加入开发合作伙伴计划'],
@@ -283,7 +218,6 @@
       [/Resets on\s+(.+)/i, '将于 $1 重置'],
       [/US\$\s*([\d,\.]+)/i, '美元$1'],
     ],
-    // 纯文本翻译规则
     textRules: [
       ['Disabling web search may break existing services that have web search enabled. Are you sure you want to disable web search for your organization?', '禁用Web搜索可能会破坏启用Web搜索的现有服务。您确定要禁用网络搜索您的组织吗？'],
       ['This will permanently delete all metrics data collected from Claude Code. This action cannot be undone. Are you sure you want to continue?', '这将永久删除从Claude Code收集的所有指标数据。此操作无法撤消。您确定要继续吗？'],
@@ -307,25 +241,10 @@
       ['Log out', '登出'],
     ],
   };
-
-  // src/translations/status.anthropic.com.js
   var statusAnthropicCom = {
-    // 描述：此翻译配置的描述信息
-    description: '此翻译配置适用于 status.anthropic.com 网站的本地化。',
-    // 测试链接：用于开发者测试网站显示效果的URL
-    testUrl: 'https://status.anthropic.com/',
-    // 创建日期：此翻译配置的创建日期
-    createdAt: '2025-08-21',
-    // 启用状态：控制此翻译配置是否启用
     enabled: true,
-    // 样式（CSS）
     styles: [],
-    // 注入脚本（JavaScript）
-    jsRules: [
-      // 在这里添加JavaScript代码，例如：
-      // "alert('Hello, World!');"
-    ],
-    // 正则表达式翻译规则
+    jsRules: [],
     regexRules: [
       [/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s+(\d{2}:\d{2})\s+UTC/i, 'MM月DD日, $3 UTC'],
       [/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s+(\d{4})/i, 'YYYY年MM月DD日'],
@@ -350,7 +269,6 @@
       [/^(\d+)\s*secs?$/i, '$1秒'],
       [/(\d+)\s+hrs/i, '$1 小时'],
     ],
-    // 纯文本翻译规则
     textRules: [
       ['Atlassian uses cookies to improve your browsing experience, perform analytics and research, and conduct advertising. Accept all cookies to indicate that you agree to our use of cookies on your device.', 'Atlassian 使用 Cookie 来改善您的浏览体验、进行分析和研究以及开展广告。接受所有 Cookie 即表示您同意我们在您的设备上使用 Cookie。'],
       ["Welcome to Anthropic's home for real-time and historical data on system performance.", '欢迎访问 Anthropic，在此查看系统性能的实时和历史数据。'],
@@ -373,8 +291,6 @@
       [' days. ', '天'],
     ],
   };
-
-  // src/translations/index.js
   var masterTranslationMap = {
     'jules.google.com': julesGoogleCom,
     'aistudio.google.com': aistudioGoogleCom,
@@ -382,8 +298,6 @@
     'platform.claude.com': platformClaudeCom,
     'status.anthropic.com': statusAnthropicCom,
   };
-
-  // src/modules/utils/logger.js
   var LOG_KEY = 'web_translate_debug_mode';
   var isDebugMode = GM_getValue(LOG_KEY, false);
   function updateDebugState(newMode) {
@@ -394,8 +308,6 @@
       console.log('[汉化脚本]', ...args);
     }
   }
-
-  // src/modules/ui/menu.js
   var MENU_COMMAND_ID = 'toggle_debug_log_command';
   function toggleDebugMode() {
     const newMode = !isDebugMode;
@@ -410,15 +322,12 @@
   function initializeMenu() {
     updateMenuCommand();
   }
-
-  // src/modules/ui/anti-flicker.js
   var STYLE_ID = 'anti-flicker-style';
   function injectAntiFlickerStyle() {
     document.documentElement.classList.add('translation-in-progress');
     const antiFlickerStyle = document.createElement('style');
     antiFlickerStyle.id = STYLE_ID;
     antiFlickerStyle.textContent = `
-        /* 在翻译进行中时，隐藏body，但保持加载指示器可见 */
         html.translation-in-progress body {
             visibility: hidden !important;
             opacity: 0 !important;
@@ -449,14 +358,10 @@
       document.getElementById(STYLE_ID)?.remove();
     }, 500);
   }
-
-  // src/config.js
-  var BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(['script', 'style', 'pre', 'code']);
-  var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set(['textarea', 'input']);
-  var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
+  var BLOCKS_ALL_TRANSLATION = new Set(['script', 'style', 'pre', 'code']);
+  var BLOCKS_CONTENT_ONLY = new Set(['textarea', 'input']);
+  var ALL_UNTRANSLATABLE_TAGS = new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
   var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip'];
-
-  // src/modules/core/translator.js
   var textTranslationMap;
   var regexRules;
   var translationCache;
@@ -584,25 +489,22 @@
   function createTranslator(textMap, regexArr) {
     textTranslationMap = textMap;
     regexRules = regexArr;
-    translationCache = /* @__PURE__ */ new Map();
-    translatedElements = /* @__PURE__ */ new WeakSet();
+    translationCache = new Map();
+    translatedElements = new WeakSet();
     return {
       translate: translateElement,
       resetState: () => {
         translationCache.clear();
-        translatedElements = /* @__PURE__ */ new WeakSet();
+        translatedElements = new WeakSet();
       },
-      // 允许 observer 删除单个元素的翻译记录
       deleteElement: (element) => {
         translatedElements.delete(element);
       },
     };
   }
-
-  // src/modules/core/observers.js
   function initializeObservers(translator) {
     let translationTimer;
-    let pendingNodes = /* @__PURE__ */ new Set();
+    let pendingNodes = new Set();
     let lastModelInfo = '';
     function detectModelChange() {
       const modelElements = document.querySelectorAll('.model-name, .model-info, [class*="model"]');
@@ -645,7 +547,7 @@
       }, 0);
     }
     const mainObserver = new MutationObserver((mutations) => {
-      const dirtyRoots = /* @__PURE__ */ new Set();
+      const dirtyRoots = new Set();
       for (const mutation of mutations) {
         let target = null;
         if (mutation.type === 'childList' || mutation.type === 'attributes') {
@@ -727,8 +629,6 @@
     };
     log('监听器初始化完成。');
   }
-
-  // src/main.js
   (function (translations) {
     'use strict';
     injectAntiFlickerStyle();
@@ -742,7 +642,7 @@
       return;
     }
     const { description, testUrl, createdAt, styles: cssRules = [], jsRules = [], regexRules: regexRules2 = [], textRules = [] } = siteDictionary;
-    const textTranslationMap2 = /* @__PURE__ */ new Map();
+    const textTranslationMap2 = new Map();
     for (const rule of textRules) {
       if (Array.isArray(rule) && rule.length === 2 && typeof rule[0] === 'string' && typeof rule[1] === 'string') {
         textTranslationMap2.set(rule[0].trim(), rule[1]);
