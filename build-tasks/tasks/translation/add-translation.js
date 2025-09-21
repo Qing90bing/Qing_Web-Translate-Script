@@ -118,11 +118,21 @@ export const ${variableName} = {
 
   // 样式 (CSS)
   // 在这里添加网站所需的自定义样式
-  styles: [],
+  styles: [
+    // 在这里添加styles代码，例如：
+    // "body { background-color: #f0f0f0; }",
+    // "h1 { color: #333; }"
+    // ".rule3 { margin: 10px; }"
+  ],
 
   // 注入脚本 (JavaScript)
   // 在这里添加JavaScript代码
-  jsRules: [],
+  jsRules: [
+    // 在这里添加JavaScript代码，例如：
+    // "console.log('第一条规则');",
+    // "alert('第二条规则');",
+    // "document.title = '修改后的标题';"
+  ],
 
   // 正则表达式翻译规则
   // 规则会自动应用于匹配的文本
