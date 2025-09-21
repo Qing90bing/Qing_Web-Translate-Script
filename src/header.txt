@@ -8,7 +8,7 @@
 // @match        *://jules.google.com/*
 // @match        *://aistudio.google.com/*
 // @match        *://claude.ai/*
-// @match        *://console.anthropic.com/*
+// @match        *://platform.claude.com/*
 // @match        *://status.anthropic.com/*
 // @run-at       document-start
 // @grant        GM_getValue

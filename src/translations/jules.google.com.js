@@ -5,10 +5,14 @@ export const julesGoogleCom = {
   description: '此翻译配置适用于 jules.google.com 网站的本地化。',
 
   // 测试链接：用于开发者测试网站显示效果的URL
-  testUrl: '',
+  testUrl: 'https://jules.google.com/',
 
   // 创建日期：此翻译配置的创建日期
-  createdAt: '2025-09-21',
+  createdAt: '2025-08-21',
+
+  // 启用状态：控制此翻译配置是否启用
+  enabled: true,
+
   // 样式（CSS）
   styles: [
     '.feedback-button { width: auto !important; white-space: nowrap !important; }'
@@ -43,7 +47,6 @@ export const julesGoogleCom = {
     [/Completed\s+<1 minute\s+ago/i, "刚刚完成"],
     [/(\d{1,2})\s+(\d{1,2})月/, "$2 月 $1 日"],
     [/^Searching for\s+(.+)$/i, "正在搜索：$1"],
-    [/Ran command\s+"(.*?)"/i, "asdhjkash"],
     [/Today\s+(\d{1,2}:\d{2})/i, "今天 $1"],
     [/Read\s+([\w\.\-]+)/i, "读取文件：$1"]
   ],
@@ -74,6 +77,5 @@ export const julesGoogleCom = {
     ["Tell us more - what went right or wrong", "请告诉我们更多细节——哪些地方做得好或不好"],
     ["Deleting a task is permanent and cannot be undone", "删除任务是永久性操作，无法撤销"],
     ["Jules is not yet available in your region.", "Jules 暂未在您的区域提供服务"],
-    ["You have unsaved changes. Are you sure you want to leave?", "hjashdjakd"]
   ],
 };

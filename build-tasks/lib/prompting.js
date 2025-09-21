@@ -289,6 +289,11 @@ export async function promptForSingleEmptyTranslationFix(error, remainingCount) 
  * @returns {Promise<boolean>} 如果用户选择是，则返回 `true`；否则返回 `false`。
  */
 export async function promptToPreserveFormatting() {
+    // 如果是测试环境，直接返回 false（不保留格式）
+    if (process.env.TEST_NO_FORMATTING === 'true') {
+        return false;
+    }
+    
     const separator = color.dim('\n----------------------------------------');
     console.log(separator);
     const { preserve } = await inquirer.prompt([

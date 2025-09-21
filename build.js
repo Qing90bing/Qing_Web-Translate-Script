@@ -32,6 +32,7 @@ import handleSourceDuplicatesCheck from './build-tasks/tasks/check/check-source-
 import handleFullBuild from './build-tasks/tasks/build-project.js';
 import handleManageTranslations from './build-tasks/tasks/translation/manage-translations.js';
 import handleSortTranslations from './build-tasks/tasks/translation/sort-translations.js';
+import updateTranslationFiles from './build-tasks/tasks/translation/update-translation-files.js';
 
 /**
  * 主函数，负责显示主菜单并根据用户输入执行相应操作。
@@ -72,8 +73,9 @@ async function main() {
           { name: `6. ${color.lightGreen('🚀 完整构建项目 (不包含检查)')}`, value: 'fullBuild' },
           { name: `7. ${color.cyan('🗂️ 管理网站翻译文件')}`, value: 'manageTranslations' },
           { name: `8. ${color.magenta('✨ 整理与排序翻译文件')}`, value: 'sortTranslations' },
+          { name: `9. ${color.yellow('🔄 更新翻译文件属性')}`, value: 'updateTranslationFiles' },
           new inquirer.Separator(),
-          { name: `9. ${color.cyan('🚪 退出')}`, value: 'exit' },
+          { name: `10. ${color.cyan('🚪 退出')}`, value: 'exit' },
         ],
       },
     ]);
@@ -109,6 +111,9 @@ async function main() {
       case 'sortTranslations':
         await handleSortTranslations(); // 调用排序任务
         shouldPause = false; // 假设该任务也会自己处理暂停
+        break;
+      case 'updateTranslationFiles':
+        await updateTranslationFiles(); // 调用更新翻译文件任务
         break;
       case 'exit':
         console.log(color.cyan('👋 再见！'));

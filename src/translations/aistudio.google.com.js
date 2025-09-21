@@ -5,10 +5,14 @@ export const aistudioGoogleCom = {
   description: '此翻译配置适用于 aistudio.google.com 网站的本地化。',
 
   // 测试链接：用于开发者测试网站显示效果的URL
-  testUrl: '',
+  testUrl: 'https://aistudio.google.com/',
 
   // 创建日期：此翻译配置的创建日期
-  createdAt: '2025-09-21',
+  createdAt: '2025-08-21',
+
+  // 启用状态：控制此翻译配置是否启用
+  enabled: true,
+
   // 样式（CSS）
   styles: [
     // 在这里添加CSS规则，例如：

@@ -196,7 +196,7 @@ function validateFileContent(file, content, options) {
   if (!translationObjectNode) return errors;
 
   // 定义所有已知的、合法的顶级属性
-  const KNOWN_PROPERTIES = new Set(['description', 'testUrl', 'createdAt', 'styles', 'jsRules', 'regexRules', 'textRules']);
+  const KNOWN_PROPERTIES = new Set(['description', 'testUrl', 'createdAt', 'styles', 'jsRules', 'regexRules', 'textRules', 'enabled']);
 
   // 检查是否存在未知的属性
   for (const prop of translationObjectNode.properties) {

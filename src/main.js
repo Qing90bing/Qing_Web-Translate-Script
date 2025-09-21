@@ -25,6 +25,13 @@ import { initializeObservers } from './modules/core/observers.js';
         return;
     }
 
+    // 检查翻译文件是否启用
+    if (!siteDictionary.enabled) {
+        // 如果翻译文件被禁用，立即显示页面
+        removeAntiFlickerStyle();
+        return;
+    }
+
     // 从新的数据结构中提取规则，过滤掉描述性属性
     const { description, testUrl, createdAt, styles: cssRules = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
 

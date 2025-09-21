@@ -72,10 +72,11 @@ export default async function handleFullBuild() {
         // 如果用户选择不保留格式
         // 1. 使用正则表达式移除所有 JS 注释 (包括 `/**/` 和 `//`)
         bundledCode = bundledCode.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
-        // 2. 移除描述性属性
-        bundledCode = bundledCode.replace(/\s*description:\s*['"][^'"]*['"],?/g, '');
-        bundledCode = bundledCode.replace(/\s*testUrl:\s*['"][^'"]*['"],?/g, '');
-        bundledCode = bundledCode.replace(/\s*createdAt:\s*['"][^'"]*['"],?/g, '');
+        // 2. 移除描述性属性 (更安全的处理方式，避免破坏对象结构)
+        // 使用字符串替换来移除特定的属性
+        bundledCode = bundledCode.replace(/description:\s*['"][^'"]*['"],?\s*/g, '');
+        bundledCode = bundledCode.replace(/testUrl:\s*['"][^'"]*['"],?\s*/g, '');
+        bundledCode = bundledCode.replace(/createdAt:\s*['"][^'"]*['"],?\s*/g, '');
         // 3. 使用 Prettier 格式化代码
         let formattedCode = await prettier.format(bundledCode, {
             parser: 'babel', semi: true, singleQuote: true, printWidth: 9999,

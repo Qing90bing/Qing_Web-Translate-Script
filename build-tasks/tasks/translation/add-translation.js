@@ -113,6 +113,9 @@ export const ${variableName} = {
   // 创建日期：此翻译配置的创建日期
   createdAt: '${currentDate}',
 
+  // 启用状态：控制此翻译配置是否启用
+  enabled: true,
+
   // 样式 (CSS)
   // 在这里添加网站所需的自定义样式
   styles: [],
@@ -226,5 +229,7 @@ export const ${variableName} = {
 }
 
 export default handleAddNewTranslation;
+
+
 
 
