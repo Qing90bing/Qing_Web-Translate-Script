@@ -102,6 +102,7 @@ export async function promptUserAboutErrors(errors, options = {}) {
       name: 'action',
       message: `构建前发现 ${color.yellow(errors.length)} 个问题，您想怎么做？`,
       choices: choices,
+      pageSize: 20, // 增加 pageSize 选项以显示更多行
     },
   ]);
 
@@ -148,6 +149,7 @@ export async function promptForManualFix(duplicateErrors) {
         name: 'userChoice',
         message: `--[ 正在处理重复问题 ${progress} ]--\n原文 ${color.yellow(`"${originalText}"`)} 被多次定义。请选择您想保留的版本：`,
         choices: choices,
+        pageSize: 20, // 增加 pageSize 选项以显示更多行
       },
     ]);
 
@@ -247,6 +249,7 @@ export async function promptForSingleEmptyTranslationFix(error, remainingCount) 
         { name: '⏩ (全部跳过) 忽略所有剩余的问题', value: 'skip-all' },
         { name: '🛑 (中止) 放弃并退出', value: 'abort' },
       ],
+      pageSize: 20, // 增加 pageSize 选项以显示更多行
     },
   ]);
 
@@ -418,6 +421,7 @@ export async function promptForCommaFixAction(errorCount) {
           value: 'ignore',
         },
       ],
+      pageSize: 20, // 增加 pageSize 选项以显示更多行
     },
   ]);
   return action;
@@ -487,6 +491,7 @@ ${preview}
         { name: '⏩ (全部跳过) 忽略所有剩余的问题', value: 'skip-all' },
         { name: '🛑 (中止) 放弃并退出', value: 'abort' },
       ],
+      pageSize: 20, // 增加 pageSize 选项以显示更多行
     },
   ]);
   return choice;
@@ -515,6 +520,7 @@ async function promptForIdenticalAutoFix() {
         new inquirer.Separator(),
         { name: '↩️ (返回) 返回上一级菜单', value: 'cancel' },
       ],
+      pageSize: 20, // 增加 pageSize 选项以显示更多行
     },
   ]);
   return choice;
@@ -550,6 +556,7 @@ export async function promptForSingleIdenticalFix(error, remainingCount) {
         { name: '⏩ (全部忽略) 忽略所有剩余的问题', value: 'skip-all' },
         { name: '🛑 (中止) 放弃并退出', value: 'abort' },
       ],
+      pageSize: 20, // 增加 pageSize 选项以显示更多行
     },
   ]);
 
@@ -604,6 +611,7 @@ export async function promptUserAboutIdenticalTranslations(errors) {
         new inquirer.Separator(),
         { name: '⚠️ (忽略) 暂时不处理这些问题，返回主菜单', value: 'ignore' },
       ],
+      pageSize: 20, // 增加 pageSize 选项以显示更多行
     },
   ]);
 
@@ -675,6 +683,7 @@ export async function promptForSourceDuplicateManualFix(sourceDuplicateErrors) {
         name: 'userChoice',
         message: `--[ 正在处理原文重复问题 ${progress} ]--\n原文 ${color.yellow(`"${originalText}"`)} 被多次使用对应不同的译文。请选择您想保留的版本：`,
         choices: choices,
+        pageSize: 20, // 增加 pageSize 选项以显示更多行
       },
     ]);
 
@@ -759,6 +768,7 @@ export async function promptForSourceDuplicateManualFixImmediate(sourceDuplicate
         name: 'userChoice',
         message: `--[ 正在处理原文重复问题 ${progress} ]--\n原文 ${color.yellow(`"${originalText}"`)} 被多次使用对应不同的译文。请选择您想保留的版本：`,
         choices: choices,
+        pageSize: 20, // 增加 pageSize 选项以显示更多行
       },
     ]);
 

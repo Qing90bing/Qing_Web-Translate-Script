@@ -199,6 +199,7 @@ async function handleSortTranslations() {
           { name: '↩️ 返回主菜单', value: 'back' }
         ],
         prefix: '📂',
+        pageSize: 20, // 增加 pageSize 选项以显示更多行
       },
     ]);
     if (fileToSort === 'back') { return; }
@@ -231,6 +232,7 @@ async function handleSortTranslations() {
                 { name: '↩️ 返回上一步', value: 'back' },
             ],
             prefix: '🔑',
+            pageSize: 20, // 增加 pageSize 选项以显示更多行
         }
       ]);
 

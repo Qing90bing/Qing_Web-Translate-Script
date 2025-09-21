@@ -75,6 +75,7 @@ async function main() {
           new inquirer.Separator(),
           { name: `9. ${color.cyan('🚪 退出')}`, value: 'exit' },
         ],
+        pageSize: 20, // 增加 pageSize 选项以显示更多行
       },
     ]);
 

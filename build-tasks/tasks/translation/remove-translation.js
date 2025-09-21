@@ -97,6 +97,7 @@ async function handleRemoveTranslation() {
         { name: '↩️ 返回上一级菜单', value: 'back' },
       ],
       prefix: '🗑️',
+      pageSize: 20, // 增加 pageSize 选项以显示更多行
     },
   ]);
 

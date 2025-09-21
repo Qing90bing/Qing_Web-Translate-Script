@@ -48,6 +48,7 @@ async function handleManageTranslations() {
           new inquirer.Separator(),
           { name: '↩️ 返回主菜单', value: 'back' },
         ],
+        pageSize: 20, // 增加 pageSize 选项以显示更多行
       },
     ]);
 
