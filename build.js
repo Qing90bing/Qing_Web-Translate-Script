@@ -59,7 +59,7 @@ async function main() {
       {
         type: 'list', // 菜单类型为列表
         name: 'action', // 用户选择的结果将存储在名为 `action` 的属性中
-        message: `请选择要执行的操作：\n${color.dim('(推荐流程: 1 -> 2/3/4 -> 5)')}\n`,
+        message: `请选择要执行的操作：\n${color.dim('(推荐检查流程: 1 -> 2/3/4 -> 5),这样确保检查是最稳定的')}\n`,
         prefix: '✨', // 在问题前的缀饰符
         choices: [
           new inquirer.Separator(color.dim('--- 检查与修复 ---')), // 分隔线
