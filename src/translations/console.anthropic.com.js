@@ -1,6 +1,14 @@
 // src/translations/console.anthropic.com.js
 
 export const consoleAnthropicCom = {
+  // 描述：此翻译配置的描述信息
+  description: '此翻译配置适用于 console.anthropic.com 网站的本地化。',
+
+  // 测试链接：用于开发者测试网站显示效果的URL
+  testUrl: '',
+
+  // 创建日期：此翻译配置的创建日期
+  createdAt: '2025-09-21',
   // 样式（CSS）
   styles: [],
 
@@ -12,26 +20,25 @@ export const consoleAnthropicCom = {
 
   // 正则表达式翻译规则
   regexRules: [
-    [/Confirm Development Partner Program enrollment for (.+)/i, '确认为 $1 加入开发合作伙伴计划'],
-    [/(\d+)\s+day\s+retention period/i, '$1 天保留期'],
-    [/Save up to (\d+)% on Claude Code input tokens when you join our Development Partner Program today/i, '立即加入我们的开发合作伙伴计划，Claude Code 输入令牌可节省高达 $1% 的费用'],
-    [/Resets on\s+(.+)/i, '将于 $1 重置'],
-    [/\$([\d,\.]+)\s+of\s+\$([\d,\.]+)/i, '共 $2 美元，已用 $1 美元'],
-    [/US\$\s*([\d,\.]+)/i, '美元$1'],
-    [/^(\d{1,3}(?:,\d{3})*)\s+keys?$/i, '$1 个密钥'],
-    // 月份 日, 年份 格式 (例如: Jul 2, 2025)
-    [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
-    [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
-    [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
-    [/Apr\s+(\d{1,2}),\s+(\d{4})/, '$2年4月$1日'],
-    [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
-    [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2年6月$1日'],
-    [/Jul\s+(\d{1,2}),\s+(\d{4})/, '$2年7月$1日'],
-    [/Aug\s+(\d{1,2}),\s+(\d{4})/, '$2年8月$1日'],
-    [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
-    [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
-    [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
-    [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
+    [/Save up to (\d+)% on Claude Code input tokens when you join our Development Partner Program today/i, "立即加入我们的开发合作伙伴计划，Claude Code 输入令牌可节省高达 $1% 的费用"],
+    [/Confirm Development Partner Program enrollment for (.+)/i, "确认为 $1 加入开发合作伙伴计划"],
+    [/\$([\d,\.]+)\s+of\s+\$([\d,\.]+)/i, "共 $2 美元，已用 $1 美元"],
+    [/(\d+)\s+day\s+retention period/i, "$1 天保留期"],
+    [/^(\d{1,3}(?:,\d{3})*)\s+keys?$/i, "$1 个密钥"],
+    [/Dec\s+(\d{1,2}),\s+(\d{4})/, "$2年12月$1日"],
+    [/Nov\s+(\d{1,2}),\s+(\d{4})/, "$2年11月$1日"],
+    [/Oct\s+(\d{1,2}),\s+(\d{4})/, "$2年10月$1日"],
+    [/Apr\s+(\d{1,2}),\s+(\d{4})/, "$2年4月$1日"],
+    [/Aug\s+(\d{1,2}),\s+(\d{4})/, "$2年8月$1日"],
+    [/Feb\s+(\d{1,2}),\s+(\d{4})/, "$2年2月$1日"],
+    [/Jan\s+(\d{1,2}),\s+(\d{4})/, "$2年1月$1日"],
+    [/Jul\s+(\d{1,2}),\s+(\d{4})/, "$2年7月$1日"],
+    [/Jun\s+(\d{1,2}),\s+(\d{4})/, "$2年6月$1日"],
+    [/Mar\s+(\d{1,2}),\s+(\d{4})/, "$2年3月$1日"],
+    [/May\s+(\d{1,2}),\s+(\d{4})/, "$2年5月$1日"],
+    [/Sep\s+(\d{1,2}),\s+(\d{4})/, "$2年9月$1日"],
+    [/Resets on\s+(.+)/i, "将于 $1 重置"],
+    [/US\$\s*([\d,\.]+)/i, "美元$1"]
   ],
 
   // 纯文本翻译规则

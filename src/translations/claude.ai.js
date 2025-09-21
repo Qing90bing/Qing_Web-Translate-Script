@@ -1,6 +1,14 @@
 // src/translations/claude.ai.js
 
 export const claudeAi = {
+  // 描述：此翻译配置的描述信息
+  description: '此翻译配置适用于 claude.ai 网站的本地化。',
+
+  // 测试链接：用于开发者测试网站显示效果的URL
+  testUrl: '',
+
+  // 创建日期：此翻译配置的创建日期
+  createdAt: '2025-09-21',
   // 样式（CSS）
   styles: [],
 

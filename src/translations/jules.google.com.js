@@ -1,6 +1,14 @@
 // src/translations/jules.google.com.js
 
 export const julesGoogleCom = {
+  // 描述：此翻译配置的描述信息
+  description: '此翻译配置适用于 jules.google.com 网站的本地化。',
+
+  // 测试链接：用于开发者测试网站显示效果的URL
+  testUrl: '',
+
+  // 创建日期：此翻译配置的创建日期
+  createdAt: '2025-09-21',
   // 样式（CSS）
   styles: [
     '.feedback-button { width: auto !important; white-space: nowrap !important; }'
@@ -33,9 +41,9 @@ export const julesGoogleCom = {
     [/Completed\s+(\d+)\s+days?\s+ago/i, "$1 天前完成"],
     [/^Searching for\s+"(.+?)"$/i, "正在搜索“$1”"],
     [/Completed\s+<1 minute\s+ago/i, "刚刚完成"],
-    [/Ran command\s+"(.*?)"/i, "执行命令：“$1”"],
     [/(\d{1,2})\s+(\d{1,2})月/, "$2 月 $1 日"],
     [/^Searching for\s+(.+)$/i, "正在搜索：$1"],
+    [/Ran command\s+"(.*?)"/i, "asdhjkash"],
     [/Today\s+(\d{1,2}:\d{2})/i, "今天 $1"],
     [/Read\s+([\w\.\-]+)/i, "读取文件：$1"]
   ],
@@ -58,7 +66,6 @@ export const julesGoogleCom = {
     ["Work with Jules to deeply understand goals before plan generation", "在生成计划前，与 Jules 深入沟通以明确目标"],
     ["Allow AI model training on content from public repositories", "允许 AI 模型使用公开代码库的内容进行训练"],
     ["submitted will include your conversation and related code", "提交内容将包括您的对话和相关代码"],
-    ["You have unsaved changes. Are you sure you want to leave?", "您有未保存的变更,确定要离开吗？"],
     ["Jules encountered an error when working on the task.", "Jules 在处理任务时遇到了一个错误。"],
     ["This step was already completed in the previous plan.", "此步骤在上一个计划中已经完成。"],
     ["Jules is waiting for your input to continue working", "Jules 正等待您的指示以继续操作"],
@@ -66,6 +73,7 @@ export const julesGoogleCom = {
     ["I've inspected the frontend changes visually: ", "我已通过视觉方式检查了前端的变更："],
     ["Tell us more - what went right or wrong", "请告诉我们更多细节——哪些地方做得好或不好"],
     ["Deleting a task is permanent and cannot be undone", "删除任务是永久性操作，无法撤销"],
-    ["Jules is not yet available in your region.", "Jules 暂未在您的区域提供服务"]
+    ["Jules is not yet available in your region.", "Jules 暂未在您的区域提供服务"],
+    ["You have unsaved changes. Are you sure you want to leave?", "hjashdjakd"]
   ],
 };

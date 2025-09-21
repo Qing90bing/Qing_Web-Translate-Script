@@ -5,6 +5,7 @@ import inquirer from 'inquirer';
 import { color } from '../../lib/colors.js';
 import handleAddNewTranslation from './add-translation.js';
 import handleRemoveTranslation from './remove-translation.js';
+import updateTranslationFiles from './update-translation-files.js';
 
 /**
  * @file build-tasks/tasks/translation/manage-translations.js
@@ -45,6 +46,7 @@ async function handleManageTranslations() {
         choices: [
           { name: '➕ 添加新的网站翻译文件', value: 'add' },
           { name: '➖ 移除现有的网站翻译文件', value: 'remove' },
+          { name: '🔄 更新现有翻译文件属性', value: 'update' },
           new inquirer.Separator(),
           { name: '↩️ 返回主菜单', value: 'back' },
         ],
@@ -63,6 +65,12 @@ async function handleManageTranslations() {
       case 'remove':
         // 调用移除现有翻译文件的任务。
         await handleRemoveTranslation();
+        console.log('\n');
+        await inquirer.prompt({ type: 'input', name: 'key', message: color.cyan('✅ 操作完成。按回车键返回...'), });
+        break;
+      case 'update':
+        // 调用更新现有翻译文件的任务。
+        await updateTranslationFiles();
         console.log('\n');
         await inquirer.prompt({ type: 'input', name: 'key', message: color.cyan('✅ 操作完成。按回车键返回...'), });
         break;

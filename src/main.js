@@ -25,8 +25,8 @@ import { initializeObservers } from './modules/core/observers.js';
         return;
     }
 
-    // 从新的数据结构中提取规则
-    const { styles: cssRules = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    // 从新的数据结构中提取规则，过滤掉描述性属性
+    const { description, testUrl, createdAt, styles: cssRules = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
 
     // 将所有纯文本翻译规则放入一个Map中，以便快速查找
     const textTranslationMap = new Map();

@@ -637,7 +637,7 @@
       removeAntiFlickerStyle();
       return;
     }
-    const { styles: cssRules = [], jsRules = [], regexRules: regexRules2 = [], textRules = [] } = siteDictionary;
+    const { description, testUrl, createdAt, styles: cssRules = [], jsRules = [], regexRules: regexRules2 = [], textRules = [] } = siteDictionary;
     const textTranslationMap2 = new Map();
     for (const rule of textRules) {
       if (Array.isArray(rule) && rule.length === 2 && typeof rule[0] === 'string' && typeof rule[1] === 'string') {

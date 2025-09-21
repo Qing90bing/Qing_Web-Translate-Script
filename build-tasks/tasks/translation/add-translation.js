@@ -98,10 +98,21 @@ async function handleAddNewTranslation() {
 
   // --- 步骤 2: 创建新的翻译文件 ---
   const filePath = path.join(process.cwd(), 'src', 'translations', fileName);
+  // 获取当前日期
+  const currentDate = new Date().toISOString().split('T')[0];
   // 定义新翻译文件的模板字符串，包含基本的结构和注释，方便用户直接填写。
   const template = `// 翻译目标网站: ${trimmedDomain}
 
 export const ${variableName} = {
+  // 描述：此翻译配置的描述信息
+  description: '此翻译配置适用于 ${trimmedDomain} 网站的本地化。',
+
+  // 测试链接：用于开发者测试网站显示效果的URL
+  testUrl: '',
+
+  // 创建日期：此翻译配置的创建日期
+  createdAt: '${currentDate}',
+
   // 样式 (CSS)
   // 在这里添加网站所需的自定义样式
   styles: [],
@@ -215,3 +226,5 @@ export const ${variableName} = {
 }
 
 export default handleAddNewTranslation;
+
+

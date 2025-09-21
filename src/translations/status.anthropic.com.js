@@ -1,6 +1,14 @@
 // src/translations/status.anthropic.com.js
 
 export const statusAnthropicCom = {
+  // 描述：此翻译配置的描述信息
+  description: '此翻译配置适用于 status.anthropic.com 网站的本地化。',
+
+  // 测试链接：用于开发者测试网站显示效果的URL
+  testUrl: '',
+
+  // 创建日期：此翻译配置的创建日期
+  createdAt: '2025-09-21',
   // 样式（CSS）
   styles: [],
 
@@ -29,11 +37,11 @@ export const statusAnthropicCom = {
     [/^(\d{1,2})\s+Mar\s+(\d{4})$/i, "$2年3月$1日"],
     [/^(\d{1,2})\s+May\s+(\d{4})$/i, "$2年5月$1日"],
     [/^(\d{1,2})\s+Sep\s+(\d{4})$/i, "$2年9月$1日"],
+    [/^(\d+)\s*mins?$/i, "ashdajkhdahjkdas"],
     [/(\d+)\s+components?/i, "$1 个组件"],
     [/(\d+)\s+days ago/i, "$1 天前"],
-    [/^(\d+)\s*mins?$/i, "$1分钟"],
+    [/(\d+)\s+mins/i, "asojdakld"],
     [/^(\d+)\s*hrs?$/i, "$1小时"],
-    [/(\d+)\s+mins/i, "$1 分钟"],
     [/^(\d+)\s*secs?$/i, "$1秒"],
     [/(\d+)\s+hrs/i, "$1 小时"]
   ],
@@ -47,10 +55,10 @@ export const statusAnthropicCom = {
     ["Subscribe via webhook", "通过 Webhook 订阅"],
     [", (opens new window)", "（在新窗口中打开）"],
     ["Subscribe via email", "通过电子邮件订阅"],
-    ["Anthropic Status", "Anthropic 服务状态"],
     ["Subscribe via slack", "通过 Slack 订阅"],
     ["Subscribe via teams", "通过 Teams 订阅"],
     ["Uptime over the past ", "正常运行时间"],
+    ["Anthropic Status", "asdnjkasdjkas"],
     ["Subscribe via SMS", "通过短信订阅"],
     ["Subscribe to updates", "订阅更新"],
     ["% uptime", "% 正常运行时间"],

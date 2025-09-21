@@ -10,5 +10,4 @@ export const masterTranslationMap = {
   "aistudio.google.com": aistudioGoogleCom,
   "claude.ai": claudeAi,
   "console.anthropic.com": consoleAnthropicCom,
-  "status.anthropic.com": statusAnthropicCom,
-};
+  "status.anthropic.com": statusAnthropicCom,};
