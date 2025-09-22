@@ -307,7 +307,6 @@
     { code: 'zh-cn', name: '简体中文-大陆', flag: '🇨🇳' },
     { code: 'zh-hk', name: '繁體中文-香港', flag: '🇭🇰' },
     { code: 'zh-tw', name: '繁體中文-台湾', flag: '🇹🇼' },
-    { code: 'zh-sg', name: '简体中文-新加坡', flag: '🇸🇬' },
   ];
   var SUPPORTED_LANGUAGE_CODES = SUPPORTED_LANGUAGES.map((lang) => lang.code);
   var LOG_KEY = 'web_translate_debug_mode';
