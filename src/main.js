@@ -3,7 +3,7 @@ import { masterTranslationMap } from './translations/index.js';
 
 
 // 导入模块
-import { SUPPORTED_LANGUAGE_CODES } from './config/languages.js';
+import { SUPPORTED_LANGUAGES, SUPPORTED_LANGUAGE_CODES } from './config/languages.js';
 import { log } from './modules/utils/logger.js';
 import { initializeMenu } from './modules/ui/menu.js';
 import { injectAntiFlickerStyle, removeAntiFlickerStyle } from './modules/ui/anti-flicker.js';
@@ -30,17 +30,36 @@ import { initializeObservers } from './modules/core/observers.js';
         const browserLang = navigator.language || navigator.userLanguage;
         if (browserLang) {
             // 将浏览器语言映射到支持的语言
-            if (browserLang.startsWith('zh-HK') || browserLang.startsWith('zh-hk')) {
-                return 'zh-hk';
-            } else if (browserLang.startsWith('zh-TW') || browserLang.startsWith('zh-tw')) {
-                return 'zh-tw';
-            } else if (browserLang.startsWith('zh')) {
-                return 'zh-cn';
+            // 查找完全匹配的语言代码
+            const exactMatch = SUPPORTED_LANGUAGE_CODES.find(code => 
+                browserLang.toLowerCase() === code.toLowerCase()
+            );
+            if (exactMatch) {
+                return exactMatch;
+            }
+            
+            // 查找部分匹配的语言代码（例如 zh-HK 匹配 zh-hk）
+            const partialMatch = SUPPORTED_LANGUAGE_CODES.find(code => 
+                browserLang.toLowerCase().startsWith(code.toLowerCase())
+            );
+            if (partialMatch) {
+                return partialMatch;
+            }
+            
+            // 特殊处理中文变体，查找以 zh 开头的语言
+            if (browserLang.toLowerCase().startsWith('zh')) {
+                // 查找第一个匹配的中文变体
+                const chineseVariant = SUPPORTED_LANGUAGE_CODES.find(code => 
+                    code.toLowerCase().startsWith('zh')
+                );
+                if (chineseVariant) {
+                    return chineseVariant;
+                }
             }
         }
         
-        // 默认返回简体中文
-        return 'zh-cn';
+        // 默认返回第一个支持的语言
+        return SUPPORTED_LANGUAGE_CODES[0] || 'zh-cn';
     }
 
     // 根据用户语言偏好选择合适的翻译文件

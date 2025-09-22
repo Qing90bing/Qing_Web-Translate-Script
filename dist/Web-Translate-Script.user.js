@@ -650,15 +650,22 @@
       }
       const browserLang = navigator.language || navigator.userLanguage;
       if (browserLang) {
-        if (browserLang.startsWith('zh-HK') || browserLang.startsWith('zh-hk')) {
-          return 'zh-hk';
-        } else if (browserLang.startsWith('zh-TW') || browserLang.startsWith('zh-tw')) {
-          return 'zh-tw';
-        } else if (browserLang.startsWith('zh')) {
-          return 'zh-cn';
+        const exactMatch = SUPPORTED_LANGUAGE_CODES.find((code) => browserLang.toLowerCase() === code.toLowerCase());
+        if (exactMatch) {
+          return exactMatch;
+        }
+        const partialMatch = SUPPORTED_LANGUAGE_CODES.find((code) => browserLang.toLowerCase().startsWith(code.toLowerCase()));
+        if (partialMatch) {
+          return partialMatch;
+        }
+        if (browserLang.toLowerCase().startsWith('zh')) {
+          const chineseVariant = SUPPORTED_LANGUAGE_CODES.find((code) => code.toLowerCase().startsWith('zh'));
+          if (chineseVariant) {
+            return chineseVariant;
+          }
         }
       }
-      return 'zh-cn';
+      return SUPPORTED_LANGUAGE_CODES[0] || 'zh-cn';
     }
     function selectTranslationForSite(hostname) {
       const userLang = getUserLanguage();
