@@ -53,21 +53,7 @@ import { initializeObservers } from './modules/core/observers.js';
             return translations[langSpecificKey];
         }
         
-        // 如果没有找到语言特定的翻译文件，尝试查找不带语言标识的
-        if (translations[hostname]) {
-            return translations[hostname];
-        }
-        
-        // 如果还是没有找到，尝试其他中文变体
-        const chineseVariants = SUPPORTED_LANGUAGE_CODES;
-        for (const lang of chineseVariants) {
-            const variantKey = `${hostname}#${lang}`;
-            if (translations[variantKey]) {
-                return translations[variantKey];
-            }
-        }
-        
-        // 最后返回 undefined，表示没有找到合适的翻译文件
+        // 如果没有找到语言特定的翻译文件，直接返回 undefined，显示原版网页
         return undefined;
     }
 
