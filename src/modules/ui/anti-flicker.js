@@ -19,7 +19,7 @@ export function injectAntiFlickerStyle() {
         html.translation-complete body {
             visibility: visible !important;
             opacity: 1 !important;
-            transition: opacity 0.3s ease-in !important;
+            transition: opacity 0.1s ease-in !important;
         }
         html.translation-in-progress [class*="load"],
         html.translation-in-progress [class*="spin"],
@@ -43,8 +43,8 @@ export function removeAntiFlickerStyle() {
     document.documentElement.classList.remove('translation-in-progress');
     document.documentElement.classList.add('translation-complete');
 
-    // 在过渡效果（0.3秒）结束后移除样式标签，清理DOM
+    // 在过渡效果（0.1秒）结束后移除样式标签，清理DOM
     setTimeout(() => {
         document.getElementById(STYLE_ID)?.remove();
-    }, 500);
+    }, 100);
 }

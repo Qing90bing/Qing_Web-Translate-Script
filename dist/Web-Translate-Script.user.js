@@ -365,7 +365,7 @@
         html.translation-complete body {
             visibility: visible !important;
             opacity: 1 !important;
-            transition: opacity 0.3s ease-in !important;
+            transition: opacity 0.1s ease-in !important;
         }
         html.translation-in-progress [class*="load"],
         html.translation-in-progress [class*="spin"],
@@ -386,7 +386,7 @@
     document.documentElement.classList.add('translation-complete');
     setTimeout(() => {
       document.getElementById(STYLE_ID)?.remove();
-    }, 500);
+    }, 100);
   }
   var BLOCKS_ALL_TRANSLATION = new Set(['script', 'style', 'pre', 'code']);
   var BLOCKS_CONTENT_ONLY = new Set(['textarea', 'input']);
