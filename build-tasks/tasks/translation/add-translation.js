@@ -7,6 +7,7 @@ import inquirer from 'inquirer';
 
 // 导入本地模块
 import { color } from '../../lib/colors.js';
+import { SUPPORTED_LANGUAGES } from '../../../src/config/languages.js';
 
 /**
  * @file build-tasks/tasks/translation/add-translation.js
@@ -57,6 +58,12 @@ async function handleAddNewTranslation() {
   console.log(color.bold(color.cyan('✨ 开始添加新的网站翻译文件...')));
   
   // --- 步骤 1: 提示用户选择语言 ---
+  // 动态生成语言选择列表
+  const languageChoices = SUPPORTED_LANGUAGES.map(lang => ({
+    name: `${lang.name} (${lang.code}) ${lang.flag}`, 
+    value: lang.code
+  }));
+  
   const { language } = await inquirer.prompt([
     {
       type: 'list',
@@ -64,9 +71,7 @@ async function handleAddNewTranslation() {
       message: '请选择翻译文件的语言:',
       prefix: '🌐',
       choices: [
-        { name: '简体中文-大陆 (zh-cn)', value: 'zh-cn' },
-        { name: '繁體中文-香港 (zh-hk)', value: 'zh-hk' },
-        { name: '繁體中文-台湾 (zh-tw)', value: 'zh-tw' },
+        ...languageChoices,
         new inquirer.Separator(),
         { name: '↩️ 返回上一级菜单', value: 'back' }
       ]

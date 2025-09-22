@@ -3,6 +3,7 @@ import { masterTranslationMap } from './translations/index.js';
 
 
 // 导入模块
+import { SUPPORTED_LANGUAGE_CODES } from './config/languages.js';
 import { log } from './modules/utils/logger.js';
 import { initializeMenu } from './modules/ui/menu.js';
 import { injectAntiFlickerStyle, removeAntiFlickerStyle } from './modules/ui/anti-flicker.js';
@@ -21,7 +22,7 @@ import { initializeObservers } from './modules/core/observers.js';
     function getUserLanguage() {
         // 首先检查 localStorage 中是否有用户设置的语言
         const storedLang = localStorage.getItem('web-translate-language');
-        if (storedLang && ['zh-cn', 'zh-tw', 'zh-hk'].includes(storedLang)) {
+        if (storedLang && SUPPORTED_LANGUAGE_CODES.includes(storedLang)) {
             return storedLang;
         }
         
@@ -58,7 +59,7 @@ import { initializeObservers } from './modules/core/observers.js';
         }
         
         // 如果还是没有找到，尝试其他中文变体
-        const chineseVariants = ['zh-cn', 'zh-tw', 'zh-hk'];
+        const chineseVariants = SUPPORTED_LANGUAGE_CODES;
         for (const lang of chineseVariants) {
             const variantKey = `${hostname}#${lang}`;
             if (translations[variantKey]) {

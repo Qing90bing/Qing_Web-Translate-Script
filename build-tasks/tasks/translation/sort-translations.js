@@ -10,6 +10,7 @@ import { parse } from 'acorn';
 import { color } from '../../lib/colors.js';
 import { pressAnyKeyToContinue } from '../../lib/utils.js';
 import { getLiteralValue } from '../../lib/validation.js';
+import { SUPPORTED_LANGUAGE_CODES } from '../../../src/config/languages.js';
 
 
 function visualLength(str) {
@@ -174,7 +175,7 @@ async function handleSortTranslations() {
     try {
       // 获取所有语言目录
       const langDirs = (await fs.readdir(translationsDir)).filter(file => 
-        ['zh-cn', 'zh-tw', 'zh-hk'].includes(file)
+        SUPPORTED_LANGUAGE_CODES.includes(file)
       );
       
       // 收集所有语言目录下的翻译文件

@@ -7,6 +7,7 @@ import inquirer from 'inquirer';
 
 // 导入本地模块
 import { color } from '../../lib/colors.js';
+import { SUPPORTED_LANGUAGE_CODES } from '../../../src/config/languages.js';
 
 /**
  * @file build-tasks/tasks/translation/remove-translation.js
@@ -67,7 +68,7 @@ async function handleRemoveTranslation() {
     // 获取所有语言目录
     const langDirs = fs.readdirSync(translationsDir).filter(file => 
       fs.statSync(path.join(translationsDir, file)).isDirectory() && 
-      ['zh-cn', 'zh-tw', 'zh-hk'].includes(file)
+      SUPPORTED_LANGUAGE_CODES.includes(file)
     );
     
     // 收集所有语言目录下的翻译文件
@@ -183,7 +184,7 @@ async function handleRemoveTranslation() {
       // 获取所有语言目录
       const langDirs = fs.readdirSync(translationsDir).filter(file => 
         fs.statSync(path.join(translationsDir, file)).isDirectory() && 
-        ['zh-cn', 'zh-tw', 'zh-hk'].includes(file)
+        SUPPORTED_LANGUAGE_CODES.includes(file)
       );
       
       // 检查其他语言目录中是否还有同名文件

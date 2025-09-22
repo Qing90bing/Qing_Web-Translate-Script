@@ -15,6 +15,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { parse } from 'acorn';
+import { SUPPORTED_LANGUAGE_CODES } from '../../src/config/languages.js';
 
 /**
  * @typedef {Object} ValidationError
@@ -43,7 +44,7 @@ async function findTranslationFiles() {
     
     // 获取所有语言目录
     const langDirs = (await fs.readdir(translationsDir)).filter(file => 
-      ['zh-cn', 'zh-tw', 'zh-hk'].includes(file)
+      SUPPORTED_LANGUAGE_CODES.includes(file)
     );
     
     // 收集所有语言目录下的翻译文件
