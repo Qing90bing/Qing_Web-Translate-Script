@@ -169,19 +169,54 @@ async function handleSortTranslations() {
     console.log(title);
     console.log(color.dim('================================='));
 
-    let files;
+    // 获取所有语言目录下的翻译文件
+    let allFiles = [];
     try {
-      files = (await fs.readdir(translationsDir)).filter(file => file.endsWith('.js') && file !== 'index.js');
+      // 获取所有语言目录
+      const langDirs = (await fs.readdir(translationsDir)).filter(file => 
+        ['zh-cn', 'zh-tw', 'zh-hk'].includes(file)
+      );
+      
+      // 收集所有语言目录下的翻译文件
+      for (const langDir of langDirs) {
+        const langPath = path.join(translationsDir, langDir);
+        const files = (await fs.readdir(langPath)).filter(file => file.endsWith('.js'));
+        allFiles.push(...files.map(file => ({ file, langDir })));
+      }
     } catch (error) {
       console.error(color.red('❌ 读取翻译文件目录时出错:'), error);
       await pressAnyKeyToContinue();
       return;
     }
-    if (files.length === 0) {
+    
+    if (allFiles.length === 0) {
       console.log(color.yellow('目前没有可供排序的翻译文件。'));
       await pressAnyKeyToContinue();
       return;
     }
+
+    // 创建带语言标识的选项，按语言分组显示
+    const fileChoices = [];
+    const filesByLanguage = {};
+    
+    // 按语言分组文件
+    allFiles.forEach(({ file, langDir }) => {
+      if (!filesByLanguage[langDir]) {
+        filesByLanguage[langDir] = [];
+      }
+      filesByLanguage[langDir].push({ file, langDir });
+    });
+    
+    // 为每个语言创建分隔符和文件选项
+    Object.keys(filesByLanguage).sort().forEach(langDir => {
+      fileChoices.push(new inquirer.Separator(`--- ${langDir} ---`));
+      filesByLanguage[langDir].forEach(({ file, langDir }) => {
+        fileChoices.push({
+          name: `  ${file}`,
+          value: { file, langDir }
+        });
+      });
+    });
 
     const { fileToSort } = await inquirer.prompt([
       {
@@ -189,8 +224,7 @@ async function handleSortTranslations() {
         name: 'fileToSort',
         message: '请选择您想要排序的网站翻译文件:',
         choices: [
-          new inquirer.Separator('--- 单个文件 ---'),
-          ...files, 
+          ...fileChoices, 
           new inquirer.Separator('--- 全局操作 ---'),
           { name: '🌐 [全局] 整理所有文件的 regexRules', value: 'all_regex' },
           { name: '🌐 [全局] 整理所有文件的 textRules', value: 'all_text' },
@@ -204,11 +238,14 @@ async function handleSortTranslations() {
     ]);
     if (fileToSort === 'back') { return; }
 
-    if (fileToSort.startsWith('all_')) {
+    // 检查 fileToSort 是字符串还是对象
+    const isGlobalOperation = typeof fileToSort === 'string' && fileToSort.startsWith('all_');
+    
+    if (isGlobalOperation) {
       console.log(color.bold(`\n即将执行全局排序任务...`));
-      for (const file of files) {
-        const filePath = path.join(translationsDir, file);
-        console.log(color.cyan(`\n--- 正在处理文件: ${file} ---`));
+      for (const { file, langDir } of allFiles) {
+        const filePath = path.join(translationsDir, langDir, file);
+        console.log(color.cyan(`\n--- 正在处理文件: ${file} (${langDir}) ---`));
         if (fileToSort === 'all_regex' || fileToSort === 'all_all') {
           await runSort(filePath, 'regexRules');
         }
@@ -217,12 +254,20 @@ async function handleSortTranslations() {
         }
       }
       console.log(color.green(color.bold('\n🎉 全局排序任务执行完毕！')));
+      await pressAnyKeyToContinue();
     } else {
+      // 确保 fileToSort 是一个对象
+      if (typeof fileToSort !== 'object' || !fileToSort.file || !fileToSort.langDir) {
+        console.error(color.red('❌ 无效的文件选择'));
+        await pressAnyKeyToContinue();
+        continue;
+      }
+      
       const { keyToSort } = await inquirer.prompt([
         {
             type: 'list',
             name: 'keyToSort',
-            message: `在 ${color.yellow(fileToSort)} 中，您想要对哪个键进行排序？`,
+            message: `在 ${color.yellow(fileToSort.file)} (${fileToSort.langDir}) 中，您想要对哪个键进行排序？`,
             choices: [
                 { name: '正则表达式翻译规则 (regexRules)', value: 'regexRules' },
                 { name: '纯文本翻译规则 (textRules)', value: 'textRules' },
@@ -240,10 +285,10 @@ async function handleSortTranslations() {
         continue;
       }
 
-      const filePath = path.join(translationsDir, fileToSort);
+      const filePath = path.join(translationsDir, fileToSort.langDir, fileToSort.file);
       
       if (keyToSort === 'all') {
-        console.log(color.bold(`\n将对 ${color.yellow(fileToSort)} 进行全面排序...`));
+        console.log(color.bold(`\n将对 ${color.yellow(fileToSort.file)} (${fileToSort.langDir}) 进行全面排序...`));
         const successRegex = await runSort(filePath, 'regexRules');
         if (successRegex) {
           await runSort(filePath, 'textRules');
@@ -251,9 +296,10 @@ async function handleSortTranslations() {
       } else {
         await runSort(filePath, keyToSort);
       }
+      await pressAnyKeyToContinue();
     }
     
-    await pressAnyKeyToContinue();
+    // 移动到循环外部
   }
 }
 

@@ -27,12 +27,25 @@ import { color } from '../../lib/colors.js';
  * @description 将域名字符串（如 "example.com"）转换为驼峰式命名（如 "exampleCom"），
  * 以便用作有效的 JavaScript 变量名。
  * @param {string} domain - 要转换的域名。
+ * @param {string} language - 语言标识，用于生成唯一变量名。
  * @returns {string} 转换后的驼峰式命名的字符串。
  */
-function toCamelCase(domain) {
-  return domain.replace(/\./g, ' ').replace(/(?:^|\s)\w/g, (match, index) => {
+function toCamelCase(domain, language = '') {
+  let result = domain.replace(/\./g, ' ').replace(/(?:^|\s)\w/g, (match, index) => {
     return index === 0 ? match.toLowerCase().trim() : match.toUpperCase().trim();
   }).replace(/\s+/g, '');
+  
+  // 如果提供了语言标识，则添加到变量名中以确保唯一性
+  if (language) {
+    // 将语言标识转换为首字母大写的驼峰式命名
+    const langParts = language.split('-');
+    const langSuffix = langParts.map(part => 
+      part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+    ).join('');
+    result += langSuffix;
+  }
+  
+  return result;
 }
 
 /**
@@ -43,7 +56,30 @@ function toCamelCase(domain) {
 async function handleAddNewTranslation() {
   console.log(color.bold(color.cyan('✨ 开始添加新的网站翻译文件...')));
   
-  // --- 步骤 1: 提示用户输入并验证域名 ---
+  // --- 步骤 1: 提示用户选择语言 ---
+  const { language } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'language',
+      message: '请选择翻译文件的语言:',
+      prefix: '🌐',
+      choices: [
+        { name: '简体中文-大陆 (zh-cn)', value: 'zh-cn' },
+        { name: '繁體中文-香港 (zh-hk)', value: 'zh-hk' },
+        { name: '繁體中文-台湾 (zh-tw)', value: 'zh-tw' },
+        new inquirer.Separator(),
+        { name: '↩️ 返回上一级菜单', value: 'back' }
+      ]
+    }
+  ]);
+  
+  // 如果用户选择返回，直接退出函数
+  if (language === 'back') {
+    console.log(color.dim('操作已取消。'));
+    return;
+  }
+  
+  // --- 步骤 2: 提示用户输入并验证域名 ---
   const { domain } = await inquirer.prompt([
     {
       type: 'input',
@@ -57,7 +93,7 @@ async function handleAddNewTranslation() {
         }
 
         const fileName = `${trimmedInput}.js`;
-        const filePath = path.join(process.cwd(), 'src', 'translations', fileName);
+        const filePath = path.join(process.cwd(), 'src', 'translations', language, fileName);
 
         if (fs.existsSync(filePath)) {
           return `错误：文件 ${color.yellow(fileName)} 已存在，请选择其他域名。`;
@@ -74,19 +110,31 @@ async function handleAddNewTranslation() {
     },
   ]);
 
+  // 如果用户按ESC或输入back并确认，直接退出函数
+  if (!domain || domain.toLowerCase() === 'back') {
+    console.log(color.dim('操作已取消。'));
+    return;
+  }
+
   const trimmedDomain = domain.trim();
   const fileName = `${trimmedDomain}.js`;
-  const variableName = toCamelCase(trimmedDomain);
+  // 修改变量名生成方式，包含语言标识以确保唯一性
+  const variableName = toCamelCase(trimmedDomain, language);
 
   console.log(`\n准备创建以下文件和变量:`);
+  console.log(`  - ${color.yellow('语  言')}: ${language}`);
   console.log(`  - ${color.yellow('文 件 名')}: ${fileName}`);
   console.log(`  - ${color.yellow('变 量 名')}: ${variableName}`);
   
   const { confirm } = await inquirer.prompt([
     {
-      type: 'confirm',
+      type: 'list',
       name: 'confirm',
-      message: '是否继续？',
+      message: '确认创建翻译文件？',
+      choices: [
+        { name: '✅ 确认创建', value: true },
+        { name: '❌ 取消操作', value: false }
+      ],
       default: true,
     },
   ]);
@@ -96,8 +144,8 @@ async function handleAddNewTranslation() {
     return;
   }
 
-  // --- 步骤 2: 创建新的翻译文件 ---
-  const filePath = path.join(process.cwd(), 'src', 'translations', fileName);
+  // --- 步骤 3: 创建新的翻译文件 ---
+  const filePath = path.join(process.cwd(), 'src', 'translations', language, fileName);
   // 获取当前日期
   const currentDate = new Date().toISOString().split('T')[0];
   // 定义新翻译文件的模板字符串，包含基本的结构和注释，方便用户直接填写。
@@ -112,12 +160,15 @@ export const ${variableName} = {
 
   // 创建日期：此翻译配置的创建日期
   createdAt: '${currentDate}',
+  
+  // 语言：此翻译配置适用的语言
+  language: '${language}', // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文), zh-hk(中文香港)
 
   // 启用状态：控制此翻译配置是否启用
   enabled: true,
 
   // 样式 (CSS)
-  // 在这里添加网站所需的自定义样式
+  // 支持编写多个CSS规则
   styles: [
     // 在这里添加styles代码，例如：
     // "body { background-color: #f0f0f0; }",
@@ -126,7 +177,7 @@ export const ${variableName} = {
   ],
 
   // 注入脚本 (JavaScript)
-  // 在这里添加JavaScript代码
+  // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
   jsRules: [
     // 在这里添加JavaScript代码，例如：
     // "console.log('第一条规则');",
@@ -138,7 +189,7 @@ export const ${variableName} = {
   // 规则会自动应用于匹配的文本
   // 格式: [/原始文本正则表达式/i, '翻译后的文本']
   // 使用 $1, $2, ... 来引用正则表达式中的捕获组
-  // 示例: [/^您好 (\\w+)/, 'Hello $1']
+  // 示例: [/^Hello (\\w+)/, '您好 $1']
   regexRules: [
     // 在这里添加正则表达式规则
   ],
@@ -146,7 +197,7 @@ export const ${variableName} = {
   // 纯文本翻译规则
   // 规则会完全匹配整个文本
   // 格式: ['原始文本', '翻译后的文本']
-  // 示例: ['登录', 'Login']
+  // 示例: ['Login', '登录']
   textRules: [
     // 在这里添加纯文本规则
   ],
@@ -154,6 +205,12 @@ export const ${variableName} = {
 `;
 
   try {
+    // 确保语言目录存在
+    const langDir = path.join(process.cwd(), 'src', 'translations', language);
+    if (!fs.existsSync(langDir)) {
+      fs.mkdirSync(langDir, { recursive: true });
+    }
+    
     fs.writeFileSync(filePath, template);
     console.log(color.green(`✅ 成功创建翻译文件: ${color.yellow(filePath)}`));
   } catch (error) {
@@ -161,7 +218,7 @@ export const ${variableName} = {
     return;
   }
   
-  // --- 步骤 3: 更新 index.js 和 header.txt (事务性操作) ---
+  // --- 步骤 4: 更新 index.js 和 header.txt (事务性操作) ---
   const indexJsPath = path.join(process.cwd(), 'src', 'translations', 'index.js');
   const headerTxtPath = path.join(process.cwd(), 'src', 'header.txt');
   let originalIndexJsContent, originalHeaderTxtContent;
@@ -171,10 +228,10 @@ export const ${variableName} = {
     originalIndexJsContent = fs.readFileSync(indexJsPath, 'utf-8');
     originalHeaderTxtContent = fs.readFileSync(headerTxtPath, 'utf-8');
     
-    // --- 3a. 更新 index.js ---
+    // --- 4a. 更新 index.js ---
     let indexJsContent = originalIndexJsContent;
-    // 构造新的 import 语句。
-    const importStatement = `import { ${variableName} } from './${fileName}';\n`;
+    // 构造新的 import 语句，包含语言标识以确保唯一性。
+    const importStatement = `import { ${variableName} } from './${language}/${fileName}';\n`;
     // 找到最后一个 'import' 语句的位置，在其后插入新的 import，以保持代码整洁。
     const lastImportIndex = indexJsContent.lastIndexOf('import');
     const nextLineIndexAfterLastImport = indexJsContent.indexOf('\n', lastImportIndex);
@@ -191,7 +248,8 @@ export const ${variableName} = {
     // 这是一个小技巧，用于判断是否需要在新条目前加一个换行符，以维持代码格式。
     const precedingChar = indexJsContent.substring(lastBraceIndex - 1, lastBraceIndex).trim();
     const needsNewline = precedingChar === ',';
-    const mapEntry = `${needsNewline ? '\n' : ''}  "${trimmedDomain}": ${variableName},\n`;
+    // 在域名后添加语言标识以确保唯一性
+    const mapEntry = `${needsNewline ? '\n' : ''}  "${trimmedDomain}#${language}": ${variableName},\n`;
     
     indexJsContent = 
         indexJsContent.slice(0, lastBraceIndex) +
@@ -201,21 +259,25 @@ export const ${variableName} = {
     fs.writeFileSync(indexJsPath, indexJsContent);
     console.log(color.green(`✅ 成功更新索引文件: ${color.yellow(indexJsPath)}`));
 
-    // --- 3b. 更新 header.txt ---
+    // --- 4b. 更新 header.txt ---
     let headerTxtContent = originalHeaderTxtContent;
     // 构造新的 @match 指令。
     const matchDirective = `// @match        *://${trimmedDomain}/*\n`;
-    // 找到最后一个 '// @match' 指令，在其后插入新指令，以保持指令的分组。
-    const lastMatchIndex = headerTxtContent.lastIndexOf('// @match');
-    const nextLineIndexAfterLastMatch = headerTxtContent.indexOf('\n', lastMatchIndex);
-    headerTxtContent = 
-      headerTxtContent.slice(0, nextLineIndexAfterLastMatch + 1) +
-      matchDirective +
-      headerTxtContent.slice(nextLineIndexAfterLastMatch + 1);
-      
-    fs.writeFileSync(headerTxtPath, headerTxtContent);
-    console.log(color.green(`✅ 成功更新头部文件: ${color.yellow(headerTxtPath)}`));
-
+    // 检查是否已存在相同的@match指令
+    if (!headerTxtContent.includes(matchDirective.trim())) {
+      // 找到最后一个 '// @match' 指令，在其后插入新指令，以保持指令的分组。
+      const lastMatchIndex = headerTxtContent.lastIndexOf('// @match');
+      const nextLineIndexAfterLastMatch = headerTxtContent.indexOf('\n', lastMatchIndex);
+      headerTxtContent = 
+        headerTxtContent.slice(0, nextLineIndexAfterLastMatch + 1) +
+        matchDirective +
+        headerTxtContent.slice(nextLineIndexAfterLastMatch + 1);
+        
+      fs.writeFileSync(headerTxtPath, headerTxtContent);
+      console.log(color.green(`✅ 成功更新头部文件: ${color.yellow(headerTxtPath)}`));
+    } else {
+      console.log(color.yellow(`⚠️  头部文件中已存在匹配指令: ${color.yellow(trimmedDomain)}`));
+    }
   } catch (error) {
     console.error(color.red(`❌ 更新文件时出错: ${error.message}`));
     
@@ -232,13 +294,21 @@ export const ${variableName} = {
       console.log(color.yellow(`  -> 已恢复: ${headerTxtPath}`));
     }
     // 使用 unlinkSync 确保即使在错误处理中也能可靠地删除文件。
-    fs.unlinkSync(filePath); 
-    console.log(color.yellow(`  -> 已删除: ${fileName}`));
+    try {
+      fs.unlinkSync(filePath); 
+      console.log(color.yellow(`  -> 已删除: ${fileName}`));
+    } catch (unlinkError) {
+      // 文件可能不存在，忽略错误
+    }
     return;
   }
 }
 
 export default handleAddNewTranslation;
+
+
+
+
 
 
 

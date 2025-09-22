@@ -1,14 +1,13 @@
 // 导入翻译模块
-import { julesGoogleCom } from './jules.google.com.js';
-import { aistudioGoogleCom } from './aistudio.google.com.js';
-import { claudeAi } from './claude.ai.js';
-import { platformClaudeCom } from './platform.claude.com.js';
-import { statusAnthropicCom } from './status.anthropic.com.js';
+import { julesGoogleComZhCn } from './zh-cn/jules.google.com.js';
+import { aistudioGoogleComZhCn } from './zh-cn/aistudio.google.com.js';
+import { claudeAiZhCn } from './zh-cn/claude.ai.js';
+import { platformClaudeComZhCn } from './zh-cn/platform.claude.com.js';
+import { statusAnthropicComZhCn } from './zh-cn/status.anthropic.com.js';
 // 导出主翻译映射
 export const masterTranslationMap = {
-  "jules.google.com": julesGoogleCom,
-  "aistudio.google.com": aistudioGoogleCom,
-  "claude.ai": claudeAi,
-  "platform.claude.com": platformClaudeCom,
-  "status.anthropic.com": statusAnthropicCom,
-};
+  "jules.google.com#zh-cn": julesGoogleComZhCn,
+  "aistudio.google.com#zh-cn": aistudioGoogleComZhCn,
+  "claude.ai#zh-cn": claudeAiZhCn,
+  "platform.claude.com#zh-cn": platformClaudeComZhCn,
+  "status.anthropic.com#zh-cn": statusAnthropicComZhCn,};

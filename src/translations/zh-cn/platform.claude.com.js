@@ -1,6 +1,6 @@
 // src/translations/platform.claude.com.js
 
-export const platformClaudeCom = {
+export const platformClaudeComZhCn = {
   // 描述：此翻译配置的描述信息
   description: '此翻译配置适用于 platform.claude.com 网站的本地化。',
 
@@ -9,6 +9,9 @@ export const platformClaudeCom = {
 
   // 创建日期：此翻译配置的创建日期
   createdAt: '2025-08-21',
+
+  // 语言：此翻译配置适用的语言
+  language: 'zh-cn',
 
   // 启用状态：控制此翻译配置是否启用
   enabled: true,

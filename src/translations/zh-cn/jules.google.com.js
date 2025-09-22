@@ -1,6 +1,6 @@
 // src/translations/jules.google.com.js
 
-export const julesGoogleCom = {
+export const julesGoogleComZhCn = {
   // 描述：此翻译配置的描述信息
   description: '此翻译配置适用于 jules.google.com 网站的本地化。',
 
@@ -9,22 +9,31 @@ export const julesGoogleCom = {
 
   // 创建日期：此翻译配置的创建日期
   createdAt: '2025-08-21',
+  
+  // 语言：此翻译配置适用的语言
+  language: 'zh-cn',
 
   // 启用状态：控制此翻译配置是否启用
   enabled: true,
 
-  // 样式（CSS）
+  // 样式 (CSS)
+  // 支持编写多个CSS规则，通过join('\n')方法连接成一个字符串，并通过单个<style>标签注入到页面
   styles: [
     '.feedback-button { width: auto !important; white-space: nowrap !important; }'
   ],
 
-  // 注入脚本（JavaScript）
+  // 注入脚本 (JavaScript)
+  // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
   jsRules: [
     // 在这里添加JavaScript代码，例如：
     // "alert('Hello, World!');"
   ],
 
   // 正则表达式翻译规则
+  // 规则会自动应用于匹配的文本
+  // 格式: [/原始文本正则表达式/i, '翻译后的文本']
+  // 使用 $1, $2, ... 来引用正则表达式中的捕获组
+  // 示例: [/^您好 (\w+)/, 'Hello $1']
   regexRules: [
     [/^Step\s+(\d+)\s+of the plan is complete\.$/i, "“计划”的第 $1 步已完成。"],
     [/Completed\s+(\d+)\s+minutes?\s+ago/i, "$1 分钟前完成"],
@@ -52,6 +61,9 @@ export const julesGoogleCom = {
   ],
 
   // 纯文本翻译规则
+  // 规则会完全匹配整个文本
+  // 格式: ['原始文本', '翻译后的文本']
+  // 示例: ['登录', 'Login']
   textRules: [
     ["Jules attempts to setup your environment according to hints in your codebase and agents.md. Optionally, you can provide a setup script to be run explicitly. No need for clone commands, the repo will be cloned automatically into the /app directory.", "Jules 会根据您代码库中的线索和 `agents.md` 文件来尝试配置环境。您也可以提供一个设置脚本来精确执行。仓库会自动克隆到 /app 目录，无需手动执行克隆命令。"],
     ["Let Google use your future Jules conversations and code on content Jules receives from public repositories to train its generative AI models. Opting out does not apply to any feedback you may choose to provide.", "允许 Google 使用您未来与 Jules 的对话，以及 Jules 从公开代码库中获取的代码内容，用于训练其生成式 AI 模型。选择退出此项，不影响您主动提供的任何反馈。"],
@@ -76,6 +88,6 @@ export const julesGoogleCom = {
     ["I've inspected the frontend changes visually: ", "我已通过视觉方式检查了前端的变更："],
     ["Tell us more - what went right or wrong", "请告诉我们更多细节——哪些地方做得好或不好"],
     ["Deleting a task is permanent and cannot be undone", "删除任务是永久性操作，无法撤销"],
-    ["Jules is not yet available in your region.", "Jules 暂未在您的区域提供服务"],
+    ["Jules is not yet available in your region.", "Jules 暂未在您的区域提供服务"]
   ],
 };

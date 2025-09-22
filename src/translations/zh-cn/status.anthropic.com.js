@@ -1,6 +1,6 @@
 // src/translations/status.anthropic.com.js
 
-export const statusAnthropicCom = {
+export const statusAnthropicComZhCn = {
   // 描述：此翻译配置的描述信息
   description: '此翻译配置适用于 status.anthropic.com 网站的本地化。',
 
@@ -9,6 +9,9 @@ export const statusAnthropicCom = {
 
   // 创建日期：此翻译配置的创建日期
   createdAt: '2025-08-21',
+
+  // 语言：此翻译配置适用的语言
+  language: 'zh-cn',
 
   // 启用状态：控制此翻译配置是否启用
   enabled: true,
@@ -28,6 +31,7 @@ export const statusAnthropicCom = {
     [/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s+(\d{4})/i, "YYYY年MM月DD日"],
     [/Uptime over the past\s+(\d+)\s+days\./i, "过去 $1 天的正常运行时间。"],
     [/Resend OTP in:\s*(\d+)\s*seconds/i, "在 $1 秒后重新发送 OTP"],
+    [/(?:\d+|\d+\.\d+)\s+components?/i, "$1 个组件"],
     [/^(\d{1,2})\s+Dec\s+(\d{4})$/i, "$2年12月$1日"],
     [/^(\d{1,2})\s+Nov\s+(\d{4})$/i, "$2年11月$1日"],
     [/^(\d{1,2})\s+Oct\s+(\d{4})$/i, "$2年10月$1日"],
@@ -41,7 +45,6 @@ export const statusAnthropicCom = {
     [/^(\d{1,2})\s+Mar\s+(\d{4})$/i, "$2年3月$1日"],
     [/^(\d{1,2})\s+May\s+(\d{4})$/i, "$2年5月$1日"],
     [/^(\d{1,2})\s+Sep\s+(\d{4})$/i, "$2年9月$1日"],
-    [/(\d+)\s+components?/i, "$1 个组件"],
     [/(\d+)\s+days ago/i, "$1 天前"],
     [/^(\d+)\s*hrs?$/i, "$1小时"],
     [/^(\d+)\s*secs?$/i, "$1秒"],

@@ -30,36 +30,26 @@ import { color } from '../../lib/colors.js';
  * @function toCamelCase
  * @description 将文件名（如 "example.com.js"）转换为驼峰式命名（如 "exampleCom"）。
  * @param {string} domain - 要转换的文件名。
+ * @param {string} language - 语言标识，用于生成唯一变量名。
  * @returns {string} 转换后的驼峰式命名的字符串。
  */
-function toCamelCase(domain) {
-  // 移除 .js 后缀
-  const domainWithoutExt = domain.replace(/\.js$/, '');
-  return domainWithoutExt.replace(/\./g, ' ').replace(/(?:^|\s)\w/g, (match, index) => {
+function toCamelCase(domain, language = '') {
+  let result = domain.replace(/\./g, ' ').replace(/(?:^|\s)\w/g, (match, index) => {
     return index === 0 ? match.toLowerCase().trim() : match.toUpperCase().trim();
   }).replace(/\s+/g, '');
+  
+  // 如果提供了语言标识，则添加到变量名中以确保唯一性
+  if (language) {
+    // 将语言标识转换为首字母大写的驼峰式命名
+    const langParts = language.split('-');
+    const langSuffix = langParts.map(part => 
+      part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+    ).join('');
+    result += langSuffix;
+  }
+  
+  return result;
 }
-
-/**
- * @function aggressiveCleanup
- * @description 对文件内容进行积极的清理，主要用于移除因删除行而产生的多余空行。
- * @param {string} content - 要清理的原始文件内容。
- * @returns {string} 清理后的文件内容。
- */
-function aggressiveCleanup(content) {
-    // 将2个或更多的连续换行符（及其中间的空白）替换为单个换行符
-    let cleanedContent = content.replace(/(?:(?:\r\n|\n)\s*){2,}/g, '\n');
-    // 移除文件开头和结尾的空白
-    cleanedContent = cleanedContent.trim();
-    // 如果文件不为空，确保末尾有一个换行符
-    if (cleanedContent) {
-        return cleanedContent + '\n';
-    }
-    return '';
-}
-
-
-// --- 主函数 ---
 
 /**
  * @function handleRemoveTranslation
@@ -72,27 +62,60 @@ async function handleRemoveTranslation() {
   const translationsDir = path.join(process.cwd(), 'src', 'translations');
   
   // --- 步骤 1: 扫描并列出所有可移除的翻译文件 ---
-  let files;
+  let translationFiles = [];
   try {
-    files = fs.readdirSync(translationsDir).filter(file => file.endsWith('.js') && file !== 'index.js');
+    // 获取所有语言目录
+    const langDirs = fs.readdirSync(translationsDir).filter(file => 
+      fs.statSync(path.join(translationsDir, file)).isDirectory() && 
+      ['zh-cn', 'zh-tw', 'zh-hk'].includes(file)
+    );
+    
+    // 收集所有语言目录下的翻译文件
+    for (const langDir of langDirs) {
+      const langPath = path.join(translationsDir, langDir);
+      const files = fs.readdirSync(langPath).filter(file => file.endsWith('.js'));
+      translationFiles.push(...files.map(file => ({ file, langDir })));
+    }
   } catch (error) {
     console.error(color.red('❌ 读取翻译文件目录时出错:'), error);
     return;
   }
 
-  if (files.length === 0) {
+  if (translationFiles.length === 0) {
     console.log(color.yellow('目前没有可供移除的翻译文件。'));
     return;
   }
 
   // --- 步骤 2: 提示用户选择要移除的文件 ---
+  // 按语言分组文件以便显示
+  const filesByLanguage = {};
+  
+  translationFiles.forEach(({ file, langDir }) => {
+    if (!filesByLanguage[langDir]) {
+      filesByLanguage[langDir] = [];
+    }
+    filesByLanguage[langDir].push({ file, langDir });
+  });
+  
+  // 创建带语言标识的选项
+  const choices = [];
+  Object.keys(filesByLanguage).sort().forEach(langDir => {
+    choices.push(new inquirer.Separator(`--- ${langDir} ---`));
+    filesByLanguage[langDir].forEach(({ file, langDir }) => {
+      choices.push({
+        name: `  ${file}`,
+        value: { file, langDir }
+      });
+    });
+  });
+  
   const { fileToRemove } = await inquirer.prompt([
     {
       type: 'list',
       name: 'fileToRemove',
       message: ' 请选择您想要移除的网站翻译文件:',
       choices: [
-        ...files,
+        ...choices,
         new inquirer.Separator(),
         { name: '↩️ 返回上一级菜单', value: 'back' },
       ],
@@ -109,9 +132,13 @@ async function handleRemoveTranslation() {
   // --- 步骤 3: 要求用户最终确认 ---
   const { confirm } = await inquirer.prompt([
     {
-      type: 'confirm',
+      type: 'list',
       name: 'confirm',
-      message: `您确定要移除与 ${color.yellow(fileToRemove)} 相关的所有文件和配置吗？此操作无法撤销。`,
+      message: `您确定要移除与 ${color.yellow(fileToRemove.file)} 相关的所有文件和配置吗？此操作无法撤销。`,
+      choices: [
+        { name: '✅ 确认移除', value: true },
+        { name: '❌ 取消操作', value: false }
+      ],
       default: false,
     },
   ]);
@@ -122,37 +149,68 @@ async function handleRemoveTranslation() {
   }
 
   // --- 步骤 4: 执行删除和文件更新操作 ---
-  const domain = fileToRemove.replace(/\.js$/, '');
-  const variableName = toCamelCase(fileToRemove);
-  const filePath = path.join(translationsDir, fileToRemove);
+  const domain = fileToRemove.file.replace(/\.js$/, '');
+  // 使用语言标识生成正确的变量名
+  const variableName = toCamelCase(domain, fileToRemove.langDir);
+  const filePath = path.join(translationsDir, fileToRemove.langDir, fileToRemove.file);
   const indexJsPath = path.join(translationsDir, 'index.js');
   const headerTxtPath = path.join(process.cwd(), 'src', 'header.txt');
 
   try {
     // 4a. 删除翻译文件本身
     fs.unlinkSync(filePath);
-    console.log(color.green(`✅ 已删除文件: ${fileToRemove}`));
+    console.log(color.green(`✅ 已删除文件: ${fileToRemove.langDir}/${fileToRemove.file}`));
 
     // 4b. 更新 index.js
     let indexJsContent = fs.readFileSync(indexJsPath, 'utf-8');
     // 构建更精确的正则表达式，以匹配并移除整行（包括换行符），从而避免留下空行。
     // 使用 'm' (multiline) 标志，使 '^' 匹配行的开头。
-    const importRegex = new RegExp(`^import\\s+\\{\\s*${variableName}\\s*\\}\\s+from\\s+'\\./${fileToRemove}';?\\s*\\r?\\n`, 'm');
+    const importRegex = new RegExp(`^import\\s+\\{\\s*${variableName}\\s*\\}\\s+from\\s+'\\.\\/${fileToRemove.langDir}/${fileToRemove.file}';?\\s*\\r?\\n?`, 'm');
     indexJsContent = indexJsContent.replace(importRegex, '');
 
-    const mapEntryRegex = new RegExp(`^\\s*"${domain}":\\s*${variableName},?\\s*\\r?\\n`, 'm');
+    // 在域名后添加语言标识以匹配正确的映射条目
+    // 修改正则表达式以正确处理可能没有换行符的情况
+    const mapEntryRegex = new RegExp(`^\\s*"${domain}#${fileToRemove.langDir}":\\s*${variableName},?\\s*\\r?\\n?`, 'm');
     indexJsContent = indexJsContent.replace(mapEntryRegex, '');
 
     fs.writeFileSync(indexJsPath, indexJsContent);
     console.log(color.green(`✅ 已更新: index.js`));
 
     // 4c. 更新 header.txt
-    let headerTxtContent = fs.readFileSync(headerTxtPath, 'utf-8');
-    const matchRegex = new RegExp(`^// @match\\s+\\*://${domain}/\\*\\s*\\r?\\n`, 'm');
-    headerTxtContent = headerTxtContent.replace(matchRegex, '');
+    // 检查是否还有其他语言的同名翻译文件
+    let hasOtherLanguageFiles = false;
+    try {
+      // 获取所有语言目录
+      const langDirs = fs.readdirSync(translationsDir).filter(file => 
+        fs.statSync(path.join(translationsDir, file)).isDirectory() && 
+        ['zh-cn', 'zh-tw', 'zh-hk'].includes(file)
+      );
+      
+      // 检查其他语言目录中是否还有同名文件
+      for (const langDir of langDirs) {
+        if (langDir !== fileToRemove.langDir) {
+          const otherLangPath = path.join(translationsDir, langDir, fileToRemove.file);
+          if (fs.existsSync(otherLangPath)) {
+            hasOtherLanguageFiles = true;
+            break;
+          }
+        }
+      }
+    } catch (checkError) {
+      console.warn(color.yellow(`⚠️  检查其他语言文件时出错: ${checkError.message}`));
+    }
+    
+    // 只有当没有其他语言的同名翻译文件时，才移除@match指令
+    if (!hasOtherLanguageFiles) {
+      let headerTxtContent = fs.readFileSync(headerTxtPath, 'utf-8');
+      const matchRegex = new RegExp(`^// @match\\s+\\*://${domain}/\\*\\s*\\r?\\n`, 'm');
+      headerTxtContent = headerTxtContent.replace(matchRegex, '');
 
-    fs.writeFileSync(headerTxtPath, headerTxtContent);
-    console.log(color.green(`✅ 已更新: header.txt`));
+      fs.writeFileSync(headerTxtPath, headerTxtContent);
+      console.log(color.green(`✅ 已更新: header.txt`));
+    } else {
+      console.log(color.yellow(`⚠️  其他语言目录中存在同名文件，将不移除 header.txt 中的 @match 指令`));
+    }
 
     console.log(color.bold(color.lightGreen('\n🎉 所有相关内容均已成功移除！')));
 

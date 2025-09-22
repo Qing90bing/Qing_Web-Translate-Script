@@ -39,11 +39,29 @@ import { parse } from 'acorn';
 async function findTranslationFiles() {
   const translationsDir = path.resolve('src/translations');
   try {
-    const allFiles = await fs.readdir(translationsDir);
-    const translationFiles = allFiles
-      .filter(file => file.endsWith('.js') && file !== 'index.js')
-      .map(file => path.join(translationsDir, file));
-    return translationFiles;
+    const allFiles = [];
+    
+    // 获取所有语言目录
+    const langDirs = (await fs.readdir(translationsDir)).filter(file => 
+      ['zh-cn', 'zh-tw', 'zh-hk'].includes(file)
+    );
+    
+    // 收集所有语言目录下的翻译文件
+    for (const langDir of langDirs) {
+      const langPath = path.join(translationsDir, langDir);
+      try {
+        const files = await fs.readdir(langPath);
+        const translationFiles = files
+          .filter(file => file.endsWith('.js'))
+          .map(file => path.join(langPath, file));
+        allFiles.push(...translationFiles);
+      } catch (langDirError) {
+        // 如果某个语言目录无法读取，跳过它并继续处理其他目录
+        console.warn(`⚠️ 无法读取语言目录 ${langDir}: ${langDirError.message}`);
+      }
+    }
+    
+    return allFiles;
   } catch (error) {
     // 如果目录不存在，这是一个可预见的场景，仅打印警告而不抛出错误。
     if (error.code === 'ENOENT') {
@@ -196,7 +214,7 @@ function validateFileContent(file, content, options) {
   if (!translationObjectNode) return errors;
 
   // 定义所有已知的、合法的顶级属性
-  const KNOWN_PROPERTIES = new Set(['description', 'testUrl', 'createdAt', 'styles', 'jsRules', 'regexRules', 'textRules', 'enabled']);
+  const KNOWN_PROPERTIES = new Set(['description', 'testUrl', 'createdAt', 'styles', 'jsRules', 'regexRules', 'textRules', 'enabled', 'language']);
 
   // 检查是否存在未知的属性
   for (const prop of translationObjectNode.properties) {
@@ -435,6 +453,10 @@ export async function validateTranslationFiles(options = {}) {
         // 对每个文件调用核心校验逻辑。
         const errorsInFile = validateFileContent(file, content, { checkEmpty, checkDuplicates, checkMissingComma, checkIdentical, checkSourceDuplicates, ignoredPositions });
 
+        // 从文件路径中提取语言信息
+        const langMatch = file.match(/[/\\]([^/\\]+)[/\\][^/\\]+$/);
+        const language = langMatch ? langMatch[1] : 'unknown';
+
         // 根据是否有错误以及检查类型，格式化并打印结果到控制台。
         if (errorsInFile.length > 0) {
             // 这部分复杂的逻辑是为了在特定检查模式下提供更友好的输出。
@@ -446,8 +468,8 @@ export async function validateTranslationFiles(options = {}) {
                 // 如果是逗号检查，但没有发现逗号错误，则不打印
             }
             else {
-                // 打印文件头和错误详情。
-                console.log(`\n❌ 文件: ${path.basename(file)} (发现 ${errorsInFile.length} 个问题)`);
+                // 打印文件头和错误详情，包含语言信息
+                console.log(`\n❌ 文件: ${path.basename(file)} (${language}) (发现 ${errorsInFile.length} 个问题)`);
                 console.log('--------------------------------------------------');
                 errorsInFile.forEach((e, index) => {
                     const errorTypeMap = { 'multi-duplicate': '重复的翻译', 'source-duplicate': '重复的原文', 'structure': '结构错误', 'syntax': '语法错误', 'empty-translation': '空翻译', 'missing-comma': '可能的遗漏逗号', 'identical-translation': '原文与译文相同' };
@@ -467,9 +489,9 @@ export async function validateTranslationFiles(options = {}) {
                 });
             }
         } else {
-            // 如果文件没有错误，并且是特定检查模式，则打印通过信息。
+            // 如果文件没有错误，并且是特定检查模式，则打印通过信息，包含语言信息
             if (checkEmpty || checkDuplicates || checkMissingComma || checkIdentical || checkSourceDuplicates) {
-                console.log(`✅ 文件 ${path.basename(file)} 通过检查。`);
+                console.log(`✅ 文件 ${path.basename(file)} (${language}) 通过检查。`);
             }
         }
         // 将当前文件的错误合并到总错误列表中。

@@ -1,6 +1,6 @@
 // src/translations/aistudio.google.com.js
 
-export const aistudioGoogleCom = {
+export const aistudioGoogleComZhCn = {
   // 描述：此翻译配置的描述信息
   description: '此翻译配置适用于 aistudio.google.com 网站的本地化。',
 
@@ -9,6 +9,9 @@ export const aistudioGoogleCom = {
 
   // 创建日期：此翻译配置的创建日期
   createdAt: '2025-08-21',
+
+    // 语言：此翻译配置适用的语言
+  language: 'zh-cn',
 
   // 启用状态：控制此翻译配置是否启用
   enabled: true,
@@ -27,7 +30,7 @@ export const aistudioGoogleCom = {
 
   // 正则表达式翻译规则
   regexRules: [
-    [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, "↩  换行\nAlt + ↩  追加文本 (不执行)\nCtrl + ↩  执行指令"],
+    [/↩\s*Add a new line\s*\s*Alt\s*\+\s*↩\s*Append text without running\s*\s*Ctrl\s*\+\s*↩\s*Run prompt/i, "↩  换行 Alt + ↩  追加文本 (不执行) Ctrl + ↩  执行指令"],
     [/Invalid JSON: SyntaxError: Unexpected token '(.+?)', "(.+?)" is not valid JSON/i, "无效的 JSON 语法错误：在 “$2” 中存在意外的字符 “$1”"],
     [/([<>]=?)\s*(\d+K)\s+tokens\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, "$1$2 Tokens | 输入: $$ $3 / 输出: $$ $4"],
     [/Image \(\*Output per image\) • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, "图像 (*每张图片输出) | 输入: $$ $1 / 输出: $$ $2"],

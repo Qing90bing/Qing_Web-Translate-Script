@@ -288,8 +288,8 @@ export async function promptForSingleEmptyTranslationFix(error, remainingCount) 
 /**
  * @function promptToPreserveFormatting
  * @description 在构建项目前，询问用户是否希望在最终的脚本文件中保留源代码的格式（注释和空白行）。
- * 这是一个简单的“是/否”确认提示。
- * @returns {Promise<boolean>} 如果用户选择是，则返回 `true`；否则返回 `false`。
+ * 这是一个简单的“是/否”确认提示，同时提供放弃构建的选项。
+ * @returns {Promise<boolean|null>} 如果用户选择是，则返回 `true`；如果选择否，则返回 `false`；如果选择放弃构建，则返回 `null`。
  */
 export async function promptToPreserveFormatting() {
     // 如果是测试环境，直接返回 false（不保留格式）
@@ -299,15 +299,37 @@ export async function promptToPreserveFormatting() {
     
     const separator = color.dim('\n----------------------------------------');
     console.log(separator);
-    const { preserve } = await inquirer.prompt([
+    const { action } = await inquirer.prompt([
         {
-            type: 'confirm', // 确认框类型
-            name: 'preserve',
-            message: `构建已准备就绪。您想在最终的脚本文件中保留注释和空白行吗？\n${color.dim('  (选择“是”会增大文件体积，但便于调试；选择“否”则会移除所有注释和多余空行。)')}`,
-            default: false, // 默认不保留
+            type: 'list',
+            name: 'action',
+            message: '构建选项设置:',
+            choices: [
+                {
+                    name: '📦 标准构建 (移除注释和空白行，文件更小)',
+                    value: 'no-preserve'
+                },
+                {
+                    name: '🔍 调试构建 (保留注释和空白行，便于调试)',
+                    value: 'preserve'
+                },
+                new inquirer.Separator(),
+                {
+                    name: '❌ 放弃构建',
+                    value: 'cancel'
+                }
+            ],
+            default: 'no-preserve',
         }
     ]);
-    return preserve;
+    
+    // 如果用户选择放弃构建，返回 null
+    if (action === 'cancel') {
+        return null;
+    }
+    
+    // 返回用户的选择（保留格式或不保留格式）
+    return action === 'preserve';
 }
 
 /**

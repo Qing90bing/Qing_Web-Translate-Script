@@ -17,8 +17,61 @@ import { initializeObservers } from './modules/core/observers.js';
     // 注入防闪烁样式
     injectAntiFlickerStyle();
 
-    // 在函数内部根据当前网站域名选择正确的词典
-    const siteDictionary = translations[window.location.hostname];
+    // 获取用户语言偏好
+    function getUserLanguage() {
+        // 首先检查 localStorage 中是否有用户设置的语言
+        const storedLang = localStorage.getItem('web-translate-language');
+        if (storedLang && ['zh-cn', 'zh-tw', 'zh-hk'].includes(storedLang)) {
+            return storedLang;
+        }
+        
+        // 然后检查浏览器语言设置
+        const browserLang = navigator.language || navigator.userLanguage;
+        if (browserLang) {
+            // 将浏览器语言映射到支持的语言
+            if (browserLang.startsWith('zh-HK') || browserLang.startsWith('zh-hk')) {
+                return 'zh-hk';
+            } else if (browserLang.startsWith('zh-TW') || browserLang.startsWith('zh-tw')) {
+                return 'zh-tw';
+            } else if (browserLang.startsWith('zh')) {
+                return 'zh-cn';
+            }
+        }
+        
+        // 默认返回简体中文
+        return 'zh-cn';
+    }
+
+    // 根据用户语言偏好选择合适的翻译文件
+    function selectTranslationForSite(hostname) {
+        const userLang = getUserLanguage();
+        
+        // 首先尝试查找带语言标识的翻译文件
+        const langSpecificKey = `${hostname}#${userLang}`;
+        if (translations[langSpecificKey]) {
+            return translations[langSpecificKey];
+        }
+        
+        // 如果没有找到语言特定的翻译文件，尝试查找不带语言标识的
+        if (translations[hostname]) {
+            return translations[hostname];
+        }
+        
+        // 如果还是没有找到，尝试其他中文变体
+        const chineseVariants = ['zh-cn', 'zh-tw', 'zh-hk'];
+        for (const lang of chineseVariants) {
+            const variantKey = `${hostname}#${lang}`;
+            if (translations[variantKey]) {
+                return translations[variantKey];
+            }
+        }
+        
+        // 最后返回 undefined，表示没有找到合适的翻译文件
+        return undefined;
+    }
+
+    // 在函数内部根据当前网站域名和用户语言偏好选择正确的词典
+    const siteDictionary = selectTranslationForSite(window.location.hostname);
     if (!siteDictionary) {
         // 如果当前网站没有对应的词典，立即显示页面
         removeAntiFlickerStyle();
@@ -33,7 +86,7 @@ import { initializeObservers } from './modules/core/observers.js';
     }
 
     // 从新的数据结构中提取规则，过滤掉描述性属性
-    const { description, testUrl, createdAt, styles: cssRules = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    const { description, testUrl, createdAt, language, styles: cssRules = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
 
     // 将所有纯文本翻译规则放入一个Map中，以便快速查找
     const textTranslationMap = new Map();
@@ -69,16 +122,12 @@ import { initializeObservers } from './modules/core/observers.js';
     // 创建翻译器实例
     const translator = createTranslator(textTranslationMap, regexRules);
 
-
-
-
-
     // --- 初始化流程 ---
 
     function initializeTranslation() {
         // 1. 执行首次全文翻译
         translator.translate(document.body);
-        log('初次翻译完成。');
+        log(`初次翻译完成。使用语言: ${language || 'unknown'}`);
 
         // 2. 移除防闪烁遮罩，显示页面
         removeAntiFlickerStyle();
@@ -108,9 +157,7 @@ import { initializeObservers } from './modules/core/observers.js';
         startTranslation();
     }
 
-
     // 初始化菜单
     initializeMenu();
-
 
 })(masterTranslationMap); // 将导入的 map 在这里作为参数传入

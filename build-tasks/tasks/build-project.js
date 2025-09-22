@@ -37,6 +37,12 @@ export default async function handleFullBuild() {
 
     // --- 步骤 1: 询问用户是否希望保留格式 ---
     const preserveFormatting = await promptToPreserveFormatting();
+    
+    // 如果用户选择放弃构建，直接返回
+    if (preserveFormatting === null) {
+      console.log(color.yellow('⚠️ 构建已取消。'));
+      return;
+    }
 
     // --- 步骤 2: 使用 esbuild 执行打包 ---
     console.log(color.bold('\n--- (阶段 1/2) 正在打包脚本... ---'));
