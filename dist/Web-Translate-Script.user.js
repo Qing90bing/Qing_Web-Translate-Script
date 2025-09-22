@@ -296,73 +296,12 @@
       [' days. ', '天'],
     ],
   };
-  var claudeAiZhHk = {
-    language: 'zh-hk',
-    enabled: true,
-    styles: [],
-    jsRules: [],
-    regexRules: [
-      [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, '每人/月，享受年度訂閱折扣。按月計費則為 SGD $1。最少 $2 名成員。'],
-      [/Per person \/ month\. Minimum (\d+)\s+members\./i, '每人/月。最少 $1 名成員。'],
-      [/Delete\s+(\d+)\s+selected\s+items?/i, '刪除 $1 個選定的項目'],
-      [/(\d+)\s+chats?\s+with\s+(.+)/i, '與 $2 共有 $1 條對話記錄'],
-      [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
-      [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
-      [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
-      [/Apr\s+(\d{1,2}),\s+(\d{4})/, '$2年4月$1日'],
-      [/Aug\s+(\d{1,2}),\s+(\d{4})/, '$2年8月$1日'],
-      [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
-      [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
-      [/Jul\s+(\d{1,2}),\s+(\d{4})/, '$2年7月$1日'],
-      [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2年6月$1日'],
-      [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
-      [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
-      [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
-      [/SGD\s+([\d.]+)/i, 'SGD $1'],
-    ],
-    textRules: [
-      ['upstream connect error or disconnect/reset before headers. reset reason: connection termination', '連接後端伺服器失敗，或在收到其響應數據前連接被重設。重設原因：連接被終止。'],
-      ['Don’t share personal information or third-party content without permission, and see our ', '請勿未經許可分享個人資訊或第三方內容，否則會違反我們的'],
-      ['Only messages up until now will be shared', '僅分享到目前為止的對話'],
-      ['Chat on web, iOS, and Android', '在網頁、iOS和Android上聊天'],
-      ['Private (only you have access)', '私人（僅您可見）'],
-      ['Ability to search the web', '能夠搜尋網絡'],
-      ['Analyze text and images', '分析文字和圖片'],
-      ['English (United States)', '英語（美國）'],
-      ['Deutsch (Deutschland)', '德語（德國）'],
-      ['français (France)', '法語（法國）'],
-      ['Try Claude', '體驗 Claude'],
-      ['Latest', '最新的'],
-      ['Connect', '連接'],
-      ['Log out', '登出'],
-      ['Members', '成員'],
-      ['Thumbs up', '讚'],
-      ['Upgrade', '升級'],
-      ['Accept', '接受'],
-      ['Browse', '瀏覽'],
-      ['Delete', '刪除'],
-      ['Manage', '管理'],
-      ['Chats', '對話'],
-      ['Image', '圖片'],
-      ['Learn', '學習'],
-      ['Legal', '法律'],
-      ['Other', '其他'],
-      ['Retry', '重試'],
-      ['Write', '編寫'],
-      ['Code', '程式碼'],
-      ['Edit', '編輯'],
-      ['Save', '儲存'],
-      ['Skip', '略過'],
-      ['Star', '收藏'],
-    ],
-  };
   var masterTranslationMap = {
     'jules.google.com#zh-cn': julesGoogleComZhCn,
     'aistudio.google.com#zh-cn': aistudioGoogleComZhCn,
     'claude.ai#zh-cn': claudeAiZhCn,
     'platform.claude.com#zh-cn': platformClaudeComZhCn,
     'status.anthropic.com#zh-cn': statusAnthropicComZhCn,
-    'claude.ai#zh-hk': claudeAiZhHk,
   };
   var SUPPORTED_LANGUAGES = [
     { code: 'zh-cn', name: '简体中文-大陆', flag: '🇨🇳' },
@@ -453,135 +392,131 @@
   var BLOCKS_CONTENT_ONLY = new Set(['textarea', 'input']);
   var ALL_UNTRANSLATABLE_TAGS = new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
   var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip'];
-  var textTranslationMap;
-  var regexRules;
-  var translationCache;
-  var translatedElements;
-  function translateText(text) {
-    if (!text || typeof text !== 'string') return text;
-    const originalText = text;
-    if (translationCache.has(originalText)) {
-      return translationCache.get(originalText);
-    }
-    const trimmedText = text.trim();
-    if (trimmedText === '') return text;
-    let translatedText = text;
-    let hasChanged = false;
-    const mapTranslation = textTranslationMap.get(trimmedText);
-    if (mapTranslation) {
-      const leadingSpace = originalText.match(/^\s*/)[0] || '';
-      const trailingSpace = originalText.match(/\s*$/)[0] || '';
-      translatedText = leadingSpace + mapTranslation + trailingSpace;
-      hasChanged = true;
-    } else {
-      for (const [match, replacement] of regexRules) {
-        const newText = translatedText.replace(match, replacement);
-        if (newText !== translatedText) {
-          translatedText = newText;
-          hasChanged = true;
+  function createTranslator(textMap, regexArr) {
+    let textTranslationMap = textMap;
+    let regexRules = regexArr;
+    let translationCache = new Map();
+    let translatedElements = new WeakSet();
+    function translateText(text) {
+      if (!text || typeof text !== 'string') return text;
+      const originalText = text;
+      if (translationCache.has(originalText)) {
+        return translationCache.get(originalText);
+      }
+      const trimmedText = text.trim();
+      if (trimmedText === '') return text;
+      let translatedText = text;
+      let hasChanged = false;
+      const mapTranslation = textTranslationMap.get(trimmedText);
+      if (mapTranslation) {
+        const leadingSpace = originalText.match(/^\s*/)[0] || '';
+        const trailingSpace = originalText.match(/\s*$/)[0] || '';
+        translatedText = leadingSpace + mapTranslation + trailingSpace;
+        hasChanged = true;
+      } else {
+        for (const [match, replacement] of regexRules) {
+          const newText = translatedText.replace(match, replacement);
+          if (newText !== translatedText) {
+            translatedText = newText;
+            hasChanged = true;
+          }
         }
       }
+      if (hasChanged) {
+        translationCache.set(originalText, translatedText);
+      }
+      return translatedText;
     }
-    if (hasChanged) {
-      translationCache.set(originalText, translatedText);
+    function translateElementContent(element) {
+      const tagName = element.tagName?.toLowerCase();
+      if (!element || ALL_UNTRANSLATABLE_TAGS.has(tagName) || element.isContentEditable) {
+        return false;
+      }
+      if (element.querySelector(Array.from(ALL_UNTRANSLATABLE_TAGS).join(','))) {
+        return false;
+      }
+      const fullText = element.textContent?.trim();
+      if (!fullText) return false;
+      const translation = textTranslationMap.get(fullText);
+      if (!translation) return false;
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+        acceptNode: (node) => (node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT),
+      });
+      const textNodes = [];
+      while (walker.nextNode()) textNodes.push(walker.currentNode);
+      if (textNodes.length === 0) return false;
+      textNodes[0].nodeValue = translation;
+      for (let i = 1; i < textNodes.length; i++) {
+        textNodes[i].nodeValue = '';
+      }
+      log('整段翻译:', `"${fullText}"`, '->', `"${translation}"`);
+      return true;
     }
-    return translatedText;
-  }
-  function translateElementContent(element) {
-    const tagName = element.tagName?.toLowerCase();
-    if (!element || ALL_UNTRANSLATABLE_TAGS.has(tagName) || element.isContentEditable) {
-      return false;
-    }
-    if (element.querySelector(Array.from(ALL_UNTRANSLATABLE_TAGS).join(','))) {
-      return false;
-    }
-    const fullText = element.textContent?.trim();
-    if (!fullText) return false;
-    const translation = textTranslationMap.get(fullText);
-    if (!translation) return false;
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
-      acceptNode: (node) => (node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT),
-    });
-    const textNodes = [];
-    while (walker.nextNode()) textNodes.push(walker.currentNode);
-    if (textNodes.length === 0) return false;
-    textNodes[0].nodeValue = translation;
-    for (let i = 1; i < textNodes.length; i++) {
-      textNodes[i].nodeValue = '';
-    }
-    log('整段翻译:', `"${fullText}"`, '->', `"${translation}"`);
-    return true;
-  }
-  function translateElement(element) {
-    if (!element || translatedElements.has(element) || !(element instanceof Element)) return;
-    const tagName = element.tagName.toLowerCase();
-    if (BLOCKS_ALL_TRANSLATION.has(tagName) || element.isContentEditable) {
-      translatedElements.add(element);
-      return;
-    }
-    const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
-    if (!isContentBlocked) {
-      if (translateElementContent(element)) {
+    function translateElement(element) {
+      if (!element || translatedElements.has(element) || !(element instanceof Element)) return;
+      const tagName = element.tagName.toLowerCase();
+      if (BLOCKS_ALL_TRANSLATION.has(tagName) || element.isContentEditable) {
         translatedElements.add(element);
         return;
       }
-      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
-        acceptNode: function (node) {
-          if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
-          let parent = node.parentElement;
-          while (parent) {
-            if (ALL_UNTRANSLATABLE_TAGS.has(parent.tagName.toLowerCase()) || parent.isContentEditable) {
-              return NodeFilter.FILTER_REJECT;
+      const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
+      if (!isContentBlocked) {
+        if (translateElementContent(element)) {
+          translatedElements.add(element);
+          return;
+        }
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+          acceptNode: function (node) {
+            if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
+            let parent = node.parentElement;
+            while (parent) {
+              if (ALL_UNTRANSLATABLE_TAGS.has(parent.tagName.toLowerCase()) || parent.isContentEditable) {
+                return NodeFilter.FILTER_REJECT;
+              }
+              if (parent === element) break;
+              parent = parent.parentElement;
             }
-            if (parent === element) break;
-            parent = parent.parentElement;
+            return NodeFilter.FILTER_ACCEPT;
+          },
+        });
+        const nodesToTranslate = [];
+        while (walker.nextNode()) nodesToTranslate.push(walker.currentNode);
+        nodesToTranslate.forEach((textNode) => {
+          const originalText = textNode.nodeValue;
+          const translatedText = translateText(originalText);
+          if (originalText !== translatedText) {
+            textNode.nodeValue = translatedText;
           }
-          return NodeFilter.FILTER_ACCEPT;
-        },
-      });
-      const nodesToTranslate = [];
-      while (walker.nextNode()) nodesToTranslate.push(walker.currentNode);
-      nodesToTranslate.forEach((textNode) => {
-        const originalText = textNode.nodeValue;
-        const translatedText = translateText(originalText);
-        if (originalText !== translatedText) {
-          textNode.nodeValue = translatedText;
-        }
-      });
-    }
-    const elementsWithAttributes = element.matches(`[${attributesToTranslate.join('], [')}]`) ? [element, ...element.querySelectorAll(`[${attributesToTranslate.join('], [')}]`)] : [...element.querySelectorAll(`[${attributesToTranslate.join('], [')}]`)];
-    elementsWithAttributes.forEach((el) => {
-      let current = el;
-      let isBlockedByContainer = false;
-      while (current && current !== element.parentElement) {
-        if (BLOCKS_ALL_TRANSLATION.has(current.tagName.toLowerCase())) {
-          isBlockedByContainer = true;
-          break;
-        }
-        if (current === element) break;
-        current = current.parentElement;
+        });
       }
-      if (isBlockedByContainer) return;
-      attributesToTranslate.forEach((attr) => {
-        if (el.hasAttribute(attr)) {
-          const originalValue = el.getAttribute(attr);
-          const translatedValue = translateText(originalValue);
-          if (originalValue !== translatedValue) {
-            el.setAttribute(attr, translatedValue);
+      const elementsWithAttributes = element.matches(`[${attributesToTranslate.join('], [')}]`) ? [element, ...element.querySelectorAll(`[${attributesToTranslate.join('], [')}]`)] : [...element.querySelectorAll(`[${attributesToTranslate.join('], [')}]`)];
+      elementsWithAttributes.forEach((el) => {
+        let current = el;
+        let isBlockedByContainer = false;
+        while (current && current !== element.parentElement) {
+          if (BLOCKS_ALL_TRANSLATION.has(current.tagName.toLowerCase())) {
+            isBlockedByContainer = true;
+            break;
           }
+          if (current === element) break;
+          current = current.parentElement;
         }
+        if (isBlockedByContainer) return;
+        attributesToTranslate.forEach((attr) => {
+          if (el.hasAttribute(attr)) {
+            const originalValue = el.getAttribute(attr);
+            const translatedValue = translateText(originalValue);
+            if (originalValue !== translatedValue) {
+              el.setAttribute(attr, translatedValue);
+            }
+          }
+        });
       });
-    });
-    if (element.shadowRoot) {
-      translateElement(element.shadowRoot);
+      if (element.shadowRoot) {
+        translateElement(element.shadowRoot);
+      }
+      translatedElements.add(element);
     }
-    translatedElements.add(element);
-  }
-  function createTranslator(textMap, regexArr) {
-    textTranslationMap = textMap;
-    regexRules = regexArr;
-    translationCache = new Map();
-    translatedElements = new WeakSet();
     return {
       translate: translateElement,
       resetState: () => {
@@ -720,6 +655,57 @@
     };
     log('监听器初始化完成。');
   }
+  function initializeTranslation(siteDictionary, createTranslator2, removeAntiFlickerStyle2, initializeObservers2, log2) {
+    const { description, testUrl, createdAt, language, styles: cssRules = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    const textTranslationMap = new Map();
+    for (const rule of textRules) {
+      if (Array.isArray(rule) && rule.length === 2 && typeof rule[0] === 'string' && typeof rule[1] === 'string') {
+        textTranslationMap.set(rule[0].trim(), rule[1]);
+      }
+    }
+    if (cssRules.length > 0) {
+      const customStyleElement = document.createElement('style');
+      customStyleElement.id = 'web-translate-custom-styles';
+      customStyleElement.textContent = cssRules.join('\n');
+      const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
+      head.appendChild(customStyleElement);
+    }
+    if (jsRules.length > 0) {
+      const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
+      for (const scriptText of jsRules) {
+        if (typeof scriptText === 'string' && scriptText.trim()) {
+          const scriptElement = document.createElement('script');
+          scriptElement.type = 'text/javascript';
+          scriptElement.textContent = scriptText;
+          head.appendChild(scriptElement);
+        }
+      }
+    }
+    const translator = createTranslator2(textTranslationMap, regexRules);
+    function startTranslation() {
+      if (document.body) {
+        initializeFullTranslation();
+      } else {
+        new MutationObserver((_mutations, obs) => {
+          if (document.body) {
+            obs.disconnect();
+            initializeFullTranslation();
+          }
+        }).observe(document.documentElement, { childList: true });
+      }
+    }
+    function initializeFullTranslation() {
+      translator.translate(document.body);
+      log2(`初次翻译完成。使用语言: ${language || 'unknown'}`);
+      removeAntiFlickerStyle2();
+      initializeObservers2(translator);
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startTranslation);
+    } else {
+      startTranslation();
+    }
+  }
   (function (translations) {
     'use strict';
     initializeMenu();
@@ -769,54 +755,6 @@
       removeAntiFlickerStyle();
       return;
     }
-    const { description, testUrl, createdAt, language, styles: cssRules = [], jsRules = [], regexRules: regexRules2 = [], textRules = [] } = siteDictionary;
-    const textTranslationMap2 = new Map();
-    for (const rule of textRules) {
-      if (Array.isArray(rule) && rule.length === 2 && typeof rule[0] === 'string' && typeof rule[1] === 'string') {
-        textTranslationMap2.set(rule[0].trim(), rule[1]);
-      }
-    }
-    if (cssRules.length > 0) {
-      const customStyleElement = document.createElement('style');
-      customStyleElement.id = 'web-translate-custom-styles';
-      customStyleElement.textContent = cssRules.join('\n');
-      const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
-      head.appendChild(customStyleElement);
-    }
-    if (jsRules.length > 0) {
-      const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
-      for (const scriptText of jsRules) {
-        if (typeof scriptText === 'string' && scriptText.trim()) {
-          const scriptElement = document.createElement('script');
-          scriptElement.type = 'text/javascript';
-          scriptElement.textContent = scriptText;
-          head.appendChild(scriptElement);
-        }
-      }
-    }
-    const translator = createTranslator(textTranslationMap2, regexRules2);
-    function initializeTranslation() {
-      translator.translate(document.body);
-      log(`初次翻译完成。使用语言: ${language || 'unknown'}`);
-      removeAntiFlickerStyle();
-      initializeObservers(translator);
-    }
-    function startTranslation() {
-      if (document.body) {
-        initializeTranslation();
-      } else {
-        new MutationObserver((_mutations, obs) => {
-          if (document.body) {
-            obs.disconnect();
-            initializeTranslation();
-          }
-        }).observe(document.documentElement, { childList: true });
-      }
-    }
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', startTranslation);
-    } else {
-      startTranslation();
-    }
+    initializeTranslation(siteDictionary, createTranslator, removeAntiFlickerStyle, initializeObservers, log);
   })(masterTranslationMap);
 })();
