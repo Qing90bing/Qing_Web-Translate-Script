@@ -15,11 +15,20 @@ import { initializeObservers } from './modules/core/observers.js';
 (function (translations) {
     'use strict';
 
+    // 无论后续逻辑如何，首先初始化菜单，确保任何情况下菜单都可用
+    initializeMenu();
+
     // 注入防闪烁样式
     injectAntiFlickerStyle();
 
     // 获取用户语言偏好
     function getUserLanguage() {
+        // (调试模式) 检查是否有来自菜单的语言覆盖设置
+        const overrideLang = GM_getValue('web-translate-language-override', '');
+        if (overrideLang && SUPPORTED_LANGUAGE_CODES.includes(overrideLang)) {
+            return overrideLang;
+        }
+
         // 首先检查 localStorage 中是否有用户设置的语言
         const storedLang = localStorage.getItem('web-translate-language');
         if (storedLang && SUPPORTED_LANGUAGE_CODES.includes(storedLang)) {
@@ -162,8 +171,5 @@ import { initializeObservers } from './modules/core/observers.js';
     } else {
         startTranslation();
     }
-
-    // 初始化菜单
-    initializeMenu();
 
 })(masterTranslationMap); // 将导入的 map 在这里作为参数传入

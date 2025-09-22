@@ -296,12 +296,73 @@
       [' days. ', '天'],
     ],
   };
+  var claudeAiZhHk = {
+    language: 'zh-hk',
+    enabled: true,
+    styles: [],
+    jsRules: [],
+    regexRules: [
+      [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, '每人/月，享受年度訂閱折扣。按月計費則為 SGD $1。最少 $2 名成員。'],
+      [/Per person \/ month\. Minimum (\d+)\s+members\./i, '每人/月。最少 $1 名成員。'],
+      [/Delete\s+(\d+)\s+selected\s+items?/i, '刪除 $1 個選定的項目'],
+      [/(\d+)\s+chats?\s+with\s+(.+)/i, '與 $2 共有 $1 條對話記錄'],
+      [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
+      [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
+      [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
+      [/Apr\s+(\d{1,2}),\s+(\d{4})/, '$2年4月$1日'],
+      [/Aug\s+(\d{1,2}),\s+(\d{4})/, '$2年8月$1日'],
+      [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
+      [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
+      [/Jul\s+(\d{1,2}),\s+(\d{4})/, '$2年7月$1日'],
+      [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2年6月$1日'],
+      [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
+      [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
+      [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
+      [/SGD\s+([\d.]+)/i, 'SGD $1'],
+    ],
+    textRules: [
+      ['upstream connect error or disconnect/reset before headers. reset reason: connection termination', '連接後端伺服器失敗，或在收到其響應數據前連接被重設。重設原因：連接被終止。'],
+      ['Don’t share personal information or third-party content without permission, and see our ', '請勿未經許可分享個人資訊或第三方內容，否則會違反我們的'],
+      ['Only messages up until now will be shared', '僅分享到目前為止的對話'],
+      ['Chat on web, iOS, and Android', '在網頁、iOS和Android上聊天'],
+      ['Private (only you have access)', '私人（僅您可見）'],
+      ['Ability to search the web', '能夠搜尋網絡'],
+      ['Analyze text and images', '分析文字和圖片'],
+      ['English (United States)', '英語（美國）'],
+      ['Deutsch (Deutschland)', '德語（德國）'],
+      ['français (France)', '法語（法國）'],
+      ['Try Claude', '體驗 Claude'],
+      ['Latest', '最新的'],
+      ['Connect', '連接'],
+      ['Log out', '登出'],
+      ['Members', '成員'],
+      ['Thumbs up', '讚'],
+      ['Upgrade', '升級'],
+      ['Accept', '接受'],
+      ['Browse', '瀏覽'],
+      ['Delete', '刪除'],
+      ['Manage', '管理'],
+      ['Chats', '對話'],
+      ['Image', '圖片'],
+      ['Learn', '學習'],
+      ['Legal', '法律'],
+      ['Other', '其他'],
+      ['Retry', '重試'],
+      ['Write', '編寫'],
+      ['Code', '程式碼'],
+      ['Edit', '編輯'],
+      ['Save', '儲存'],
+      ['Skip', '略過'],
+      ['Star', '收藏'],
+    ],
+  };
   var masterTranslationMap = {
     'jules.google.com#zh-cn': julesGoogleComZhCn,
     'aistudio.google.com#zh-cn': aistudioGoogleComZhCn,
     'claude.ai#zh-cn': claudeAiZhCn,
     'platform.claude.com#zh-cn': platformClaudeComZhCn,
     'status.anthropic.com#zh-cn': statusAnthropicComZhCn,
+    'claude.ai#zh-hk': claudeAiZhHk,
   };
   var SUPPORTED_LANGUAGES = [
     { code: 'zh-cn', name: '简体中文-大陆', flag: '🇨🇳' },
@@ -320,18 +381,37 @@
     }
   }
   var MENU_COMMAND_ID = 'toggle_debug_log_command';
+  var OVERRIDE_LANG_KEY = 'web-translate-language-override';
+  function setOverrideLanguage(langCode) {
+    GM_setValue(OVERRIDE_LANG_KEY, langCode);
+    location.reload();
+  }
+  function clearOverrideLanguage() {
+    GM_setValue(OVERRIDE_LANG_KEY, '');
+    location.reload();
+  }
   function toggleDebugMode() {
     const newMode = !isDebugMode;
     GM_setValue(LOG_KEY, newMode);
     updateDebugState(newMode);
-    updateMenuCommand();
+    location.reload();
   }
-  function updateMenuCommand() {
-    const status = isDebugMode ? '开启' : '关闭';
-    GM_registerMenuCommand(`切换调试日志 (当前: ${status})`, toggleDebugMode, { id: MENU_COMMAND_ID });
+  function registerMenuCommands() {
+    const debugStatus = isDebugMode ? '开启' : '关闭';
+    GM_registerMenuCommand(`切换调试日志 (当前: ${debugStatus})`, toggleDebugMode, { id: MENU_COMMAND_ID });
+    if (isDebugMode) {
+      const currentOverride = GM_getValue(OVERRIDE_LANG_KEY, '');
+      GM_registerMenuCommand('--- 语言调试菜单 ---', () => {});
+      SUPPORTED_LANGUAGES.forEach((lang) => {
+        const isCurrent = currentOverride === lang.code;
+        const menuText = `${isCurrent ? '✅' : '➡️'} 强制语言: ${lang.name}`;
+        GM_registerMenuCommand(menuText, () => setOverrideLanguage(lang.code));
+      });
+      GM_registerMenuCommand('🔄 清除语言强制 (恢复默认)', clearOverrideLanguage);
+    }
   }
   function initializeMenu() {
-    updateMenuCommand();
+    registerMenuCommands();
   }
   var STYLE_ID = 'anti-flicker-style';
   function injectAntiFlickerStyle() {
@@ -642,8 +722,13 @@
   }
   (function (translations) {
     'use strict';
+    initializeMenu();
     injectAntiFlickerStyle();
     function getUserLanguage() {
+      const overrideLang = GM_getValue('web-translate-language-override', '');
+      if (overrideLang && SUPPORTED_LANGUAGE_CODES.includes(overrideLang)) {
+        return overrideLang;
+      }
       const storedLang = localStorage.getItem('web-translate-language');
       if (storedLang && SUPPORTED_LANGUAGE_CODES.includes(storedLang)) {
         return storedLang;
@@ -733,6 +818,5 @@
     } else {
       startTranslation();
     }
-    initializeMenu();
   })(masterTranslationMap);
 })();

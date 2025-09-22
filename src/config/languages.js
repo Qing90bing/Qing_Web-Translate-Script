@@ -1,6 +1,6 @@
 // 语言配置文件
 // 集中管理所有支持的语言
-// 在 languages.js 中添加语言，创建语言目录，通过构建工具添加翻译文件，就完成了添加语言的过程
+// 在 languages.js 中添加语言，创建语言目录，通过构建工具添加翻译文件，就完成了添加新语言的过程
 export const SUPPORTED_LANGUAGES = [
   { code: 'zh-cn', name: '简体中文-大陆', flag: '🇨🇳' },
   { code: 'zh-hk', name: '繁體中文-香港', flag: '🇭🇰' },
