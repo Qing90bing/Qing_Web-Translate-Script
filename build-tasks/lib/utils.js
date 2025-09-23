@@ -1,6 +1,7 @@
 // 导入第三方库 `inquirer`，用于创建交互式的命令行界面。
 import inquirer from 'inquirer';
 import { color } from './colors.js';
+import { t } from './terminal-i18n.js';
 
 /**
  * @function pressAnyKeyToContinue
@@ -17,6 +18,6 @@ export async function pressAnyKeyToContinue() {
   await inquirer.prompt({
     type: 'input', // 提示类型
     name: 'key',   // 结果的键名（虽然在这里我们不关心用户输入了什么）
-    message: color.cyan('✅ 操作完成。按回车键返回主菜单...'), // 显示给用户的消息
+    message: color.cyan(t('messages.operationComplete')), // 显示给用户的消息
   });
 }

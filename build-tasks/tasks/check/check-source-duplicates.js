@@ -20,6 +20,8 @@ import { color } from '../../lib/colors.js';
 import { validateTranslationFiles } from '../../lib/validation.js';
 import { promptUserAboutErrors, promptForSyntaxFix, promptForSourceDuplicateManualFixImmediate } from '../../lib/prompting.js';
 import { applySyntaxFixes, fixSourceDuplicatesAutomatically, applySourceDuplicateManualFixes } from '../../lib/fixing.js';
+// 从终端国际化模块导入翻译函数
+import { t } from '../../lib/terminal-i18n.js';
 
 /**
  * @function handleSourceDuplicatesCheck
@@ -27,7 +29,7 @@ import { applySyntaxFixes, fixSourceDuplicatesAutomatically, applySourceDuplicat
  * @returns {Promise<void>}
  */
 export default async function handleSourceDuplicatesCheck() {
-  console.log(color.cyan('🔍 开始校验"原文重复"问题...'));
+  console.log(color.cyan(t('checkTasks.checkingSourceDuplicates')));
 
   // 1. 调用验证器，只开启原文重复检查。
   const options = { checkSourceDuplicates: true };
@@ -40,14 +42,14 @@ export default async function handleSourceDuplicatesCheck() {
   // 3. 优先处理语法错误。
   // 如果存在语法错误，原文重复检查的结果可能是不可靠的。因此，必须先修复语法问题。
   if (syntaxErrors.length > 0) {
-    console.log(color.lightRed('\n🚨 检测到语法错误！必须先解决这些问题才能继续。'));
+    console.log(color.lightRed(t('checkTasks.sourceDuplicateSyntaxError')));
     // 提示用户修复可自动修复的语法错误。
     const decisions = await promptForSyntaxFix(syntaxErrors);
     if (decisions && decisions.length > 0) {
       await applySyntaxFixes(decisions);
-      console.log(color.green('\n✅ 语法修复已应用。建议重新运行检查以确认所有问题已解决。'));
+      console.log(color.green(t('checkTasks.syntaxFixApplied')));
     } else {
-      console.log(color.yellow('\n🤷‍ 未进行任何语法修复。操作已停止。'));
+      console.log(color.yellow(t('checkTasks.noSyntaxFix')));
     }
     // 中止当前任务，强制用户在修复语法错误后重新运行，以确保在干净的 AST 上进行重复检查。
     return;
@@ -55,7 +57,7 @@ export default async function handleSourceDuplicatesCheck() {
 
   // 4. 如果没有原文重复错误，则告知用户并退出。
   if (sourceDuplicateErrors.length === 0) {
-    console.log(color.green('\n✅ 未发现"原文重复"问题。'));
+    console.log(color.green(t('checkTasks.noSourceDuplicatesFound')));
     return;
   }
 
@@ -67,7 +69,7 @@ export default async function handleSourceDuplicatesCheck() {
     case 'auto-fix-source':
       // 自动修复：保留每组重复中的第一个版本，删除其他版本。
       await fixSourceDuplicatesAutomatically(sourceDuplicateErrors);
-      console.log(color.green('\n🔧 "原文重复"问题已通过自动方式修复。'));
+      console.log(color.green(t('checkTasks.autoFixCompleteSource')));
       break;
 
     case 'manual-fix-immediate':
@@ -83,17 +85,17 @@ export default async function handleSourceDuplicatesCheck() {
         revalidateFunction
       );
       if (fixedCount > 0) {
-        console.log(color.green(`\n✨ 总共即时修复了 ${fixedCount} 个"原文重复"问题。`));
+        console.log(color.green(t('checkTasks.immediateFixedCount', fixedCount)));
       } else {
-        console.log(color.yellow('\n🤷‍ 没有进行任何修复操作。'));
+        console.log(color.yellow(t('checkTasks.noSourceFix')));
       }
       break;
 
     case 'ignore':
-      console.log(color.yellow('\n🤷‍ 问题已忽略，未进行任何修复操作。'));
+      console.log(color.yellow(t('checkTasks.emptyIssuesIgnored')));
       break;
     case 'cancel':
-      console.log(color.dim('\n🛑 操作已取消。'));
+      console.log(color.dim(t('checkTasks.operationCancelled')));
       break;
   }
 }

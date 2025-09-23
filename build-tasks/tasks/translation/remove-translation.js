@@ -7,6 +7,7 @@ import inquirer from 'inquirer';
 
 // 导入本地模块
 import { color } from '../../lib/colors.js';
+import { t } from '../../lib/terminal-i18n.js';
 import { SUPPORTED_LANGUAGE_CODES } from '../../../src/config/languages.js';
 
 /**
@@ -58,7 +59,7 @@ function toCamelCase(domain, language = '') {
  * @returns {Promise<void>}
  */
 async function handleRemoveTranslation() {
-  console.log(color.bold(color.cyan('🔍 开始扫描可移除的翻译文件...')));
+  console.log(color.bold(color.cyan(t('manageTranslations.scanningFiles'))));
 
   const translationsDir = path.join(process.cwd(), 'src', 'translations');
   
@@ -78,12 +79,12 @@ async function handleRemoveTranslation() {
       translationFiles.push(...files.map(file => ({ file, langDir })));
     }
   } catch (error) {
-    console.error(color.red('❌ 读取翻译文件目录时出错:'), error);
+    console.error(color.red(t('manageTranslations.readingDirError')), error);
     return;
   }
 
   if (translationFiles.length === 0) {
-    console.log(color.yellow('目前没有可供移除的翻译文件。'));
+    console.log(color.yellow(t('manageTranslations.noFilesToRemove')));
     return;
   }
 
@@ -114,11 +115,11 @@ async function handleRemoveTranslation() {
     {
       type: 'list',
       name: 'fileToRemove',
-      message: ' 请选择您想要移除的网站翻译文件:',
+      message: t('manageTranslations.selectFileToRemove'),
       choices: [
         ...choices,
         new inquirer.Separator(),
-        { name: '↩️ 返回上一级菜单', value: 'back' },
+        { name: t('manageTranslationsMenu.back'), value: 'back' },
       ],
       prefix: '🗑️',
       pageSize: 20, // 增加 pageSize 选项以显示更多行
@@ -126,7 +127,7 @@ async function handleRemoveTranslation() {
   ]);
 
   if (fileToRemove === 'back') {
-    console.log(color.dim('操作已取消。'));
+    console.log(color.dim(t('manageTranslations.operationCancelled')));
     return;
   }
 
@@ -135,17 +136,17 @@ async function handleRemoveTranslation() {
     {
       type: 'list',
       name: 'confirm',
-      message: `您确定要移除与 ${color.yellow(fileToRemove.file)} 相关的所有文件和配置吗？此操作无法撤销。`,
+      message: t('manageTranslations.confirmRemoval', color.yellow(fileToRemove.file)),
       choices: [
-        { name: '✅ 确认移除', value: true },
-        { name: '❌ 取消操作', value: false }
+        { name: t('manageTranslationsMenu.remove'), value: true },
+        { name: t('manageTranslations.creationCancelled'), value: false }
       ],
       default: false,
     },
   ]);
 
   if (!confirm) {
-    console.log(color.yellow('操作已取消。'));
+    console.log(color.yellow(t('manageTranslations.operationCancelled')));
     return;
   }
 
@@ -160,7 +161,7 @@ async function handleRemoveTranslation() {
   try {
     // 4a. 删除翻译文件本身
     fs.unlinkSync(filePath);
-    console.log(color.green(`✅ 已删除文件: ${fileToRemove.langDir}/${fileToRemove.file}`));
+    console.log(color.green(t('manageTranslations.fileRemoved', fileToRemove.langDir, fileToRemove.file)));
 
     // 4b. 更新 index.js
     let indexJsContent = fs.readFileSync(indexJsPath, 'utf-8');
@@ -175,7 +176,7 @@ async function handleRemoveTranslation() {
     indexJsContent = indexJsContent.replace(mapEntryRegex, '');
 
     fs.writeFileSync(indexJsPath, indexJsContent);
-    console.log(color.green(`✅ 已更新: index.js`));
+    console.log(color.green(t('manageTranslations.indexJsUpdated')));
 
     // 4c. 更新 header.txt
     // 检查是否还有其他语言的同名翻译文件
@@ -198,7 +199,7 @@ async function handleRemoveTranslation() {
         }
       }
     } catch (checkError) {
-      console.warn(color.yellow(`⚠️  检查其他语言文件时出错: ${checkError.message}`));
+      console.warn(color.yellow(t('sortTranslations.readingDirError', checkError.message)));
     }
     
     // 只有当没有其他语言的同名翻译文件时，才移除@match指令
@@ -208,16 +209,16 @@ async function handleRemoveTranslation() {
       headerTxtContent = headerTxtContent.replace(matchRegex, '');
 
       fs.writeFileSync(headerTxtPath, headerTxtContent);
-      console.log(color.green(`✅ 已更新: header.txt`));
+      console.log(color.green(t('manageTranslations.headerTxtUpdated')));
     } else {
-      console.log(color.yellow(`⚠️  其他语言目录中存在同名文件，将不移除 header.txt 中的 @match 指令`));
+      console.log(color.yellow(t('manageTranslations.headerAlreadyExists', color.yellow(domain))));
     }
 
-    console.log(color.bold(color.lightGreen('\n🎉 所有相关内容均已成功移除！')));
+    console.log(color.bold(color.lightGreen(t('manageTranslations.removalSuccess'))));
 
   } catch (error) {
-    console.error(color.red(`❌ 在移除过程中发生错误: ${error.message}`));
-    console.error(color.yellow('请注意：项目文件可能处于不一致状态。建议使用 git status 检查更改，并手动恢复未完成的修改。'));
+    console.error(color.red(t('manageTranslations.removalError', error.message)));
+    console.error(color.yellow(t('manageTranslations.inconsistentState')));
   }
 }
 

@@ -7,6 +7,7 @@ import inquirer from 'inquirer';
 
 // 导入本地模块
 import { color } from '../../lib/colors.js';
+import { t } from '../../lib/terminal-i18n.js';
 import { SUPPORTED_LANGUAGES } from '../../../src/config/languages.js';
 
 /**
@@ -55,7 +56,7 @@ function toCamelCase(domain, language = '') {
  * @returns {Promise<void>}
  */
 async function handleAddNewTranslation() {
-  console.log(color.bold(color.cyan('✨ 开始添加新的网站翻译文件...')));
+  console.log(color.bold(color.cyan(t('manageTranslations.creatingFile', '✨', 'addTranslation.start', '...'))));
   
   // --- 步骤 1: 提示用户选择语言 ---
   // 动态生成语言选择列表
@@ -68,19 +69,19 @@ async function handleAddNewTranslation() {
     {
       type: 'list',
       name: 'language',
-      message: '请选择翻译文件的语言:',
+      message: t('manageTranslations.selectLanguage'),
       prefix: '🌐',
       choices: [
         ...languageChoices,
         new inquirer.Separator(),
-        { name: '↩️ 返回上一级菜单', value: 'back' }
+        { name: t('manageTranslationsMenu.back'), value: 'back' }
       ]
     }
   ]);
   
   // 如果用户选择返回，直接退出函数
   if (language === 'back') {
-    console.log(color.dim('操作已取消。'));
+    console.log(color.dim(t('manageTranslations.creationCancelled')));
     return;
   }
   
@@ -89,25 +90,25 @@ async function handleAddNewTranslation() {
     {
       type: 'input',
       name: 'domain',
-      message: '请输入新的网站域名 (例如: example.com):',
+      message: t('manageTranslations.enterDomain'),
       prefix: '🌐',
       validate: (input) => {
         const trimmedInput = input.trim();
         if (!trimmedInput) {
-          return '域名不能为空，请输入一个有效的域名。';
+          return t('manageTranslations.domainCannotBeEmpty');
         }
 
         const fileName = `${trimmedInput}.js`;
         const filePath = path.join(process.cwd(), 'src', 'translations', language, fileName);
 
         if (fs.existsSync(filePath)) {
-          return `错误：文件 ${color.yellow(fileName)} 已存在，请选择其他域名。`;
+          return t('manageTranslations.fileAlreadyExists', color.yellow(fileName));
         }
         
         // 简单的域名格式校验
         const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!domainRegex.test(trimmedInput)) {
-          return '请输入一个有效的域名格式 (例如: example.com, sub.example.co.uk)。';
+          return t('manageTranslations.invalidDomainFormat');
         }
 
         return true;
@@ -117,7 +118,7 @@ async function handleAddNewTranslation() {
 
   // 如果用户按ESC或输入back并确认，直接退出函数
   if (!domain || domain.toLowerCase() === 'back') {
-    console.log(color.dim('操作已取消。'));
+    console.log(color.dim(t('manageTranslations.creationCancelled')));
     return;
   }
 
@@ -126,26 +127,23 @@ async function handleAddNewTranslation() {
   // 修改变量名生成方式，包含语言标识以确保唯一性
   const variableName = toCamelCase(trimmedDomain, language);
 
-  console.log(`\n准备创建以下文件和变量:`);
-  console.log(`  - ${color.yellow('语  言')}: ${language}`);
-  console.log(`  - ${color.yellow('文 件 名')}: ${fileName}`);
-  console.log(`  - ${color.yellow('变 量 名')}: ${variableName}`);
+  console.log(t('manageTranslations.creatingFile', color.yellow('语  言'), language, color.yellow('文 件 名'), fileName, color.yellow('变 量 名'), variableName));
   
   const { confirm } = await inquirer.prompt([
     {
       type: 'list',
       name: 'confirm',
-      message: '确认创建翻译文件？',
+      message: t('manageTranslations.confirmCreation'),
       choices: [
-        { name: '✅ 确认创建', value: true },
-        { name: '❌ 取消操作', value: false }
+        { name: t('manageTranslationsMenu.add'), value: true },
+        { name: t('manageTranslations.creationCancelled'), value: false }
       ],
       default: true,
     },
   ]);
 
   if (!confirm) {
-    console.log(color.yellow('操作已取消。'));
+    console.log(color.yellow(t('manageTranslations.creationCancelled')));
     return;
   }
 
@@ -217,9 +215,9 @@ export const ${variableName} = {
     }
     
     fs.writeFileSync(filePath, template);
-    console.log(color.green(`✅ 成功创建翻译文件: ${color.yellow(filePath)}`));
+    console.log(color.green(t('manageTranslations.fileCreated', color.yellow(filePath))));
   } catch (error) {
-    console.error(color.red(`❌ 创建文件时出错: ${error.message}`));
+    console.error(color.red(t('manageTranslations.fileCreationError', error.message)));
     return;
   }
   
@@ -248,7 +246,7 @@ export const ${variableName} = {
     // 找到 `masterTranslationMap` 对象的结束括号 `}`，在其前插入新的翻译条目。
     const lastBraceIndex = indexJsContent.lastIndexOf('}');
     if (lastBraceIndex === -1) {
-        throw new Error('在 index.js 中找不到 masterTranslationMap 的结束括号 "}"');
+        throw new Error(t('sortTranslations.exportNotFound'));
     }
     // 这是一个小技巧，用于判断是否需要在新条目前加一个换行符，以维持代码格式。
     const precedingChar = indexJsContent.substring(lastBraceIndex - 1, lastBraceIndex).trim();
@@ -262,7 +260,7 @@ export const ${variableName} = {
         indexJsContent.slice(lastBraceIndex);
 
     fs.writeFileSync(indexJsPath, indexJsContent);
-    console.log(color.green(`✅ 成功更新索引文件: ${color.yellow(indexJsPath)}`));
+    console.log(color.green(t('manageTranslations.indexJsUpdatedSuccess', color.yellow(indexJsPath))));
 
     // --- 4b. 更新 header.txt ---
     let headerTxtContent = originalHeaderTxtContent;
@@ -279,29 +277,29 @@ export const ${variableName} = {
         headerTxtContent.slice(nextLineIndexAfterLastMatch + 1);
         
       fs.writeFileSync(headerTxtPath, headerTxtContent);
-      console.log(color.green(`✅ 成功更新头部文件: ${color.yellow(headerTxtPath)}`));
+      console.log(color.green(t('manageTranslations.headerTxtUpdatedSuccess', color.yellow(headerTxtPath))));
     } else {
-      console.log(color.yellow(`⚠️  头部文件中已存在匹配指令: ${color.yellow(trimmedDomain)}`));
+      console.log(color.yellow(t('manageTranslations.headerAlreadyExists', color.yellow(trimmedDomain))));
     }
   } catch (error) {
-    console.error(color.red(`❌ 更新文件时出错: ${error.message}`));
+    console.error(color.red(t('manageTranslations.indexJsUpdateError', error.message)));
     
     // --- 自动回滚 ---
     // 这是关键的容错机制。如果在 try 块中的任何文件操作失败，
     // catch 块会立即执行，将所有被修改的文件恢复到其原始状态，并删除新创建的文件。
-    console.log(color.yellow('正在尝试回滚所有更改...'));
+    console.log(color.yellow(t('manageTranslations.rollingBack')));
     if (originalIndexJsContent) {
       fs.writeFileSync(indexJsPath, originalIndexJsContent);
-      console.log(color.yellow(`  -> 已恢复: ${indexJsPath}`));
+      console.log(color.yellow(t('manageTranslations.fileRestored', indexJsPath)));
     }
     if (originalHeaderTxtContent) {
       fs.writeFileSync(headerTxtPath, originalHeaderTxtContent);
-      console.log(color.yellow(`  -> 已恢复: ${headerTxtPath}`));
+      console.log(color.yellow(t('manageTranslations.fileRestored', headerTxtPath)));
     }
     // 使用 unlinkSync 确保即使在错误处理中也能可靠地删除文件。
     try {
       fs.unlinkSync(filePath); 
-      console.log(color.yellow(`  -> 已删除: ${fileName}`));
+      console.log(color.yellow(t('manageTranslations.fileDeleted', fileName)));
     } catch (unlinkError) {
       // 文件可能不存在，忽略错误
     }

@@ -1,7 +1,7 @@
 /**
  * @file build-tasks/tasks/check-duplicates.js
  * @description
- * 此任务负责检查并修复翻译文件中的“重复的翻译”问题。
+ * 此任务负责检查并修复翻译文件中的"重复的翻译"问题。
  *
  * **核心工作流程**:
  * 1. **语法预检**: 首先调用 `validateTranslationFiles` 检查所有文件是否存在语法错误。
@@ -21,14 +21,16 @@ import { color } from '../../lib/colors.js';
 import { validateTranslationFiles } from '../../lib/validation.js';
 import { promptUserAboutErrors, promptForManualFix, promptForSyntaxFix } from '../../lib/prompting.js';
 import { fixDuplicatesAutomatically, applyManualFixes, applySyntaxFixes } from '../../lib/fixing.js';
+// 从终端国际化模块导入翻译函数
+import { t } from '../../lib/terminal-i18n.js';
 
 /**
  * @function handleDuplicatesCheck
- * @description “检查重复的翻译”任务的主处理函数。
+ * @description "检查重复的翻译"任务的主处理函数。
  * @returns {Promise<void>}
  */
 export default async function handleDuplicatesCheck() {
-  console.log(color.cyan('🔍 开始校验“重复的翻译”问题...'));
+  console.log(color.cyan(t('checkTasks.checkingDuplicates')));
 
   // 1. 调用验证器，只开启重复检查。
   const options = { checkDuplicates: true };
@@ -41,14 +43,14 @@ export default async function handleDuplicatesCheck() {
   // 3. 优先处理语法错误。
   // 如果存在语法错误，重复检查的结果可能是不可靠的。因此，必须先修复语法问题。
   if (syntaxErrors.length > 0) {
-    console.log(color.lightRed('\n🚨 检测到语法错误！必须先解决这些问题才能继续。'));
+    console.log(color.lightRed(t('checkTasks.duplicateSyntaxError')));
     // 提示用户修复可自动修复的语法错误。
     const decisions = await promptForSyntaxFix(syntaxErrors);
     if (decisions && decisions.length > 0) {
       await applySyntaxFixes(decisions);
-      console.log(color.green('\n✅ 语法修复已应用。建议重新运行检查以确认所有问题已解决。'));
+      console.log(color.green(t('checkTasks.syntaxFixApplied')));
     } else {
-      console.log(color.yellow('\n🤷‍ 未进行任何语法修复。操作已停止。'));
+      console.log(color.yellow(t('checkTasks.noSyntaxFix')));
     }
     // 中止当前任务，强制用户在修复语法错误后重新运行，以确保在干净的 AST 上进行重复检查。
     return;
@@ -56,7 +58,7 @@ export default async function handleDuplicatesCheck() {
 
   // 4. 如果没有重复错误，则告知用户并退出。
   if (duplicateErrors.length === 0) {
-    console.log(color.green('\n✅ 未发现“重复的翻译”问题。'));
+    console.log(color.green(t('checkTasks.noDuplicatesFound')));
     return;
   }
 
@@ -68,7 +70,7 @@ export default async function handleDuplicatesCheck() {
     case 'auto-fix':
       // 自动修复：保留第一个，删除后续所有重复项。
       await fixDuplicatesAutomatically(duplicateErrors);
-      console.log(color.green('\n✨ 自动修复完成。建议您重新运行检查。'));
+      console.log(color.green(t('checkTasks.autoFixCompleteDuplicates')));
       break;
 
     case 'manual-fix':
@@ -76,17 +78,17 @@ export default async function handleDuplicatesCheck() {
       const decisions = await promptForManualFix(duplicateErrors);
       if (decisions) { // 如果用户没有中途退出手动修复流程
         await applyManualFixes(decisions);
-        console.log(color.green('\n🔧 “重复的翻译”问题已通过手动方式修复。'));
+        console.log(color.green(t('checkTasks.manualFixCompleteDuplicates')));
       } else {
-        console.log(color.yellow('\n🛑 手动修复已中途退出。'));
+        console.log(color.yellow(t('checkTasks.manualFixAborted')));
       }
       break;
 
     case 'ignore':
-      console.log(color.yellow('\n🤷‍ 问题已忽略，未进行任何修复操作。'));
+      console.log(color.yellow(t('checkTasks.emptyIssuesIgnored')));
       break;
     case 'cancel':
-      console.log(color.dim('\n🛑 操作已取消。'));
+      console.log(color.dim(t('checkTasks.operationCancelled')));
       break;
   }
 }

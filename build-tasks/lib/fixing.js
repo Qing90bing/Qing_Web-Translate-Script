@@ -13,6 +13,8 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { color } from './colors.js';
+// 从终端国际化模块导入翻译函数
+import { t } from './terminal-i18n.js';
 
 /**
  * @typedef {import('./prompting.js').ManualFixDecision} ManualFixDecision
@@ -22,7 +24,7 @@ import { color } from './colors.js';
 
 /**
  * @function fixDuplicatesAutomatically
- * @description 自动修复“重复的翻译”的错误。
+ * @description 自动修复"重复的翻译"的错误。
  * 修复策略非常简单：对于每一组重复的条目，保留其第一次出现的版本，并删除所有后续的重复版本。
  * 这是一个安全的、非破坏性的默认行为。
  * @param {ValidationError[]} duplicateErrors - 一个只包含 'multi-duplicate' 类型错误的数组。
@@ -30,7 +32,7 @@ import { color } from './colors.js';
  */
 export async function fixDuplicatesAutomatically(duplicateErrors) {
   if (!duplicateErrors || duplicateErrors.length === 0) {
-    console.log(color.yellow('\n没有发现可自动修复的重复条目。'));
+    console.log(color.yellow(t('fixing.noAutoFixDuplicates')));
     return;
   }
 
@@ -52,7 +54,7 @@ export async function fixDuplicatesAutomatically(duplicateErrors) {
     const linesToRemove = Array.from(linesToRemoveByFile[file]);
     if (linesToRemove.length === 0) continue;
     totalFixed += linesToRemove.length;
-    console.log(`\n${color.cyan(`🔧 正在自动修复文件 ${color.underline(path.basename(file))}，移除 ${color.bold(linesToRemove.length)} 个重复条目...`)}`);
+    console.log(t('fixing.autoFixingFile', '\n' + color.cyan(`🔧`), color.underline(path.basename(file)), color.bold(linesToRemove.length)));
     
     const content = await fs.readFile(file, 'utf-8');
     const lines = content.split('\n');
@@ -70,35 +72,35 @@ export async function fixDuplicatesAutomatically(duplicateErrors) {
     // 5. 将修改后的行数组重新组合成文件内容，并写回文件。
     const fixedContent = lines.join('\n');
     await fs.writeFile(file, fixedContent, 'utf-8');
-    console.log(color.green(`  -> ✅ 文件 ${color.underline(path.basename(file))} 已成功自动修复。`));
+    console.log(t('fixing.fileAutoFixed', color.underline(path.basename(file))));
   }
 
   if (totalFixed > 0) {
-      const separator = color.dim('----------------------------------------');
+      const separator = color.dim(t('validation.separator').replace(/-/g, ''));
       console.log(`\n${separator}`);
-      console.log(color.bold('📋 自动修复总结:'));
-      console.log(`  - ${color.green(`总共自动移除了 ${totalFixed} 个重复条目。`)}`);
+      console.log(color.bold(t('fixing.autoFixSummaryTitle')));
+      console.log(t('fixing.autoFixSummary', '  - ' + color.green(``), totalFixed));
       console.log(separator);
   }
 }
 
 /**
  * @function applyManualFixes
- * @description 应用用户在手动修复“重复的翻译”流程中所做的决策。
+ * @description 应用用户在手动修复"重复的翻译"流程中所做的决策。
  * 此函数接收一个决策数组，根据用户为每个重复组选择要保留的行，来删除组内其他所有重复的行。
  * @param {Array<object>} decisions - 从 `promptForManualFix` 函数返回的用户决策数组。
  * @returns {Promise<void>}
  */
 export async function applyManualFixes(decisions) {
   if (!decisions || decisions.length === 0) {
-    console.log(color.yellow('\n没有需要应用的修复。'));
+    console.log(color.yellow(t('fixing.noFixesToApply')));
     return;
   }
 
   // 1. 同样，按文件路径将所有需要删除的行号进行分组。
   const linesToRemoveByFile = {};
   for (const decision of decisions) {
-    // 如果用户对某个重复组选择了“跳过”，则不处理此条目。
+    // 如果用户对某个重复组选择了"跳过"，则不处理此条目。
     if (decision.lineToKeep === 'skip') {
       continue;
     }
@@ -123,7 +125,7 @@ export async function applyManualFixes(decisions) {
     if (linesToRemove.length === 0) continue;
     
     totalFixed += linesToRemove.length;
-    console.log(`\n${color.cyan(`🔧 正在修复文件 ${color.underline(path.basename(file))}，移除 ${color.bold(linesToRemove.length)} 个重复条目...`)}`);
+    console.log(t('fixing.fixingFile', '\n' + color.cyan(`🔧`), color.underline(path.basename(file)), color.bold(linesToRemove.length)));
     
     const content = await fs.readFile(file, 'utf-8');
     const lines = content.split('\n');
@@ -137,19 +139,19 @@ export async function applyManualFixes(decisions) {
     
     const fixedContent = lines.join('\n');
     await fs.writeFile(file, fixedContent, 'utf-8');
-    console.log(color.green(`  -> ✅ 文件 ${color.underline(path.basename(file))} 已成功修复。`));
+    console.log(t('fixing.fileFixed', color.underline(path.basename(file))));
   }
 
   if (totalFixed > 0) {
-      console.log(color.green(`\n✨ 总共修复了 ${totalFixed} 个问题。`));
+      console.log(color.green(t('fixing.totalFixed', totalFixed)));
   } else {
-      console.log(color.yellow('\n没有需要应用的修复（可能所有问题都被跳过了）。'));
+      console.log(color.yellow(t('fixing.noFixesToApplyManual')));
   }
 }
 
 /**
  * @function applyEmptyTranslationFixes
- * @description 应用用户为“空翻译”条目提供的修复。
+ * @description 应用用户为"空翻译"条目提供的修复。
  * 此函数通过直接修改文件内容，将空字符串 `""` 替换为用户输入的新译文。
  * 它利用从 AST（抽象语法树）节点中获取的 `range` 信息来精确定位和替换，而不是基于行操作，
  * 这种方法更精确，不易受代码格式变化的影响。
@@ -201,13 +203,13 @@ export async function applyEmptyTranslationFixes(decisions) {
   }
 
   if (totalFixed > 0) {
-    console.log(color.green(`\n✨ 总共更新了 ${color.bold(totalFixed)} 个空翻译条目。`));
+    console.log(color.green(t('fixing.updatingEmptyEntries', totalFixed)));
   }
 }
 
 /**
  * @function applySingleEmptyTranslationFix
- * @description 应用对单个“空翻译”错误的修复。
+ * @description 应用对单个"空翻译"错误的修复。
  * @param {object} decision - 包含错误对象和新译文的决策对象。
  * @param {ValidationError} decision.error - 需要修复的单个错误对象。
  * @param {string} decision.newTranslation - 用户输入的新译文。
@@ -237,7 +239,7 @@ export async function applySingleEmptyTranslationFix(decision) {
 
 /**
  * @function applySyntaxFixes
- * @description 应用用户确认的“遗漏逗号”等语法修复。
+ * @description 应用用户确认的"遗漏逗号"等语法修复。
  * 此函数通过替换整个行来应用修复，这适用于在 `promptForSyntaxFix` 中生成的、已经包含完整新行内容的修复决策。
  * @param {Array<object>} decisions - 从 `promptForSyntaxFix` 函数返回的用户决策数组。
  * @returns {Promise<void>}
@@ -261,7 +263,7 @@ export async function applySyntaxFixes(decisions) {
   for (const file in fixesByFile) {
     const fileDecisions = fixesByFile[file];
     totalFixed += fileDecisions.length;
-    console.log(`\n${color.cyan(`🔧 正在修复文件 ${color.underline(path.basename(file))} 中的 ${color.bold(fileDecisions.length)} 个语法问题...`)}`);
+    console.log(t('fixing.fixingSyntaxErrors', '\n' + color.cyan(`🔧`), color.underline(path.basename(file)), color.bold(fileDecisions.length)));
     
     const content = await fs.readFile(file, 'utf-8');
     const lines = content.split('\n');
@@ -276,17 +278,17 @@ export async function applySyntaxFixes(decisions) {
     
     const fixedContent = lines.join('\n');
     await fs.writeFile(file, fixedContent, 'utf-8');
-    console.log(color.green(`  -> ✅ 文件 ${color.underline(path.basename(file))} 已成功修复。`));
+    console.log(t('fixing.syntaxErrorFixed', color.underline(path.basename(file))));
   }
 
   if (totalFixed > 0) {
-    console.log(color.green(`\n✨ 总共修复了 ${totalFixed} 个语法问题。`));
+    console.log(color.green(t('fixing.syntaxErrorsFixed', totalFixed)));
   }
 }
 
 /**
  * @function applySingleCommaFix
- * @description 应用对单个“遗漏逗号”错误的修复。
+ * @description 应用对单个"遗漏逗号"错误的修复。
  * 此函数用于手动修复流程中，当用户确认要修复一个低置信度问题时被调用。
  * 它同样利用了 AST 提供的精确信息，通过字符串操作，在错误对象指定的精确字符位置（`pos`）插入一个逗号。
  * @param {ValidationError} error - 需要修复的单个错误对象。
@@ -302,8 +304,8 @@ export async function applySingleCommaFix(error) {
 
 /**
  * @function identifyHighConfidenceCommaErrors
- * @description 将“遗漏逗号”的错误分为高置信度和低置信度两类。
- * 这个函数是实现“自动修复”或“手动修复”选择功能的基础。它通过一个启发式规则来判断一个错误
+ * @description 将"遗漏逗号"的错误分为高置信度和低置信度两类。
+ * 这个函数是实现"自动修复"或"手动修复"选择功能的基础。它通过一个启发式规则来判断一个错误
  * 是否有很大概率是由于两个数组条目 `[...]` 之间缺少逗号引起的。
  * @param {ValidationError[]} errors - 'missing-comma' 类型的错误数组。
  * @returns {Promise<{highConfidenceFixes: ValidationError[], lowConfidenceSkips: ValidationError[]}>}
@@ -325,7 +327,7 @@ export async function identifyHighConfidenceCommaErrors(errors) {
     const trimmedErrorLine = errorLine.trim();
     
     // **启发式规则**: 如果当前行以 `]` 或 `],` 结尾，并且下一行以 `[` 开头，
-    // 那么我们“高度确信”这两行之间只是少了一个逗号。这覆盖了大多数情况。
+    // 那么我们"高度确信"这两行之间只是少了一个逗号。这覆盖了大多数情况。
     if ((trimmedErrorLine.endsWith('],') || trimmedErrorLine.endsWith(']')) && nextLine.trim().startsWith('[')) {
       highConfidenceFixes.push(error);
     } else {
@@ -341,7 +343,7 @@ export async function identifyHighConfidenceCommaErrors(errors) {
 
 /**
  * @function fixIdenticalAutomatically
- * @description 自动修复“原文与译文相同”的错误。
+ * @description 自动修复"原文与译文相同"的错误。
  * 根据用户选择的策略（移除或置空）进行批量处理。
  * @param {object} decisions - 包含修复类型和错误列表的决策对象。
  * @param {'remove'|'empty'} decisions.type - 修复类型。
@@ -352,7 +354,7 @@ export async function fixIdenticalAutomatically(decisions) {
   const { type, errors } = decisions;
 
   if (!errors || errors.length === 0) {
-    console.log(color.yellow('\n没有发现可自动修复的“原文与译文相同”条目。'));
+    console.log(color.yellow(t('fixing.noAutoFixIdentical')));
     return;
   }
 
@@ -369,9 +371,9 @@ export async function fixIdenticalAutomatically(decisions) {
   for (const file in fixesByFile) {
     const fileErrors = fixesByFile[file];
     totalFixed += fileErrors.length;
-    const actionText = type === 'remove' ? `移除 ${color.bold(fileErrors.length)} 个条目` : `置空 ${color.bold(fileErrors.length)} 个条目`;
-    console.log(`\n${color.cyan(`🔧 正在自动修复文件 ${color.underline(path.basename(file))}，${actionText}...`)}`);
-
+    const actionText = type === 'remove' ? t('fixing.removingEntries', color.bold(fileErrors.length)) : t('fixing.emptyingEntries', color.bold(fileErrors.length));
+    console.log(t('fixing.autoFixingIdenticalFile', '\n' + color.cyan(`🔧`), color.underline(path.basename(file)), actionText));
+    
     let content = await fs.readFile(file, 'utf-8');
     
     // 2. 根据用户选择的修复类型执行不同逻辑。
@@ -396,22 +398,22 @@ export async function fixIdenticalAutomatically(decisions) {
     }
     
     await fs.writeFile(file, content, 'utf-8');
-    console.log(color.green(`  -> ✅ 文件 ${color.underline(path.basename(file))} 已成功自动修复。`));
+    console.log(t('fixing.fileIdenticalAutoFixed', color.underline(path.basename(file))));
   }
 
   if (totalFixed > 0) {
-      const separator = color.dim('----------------------------------------');
+      const separator = color.dim(t('validation.separator').replace(/-/g, ''));
       console.log(`\n${separator}`);
-      console.log(color.bold('📋 自动修复总结:'));
-      const actionText = type === 'remove' ? `移除了` : `置空了`;
-      console.log(`  - ${color.green(`总共${actionText} ${totalFixed} 个“原文与译文相同”问题。`)}`);
+      console.log(color.bold(t('fixing.identicalAutoFixSummaryTitle')));
+      const actionText = type === 'remove' ? t('fixing.identicalAutoFixSummaryRemoved', '  - ' + color.green(``), totalFixed) : t('fixing.identicalAutoFixSummaryEmptied', '  - ' + color.green(``), totalFixed);
+      console.log(actionText);
       console.log(separator);
   }
 }
 
 /**
  * @function applySingleIdenticalFix
- * @description 应用用户在手动修复“原文与译文相同”流程中对单个词条所做的决策。
+ * @description 应用用户在手动修复"原文与译文相同"流程中对单个词条所做的决策。
  * @param {object} decision - 从 `promptForSingleIdenticalFix` 函数返回的单个决策对象。
  * @returns {Promise<void>}
  */
@@ -459,7 +461,7 @@ export async function applySingleIdenticalFix(decision) {
  */
 export async function fixSourceDuplicatesAutomatically(sourceDuplicateErrors) {
   if (!sourceDuplicateErrors || sourceDuplicateErrors.length === 0) {
-    console.log(color.yellow('\n没有发现可自动修复的原文重复条目。'));
+    console.log(color.yellow(t('fixing.noAutoFixSourceDuplicates')));
     return;
   }
 
@@ -481,7 +483,7 @@ export async function fixSourceDuplicatesAutomatically(sourceDuplicateErrors) {
     const linesToRemove = Array.from(linesToRemoveByFile[file]);
     if (linesToRemove.length === 0) continue;
     totalFixed += linesToRemove.length;
-    console.log(`\n${color.cyan(`🔧 正在自动修复文件 ${color.underline(path.basename(file))}，移除 ${color.bold(linesToRemove.length)} 个重复条目...`)}`);
+    console.log(t('fixing.autoFixingSourceFile', '\n' + color.cyan(`🔧`), color.underline(path.basename(file)), color.bold(linesToRemove.length)));
     
     const content = await fs.readFile(file, 'utf-8');
     const lines = content.split('\n');
@@ -498,14 +500,14 @@ export async function fixSourceDuplicatesAutomatically(sourceDuplicateErrors) {
     // 5. 将修改后的行数组重新组合成文件内容，并写回文件。
     const fixedContent = lines.join('\n');
     await fs.writeFile(file, fixedContent, 'utf-8');
-    console.log(color.green(`  -> ✅ 文件 ${color.underline(path.basename(file))} 已成功自动修复。`));
+    console.log(t('fixing.fileSourceAutoFixed', color.underline(path.basename(file))));
   }
 
   if (totalFixed > 0) {
-      const separator = color.dim('----------------------------------------');
+      const separator = color.dim(t('validation.separator').replace(/-/g, ''));
       console.log(`\n${separator}`);
-      console.log(color.bold('📋 自动修复总结:'));
-      console.log(`  - ${color.green(`总共自动移除了 ${totalFixed} 个原文重复条目。`)}`);
+      console.log(color.bold(t('fixing.sourceAutoFixSummaryTitle')));
+      console.log(t('fixing.sourceAutoFixSummary', '  - ' + color.green(``), totalFixed));
       console.log(separator);
   }
 }
@@ -519,7 +521,7 @@ export async function fixSourceDuplicatesAutomatically(sourceDuplicateErrors) {
  */
 export async function applySourceDuplicateManualFixes(decisions) {
   if (!decisions || decisions.length === 0) {
-    console.log(color.yellow('\n没有需要应用的修复。'));
+    console.log(color.yellow(t('fixing.noFixesToApply')));
     return;
   }
 
@@ -546,7 +548,7 @@ export async function applySourceDuplicateManualFixes(decisions) {
     if (linesToRemove.length === 0) continue;
     
     totalFixed += linesToRemove.length;
-    console.log(`\n${color.cyan(`🔧 正在修复文件 ${color.underline(path.basename(file))}，移除 ${color.bold(linesToRemove.length)} 个重复条目...`)}`);
+    console.log(t('fixing.fixingFile', '\n' + color.cyan(`🔧`), color.underline(path.basename(file)), color.bold(linesToRemove.length)));
     
     const content = await fs.readFile(file, 'utf-8');
     const lines = content.split('\n');
@@ -560,13 +562,12 @@ export async function applySourceDuplicateManualFixes(decisions) {
     
     const fixedContent = lines.join('\n');
     await fs.writeFile(file, fixedContent, 'utf-8');
-    console.log(color.green(`  -> ✅ 文件 ${color.underline(path.basename(file))} 已成功修复。`));
+    console.log(t('fixing.fileFixed', color.underline(path.basename(file))));
   }
 
   if (totalFixed > 0) {
-      console.log(color.green(`\n✨ 总共修复了 ${totalFixed} 个问题。`));
+      console.log(color.green(t('fixing.totalFixed', totalFixed)));
   } else {
-      console.log(color.yellow('\n没有需要应用的修复（可能所有问题都被跳过了）。'));
+      console.log(color.yellow(t('fixing.noFixesToApplyManual')));
   }
 }
-

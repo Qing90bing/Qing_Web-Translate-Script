@@ -23,6 +23,10 @@ import inquirer from 'inquirer';
 // 从 `lib` 目录导入颜色和通用工具函数。
 import { color } from './build-tasks/lib/colors.js';
 import { pressAnyKeyToContinue } from './build-tasks/lib/utils.js';
+// 导入终端国际化模块
+import { t, getSupportedLanguages, getCurrentLanguageCode } from './build-tasks/lib/terminal-i18n.js';
+// �导入新的语言管理任务
+import handleTerminalLanguage from './build-tasks/tasks/terminal-language.js';
 // 从 `tasks` 目录导入各个具体的检查和构建任务。
 import handleCommaCheck from './build-tasks/tasks/check/check-comma.js';
 import handleDuplicatesCheck from './build-tasks/tasks/check/check-duplicates.js';
@@ -48,32 +52,39 @@ async function main() {
   while (true) {
     // 清空控制台，提供一个干净的用户界面。
     console.clear();
-    const title = color.bold(color.cyan('🛠️ 构建工具 & 翻译文件校验工具 🛠️'));
-    const separator = color.dim('==============================================');
+    const title = color.bold(color.cyan(t('menu.title')));
+    const separator = color.dim(t('menu.separator'));
     console.log(separator);
     console.log(title);
     console.log(separator);
     
+    // 获取当前语言信息用于显示
+    const currentLanguageCode = getCurrentLanguageCode();
+    const supportedLanguages = getSupportedLanguages();
+    const currentLanguage = supportedLanguages.find(lang => lang.code === currentLanguageCode);
+
     // 使用 inquirer 显示一个列表选择器，让用户选择要执行的操作。
     const { action } = await inquirer.prompt([
       {
         type: 'list', // 菜单类型为列表
         name: 'action', // 用户选择的结果将存储在名为 `action` 的属性中
-        message: `请选择要执行的操作：\n${color.dim('(推荐检查流程: 1 -> 2/3/4 -> 5),这样确保检查是最稳定的')}\n`,
+        message: t('menu.promptMessage'),
         prefix: '✨', // 在问题前的缀饰符
         choices: [
-          new inquirer.Separator(color.dim('--- 检查与修复 ---')), // 分隔线
-          { name: `1. ${color.yellow('🔧 检查"遗漏逗号"问题')}`, value: 'checkMissingComma' },
-          { name: `2. ${color.yellow('🔧 检查"空翻译"问题')}`, value: 'checkEmpty' },
-          { name: `3. ${color.yellow('🔧 检查"重复的翻译"问题')}`, value: 'checkDuplicates' },
-          { name: `4. ${color.yellow('🔧 检查"原文和译文相同"问题')}`, value: 'checkIdentical' },
-          { name: `5. ${color.yellow('🔧 检查"原文重复"问题')}`, value: 'checkSourceDuplicates' },
-          new inquirer.Separator(color.dim('--- 项目操作 ---')), // 分隔线
-          { name: `6. ${color.lightGreen('🚀 完整构建项目 (不包含检查)')}`, value: 'fullBuild' },
-          { name: `7. ${color.cyan('🗂️ 管理网站翻译文件')}`, value: 'manageTranslations' },
-          { name: `8. ${color.magenta('✨ 整理与排序翻译文件')}`, value: 'sortTranslations' },
+          new inquirer.Separator(color.dim(t('menu.checkAndFixSeparator'))), // 分隔线
+          { name: `1. ${color.yellow(t('actions.checkMissingComma'))}`, value: 'checkMissingComma' },
+          { name: `2. ${color.yellow(t('actions.checkEmpty'))}`, value: 'checkEmpty' },
+          { name: `3. ${color.yellow(t('actions.checkDuplicates'))}`, value: 'checkDuplicates' },
+          { name: `4. ${color.yellow(t('actions.checkIdentical'))}`, value: 'checkIdentical' },
+          { name: `5. ${color.yellow(t('actions.checkSourceDuplicates'))}`, value: 'checkSourceDuplicates' },
+          new inquirer.Separator(color.dim(t('menu.projectOperationSeparator'))), // 分隔线
+          { name: `6. ${color.lightGreen(t('actions.fullBuild'))}`, value: 'fullBuild' },
+          { name: `7. ${color.cyan(t('actions.manageTranslations'))}`, value: 'manageTranslations' },
+          { name: `8. ${color.magenta(t('actions.sortTranslations'))}`, value: 'sortTranslations' },
+          new inquirer.Separator(color.dim(t('menu.terminalToolsSeparator'))), // 分隔线
+          { name: `🌐 ${t('menu.languageSetting')} ${currentLanguage ? `(${currentLanguage.name})` : `(${currentLanguageCode})`}`, value: 'terminalLanguage' },
           new inquirer.Separator(),
-          { name: `9. ${color.cyan('🚪 退出')}`, value: 'exit' },
+          { name: `9. ${color.cyan(t('menu.exit'))}`, value: 'exit' },
         ],
         pageSize: 20, // 增加 pageSize 选项以显示更多行
       },
@@ -111,8 +122,12 @@ async function main() {
         await handleSortTranslations(); // 调用排序任务
         shouldPause = false; // 假设该任务也会自己处理暂停
         break;
+      case 'terminalLanguage':
+        await handleTerminalLanguage(); // 调用语言管理子菜单
+        shouldPause = false; // 子菜单自己处理暂停
+        break;
       case 'exit':
-        console.log(color.cyan('👋 再见！'));
+        console.log(color.cyan(t('messages.goodbye')));
         shouldPause = false; // 当用户选择退出时，不需要暂停
         return; // 通过 return 终止 main 函数的执行，从而退出脚本
     }
