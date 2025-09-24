@@ -56,8 +56,6 @@ function toCamelCase(domain, language = '') {
  * @returns {Promise<void>}
  */
 async function handleAddNewTranslation() {
-  console.log(color.bold(color.cyan(t('manageTranslations.creatingFile', '✨', 'addTranslation.start', '...'))));
-  
   // --- 步骤 1: 提示用户选择语言 ---
   // 动态生成语言选择列表
   const languageChoices = SUPPORTED_LANGUAGES.map(lang => ({

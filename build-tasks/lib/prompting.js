@@ -71,7 +71,7 @@ export async function promptUserAboutErrors(errors, options = {}) {
 
   // 仅当存在可手动修复的错误（重复的翻译、原文重复或空翻译）时，才提供手动修复选项。
   if (manualFixErrorCount > 0) {
-    const verb = manualFixErrorCount > 1 ? t('prompting.manualFixText', t('prompting.manualFixSourceText', manualFixErrorCount)) : t('prompting.manualFixText', t('prompting.manualFixMultiText', manualFixErrorCount));
+    const verb = manualFixErrorCount > 1 ? t('prompting.manualFixText', t('prompting.manualFixMultiText', manualFixErrorCount)) : t('prompting.manualFixText', t('prompting.manualFixEmptyText', manualFixErrorCount));
     let manualFixText = verb;
     if (sourceDuplicateErrorCount > 0) {
       manualFixText = t('prompting.manualFixText', t('prompting.manualFixSourceText', sourceDuplicateErrorCount));

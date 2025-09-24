@@ -480,9 +480,14 @@ export async function validateTranslationFiles(options = {}) {
                     console.log(`  ${t('validation.issueNumber', index + 1)}: ${errorName} - ${e.message}`);
                     if (e.type === t('validation.multiDuplicateType') || e.type === t('validation.sourceDuplicateType')) {
                         // 对重复错误，特殊格式化以显示所有出现位置。
+                        // 动态计算标签的最大长度，确保在不同语言环境下都能正确对齐
+                        const firstDefLabel = t('validation.firstDefinition');
+                        const dupOccurLabel = t('validation.duplicateOccurrence');
+                        const maxLabelLength = Math.max(firstDefLabel.length, dupOccurLabel.length);
+                        
                         e.occurrences.forEach((occ, i) => {
-                            const label = i === 0 ? t('validation.firstDefinition') : t('validation.duplicateOccurrence');
-                            console.log(`    - ${label.padEnd(5, ' ')}: ${t('validation.lineLabel', String(occ.line).padEnd(4))} -> ${occ.lineContent}`);
+                            const label = i === 0 ? firstDefLabel : dupOccurLabel;
+                            console.log(`    - ${label.padEnd(maxLabelLength + 2, ' ')}: ${t('validation.lineLabel', String(occ.line).padEnd(4))} -> ${occ.lineContent}`);
                         });
                     } else {
                         console.log(t('validation.lineLabel', e.line));
