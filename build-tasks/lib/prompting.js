@@ -56,7 +56,7 @@ export async function promptUserAboutErrors(errors, options = {}) {
   // 仅当存在"重复的翻译"错误时，才提供自动修复选项，因为这是唯一可以被安全地自动修复的场景（保留第一个）。
   if (duplicateErrorCount > 0) {
     choices.push({
-      name: color.cyan(t('prompting.autoFixName', duplicateErrorCount)),
+      name: (t('prompting.autoFixName', duplicateErrorCount)),
       value: 'auto-fix',
     });
   }
@@ -64,7 +64,7 @@ export async function promptUserAboutErrors(errors, options = {}) {
   // 为原文重复错误提供自动修复选项（保留第一个出现的译文）
   if (sourceDuplicateErrorCount > 0) {
     choices.push({
-      name: color.cyan(t('prompting.autoFixSourceName', sourceDuplicateErrorCount)),
+      name: t('prompting.autoFixSourceName', sourceDuplicateErrorCount),
       value: 'auto-fix-source',
     });
   }
