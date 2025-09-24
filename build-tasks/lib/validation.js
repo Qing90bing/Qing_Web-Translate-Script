@@ -261,7 +261,7 @@ function validateFileContent(file, content, options) {
         for (let i = 0; i < chainedNodes.length - 1; i++) {
           const currentNode = chainedNodes[i];
           if (options.ignoredPositions && options.ignoredPositions.has(currentNode.end)) continue;
-          errors.push({ file, line: currentNode.loc.end.line, column: currentNode.loc.end.column, pos: currentNode.end, lineContent: lines[currentNode.loc.end.line - 1].trim(), message: t('validation.missingComma'), type: t('validation.missingCommaType'), node: currentNode });
+          errors.push({ file, line: currentNode.loc.end.line, column: currentNode.loc.end.column, pos: currentNode.end, lineContent: lines[currentNode.loc.end.line - 1].trim(), message: t('validation.missingComma'), type: 'missing-comma', node: currentNode });
         }
       }
       continue;
@@ -293,7 +293,7 @@ function validateFileContent(file, content, options) {
           pos: elementNode.range[0], // 添加 pos 属性，用于忽略列表
           lineContent: lines[elementNode.loc.start.line - 1].trim(),
           message: t('validation.emptyTranslation'),
-          type: t('validation.emptyTranslationType'),
+          type: 'empty-translation',
           node: elementNode
         });
       }
@@ -362,7 +362,7 @@ function validateFileContent(file, content, options) {
             pos: elementNode.range[0], // 添加 pos 属性，用于忽略列表
             lineContent: lines[elementNode.loc.start.line - 1].trim(),
             message: t('validation.identicalTranslation'),
-            type: t('validation.identicalTranslationType'),
+            type: 'identical-translation',
             node: elementNode,
           });
         }
@@ -388,7 +388,7 @@ function validateFileContent(file, content, options) {
           line: firstOccurrence.line,
           lineContent: '',
           message: t('validation.duplicateRule', displayOriginal, displayTranslation, occurrences.length),
-          type: t('validation.multiDuplicateType'),
+          type: 'multi-duplicate',
           occurrences,
           node: firstOccurrence.node
         });
@@ -422,7 +422,7 @@ function validateFileContent(file, content, options) {
           line: firstOccurrence.line,
           lineContent: '',
           message: t('validation.sourceDuplicateRule', displayOriginal, occurrences.length),
-          type: t('validation.sourceDuplicateType'),
+          type: 'source-duplicate',
           occurrences,
           node: firstOccurrence.node
         });
@@ -465,9 +465,9 @@ export async function validateTranslationFiles(options = {}) {
             // 这部分复杂的逻辑是为了在特定检查模式下提供更友好的输出。
             // 例如，如果用户只要求检查空值，且该文件没有空值错误（但可能有其他错误），则不打印文件名和标题。
             const isOnlySpecificCheck = checkEmpty || checkDuplicates || checkMissingComma || checkIdentical || checkSourceDuplicates;
-            if (isOnlySpecificCheck && errorsInFile.every(e => e.type !== t('validation.missingCommaType') && e.type !== t('validation.emptyTranslationType') && e.type !== t('validation.multiDuplicateType') && e.type !== t('validation.identicalTranslationType') && e.type !== t('validation.sourceDuplicateType'))) {
+            if (isOnlySpecificCheck && errorsInFile.every(e => e.type !== 'missing-comma' && e.type !== 'empty-translation' && e.type !== 'multi-duplicate' && e.type !== 'identical-translation' && e.type !== 'source-duplicate')) {
                 // 如果是特定检查，但没有发现该类错误，则不打印文件标题
-            } else if (checkMissingComma && errorsInFile.every(e => e.type !== t('validation.missingCommaType'))) {
+            } else if (checkMissingComma && errorsInFile.every(e => e.type !== 'missing-comma')) {
                 // 如果是逗号检查，但没有发现逗号错误，则不打印
             }
             else {
@@ -475,10 +475,10 @@ export async function validateTranslationFiles(options = {}) {
                 console.log(t('validation.fileLabel', path.basename(file), language, errorsInFile.length));
                 console.log(t('validation.separator'));
                 errorsInFile.forEach((e, index) => {
-                    const errorTypeMap = { [t('validation.multiDuplicateType')]: t('validation.duplicateTranslation'), [t('validation.sourceDuplicateType')]: t('validation.duplicateSource'), [t('validation.structure')]: t('validation.structure'), [t('validation.syntaxType')]: t('validation.syntax'), [t('validation.emptyTranslationType')]: t('validation.emptyTranslation'), [t('validation.missingCommaType')]: t('validation.missingComma'), [t('validation.identicalTranslationType')]: t('validation.identicalTranslation') };
+                    const errorTypeMap = { 'multi-duplicate': t('validation.duplicateTranslation'), 'source-duplicate': t('validation.duplicateSource'), [t('validation.structure')]: t('validation.structure'), [t('validation.syntaxType')]: t('validation.syntax'), 'empty-translation': t('validation.emptyTranslation'), 'missing-comma': t('validation.missingComma'), 'identical-translation': t('validation.identicalTranslation') };
                     const errorName = errorTypeMap[e.type] || t('validation.unknownError');
                     console.log(`  ${t('validation.issueNumber', index + 1)}: ${errorName} - ${e.message}`);
-                    if (e.type === t('validation.multiDuplicateType') || e.type === t('validation.sourceDuplicateType')) {
+                    if (e.type === 'multi-duplicate' || e.type === 'source-duplicate') {
                         // 对重复错误，特殊格式化以显示所有出现位置。
                         // 动态计算标签的最大长度，确保在不同语言环境下都能正确对齐
                         const firstDefLabel = t('validation.firstDefinition');
