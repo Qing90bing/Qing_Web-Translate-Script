@@ -4,10 +4,25 @@ import { aistudioGoogleComZhCn } from './zh-cn/aistudio.google.com.js';
 import { claudeAiZhCn } from './zh-cn/claude.ai.js';
 import { platformClaudeComZhCn } from './zh-cn/platform.claude.com.js';
 import { statusAnthropicComZhCn } from './zh-cn/status.anthropic.com.js';
+// 导入繁体中文（香港）翻译模块
+import { julesGoogleComZhHk } from './zh-hk/jules.google.com.js';
+import { aistudioGoogleComZhHk } from './zh-hk/aistudio.google.com.js';
+import { claudeAiZhHk } from './zh-hk/claude.ai.js';
+// 导入繁体中文（台湾）翻译模块
+import { aistudioGoogleComZhTw } from './zh-tw/aistudio.google.com.js';
+import { claudeAiZhTw } from './zh-tw/claude.ai.js';
 // 导出主翻译映射
 export const masterTranslationMap = {
   "jules.google.com#zh-cn": julesGoogleComZhCn,
   "aistudio.google.com#zh-cn": aistudioGoogleComZhCn,
   "claude.ai#zh-cn": claudeAiZhCn,
   "platform.claude.com#zh-cn": platformClaudeComZhCn,
-  "status.anthropic.com#zh-cn": statusAnthropicComZhCn,};
+  "status.anthropic.com#zh-cn": statusAnthropicComZhCn,
+// 繁体中文（香港）翻译映射
+  "jules.google.com#zh-hk": julesGoogleComZhHk,
+  "aistudio.google.com#zh-hk": aistudioGoogleComZhHk,
+  "claude.ai#zh-hk": claudeAiZhHk,
+// 繁体中文（台湾）翻译映射
+  "aistudio.google.com#zh-tw": aistudioGoogleComZhTw,
+  "claude.ai#zh-tw": claudeAiZhTw,
+};
