@@ -10,6 +10,7 @@ import { parse } from 'acorn';
 import { color } from '../../lib/colors.js';
 import { t } from '../../lib/terminal-i18n.js';
 import { getLiteralValue } from '../../lib/validation.js';
+import { pressAnyKeyToContinue } from '../../lib/utils.js';
 import { SUPPORTED_LANGUAGE_CODES } from '../../../src/config/languages.js';
 
 

@@ -125,7 +125,7 @@ async function handleAddNewTranslation() {
   // 修改变量名生成方式，包含语言标识以确保唯一性
   const variableName = toCamelCase(trimmedDomain, language);
 
-  console.log(t('manageTranslations.creatingFile', color.yellow('语  言'), language, color.yellow('文 件 名'), fileName, color.yellow('变 量 名'), variableName));
+  console.log(t('manageTranslations.creatingFile', color.yellow(t('manageTranslations.languageLabel')), language, color.yellow(t('manageTranslations.fileNameLabel')), fileName, color.yellow(t('manageTranslations.variableNameLabel')), variableName));
   
   const { confirm } = await inquirer.prompt([
     {
