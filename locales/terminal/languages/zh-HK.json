@@ -16,7 +16,7 @@
     "checkDuplicates": "🔧 檢查「重複翻譯」問題",
     "checkIdentical": "🔧 檢查「原文與翻譯相同」問題",
     "checkSourceDuplicates": "🔧 檢查「原文重複」問題",
-    "fullBuild": "🚀 完整專案構建 (不進行檢查)",
+    "fullBuild": "🚀 構建插件專案 (不進行檢查)",
     "manageTranslations": "🗂️ 管理網站翻譯檔案",
     "sortTranslations": "✨ 整理與排序翻譯檔案"
   },

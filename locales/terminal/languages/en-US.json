@@ -16,7 +16,7 @@
     "checkDuplicates": "🔧 Check \"Duplicate Translations\" Issues",
     "checkIdentical": "🔧 Check \"Source and Translation Identical\" Issues",
     "checkSourceDuplicates": "🔧 Check \"Source Duplicates\" Issues",
-    "fullBuild": "🚀 Full Project Build (without checks)",
+    "fullBuild": "🚀 Build Plugin Project (without checks)",
     "manageTranslations": "🗂️ Manage Website Translation Files",
     "sortTranslations": "✨ Organize & Sort Translation Files"
   },
