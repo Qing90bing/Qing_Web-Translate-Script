@@ -14,6 +14,9 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_registerMenuCommand
+// @grant        GM_xmlhttpRequest
+// @connect      cdn.jsdelivr.net
+// @connect      raw.githubusercontent.com
 // @noframes
 // ==/UserScript==
 
