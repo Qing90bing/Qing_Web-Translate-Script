@@ -661,7 +661,7 @@
     document.documentElement.classList.add('translation-in-progress');
     const antiFlickerStyle = document.createElement('style');
     antiFlickerStyle.id = STYLE_ID;
-    antiFlickerStyle.textContent = `
+    const styleContent = `
         html.translation-in-progress body {
             visibility: hidden !important;
             opacity: 0 !important;
@@ -682,6 +682,7 @@
             opacity: 1 !important;
         }
     `;
+    antiFlickerStyle.appendChild(document.createTextNode(styleContent));
     const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
     head.insertBefore(antiFlickerStyle, head.firstChild);
   }
@@ -973,7 +974,7 @@
     if (cssRules.length > 0) {
       const customStyleElement = document.createElement('style');
       customStyleElement.id = 'web-translate-custom-styles';
-      customStyleElement.textContent = cssRules.join('\n');
+      customStyleElement.appendChild(document.createTextNode(cssRules.join('\n')));
       const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
       head.appendChild(customStyleElement);
     }
@@ -983,7 +984,7 @@
         if (typeof scriptText === 'string' && scriptText.trim()) {
           const scriptElement = document.createElement('script');
           scriptElement.type = 'text/javascript';
-          scriptElement.textContent = scriptText;
+          scriptElement.appendChild(document.createTextNode(scriptText));
           head.appendChild(scriptElement);
         }
       }

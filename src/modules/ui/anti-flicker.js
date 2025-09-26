@@ -10,8 +10,8 @@ export function injectAntiFlickerStyle() {
 
     const antiFlickerStyle = document.createElement('style');
     antiFlickerStyle.id = STYLE_ID;
-    // 使用 textContent 而不是 innerHTML 来避免 Trusted Types 错误
-    antiFlickerStyle.textContent = `
+    
+    const styleContent = `
         /* 在翻译进行中时，隐藏body，但保持加载指示器可见 */
         html.translation-in-progress body {
             visibility: hidden !important;
@@ -33,6 +33,10 @@ export function injectAntiFlickerStyle() {
             opacity: 1 !important;
         }
     `;
+
+    // 【修复】使用 textNode 来安全地插入样式，以兼容 Trusted Types
+    antiFlickerStyle.appendChild(document.createTextNode(styleContent));
+    
     const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
     head.insertBefore(antiFlickerStyle, head.firstChild);
 }
