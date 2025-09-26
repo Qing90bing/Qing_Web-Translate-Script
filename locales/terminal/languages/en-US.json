@@ -282,7 +282,8 @@
     "errorDetail": "  - Error: {0} [Location: {1}]"
   },
   "buildCdn": {
-    "modeMessage": "🚀 CDN Build Mode"
+    "modeMessage": "🚀 Building in CDN mode...",
+    "embeddingTranslations": "Embedding translations for specified sites..."
   },
   "manageTranslations": {
     "scanningFiles": "🔍 Scanning removable translation files...",

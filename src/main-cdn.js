@@ -142,8 +142,29 @@ import { initializeTranslation } from './modules/core/translationInitializer.js'
     const hostname = window.location.hostname;
     const userLang = getUserLanguage();
 
-    const siteDictionary = await loadTranslationScript(hostname, userLang);
+    let siteDictionary = null;
 
+    // 检查是否存在全局的嵌入式翻译对象和网站列表
+    if (typeof EMBEDDED_TRANSLATIONS !== 'undefined' && typeof EMBEDDED_SITES !== 'undefined') {
+        // 尝试从嵌入式对象中获取翻译
+        if (EMBEDDED_TRANSLATIONS[userLang] && EMBEDDED_TRANSLATIONS[userLang][hostname]) {
+            log(`找到 ${hostname} 的内联翻译 (${userLang})。`);
+            siteDictionary = EMBEDDED_TRANSLATIONS[userLang][hostname];
+        } else if (EMBEDDED_SITES.includes(hostname)) {
+            // 如果网站在嵌入列表中，但没有找到当前语言的翻译，则不执行任何操作
+            log(`网站 ${hostname} 在嵌入列表中，但未找到 ${userLang} 的翻译。显示原始网页。`);
+            removeAntiFlickerStyle();
+            return; // 提前退出，不尝试从 CDN 加载
+        }
+    }
+
+    // 如果没有找到嵌入式翻译，并且网站不在需要特殊处理的嵌入列表中，则尝试从 CDN 加载
+    if (!siteDictionary) {
+        log(`未找到内联翻译，尝试从 CDN 加载...`);
+        siteDictionary = await loadTranslationScript(hostname, userLang);
+    }
+
+    // 检查最终获取的词典是否有效和启用
     if (!siteDictionary || !siteDictionary.enabled) {
         if (siteDictionary && !siteDictionary.enabled) {
             log(`网站 ${hostname} 的翻译词典已被禁用。`);

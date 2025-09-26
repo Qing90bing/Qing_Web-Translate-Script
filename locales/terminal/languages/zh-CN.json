@@ -282,7 +282,8 @@
     "errorDetail": "  - 错误: {0} [位置: {1}]"
   },
   "buildCdn": {
-    "modeMessage": "🚀 CDN 构建模式"
+    "modeMessage": "🚀 CDN 构建模式",
+    "embeddingTranslations": "正在为指定网站嵌入翻译..."
   },
   "manageTranslations": {
     "scanningFiles": "🔍 开始扫描可移除的翻译文件...",

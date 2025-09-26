@@ -1,9 +1,82 @@
 import esbuild from 'esbuild';
 import fs from 'fs/promises';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import prettier from 'prettier';
+import { embeddedSites } from '../../src/config/embedded-sites.js';
+import { SUPPORTED_LANGUAGE_CODES } from '../../src/config/languages.js';
 import { color } from '../lib/colors.js';
 import { t } from '../lib/terminal-i18n.js';
+
+/**
+ * @function loadEmbeddedTranslations
+ * @description 加载并编译指定网站的翻译文件。
+ * @returns {Promise<string>} 返回一个包含所有嵌入翻译的 JavaScript 代码字符串。
+ */
+async function loadEmbeddedTranslations() {
+  console.log(color.bold(t('buildCdn.embeddingTranslations')));
+  const translations = {};
+
+  // 一个健壮的序列化函数，用于将包含RegExp的JS对象转换为字符串。
+  const serialize = (value) => {
+    if (value instanceof RegExp) return value.toString();
+    if (value === null) return 'null';
+    if (typeof value !== 'object') {
+      // 对字符串等基本类型使用JSON.stringify以正确处理转义。
+      return JSON.stringify(value);
+    }
+    if (Array.isArray(value)) {
+      return `[${value.map(serialize).join(',')}]`;
+    }
+    const props = Object.keys(value)
+      .map(key => `${JSON.stringify(key)}:${serialize(value[key])}`)
+      .join(',');
+    return `{${props}}`;
+  };
+
+  for (const lang of SUPPORTED_LANGUAGE_CODES) {
+    translations[lang] = {};
+    const langDir = path.resolve('src', 'translations', lang);
+    try {
+      const files = await fs.readdir(langDir);
+      for (const site of embeddedSites) {
+        const siteFile = `${site}.js`;
+        if (files.includes(siteFile)) {
+          const filePath = path.join(langDir, siteFile);
+          const module = await import(pathToFileURL(filePath).href);
+          const dictionary = Object.values(module)[0];
+
+          // 移除不需要的元数据字段
+          delete dictionary.description;
+          delete dictionary.testUrl;
+          delete dictionary.createdAt;
+
+          translations[lang][site] = serialize(dictionary);
+          console.log(color.green(`  ✓ ${lang}/${site}`));
+        }
+      }
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        console.error(color.red(`加载 ${lang} 翻译时出错: ${error.message}`), error);
+      }
+    }
+  }
+
+  // 构建最终的 JS 对象字符串
+  let jsString = 'const EMBEDDED_TRANSLATIONS = {\n';
+  for (const lang in translations) {
+    if (Object.keys(translations[lang]).length > 0) {
+      jsString += `  '${lang}': {\n`;
+      for (const site in translations[lang]) {
+        jsString += `    '${site}': ${translations[lang][site]},\n`;
+      }
+      jsString += '  },\n';
+    }
+  }
+  jsString += '};\n\n';
+
+  return jsString;
+}
 
 /**
  * @function handleCdnBuild
@@ -33,17 +106,21 @@ export default async function handleCdnBuild() {
     console.log(color.bold(t('buildProject.generatingFile')));
     const header = await fs.readFile(path.resolve('src/header.txt'), 'utf-8');
 
-    let bundledCode = result.outputFiles[0].text;
+    const bundledCode = result.outputFiles[0].text;
+    const embeddedTranslationsCode = await loadEmbeddedTranslations();
+    const embeddedSitesCode = `const EMBEDDED_SITES = ${JSON.stringify(embeddedSites)};\n\n`;
 
-    // 直接使用 Prettier 格式化已移除注释的代码
-    let formattedCode = await prettier.format(bundledCode, {
-        parser: 'babel', semi: true, singleQuote: true, printWidth: 9999,
-    });
-    // 移除多余的空行
-    formattedCode = formattedCode.replace(/^\s*[\r\n]/gm, '');
+    // 将所有部分组合成一个完整的脚本
+    const rawScript = `${header}\n\n${embeddedTranslationsCode}${embeddedSitesCode}${bundledCode}`;
+
+    // 使用 Prettier 对整个脚本进行最终格式化，确保长字符串不会被换行
     console.log(color.green(t('buildProject.removingFormatting')));
-
-    const finalScript = `${header}\n\n${formattedCode}`;
+    const finalScript = await prettier.format(rawScript, {
+        parser: 'babel',
+        semi: true,
+        singleQuote: true,
+        printWidth: 9999, // 关键：设置一个很大的值来防止自动换行
+    });
 
     // --- 步骤 3: 将最终脚本写入文件 ---
     const distDir = path.resolve('dist');
