@@ -311,7 +311,7 @@ export async function promptToPreserveFormatting() {
                     value: 'preserve'
                 },
                 {
-                    name: t('prompting.cdnBuild'),
+                    name: t('prompting.cdnBuild'), // 🚀 CDN 构建
                     value: 'cdn'
                 },
                 new inquirer.Separator(),
