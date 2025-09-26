@@ -67,6 +67,7 @@
     "buildOptionsTitle": "Build Options:",
     "standardBuild": "📦 Standard Build (remove comments and whitespace, smaller file)",
     "debugBuild": "🔍 Debug Build (preserve comments and whitespace, for debugging)",
+    "cdnBuild": "🚀 CDN Build (for user release, dynamic loading, minimal size)",
     "cancelBuild": "❌ Cancel Build",
     "syntaxErrorTitle": "📝 Starting to process syntax errors...",
     "syntaxErrorProgress": "--[ {0} ]-- File: {1}",
@@ -279,6 +280,9 @@
     "success": "\n🎉 Build successful! Final script located at: {0}",
     "unknownError": "❌ Unknown error occurred during build:",
     "errorDetail": "  - Error: {0} [Location: {1}]"
+  },
+  "buildCdn": {
+    "modeMessage": "🚀 CDN Build Mode"
   },
   "manageTranslations": {
     "scanningFiles": "🔍 Scanning removable translation files...",

@@ -285,14 +285,13 @@ export async function promptForSingleEmptyTranslationFix(error, remainingCount) 
 
 /**
  * @function promptToPreserveFormatting
- * @description 在构建项目前，询问用户是否希望在最终的脚本文件中保留源代码的格式（注释和空白行）。
- * 这是一个简单的"是/否"确认提示，同时提供放弃构建的选项。
- * @returns {Promise<boolean|null>} 如果用户选择是，则返回 `true`；如果选择否，则返回 `false`；如果选择放弃构建，则返回 `null`。
+ * @description 在构建项目前，询问用户希望以哪种方式构建项目。
+ * @returns {Promise<string|null>} 返回用户的选择：'preserve' (调试构建), 'no-preserve' (标准构建), 'cdn' (CDN 构建), 或 null (取消).
  */
 export async function promptToPreserveFormatting() {
-    // 如果是测试环境，直接返回 false（不保留格式）
+    // 如果是测试环境，直接返回 'no-preserve'
     if (process.env.TEST_NO_FORMATTING === 'true') {
-        return false;
+        return 'no-preserve';
     }
     
     const separator = color.dim('\n' + t('prompting.separator'));
@@ -304,16 +303,20 @@ export async function promptToPreserveFormatting() {
             message: t('prompting.buildOptionsTitle'),
             choices: [
                 {
-                    name: t('prompting.standardBuild'),
+                    name: t('prompting.standardBuild'), // 📦 标准构建
                     value: 'no-preserve'
                 },
                 {
-                    name: t('prompting.debugBuild'),
+                    name: t('prompting.debugBuild'), // 🔍 调试构建
                     value: 'preserve'
+                },
+                {
+                    name: t('prompting.cdnBuild'),
+                    value: 'cdn'
                 },
                 new inquirer.Separator(),
                 {
-                    name: t('prompting.cancelBuild'),
+                    name: t('prompting.cancelBuild'), // ❌ 取消构建
                     value: 'cancel'
                 }
             ],
@@ -321,13 +324,11 @@ export async function promptToPreserveFormatting() {
         }
     ]);
     
-    // 如果用户选择放弃构建，返回 null
     if (action === 'cancel') {
         return null;
     }
     
-    // 返回用户的选择（保留格式或不保留格式）
-    return action === 'preserve';
+    return action;
 }
 
 /**

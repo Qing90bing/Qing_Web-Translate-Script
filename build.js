@@ -34,8 +34,10 @@ import handleEmptyCheck from './build-tasks/tasks/check/check-empty.js';
 import handleIdenticalCheck from './build-tasks/tasks/check/check-identical.js';
 import handleSourceDuplicatesCheck from './build-tasks/tasks/check/check-source-duplicates.js';
 import handleFullBuild from './build-tasks/tasks/build-project.js';
+import handleCdnBuild from './build-tasks/tasks/build-cdn.js'; // 导入新的 CDN 构建任务
 import handleManageTranslations from './build-tasks/tasks/translation/manage-translations.js';
 import handleSortTranslations from './build-tasks/tasks/translation/sort-translations.js';
+import { promptToPreserveFormatting } from './build-tasks/lib/prompting.js'; // 导入构建提示
 
 /**
  * 主函数，负责显示主菜单并根据用户输入执行相应操作。
@@ -111,7 +113,20 @@ async function main() {
         await handleSourceDuplicatesCheck(); // 调用处理原文重复检查的函数
         break;
       case 'fullBuild':
-        await handleFullBuild(); // 调用完整构建项目的函数
+        {
+          console.log(color.cyan(t('buildProject.startingBuild')));
+          const buildType = await promptToPreserveFormatting();
+
+          if (buildType === null) {
+            console.log(color.yellow(t('buildProject.buildCancelled')));
+          } else if (buildType === 'cdn') {
+            await handleCdnBuild();
+          } else {
+            // 对于 'preserve' 和 'no-preserve'，调用 handleFullBuild
+            const preserveFormatting = buildType === 'preserve';
+            await handleFullBuild(preserveFormatting);
+          }
+        }
         break;
       case 'manageTranslations':
         await handleManageTranslations(); // 调用管理子菜单
