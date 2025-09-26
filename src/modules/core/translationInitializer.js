@@ -28,6 +28,7 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
     if (cssRules.length > 0) {
         const customStyleElement = document.createElement('style');
         customStyleElement.id = 'web-translate-custom-styles';
+        // 使用 textContent 而不是 innerHTML 来避免 Trusted Types 错误
         customStyleElement.textContent = cssRules.join('\n');
         const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
         head.appendChild(customStyleElement);
@@ -40,6 +41,7 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
             if (typeof scriptText === 'string' && scriptText.trim()) {
                 const scriptElement = document.createElement('script');
                 scriptElement.type = 'text/javascript';
+                // 使用 textContent 而不是 innerHTML 来避免 Trusted Types 错误
                 scriptElement.textContent = scriptText;
                 head.appendChild(scriptElement);
             }

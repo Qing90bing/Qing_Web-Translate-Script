@@ -689,7 +689,10 @@
     document.documentElement.classList.remove('translation-in-progress');
     document.documentElement.classList.add('translation-complete');
     setTimeout(() => {
-      document.getElementById(STYLE_ID)?.remove();
+      const styleElement = document.getElementById(STYLE_ID);
+      if (styleElement && styleElement.parentNode) {
+        styleElement.parentNode.removeChild(styleElement);
+      }
     }, 100);
   }
   var BLOCKS_ALL_TRANSLATION = new Set(['script', 'style', 'pre', 'code']);

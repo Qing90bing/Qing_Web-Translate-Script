@@ -10,6 +10,7 @@ export function injectAntiFlickerStyle() {
 
     const antiFlickerStyle = document.createElement('style');
     antiFlickerStyle.id = STYLE_ID;
+    // 使用 textContent 而不是 innerHTML 来避免 Trusted Types 错误
     antiFlickerStyle.textContent = `
         /* 在翻译进行中时，隐藏body，但保持加载指示器可见 */
         html.translation-in-progress body {
@@ -45,6 +46,9 @@ export function removeAntiFlickerStyle() {
 
     // 在过渡效果（0.1秒）结束后移除样式标签，清理DOM
     setTimeout(() => {
-        document.getElementById(STYLE_ID)?.remove();
+        const styleElement = document.getElementById(STYLE_ID);
+        if (styleElement && styleElement.parentNode) {
+            styleElement.parentNode.removeChild(styleElement);
+        }
     }, 100);
 }
