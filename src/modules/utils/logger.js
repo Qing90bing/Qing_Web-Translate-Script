@@ -24,3 +24,65 @@ export function log(...args) {
         console.log('[汉化脚本]', ...args);
     }
 }
+
+/**
+ * 详细日志记录函数，用于输出更详细的调试信息
+ * @param {...any} args - 需要打印到控制台的参数。
+ */
+export function debug(...args) {
+    if (isDebugMode) {
+        console.debug('[汉化脚本-DEBUG]', ...args);
+    }
+}
+
+/**
+ * 错误日志记录函数
+ * @param {...any} args - 需要打印到控制台的参数。
+ */
+export function error(...args) {
+    if (isDebugMode) {
+        console.error('[汉化脚本-ERROR]', ...args);
+    }
+}
+
+/**
+ * 警告日志记录函数
+ * @param {...any} args - 需要打印到控制台的参数。
+ */
+export function warn(...args) {
+    if (isDebugMode) {
+        console.warn('[汉化脚本-WARN]', ...args);
+    }
+}
+
+/**
+ * 性能日志记录函数，用于记录翻译耗时等性能信息
+ * @param {string} operation - 操作名称
+ * @param {number} duration - 操作耗时（毫秒）
+ * @param {...any} args - 其他参数
+ */
+export function perf(operation, duration, ...args) {
+    if (isDebugMode) {
+        // 只记录超过阈值的性能信息，避免过多输出
+        if (duration > 5) {
+            console.log(`[汉化脚本-PERF] ${operation} 耗时: ${duration}ms`, ...args);
+        }
+    }
+}
+
+/**
+ * 翻译日志记录函数，专门用于记录翻译相关的信息
+ * @param {string} type - 翻译类型（文本/属性等）
+ * @param {string} original - 原文
+ * @param {string} translated - 译文
+ * @param {Element} element - 相关元素（可选）
+ */
+export function translateLog(type, original, translated, element = null) {
+    if (isDebugMode) {
+        // 只记录实际发生了翻译变化的内容
+        if (original !== translated) {
+            const elementInfo = element ? ` 元素: ${element.tagName.toLowerCase()}${element.id ? '#' + element.id : ''}${element.className ? '.' + element.className.replace(/\s+/g, '.') : ''}` : '';
+            console.log(`[汉化脚本-TRANSLATE] ${type}:${elementInfo}\n  原文: "${original}"\n  译文: "${translated}"`);
+        }
+    }
+}

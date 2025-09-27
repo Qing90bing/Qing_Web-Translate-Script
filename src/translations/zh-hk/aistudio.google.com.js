@@ -22,6 +22,14 @@ export const aistudioGoogleComZhHk = {
     // 'body { font-family: "Arial", sans-serif; }'
   ],
 
+  // 禁止翻譯的元素選擇器
+  // 為每個網站提供客製化的禁止翻譯元素配置
+  blockedElements: [
+    // 在這裡新增CSS選擇器，例如：
+    // '.notranslate',
+    // '#header .logo'
+  ],
+
   // 注入指令稿（JavaScript）
   jsRules: [
     // 在這裡新增JavaScript程式碼，例如：

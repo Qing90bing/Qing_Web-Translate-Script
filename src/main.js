@@ -3,7 +3,7 @@ import { masterTranslationMap } from './translations/index.js';
 
 // 导入模块
 import { SUPPORTED_LANGUAGE_CODES } from './config/languages.js';
-import { log } from './modules/utils/logger.js';
+import { log, debug, error, warn } from './modules/utils/logger.js';
 import { initializeMenu } from './modules/ui/menu.js';
 import { injectAntiFlickerStyle, removeAntiFlickerStyle } from './modules/ui/anti-flicker.js';
 import { createTranslator } from './modules/core/translator.js';
@@ -100,6 +100,8 @@ import { initializeTranslation } from './modules/core/translationInitializer.js'
         return;
     }
 
+    log(`开始为网站 ${window.location.hostname} 初始化翻译，使用语言: ${siteDictionary.language}`);
+    
     // 初始化翻译流程
     initializeTranslation(siteDictionary, createTranslator, removeAntiFlickerStyle, initializeObservers, log);
 

@@ -26,6 +26,7 @@ const EMBEDDED_TRANSLATIONS = {
       language: 'zh-cn',
       enabled: true,
       styles: [],
+      blockedElements: [],
       jsRules: [],
       regexRules: [
         [/↩\s*Add a new line\s*\s*Alt\s*\+\s*↩\s*Append text without running\s*\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  换行 Alt + ↩  追加文本 (不执行) Ctrl + ↩  执行指令'],
@@ -89,6 +90,7 @@ const EMBEDDED_TRANSLATIONS = {
       language: 'zh-hk',
       enabled: true,
       styles: [],
+      blockedElements: [],
       jsRules: [],
       regexRules: [
         [/↩\s*Add a new line\s*\s*Alt\s*\+\s*↩\s*Append text without running\s*\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  換行 Alt + ↩  附加文字 (不執行) Ctrl + ↩  執行提示'],
@@ -152,6 +154,7 @@ const EMBEDDED_TRANSLATIONS = {
       language: 'zh-tw',
       enabled: true,
       styles: [],
+      blockedElements: [],
       jsRules: [],
       regexRules: [
         [/↩\s*Add a new line\s*\s*Alt\s*\+\s*↩\s*Append text without running\s*\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  換行 Alt + ↩  附加文字 (不執行) Ctrl + ↩  執行提示'],
@@ -232,6 +235,28 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
   function log(...args) {
     if (isDebugMode) {
       console.log('[汉化脚本]', ...args);
+    }
+  }
+  function debug(...args) {
+    if (isDebugMode) {
+      console.debug('[汉化脚本-DEBUG]', ...args);
+    }
+  }
+  function perf(operation, duration, ...args) {
+    if (isDebugMode) {
+      if (duration > 5) {
+        console.log(`[汉化脚本-PERF] ${operation} 耗时: ${duration}ms`, ...args);
+      }
+    }
+  }
+  function translateLog(type, original, translated, element = null) {
+    if (isDebugMode) {
+      if (original !== translated) {
+        const elementInfo = element ? ` 元素: ${element.tagName.toLowerCase()}${element.id ? '#' + element.id : ''}${element.className ? '.' + element.className.replace(/\s+/g, '.') : ''}` : '';
+        console.log(`[汉化脚本-TRANSLATE] ${type}:${elementInfo}
+  原文: "${original}"
+  译文: "${translated}"`);
+      }
     }
   }
 
@@ -318,13 +343,35 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
   var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set(['textarea', 'input']);
   var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
   var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip'];
+  var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate']);
 
   // src/modules/core/translator.js
-  function createTranslator(textMap, regexArr) {
+  function createTranslator(textMap, regexArr, blockedSelectors = []) {
     let textTranslationMap = textMap;
     let regexRules = regexArr;
     let translationCache = /* @__PURE__ */ new Map();
     let translatedElements = /* @__PURE__ */ new WeakSet();
+    const blockedElements = /* @__PURE__ */ new Set([...ALL_UNTRANSLATABLE_TAGS]);
+    const blockedElementSelectors = blockedSelectors || [];
+    function isElementBlocked(element) {
+      const tagName = element.tagName?.toLowerCase();
+      if (blockedElements.has(tagName)) {
+        return true;
+      }
+      if (element.classList) {
+        for (const className of element.classList) {
+          if (BLOCKED_CSS_CLASSES.has(className)) {
+            return true;
+          }
+        }
+      }
+      for (const selector of blockedElementSelectors) {
+        if (element.matches && element.matches(selector)) {
+          return true;
+        }
+      }
+      return false;
+    }
     function translateText(text) {
       if (!text || typeof text !== 'string') return text;
       const originalText = text;
@@ -341,12 +388,14 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
         const trailingSpace = originalText.match(/\s*$/)[0] || '';
         translatedText = leadingSpace + mapTranslation + trailingSpace;
         hasChanged = true;
+        translateLog('文本映射', trimmedText, mapTranslation);
       } else {
         for (const [match, replacement] of regexRules) {
           const newText = translatedText.replace(match, replacement);
           if (newText !== translatedText) {
             translatedText = newText;
             hasChanged = true;
+            translateLog('正则表达式', originalText, translatedText);
           }
         }
       }
@@ -357,33 +406,43 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
     }
     function translateElementContent(element) {
       const tagName = element.tagName?.toLowerCase();
-      if (!element || ALL_UNTRANSLATABLE_TAGS.has(tagName) || element.isContentEditable) {
+      const startTime = performance.now();
+      if (!element || isElementBlocked(element) || element.isContentEditable) {
         return false;
       }
-      if (element.querySelector(Array.from(ALL_UNTRANSLATABLE_TAGS).join(','))) {
+      if (element.querySelector(Array.from(blockedElements).join(','))) {
         return false;
       }
       const fullText = element.textContent?.trim();
-      if (!fullText) return false;
+      if (!fullText) {
+        return false;
+      }
       const translation = textTranslationMap.get(fullText);
-      if (!translation) return false;
+      if (!translation) {
+        return false;
+      }
       const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
         acceptNode: (node) => (node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT),
       });
       const textNodes = [];
       while (walker.nextNode()) textNodes.push(walker.currentNode);
-      if (textNodes.length === 0) return false;
+      if (textNodes.length === 0) {
+        return false;
+      }
       textNodes[0].nodeValue = translation;
       for (let i = 1; i < textNodes.length; i++) {
         textNodes[i].nodeValue = '';
       }
+      const duration = performance.now() - startTime;
+      perf('元素内容翻译', duration, `${tagName}`);
       log('整段翻译:', `"${fullText}"`, '->', `"${translation}"`);
       return true;
     }
     function translateElement(element) {
       if (!element || translatedElements.has(element) || !(element instanceof Element)) return;
       const tagName = element.tagName.toLowerCase();
-      if (BLOCKS_ALL_TRANSLATION.has(tagName) || element.isContentEditable) {
+      const startTime = performance.now();
+      if (isElementBlocked(element) || element.isContentEditable) {
         translatedElements.add(element);
         return;
       }
@@ -391,6 +450,8 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
       if (!isContentBlocked) {
         if (translateElementContent(element)) {
           translatedElements.add(element);
+          const duration2 = performance.now() - startTime;
+          perf('元素翻译完成', duration2, `${tagName} (整段)`);
           return;
         }
         const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
@@ -398,7 +459,7 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
             if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
             let parent = node.parentElement;
             while (parent) {
-              if (ALL_UNTRANSLATABLE_TAGS.has(parent.tagName.toLowerCase()) || parent.isContentEditable) {
+              if (isElementBlocked(parent) || parent.isContentEditable) {
                 return NodeFilter.FILTER_REJECT;
               }
               if (parent === element) break;
@@ -409,47 +470,67 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
         });
         const nodesToTranslate = [];
         while (walker.nextNode()) nodesToTranslate.push(walker.currentNode);
-        nodesToTranslate.forEach((textNode) => {
-          const originalText = textNode.nodeValue;
-          const translatedText = translateText(originalText);
-          if (originalText !== translatedText) {
-            textNode.nodeValue = translatedText;
+        if (nodesToTranslate.length > 0) {
+          let translatedCount = 0;
+          nodesToTranslate.forEach((textNode) => {
+            const originalText = textNode.nodeValue;
+            const translatedText = translateText(originalText);
+            if (originalText !== translatedText) {
+              textNode.nodeValue = translatedText;
+              translatedCount++;
+            }
+          });
+          if (translatedCount > 0) {
+            debug(`翻译了 ${tagName} 中的 ${translatedCount} 个文本节点`);
           }
-        });
+        }
       }
       const elementsWithAttributes = element.matches(`[${attributesToTranslate.join('], [')}]`) ? [element, ...element.querySelectorAll(`[${attributesToTranslate.join('], [')}]`)] : [...element.querySelectorAll(`[${attributesToTranslate.join('], [')}]`)];
-      elementsWithAttributes.forEach((el) => {
-        let current = el;
-        let isBlockedByContainer = false;
-        while (current && current !== element.parentElement) {
-          if (BLOCKS_ALL_TRANSLATION.has(current.tagName.toLowerCase())) {
-            isBlockedByContainer = true;
-            break;
-          }
-          if (current === element) break;
-          current = current.parentElement;
-        }
-        if (isBlockedByContainer) return;
-        attributesToTranslate.forEach((attr) => {
-          if (el.hasAttribute(attr)) {
-            const originalValue = el.getAttribute(attr);
-            const translatedValue = translateText(originalValue);
-            if (originalValue !== translatedValue) {
-              el.setAttribute(attr, translatedValue);
+      if (elementsWithAttributes.length > 0) {
+        let translatedAttrCount = 0;
+        elementsWithAttributes.forEach((el) => {
+          let current = el;
+          let isBlockedByContainer = false;
+          while (current && current !== element.parentElement) {
+            if (isElementBlocked(current)) {
+              isBlockedByContainer = true;
+              break;
             }
+            if (current === element) break;
+            current = current.parentElement;
           }
+          if (isBlockedByContainer) {
+            return;
+          }
+          attributesToTranslate.forEach((attr) => {
+            if (el.hasAttribute(attr)) {
+              const originalValue = el.getAttribute(attr);
+              const translatedValue = translateText(originalValue);
+              if (originalValue !== translatedValue) {
+                el.setAttribute(attr, translatedValue);
+                translatedAttrCount++;
+                translateLog(`属性[${attr}]`, originalValue, translatedValue);
+              }
+            }
+          });
         });
-      });
+        if (translatedAttrCount > 0) {
+          debug(`翻译了 ${translatedAttrCount} 个属性`);
+        }
+      }
       if (element.shadowRoot) {
         translateElement(element.shadowRoot);
       }
       translatedElements.add(element);
+      const duration = performance.now() - startTime;
+      perf('元素翻译完成', duration, `${tagName}`);
     }
     return {
       translate: translateElement,
       resetState: () => {
         translationCache.clear();
         translatedElements = /* @__PURE__ */ new WeakSet();
+        log('翻译器状态已重置');
       },
       // 允许 observer 删除单个元素的翻译记录
       deleteElement: (element) => {
@@ -488,6 +569,10 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
         if (pendingNodes.size > 0) {
           const nodesToProcess = Array.from(pendingNodes);
           pendingNodes.clear();
+          if (nodesToProcess.length > 5) {
+            debug(`处理 ${nodesToProcess.length} 个待翻译节点`);
+          }
+          const startTime = performance.now();
           nodesToProcess.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
               translator.translate(node);
@@ -495,6 +580,8 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
               translator.translate(node.parentElement);
             }
           });
+          const duration = performance.now() - startTime;
+          perf('批量翻译', duration, `${nodesToProcess.length} 个节点`);
         }
         if (hasModelChange && pendingNodes.size === 0) {
           if (document.body) {
@@ -505,14 +592,25 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
     }
     const mainObserver = new MutationObserver((mutations) => {
       const dirtyRoots = /* @__PURE__ */ new Set();
+      let attributeChanges = 0;
+      let childListChanges = 0;
+      let textChanges = 0;
       for (const mutation of mutations) {
         let target = null;
-        if (mutation.type === 'childList' || mutation.type === 'attributes') {
+        if (mutation.type === 'childList') {
+          childListChanges++;
+          target = mutation.target;
+        } else if (mutation.type === 'attributes') {
+          attributeChanges++;
           target = mutation.target;
         } else if (mutation.type === 'characterData') {
+          textChanges++;
           target = mutation.target.parentElement;
         }
         if (target instanceof Element) dirtyRoots.add(target);
+      }
+      if (dirtyRoots.size > 5) {
+        debug(`检测到 DOM 变化: 子节点变化=${childListChanges}, 属性变化=${attributeChanges}, 文本变化=${textChanges}, 影响元素=${dirtyRoots.size}`);
       }
       if (dirtyRoots.size > 0) {
         for (const root of dirtyRoots) {
@@ -589,12 +687,16 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
 
   // src/modules/core/translationInitializer.js
   function initializeTranslation(siteDictionary, createTranslator2, removeAntiFlickerStyle2, initializeObservers2, log2) {
-    const { description, testUrl, createdAt, language, styles: cssRules = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    const { description, testUrl, createdAt, language, styles: cssRules = [], blockedElements = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    log2(`开始初始化翻译流程，使用语言: ${language || 'unknown'}`);
     const textTranslationMap = /* @__PURE__ */ new Map();
     for (const rule of textRules) {
       if (Array.isArray(rule) && rule.length === 2 && typeof rule[0] === 'string' && typeof rule[1] === 'string') {
         textTranslationMap.set(rule[0].trim(), rule[1]);
       }
+    }
+    if (textTranslationMap.size > 0) {
+      log2(`加载了 ${textTranslationMap.size} 条文本翻译规则`);
     }
     if (cssRules.length > 0) {
       const customStyleElement = document.createElement('style');
@@ -602,19 +704,25 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
       customStyleElement.appendChild(document.createTextNode(cssRules.join('\n')));
       const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
       head.appendChild(customStyleElement);
+      log2(`注入了 ${cssRules.length} 条自定义CSS样式`);
     }
     if (jsRules.length > 0) {
       const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
+      let executedScripts = 0;
       for (const scriptText of jsRules) {
         if (typeof scriptText === 'string' && scriptText.trim()) {
           const scriptElement = document.createElement('script');
           scriptElement.type = 'text/javascript';
           scriptElement.appendChild(document.createTextNode(scriptText));
           head.appendChild(scriptElement);
+          executedScripts++;
         }
       }
+      if (executedScripts > 0) {
+        log2(`执行了 ${executedScripts} 条自定义JS脚本`);
+      }
     }
-    const translator = createTranslator2(textTranslationMap, regexRules);
+    const translator = createTranslator2(textTranslationMap, regexRules, blockedElements);
     function startTranslation() {
       if (document.body) {
         initializeFullTranslation();
@@ -628,8 +736,11 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
       }
     }
     function initializeFullTranslation() {
+      log2('开始执行初次全文翻译...');
+      const startTime = performance.now();
       translator.translate(document.body);
-      log2(`初次翻译完成。使用语言: ${language || 'unknown'}`);
+      const duration = performance.now() - startTime;
+      log2(`初次翻译完成。使用语言: ${language || 'unknown'}, 耗时: ${duration.toFixed(2)}ms`);
       removeAntiFlickerStyle2();
       initializeObservers2(translator);
     }
@@ -681,12 +792,12 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
                   reject(new Error(`请求失败，状态码: ${response.status}`));
                 }
               },
-              onerror: (error) => reject(new Error(`网络请求出错: ${error.statusText}`)),
+              onerror: (error2) => reject(new Error(`网络请求出错: ${error2.statusText}`)),
               ontimeout: () => reject(new Error('请求超时')),
             });
           });
-        } catch (error) {
-          log(`从 ${url} 加载失败: ${error.message}`, 'error');
+        } catch (error2) {
+          log(`从 ${url} 加载失败: ${error2.message}`, 'error');
         }
       }
       return null;

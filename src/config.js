@@ -10,3 +10,6 @@ export const ALL_UNTRANSLATABLE_TAGS = new Set([...BLOCKS_ALL_TRANSLATION, ...BL
 
 // 需要翻译的属性列表
 export const attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip'];
+
+// 全局禁止翻译的CSS类名
+export const BLOCKED_CSS_CLASSES = new Set(['notranslate']);

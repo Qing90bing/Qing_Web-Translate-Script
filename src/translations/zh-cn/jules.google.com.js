@@ -22,6 +22,14 @@ export const julesGoogleComZhCn = {
     '.feedback-button { width: auto !important; white-space: nowrap !important; }'
   ],
 
+  // 禁止翻译的元素选择器
+  // 为每个网站提供定制化的禁止翻译元素配置
+  blockedElements: [
+    // 在这里添加CSS选择器，例如：
+    // '.notranslate',
+    // '#header .logo'
+  ],
+
   // 注入脚本 (JavaScript)
   // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
   jsRules: [

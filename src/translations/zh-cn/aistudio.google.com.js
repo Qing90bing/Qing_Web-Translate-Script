@@ -22,6 +22,14 @@ export const aistudioGoogleComZhCn = {
     // 'body { font-family: "Arial", sans-serif; }'
   ],
 
+  // 禁止翻译的元素选择器
+  // 为每个网站提供定制化的禁止翻译元素配置
+  blockedElements: [
+    // 在这里添加CSS选择器，例如：
+    // '.notranslate',
+    // '#header .logo'
+  ],
+
   // 注入脚本（JavaScript）
   jsRules: [
     // 在这里添加JavaScript代码，例如：

@@ -1,4 +1,4 @@
-import { log } from '../utils/logger.js';
+import { log, debug, perf } from '../utils/logger.js';
 
 /**
  * 初始化并启动所有 MutationObservers。
@@ -41,6 +41,12 @@ export function initializeObservers(translator) {
                 const nodesToProcess = Array.from(pendingNodes);
                 pendingNodes.clear();
 
+                if (nodesToProcess.length > 5) {
+                    debug(`处理 ${nodesToProcess.length} 个待翻译节点`);
+                }
+                
+                const startTime = performance.now();
+                
                 nodesToProcess.forEach(node => {
                     if (node.nodeType === Node.ELEMENT_NODE) {
                         translator.translate(node);
@@ -48,6 +54,9 @@ export function initializeObservers(translator) {
                         translator.translate(node.parentElement);
                     }
                 });
+                
+                const duration = performance.now() - startTime;
+                perf('批量翻译', duration, `${nodesToProcess.length} 个节点`);
             }
 
             if (hasModelChange && pendingNodes.size === 0) {
@@ -61,16 +70,30 @@ export function initializeObservers(translator) {
     // 主内容变化监听器
     const mainObserver = new MutationObserver((mutations) => {
         const dirtyRoots = new Set();
+        let attributeChanges = 0;
+        let childListChanges = 0;
+        let textChanges = 0;
+        
         for (const mutation of mutations) {
             let target = null;
-            if (mutation.type === 'childList' || mutation.type === 'attributes') {
+            if (mutation.type === 'childList') {
+                childListChanges++;
+                target = mutation.target;
+            } else if (mutation.type === 'attributes') {
+                attributeChanges++;
                 target = mutation.target;
             } else if (mutation.type === 'characterData') {
+                textChanges++;
                 target = mutation.target.parentElement;
             }
             if (target instanceof Element) dirtyRoots.add(target);
         }
 
+        // 只有当变化数量较多时才记录详细信息
+        if (dirtyRoots.size > 5) {
+            debug(`检测到 DOM 变化: 子节点变化=${childListChanges}, 属性变化=${attributeChanges}, 文本变化=${textChanges}, 影响元素=${dirtyRoots.size}`);
+        }
+        
         if (dirtyRoots.size > 0) {
             for (const root of dirtyRoots) {
                 translator.deleteElement(root);
