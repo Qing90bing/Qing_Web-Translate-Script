@@ -3,7 +3,7 @@
 export const BLOCKS_ALL_TRANSLATION = new Set(['script', 'style', 'pre', 'code']);
 
 // 2. 内容阻塞型：这些标签的文本内容不翻译，但placeholder等属性可以翻译
-export const BLOCKS_CONTENT_ONLY = new Set(['textarea', 'input']);
+export const BLOCKS_CONTENT_ONLY = new Set(['textarea']);
 
 // 合并两者，用于需要检查所有不可翻译文本内容的场景
 export const ALL_UNTRANSLATABLE_TAGS = new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
