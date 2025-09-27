@@ -104,7 +104,7 @@ export default async function handleCdnBuild() {
 
     // --- 步骤 2: 后处理代码并组合成最终脚本 ---
     console.log(color.bold(t('buildProject.generatingFile')));
-    const header = await fs.readFile(path.resolve('src/header.txt'), 'utf-8');
+    const header = await fs.readFile(path.resolve('src/header-cdn.txt'), 'utf-8');
 
     const bundledCode = result.outputFiles[0].text;
     const embeddedTranslationsCode = await loadEmbeddedTranslations();
