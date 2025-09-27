@@ -149,68 +149,34 @@ async function handleAddNewTranslation() {
   const filePath = path.join(process.cwd(), 'src', 'translations', language, fileName);
   // 获取当前日期
   const currentDate = new Date().toISOString().split('T')[0];
-  // 定义新翻译文件的模板字符串，包含基本的结构和注释，方便用户直接填写。
-  const template = `// 翻译目标网站: ${trimmedDomain}
 
-export const ${variableName} = {
-  // 描述：此翻译配置的描述信息
-  description: '此翻译配置适用于 ${trimmedDomain} 网站的本地化。',
+  // --- 动态加载模板 ---
+  let template;
+  try {
+    // Node.js 的动态 import() 需要文件 URL 或绝对路径。
+    // 我们将使用 path.resolve 来获取模板文件的绝对路径。
+    const templateFileName = `${language}.js`;
+    const templatePath = path.resolve(process.cwd(), 'build-tasks/tasks/translation/templates', templateFileName);
+    const defaultTemplatePath = path.resolve(process.cwd(), 'build-tasks/tasks/translation/templates', 'en.js');
 
-  // 测试链接：用于开发者测试网站显示效果的URL
-  testUrl: '',
+    let finalPath;
+    // 检查特定语言的模板是否存在
+    if (fs.existsSync(templatePath)) {
+      finalPath = templatePath;
+    } else {
+      // 如果不存在，则回退到默认的英文模板
+      console.log(color.dim(`未找到语言 "${language}" 的模板，将使用默认的 "en" 模板。`));
+      finalPath = defaultTemplatePath;
+    }
 
-  // 创建日期：此翻译配置的创建日期
-  createdAt: '${currentDate}',
-  
-  // 语言：此翻译配置适用的语言
-  language: '${language}', // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文), zh-hk(中文香港)
+    // 动态导入模板模块。必须使用 'file://' 协议前缀。
+    const templateModule = await import(`file://${finalPath}`);
+    template = templateModule.getTemplate(trimmedDomain, variableName, currentDate, language);
 
-  // 启用状态：控制此翻译配置是否启用
-  enabled: true,
-
-  // 样式 (CSS)
-  // 支持编写多个CSS规则
-  styles: [
-    // 在这里添加styles代码，例如：
-    // "body { background-color: #f0f0f0; }",
-    // "h1 { color: #333; }"
-    // ".rule3 { margin: 10px; }"
-  ],
-
-  // 禁止翻译的元素选择器
-  blockedElements: [
-    // 在这里添加CSS选择器，例如：
-    // '.notranslate',
-    // '#header .logo'
-  ],
-
-  // 注入脚本 (JavaScript)
-  // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
-  jsRules: [
-    // 在这里添加JavaScript代码，例如：
-    // "console.log('第一条规则');",
-    // "alert('第二条规则');",
-    // "document.title = '修改后的标题';"
-  ],
-
-  // 正则表达式翻译规则
-  // 规则会自动应用于匹配的文本
-  // 格式: [/原始文本正则表达式/i, '翻译后的文本']
-  // 使用 $1, $2, ... 来引用正则表达式中的捕获组
-  // 示例: [/^Hello (\\w+)/, '您好 $1']
-  regexRules: [
-    // 在这里添加正则表达式规则
-  ],
-
-  // 纯文本翻译规则
-  // 规则会完全匹配整个文本
-  // 格式: ['原始文本', '翻译后的文本']
-  // 示例: ['Login', '登录']
-  textRules: [
-    // 在这里添加纯文本规则
-  ],
-};
-`;
+  } catch (error) {
+    console.error(color.red(`加载模板时出错: ${error.message}`));
+    return; // 如果模板加载失败，则中止操作
+  }
 
   try {
     // 确保语言目录存在

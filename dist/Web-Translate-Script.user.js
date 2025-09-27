@@ -3,7 +3,7 @@
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
 // @version      1.0.0-2025-09-27-offline
-// @description  人工翻译一些网站为中文,减少阅读压力,此为离线版，包含所有翻译数据，更新需手动:)
+// @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
 // @copyright    2025, Qing90bing
