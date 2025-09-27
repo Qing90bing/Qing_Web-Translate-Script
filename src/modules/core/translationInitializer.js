@@ -13,7 +13,7 @@
  */
 export function initializeTranslation(siteDictionary, createTranslator, removeAntiFlickerStyle, initializeObservers, log) {
     // 从新的数据结构中提取规则，过滤掉描述性属性
-    const { description, testUrl, createdAt, language, styles: cssRules = [], blockedElements = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    const { language, styles: cssRules = [], blockedElements = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
     
     log(`开始初始化翻译流程，使用语言: ${language || 'unknown'}`);
 
