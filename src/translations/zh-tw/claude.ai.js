@@ -67,7 +67,7 @@ export const claudeAiZhTw = {
     ["Deutsch (Deutschland)", "德文 (德國)"],
     ["français (France)", "法文 (法國)"],
     ["Try Claude", "試用 Claude"],
-    ["Latest", "最新"],
+    ["Star", "標記星號"],
     ["Connect", "連線"],
     ["Log out", "登出"],
     ["Members", "成員"],
@@ -75,7 +75,9 @@ export const claudeAiZhTw = {
     ["Upgrade", "升級"],
     ["Accept", "接受"],
     ["Browse", "瀏覽"],
+    ["Code", "程式碼"],
     ["Delete", "刪除"],
+    ["Latest", "最新"],
     ["Manage", "管理"],
     ["Chats", "聊天"],
     ["Image", "圖片"],
@@ -84,10 +86,8 @@ export const claudeAiZhTw = {
     ["Other", "其他"],
     ["Retry", "重試"],
     ["Write", "撰寫"],
-    ["Code", "程式碼"],
     ["Edit", "編輯"],
     ["Save", "儲存"],
-    ["Skip", "略過"],
-    ["Star", "標記星號"]
+    ["Skip", "略過"]
   ],
 };
