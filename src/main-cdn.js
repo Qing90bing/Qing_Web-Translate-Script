@@ -59,31 +59,44 @@ import { initializeTranslation } from './modules/core/translationInitializer.js'
      * @function fetchWithFallbacks
      * @description 依次尝试从多个 URL 获取内容，直到成功为止。
      * @param {string[]} urls - 一个包含多个URL的数组。
-     * @returns {Promise<string|null>} 返回第一个成功获取到的内容，如果全部失败则返回 null。
+     * @returns {Promise<{content: string|null, sourceUrl: string|null}>} 返回第一个成功获取到的内容和来源URL，如果全部失败则返回 null。
      */
     async function fetchWithFallbacks(urls) {
         for (const url of urls) {
             try {
-                return await new Promise((resolve, reject) => {
+                const startTime = performance.now();
+                const content = await new Promise((resolve, reject) => {
                     GM_xmlhttpRequest({
                         method: 'GET',
                         url: url,
                         onload: (response) => {
+                            const duration = performance.now() - startTime;
                             if (response.status >= 200 && response.status < 300) {
+                                log(`从 ${url} 成功加载内容，状态码: ${response.status}，耗时: ${duration.toFixed(2)}ms`);
                                 resolve(response.responseText);
                             } else {
+                                log(`从 ${url} 请求失败，状态码: ${response.status}，耗时: ${duration.toFixed(2)}ms`, 'error');
                                 reject(new Error(`请求失败，状态码: ${response.status}`));
                             }
                         },
-                        onerror: (error) => reject(new Error(`网络请求出错: ${error.statusText}`)),
-                        ontimeout: () => reject(new Error('请求超时')),
+                        onerror: (error) => {
+                            const duration = performance.now() - startTime;
+                            log(`从 ${url} 网络请求出错: ${error.statusText}，耗时: ${duration.toFixed(2)}ms`, 'error');
+                            reject(new Error(`网络请求出错: ${error.statusText}`));
+                        },
+                        ontimeout: () => {
+                            const duration = performance.now() - startTime;
+                            log(`从 ${url} 请求超时，耗时: ${duration.toFixed(2)}ms`, 'error');
+                            reject(new Error('请求超时'));
+                        },
                     });
                 });
+                return { content, sourceUrl: url };
             } catch (error) {
                 log(`从 ${url} 加载失败: ${error.message}`, 'error');
             }
         }
-        return null;
+        return { content: null, sourceUrl: null };
     }
 
     /**
@@ -96,33 +109,43 @@ import { initializeTranslation } from './modules/core/translationInitializer.js'
     async function loadTranslationScript(hostname, userLang) {
         const repoUser = 'qing90bing';
         const repoName = 'qing_web-translate-script';
+        
+        // 为了防止浏览器缓存旧版本的脚本，添加缓存 busting 参数
+        const cacheBuster = `?v=${new Date().getTime()}`;
 
         // 定义主 CDN (jsDelivr) 和备用 CDN (raw.githubusercontent) 的 URL
         const cdnUrls = [
-            `https://cdn.jsdelivr.net/gh/${repoUser}/${repoName}@latest/src/translations/${userLang}/${hostname}.js`,
+            `https://cdn.jsdelivr.net/gh/${repoUser}/${repoName}@latest/src/translations/${userLang}/${hostname}.js${cacheBuster}`,
             `https://raw.githubusercontent.com/${repoUser}/${repoName}/main/src/translations/${userLang}/${hostname}.js`
         ];
 
         log(`正在尝试从 CDN 加载翻译文件: ${hostname}.js for ${userLang}...`);
-        const scriptText = await fetchWithFallbacks(cdnUrls);
+        const startTime = performance.now();
+        const result = await fetchWithFallbacks(cdnUrls);
+        const duration = performance.now() - startTime;
 
-        if (!scriptText) {
-            log(`无法从所有 CDN 源获取翻译文件: ${hostname}.js`, 'error');
+        if (!result.content) {
+            log(`无法从所有 CDN 源获取翻译文件: ${hostname}.js，总耗时: ${duration.toFixed(2)}ms`, 'error');
             return null;
         }
+
+        log(`成功从 ${result.sourceUrl} 获取到翻译文件内容，总耗时: ${duration.toFixed(2)}ms`);
 
         let blobUrl = '';
         try {
             // 为了绕过严格的CSP (Trusted Types)，我们将脚本文本创建一个Blob URL
             // 然后使用动态 import()，这被认为是安全的模块加载方式
-            const blob = new Blob([scriptText], { type: 'text/javascript' });
+            const blob = new Blob([result.content], { type: 'text/javascript' });
             blobUrl = URL.createObjectURL(blob);
 
+            const importStartTime = performance.now();
             const module = await import(blobUrl);
+            const importDuration = performance.now() - importStartTime;
+            
             const dictionary = Object.values(module)[0]; // 假设总是导出一个对象
 
             if (dictionary && typeof dictionary === 'object') {
-                log(`成功从 CDN 加载并解析翻译: ${hostname}.js`, 'success');
+                log(`成功从 CDN 加载并解析翻译: ${hostname}.js，模块导入耗时: ${importDuration.toFixed(2)}ms`, 'success');
                 return dictionary;
             }
             log(`从 CDN 加载的脚本没有有效的导出对象: ${hostname}.js`, 'error');

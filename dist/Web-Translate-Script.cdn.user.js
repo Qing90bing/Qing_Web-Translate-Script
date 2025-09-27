@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.1-2025-09-28-cdn
+// @version      1.0.2-2025-09-28-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -1877,45 +1877,64 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
     async function fetchWithFallbacks(urls) {
       for (const url of urls) {
         try {
-          return await new Promise((resolve, reject) => {
+          const startTime = performance.now();
+          const content = await new Promise((resolve, reject) => {
             GM_xmlhttpRequest({
               method: 'GET',
               url,
               onload: (response) => {
+                const duration = performance.now() - startTime;
                 if (response.status >= 200 && response.status < 300) {
+                  log(`从 ${url} 成功加载内容，状态码: ${response.status}，耗时: ${duration.toFixed(2)}ms`);
                   resolve(response.responseText);
                 } else {
+                  log(`从 ${url} 请求失败，状态码: ${response.status}，耗时: ${duration.toFixed(2)}ms`, 'error');
                   reject(new Error(`请求失败，状态码: ${response.status}`));
                 }
               },
-              onerror: (error2) => reject(new Error(`网络请求出错: ${error2.statusText}`)),
-              ontimeout: () => reject(new Error('请求超时')),
+              onerror: (error2) => {
+                const duration = performance.now() - startTime;
+                log(`从 ${url} 网络请求出错: ${error2.statusText}，耗时: ${duration.toFixed(2)}ms`, 'error');
+                reject(new Error(`网络请求出错: ${error2.statusText}`));
+              },
+              ontimeout: () => {
+                const duration = performance.now() - startTime;
+                log(`从 ${url} 请求超时，耗时: ${duration.toFixed(2)}ms`, 'error');
+                reject(new Error('请求超时'));
+              },
             });
           });
+          return { content, sourceUrl: url };
         } catch (error2) {
           log(`从 ${url} 加载失败: ${error2.message}`, 'error');
         }
       }
-      return null;
+      return { content: null, sourceUrl: null };
     }
     async function loadTranslationScript(hostname2, userLang2) {
       const repoUser = 'qing90bing';
       const repoName = 'qing_web-translate-script';
-      const cdnUrls = [`https://cdn.jsdelivr.net/gh/${repoUser}/${repoName}@latest/src/translations/${userLang2}/${hostname2}.js`, `https://raw.githubusercontent.com/${repoUser}/${repoName}/main/src/translations/${userLang2}/${hostname2}.js`];
+      const cacheBuster = `?v=${/* @__PURE__ */ new Date().getTime()}`;
+      const cdnUrls = [`https://cdn.jsdelivr.net/gh/${repoUser}/${repoName}@latest/src/translations/${userLang2}/${hostname2}.js${cacheBuster}`, `https://raw.githubusercontent.com/${repoUser}/${repoName}/main/src/translations/${userLang2}/${hostname2}.js`];
       log(`正在尝试从 CDN 加载翻译文件: ${hostname2}.js for ${userLang2}...`);
-      const scriptText = await fetchWithFallbacks(cdnUrls);
-      if (!scriptText) {
-        log(`无法从所有 CDN 源获取翻译文件: ${hostname2}.js`, 'error');
+      const startTime = performance.now();
+      const result = await fetchWithFallbacks(cdnUrls);
+      const duration = performance.now() - startTime;
+      if (!result.content) {
+        log(`无法从所有 CDN 源获取翻译文件: ${hostname2}.js，总耗时: ${duration.toFixed(2)}ms`, 'error');
         return null;
       }
+      log(`成功从 ${result.sourceUrl} 获取到翻译文件内容，总耗时: ${duration.toFixed(2)}ms`);
       let blobUrl = '';
       try {
-        const blob = new Blob([scriptText], { type: 'text/javascript' });
+        const blob = new Blob([result.content], { type: 'text/javascript' });
         blobUrl = URL.createObjectURL(blob);
+        const importStartTime = performance.now();
         const module = await import(blobUrl);
+        const importDuration = performance.now() - importStartTime;
         const dictionary = Object.values(module)[0];
         if (dictionary && typeof dictionary === 'object') {
-          log(`成功从 CDN 加载并解析翻译: ${hostname2}.js`, 'success');
+          log(`成功从 CDN 加载并解析翻译: ${hostname2}.js，模块导入耗时: ${importDuration.toFixed(2)}ms`, 'success');
           return dictionary;
         }
         log(`从 CDN 加载的脚本没有有效的导出对象: ${hostname2}.js`, 'error');
