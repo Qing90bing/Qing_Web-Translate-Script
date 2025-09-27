@@ -19,6 +19,10 @@
 // @grant        GM_setValue
 // @grant        GM_registerMenuCommand
 // @grant        GM_xmlhttpRequest
+// @grant        GM_notification
+// @updateURL    https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.user.js
+// @downloadURL  https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.user.js
+// supportURL    https://github.com/Qing90bing/Qing_Web-Translate-Script/issues
 // @connect      cdn.jsdelivr.net
 // @connect      raw.githubusercontent.com
 // @noframes
