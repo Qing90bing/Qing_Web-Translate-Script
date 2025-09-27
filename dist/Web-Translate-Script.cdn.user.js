@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.3-2025-09-28-cdn
+// @version      1.0.4-2025-09-28-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -470,7 +470,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Number of images to be returned', '要生成的图片数量'],
         ['Number of videos to be returned', '要生成的视频数量'],
         ['Take a photo with your camera', '使用您的摄像头拍照'],
-        ['Total API Requests per Day', '每天的总 API 请求次数'],
+        ['Total API Requests per day', '每天的总 API 请求次数'],
         ['15 RPM 500 req/day', '每分钟 15 次请求，每天 500 次'],
         ['Add items to file explorer', '添加文件到文件管理器'],
         ['Chat | Google AI Studio', '聊天 | Google AI Studio'],
@@ -499,7 +499,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Input Token Count per Day', '每日输入 Tokens 量'],
         ['No Cloud Projects Available', '没有可用的云项目'],
         ['Scroll to previous prompt', '滚动到上一条提示词'],
-        ['Total API Errors per Day', '每天的 API 错误总数'],
+        ['Total API Errors per day', '每天的 API 错误总数'],
         ['Use Gemini to greet you', '使用 Gemini 向您问好'],
         [' Try Nano Banana ', '尝试 Nano Banana 图像模型'],
         ['A knit countryside image', '一张针织乡村风景图'],
@@ -507,7 +507,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Collapse prompts history', '收起提示词历史记录'],
         ['Copied link to clipboard', '已复制链接到剪贴板'],
         ['Informative, Middle pitch', '信息丰富，中等音调'],
-        ['Input Tokens per Day', '每天的输入 Tokens 次数'],
+        ['Input Tokens per day', '每天的输入 Tokens 次数'],
         ['Input/Output API Pricing', '输入/输出 API 定价'],
         ['Only one option is supported', '仅支持一个选项'],
         ['Open in new window', '在新窗口中打开（进入凭证）'],
@@ -696,7 +696,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Open in Kaggle', '在 Kaggle 中打开'],
         ['Open settings menu', '打开设置菜单'],
         ['Realtime streaming', '实时流式传输'],
-        ['Requests per Day', '每天的请求次数'],
+        ['Requests per day', '每天的请求次数'],
         ['Reset the conversation', '重置对话'],
         ['Saved to Drive', '已保存到云端硬盘'],
         ['Show code editor', '显示代码编辑器'],
