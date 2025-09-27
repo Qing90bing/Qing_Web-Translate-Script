@@ -1,6 +1,6 @@
 // 语言配置文件
 // 集中管理网站支持的语言
-// 在 languages.js 的 SUPPORTED_LANGUAGES 中添加语言，在src/translations目录下创建语言文件夹，通过终端工具添加翻译文件，就完成了添加新语言的过程
+// 在 languages.js 的 SUPPORTED_LANGUAGES 中添加语言，在src/translations目录下创建语言文件夹，并且在build-tasks\tasks\translation\templates目录下添加对应的模板文件，再通过终端工具添加翻译文件，就完成了添加新语言的过程
 export const SUPPORTED_LANGUAGES = [
   { code: 'zh-cn', name: '简体中文-大陆', flag: '🇨🇳' },
   { code: 'zh-hk', name: '繁體中文-香港', flag: '🇭🇰' },

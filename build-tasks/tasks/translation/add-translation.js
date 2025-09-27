@@ -157,7 +157,7 @@ async function handleAddNewTranslation() {
     // 我们将使用 path.resolve 来获取模板文件的绝对路径。
     const templateFileName = `${language}.js`;
     const templatePath = path.resolve(process.cwd(), 'build-tasks/tasks/translation/templates', templateFileName);
-    const defaultTemplatePath = path.resolve(process.cwd(), 'build-tasks/tasks/translation/templates', 'en.js');
+    const defaultTemplatePath = path.resolve(process.cwd(), 'build-tasks/tasks/translation/templates', 'en-us.js');
 
     let finalPath;
     // 检查特定语言的模板是否存在
@@ -165,7 +165,7 @@ async function handleAddNewTranslation() {
       finalPath = templatePath;
     } else {
       // 如果不存在，则回退到默认的英文模板
-      console.log(color.dim(`未找到语言 "${language}" 的模板，将使用默认的 "en" 模板。`));
+      console.log(color.dim(`未找到语言 "${language}" 的模板，将使用默认的 "en-us" 模板。`));
       finalPath = defaultTemplatePath;
     }
 
