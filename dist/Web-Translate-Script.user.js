@@ -39,7 +39,6 @@
       [/^Step\s+(\d+)\s+of the plan is complete\.$/i, '“计划”的第 $1 步已完成。'],
       [/Completed\s+(\d+)\s+minutes?\s+ago/i, '$1 分钟前完成'],
       [/Completed\s+(\d+)\s+hours?\s+ago/i, '$1 小时前完成'],
-      [/Completed\s+(\d+)\s+seconds?\s+ago/i, '$1 秒前完成'],
       [/Dec\s+(\d{1,2})\s+(\d{2}:\d{2})/, '12 月 $1 日 $2'],
       [/Nov\s+(\d{1,2})\s+(\d{2}:\d{2})/, '11 月 $1 日 $2'],
       [/Oct\s+(\d{1,2})\s+(\d{2}:\d{2})/, '10 月 $1 日 $2'],
