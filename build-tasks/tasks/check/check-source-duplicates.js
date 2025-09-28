@@ -1,7 +1,7 @@
 /**
  * @file build-tasks/tasks/check/check-source-duplicates.js
  * @description
- * 此任务负责检查并修复翻译文件中的"原文重复"问题。
+ * 此任务负责检查并修复翻译文件中的"原文重复"问题（即多个不同的译文对应同一个原文）。
  *
  * **核心工作流程**:
  * 1. **语法预检**: 首先调用 `validateTranslationFiles` 检查所有文件是否存在语法错误。
@@ -9,9 +9,14 @@
  *    导致后续的重复检查结果不可靠。用户必须在修复语法问题后重新运行此任务。
  * 2. **原文重复检查**: 调用 `validateTranslationFiles` 并开启 `checkSourceDuplicates` 选项，找出所有错误。
  * 3. 如果没有发现原文重复错误，则退出。
- * 4. 如果发现原文重复错误，调用 `promptUserAboutErrors` 询问用户如何处理（自动、手动、忽略、取消）。
- * 5. 根据用户的选择：
- *    - **手动修复**: 调用 `promptForSourceDuplicateManualFix` 让用户为每组重复选择要保留的条目，然后调用 `applySourceDuplicateManualFixes` 应用用户的选择。
+ * 4. 如果发现错误，调用 `promptUserAboutErrors` 询问用户如何处理。
+ * 5. **执行分支**:
+ *    - **自动修复 ('auto-fix-source')**: 调用 `fixSourceDuplicatesAutomatically`，保留每组重复中的第一个版本，删除其他所有版本。
+ *    - **立即手动修复 ('manual-fix-immediate')**:
+ *      - 调用 `promptForSourceDuplicateManualFixImmediate`，这是一个特殊的交互式修复循环。
+ *      - 在循环中，用户为第一个错误组选择要保留的版本后，**立即应用修复**。
+ *      - 修复后，**立即重新扫描所有文件**以获取最新的错误列表。
+ *      - 这种“修复一个 -> 重新扫描全部”的模式确保了后续决策都是基于最新的文件状态，避免了因一次修复影响到其他错误而导致的问题。
  *    - **忽略/取消**: 打印信息并退出。
  */
 
@@ -73,17 +78,21 @@ export default async function handleSourceDuplicatesCheck() {
       break;
 
     case 'manual-fix-immediate':
-      // 手动修复（立即保存）：让用户逐个选择要保留的版本，每次选择后立即保存。
-      // 创建重新验证函数，用于在每次修复后重新检查文件
+      // 手动修复（立即保存）：让用户逐个选择要保留的版本，每次选择后立即保存并重新验证。
+      // 定义一个重新验证的函数，并将其作为参数传递给交互式提示模块。
+      // 这使得 `prompting` 模块可以在每次修复后回调此函数，以获取最新的错误状态。
       const revalidateFunction = async () => {
         return await validateTranslationFiles({ checkSourceDuplicates: true });
       };
       
+      // 调用特殊的立即修复提示函数
       const fixedCount = await promptForSourceDuplicateManualFixImmediate(
         sourceDuplicateErrors, 
-        applySourceDuplicateManualFixes, 
-        revalidateFunction
+        applySourceDuplicateManualFixes, // 传递用于应用修复的函数
+        revalidateFunction // 传递用于重新验证的函数
       );
+
+      // 根据修复结果打印总结
       if (fixedCount > 0) {
         console.log(color.green(t('checkTasks.immediateFixedCount', fixedCount)));
       } else {

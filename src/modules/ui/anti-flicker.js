@@ -1,27 +1,51 @@
+/**
+ * @file src/modules/ui/anti-flicker.js
+ * @description
+ * 防闪烁 (Anti-Flicker) 模块。
+ *
+ * **要解决的问题**:
+ * 当脚本开始翻译页面时，用户可能会在短时间内看到原始内容，然后内容突然变成翻译后的文本。
+ * 这种“闪烁”现象会严重影响用户体验。
+ *
+ * **解决方案**:
+ * 1.  **立即隐藏**: 在脚本开始执行时，立即通过注入 CSS 的方式将整个 `<body>` 隐藏 (`visibility: hidden`)。
+ * 2.  **翻译执行**: 在页面不可见的状态下执行首次全文翻译。
+ * 3.  **平滑显示**: 翻译完成后，移除隐藏样式，并通过一个短暂的淡入过渡效果将页面内容平滑地展示给用户。
+ *
+ * 这种策略确保了用户看到的始终是翻译完成后的最终内容，从而消除了闪烁现象。
+ */
+
+// 用于标识防闪烁样式标签的唯一 ID，方便后续移除。
 const STYLE_ID = 'anti-flicker-style';
 
 /**
- * 注入防闪烁样式。
- * 立即在html根元素上添加类，并注入CSS来隐藏body，直到翻译完成。
+ * @function injectAntiFlickerStyle
+ * @description 注入防闪烁样式。
+ *              此函数应在脚本执行的最开始被调用，以确保在任何内容被渲染到屏幕之前隐藏页面。
  */
 export function injectAntiFlickerStyle() {
-    // 立即在html根元素上添加类，以防止任何内容闪烁
+    // 立即在 <html> 根元素上添加一个类名。这是整个机制能够即时生效的关键。
     document.documentElement.classList.add('translation-in-progress');
 
     const antiFlickerStyle = document.createElement('style');
     antiFlickerStyle.id = STYLE_ID;
     
     const styleContent = `
-        /* 在翻译进行中时，隐藏body，但保持加载指示器可见 */
+        /* 当 <html> 标签有 'translation-in-progress' 类时，隐藏 <body> */
         html.translation-in-progress body {
             visibility: hidden !important;
             opacity: 0 !important;
         }
+        /* 当翻译完成后，此类被添加，使 <body> 平滑地淡入显示 */
         html.translation-complete body {
             visibility: visible !important;
             opacity: 1 !important;
             transition: opacity 0.1s ease-in !important;
         }
+        /*
+         * 一个重要的例外：即使在隐藏 body 时，也要保持常见的加载指示器 (spinner/loader) 可见。
+         * 这可以避免让用户误以为页面卡死或未加载，提升了等待期间的体验。
+         */
         html.translation-in-progress [class*="load"],
         html.translation-in-progress [class*="spin"],
         html.translation-in-progress [id*="load"],
@@ -34,21 +58,27 @@ export function injectAntiFlickerStyle() {
         }
     `;
 
-    // 【修复】使用 textNode 来安全地插入样式，以兼容 Trusted Types
+    // 使用 `appendChild(document.createTextNode(...))` 的方式来设置样式内容，
+    // 这是一种更安全、更能兼容严格内容安全策略 (CSP) 和 Trusted Types 的方法。
     antiFlickerStyle.appendChild(document.createTextNode(styleContent));
     
     const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
+    // 使用 `insertBefore` 将样式插入到 <head> 的最前面，确保它能优先于其他样式被应用。
     head.insertBefore(antiFlickerStyle, head.firstChild);
 }
 
 /**
- * 移除防闪烁样式，并使页面可见。
+ * @function removeAntiFlickerStyle
+ * @description 移除防闪烁样式，并使页面内容可见。
+ *              此函数应在首次全文翻译完成后被调用。
  */
 export function removeAntiFlickerStyle() {
+    // 切换 <html> 上的类名，这将触发 CSS 过渡效果，使页面平滑淡入。
     document.documentElement.classList.remove('translation-in-progress');
     document.documentElement.classList.add('translation-complete');
 
-    // 在过渡效果（0.1秒）结束后移除样式标签，清理DOM
+    // 在过渡效果（0.1秒）结束后，从 DOM 中移除我们注入的 <style> 标签。
+    // 这样做是为了保持 DOM 的干净，避免无用的样式规则残留。
     setTimeout(() => {
         const styleElement = document.getElementById(STYLE_ID);
         if (styleElement && styleElement.parentNode) {

@@ -1,12 +1,30 @@
-// 用于在油猴菜单中存储日志开关状态的键
+/**
+ * @file src/modules/utils/logger.js
+ * @description
+ * 提供一个集中式的、可切换的日志记录器。
+ *
+ * **核心功能**:
+ * - **条件化日志**: 所有日志函数（`log`, `debug`, `error` 等）的输出都由一个全局的 `isDebugMode` 标志控制。只有当该标志为 `true` 时，日志才会真正打印到控制台。
+ * - **状态持久化**: `isDebugMode` 的状态通过 `GM_getValue` 和 `GM_setValue` 在油猴脚本的存储中进行持久化，确保用户的设置在页面刷新后依然有效。
+ * - **分级日志**: 提供不同级别的日志函数（`log`, `debug`, `error`, `warn`），并为每种级别的输出添加统一的前缀（如 `[汉化脚本-DEBUG]`），方便在开发者工具中进行筛选和识别。
+ * - **专用日志**: 包含专门用于性能（`perf`）和翻译活动（`translateLog`）的日志函数，提供格式化的、结构清晰的输出。
+ *
+ * **工作流程**:
+ * 1. 脚本启动时，从 `GM_storage` 读取 `LOG_KEY` 来初始化 `isDebugMode` 的值。
+ * 2. `menu.js` 模块提供一个菜单命令，允许用户切换调试模式。当用户操作时，会调用 `updateDebugState` 并更新 `GM_storage` 中的值。
+ * 3. 项目中的其他所有模块都从本文件导入日志函数，并使用它们来记录信息。这些函数内部会自动根据 `isDebugMode` 的值来决定是否输出。
+ */
+
+// 用于在油猴脚本存储中持久化日志开关状态的键。
 export const LOG_KEY = 'web_translate_debug_mode';
 
-// 从存储中读取当前日志模式，默认为 false (关闭)
+// 模块加载时，立即从存储中读取当前的日志模式，默认为 false (关闭)。
 export let isDebugMode = GM_getValue(LOG_KEY, false);
 
 /**
- * 更新 isDebugMode 的内部状态。
- * 这个函数将由菜单模块调用。
+ * @function updateDebugState
+ * @description 更新 `isDebugMode` 的内部状态。
+ *              此函数主要由 `menu.js` 模块在用户通过菜单切换调试模式时调用。
  * @param {boolean} newMode - 新的调试状态。
  */
 export function updateDebugState(newMode) {
@@ -14,20 +32,22 @@ export function updateDebugState(newMode) {
 }
 
 /**
- * 统一的日志记录函数。
- * 只有当 isDebugMode 为 true 时，才会在控制台输出信息。
- * @param {...any} args - 需要打印到控制台的参数。
+ * @function log
+ * @description 统一的通用日志记录函数。
+ *              只有当 `isDebugMode` 为 `true` 时，才会在控制台输出信息。
+ * @param {...any} args - 需要打印到控制台的参数序列。
  */
 export function log(...args) {
     if (isDebugMode) {
-        // 使用一个统一的前缀，方便用户在控制台过滤信息
+        // 使用一个统一的前缀，方便用户在控制台根据 "[汉化脚本]" 过滤信息。
         console.log('[汉化脚本]', ...args);
     }
 }
 
 /**
- * 详细日志记录函数，用于输出更详细的调试信息
- * @param {...any} args - 需要打印到控制台的参数。
+ * @function debug
+ * @description 详细调试日志记录函数，用于输出更详尽的内部状态或流程信息。
+ * @param {...any} args - 需要打印到控制台的参数序列。
  */
 export function debug(...args) {
     if (isDebugMode) {
@@ -36,8 +56,9 @@ export function debug(...args) {
 }
 
 /**
- * 错误日志记录函数
- * @param {...any} args - 需要打印到控制台的参数。
+ * @function error
+ * @description 错误日志记录函数，用于输出捕获到的错误或关键性失败信息。
+ * @param {...any} args - 需要打印到控制台的参数序列。
  */
 export function error(...args) {
     if (isDebugMode) {
@@ -46,8 +67,9 @@ export function error(...args) {
 }
 
 /**
- * 警告日志记录函数
- * @param {...any} args - 需要打印到控制台的参数。
+ * @function warn
+ * @description 警告日志记录函数，用于输出非致命性问题或潜在的异常情况。
+ * @param {...any} args - 需要打印到控制台的参数序列。
  */
 export function warn(...args) {
     if (isDebugMode) {
@@ -56,14 +78,15 @@ export function warn(...args) {
 }
 
 /**
- * 性能日志记录函数，用于记录翻译耗时等性能信息
- * @param {string} operation - 操作名称
- * @param {number} duration - 操作耗时（毫秒）
- * @param {...any} args - 其他参数
+ * @function perf
+ * @description 性能日志记录函数，用于测量和报告特定操作的耗时。
+ * @param {string} operation - 正在测量的操作的名称。
+ * @param {number} duration - 操作耗时（毫秒）。
+ * @param {...any} args - 其他需要一并输出的附加上下文信息。
  */
 export function perf(operation, duration, ...args) {
     if (isDebugMode) {
-        // 只记录超过阈值的性能信息，避免过多输出
+        // 为了避免控制台被大量琐碎的性能信息淹没，只记录耗时超过 5 毫秒的操作。
         if (duration > 5) {
             console.log(`[汉化脚本-PERF] ${operation} 耗时: ${duration.toFixed(2)}ms`, ...args);
         }
@@ -71,15 +94,16 @@ export function perf(operation, duration, ...args) {
 }
 
 /**
- * 翻译日志记录函数，专门用于记录翻译相关的信息
- * @param {string} type - 翻译类型（文本/属性等）
- * @param {string} original - 原文
- * @param {string} translated - 译文
- * @param {Element} element - 相关元素（可选）
+ * @function translateLog
+ * @description 翻译活动专用日志函数，以结构化的格式清晰地记录每一次成功的翻译操作。
+ * @param {string} type - 翻译的类型（例如 '文本映射', '正则表达式', '属性'）。
+ * @param {string} original - 原始文本。
+ * @param {string} translated - 翻译后的文本。
+ * @param {Element} [element=null] - （可选）与此次翻译相关的 DOM 元素。
  */
 export function translateLog(type, original, translated, element = null) {
     if (isDebugMode) {
-        // 只记录实际发生了翻译变化的内容
+        // 只记录实际发生了内容变化的翻译。
         if (original !== translated) {
             const elementInfo = element ? ` 元素: ${element.tagName.toLowerCase()}${element.id ? '#' + element.id : ''}${element.className ? '.' + element.className.replace(/\s+/g, '.') : ''}` : '';
             console.log(`[汉化脚本-TRANSLATE] ${type}:${elementInfo}\n  原文: "${original}"\n  译文: "${translated}"`);
