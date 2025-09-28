@@ -115,8 +115,8 @@ import { initializeTranslation } from './modules/core/translationInitializer.js'
 
         // 定义主 CDN (jsDelivr) 和备用 CDN (raw.githubusercontent) 的 URL
         const cdnUrls = [
-            `https://cdn.jsdelivr.net/gh/${repoUser}/${repoName}@latest/src/translations/${userLang}/${hostname}.js${cacheBuster}`,
-            `https://raw.githubusercontent.com/${repoUser}/${repoName}/main/src/translations/${userLang}/${hostname}.js`
+            `https://raw.githubusercontent.com/${repoUser}/${repoName}/main/src/translations/${userLang}/${hostname}.js`,
+            `https://cdn.jsdelivr.net/gh/${repoUser}/${repoName}@latest/src/translations/${userLang}/${hostname}.js${cacheBuster}`
         ];
 
         log(`正在尝试从 CDN 加载翻译文件: ${hostname}.js for ${userLang}...`);

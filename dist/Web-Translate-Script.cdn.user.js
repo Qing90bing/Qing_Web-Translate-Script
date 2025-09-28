@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.4-2025-09-28-cdn
+// @version      1.0.41-2025-09-28-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -1918,7 +1918,7 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
       const repoUser = 'qing90bing';
       const repoName = 'qing_web-translate-script';
       const cacheBuster = `?v=${/* @__PURE__ */ new Date().getTime()}`;
-      const cdnUrls = [`https://cdn.jsdelivr.net/gh/${repoUser}/${repoName}@latest/src/translations/${userLang2}/${hostname2}.js${cacheBuster}`, `https://raw.githubusercontent.com/${repoUser}/${repoName}/main/src/translations/${userLang2}/${hostname2}.js`];
+      const cdnUrls = [`https://raw.githubusercontent.com/${repoUser}/${repoName}/main/src/translations/${userLang2}/${hostname2}.js`, `https://cdn.jsdelivr.net/gh/${repoUser}/${repoName}@latest/src/translations/${userLang2}/${hostname2}.js${cacheBuster}`];
       log(`正在尝试从 CDN 加载翻译文件: ${hostname2}.js for ${userLang2}...`);
       const startTime = performance.now();
       const result = await fetchWithFallbacks(cdnUrls);

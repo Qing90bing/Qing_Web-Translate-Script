@@ -108,6 +108,7 @@ export const julesGoogleComZhCn = {
     ["Enable memories to let Jules use context from your past tasks to improve its responses. ", "启用记忆功能，使 Jules 能够使用您过去任务的上下文来改进回答质量。"],
     ["I'd like to receive invitations to participate in research studies to help improve Google AI.", "我希望接收参与研究的邀请，以帮助改进 Google AI。"],
     ["Allow AI model training on content from tasks linked to public repositories.", "允许 AI 模型使用您公开代码库相关的仓库内容进行训练。"],
+    ["As Jules learns about your codebase,new memories will show up here.", "当 Jules 学习您的代码库时，新的记忆将在这里显示。"],
     ["Feedback submitted will include your conversation and related code.", "您提交的反馈将包含本次对话和相关的代码。"],
     ["Work with Jules to deeply understand goals before plan generation", "在生成计划前，与 Jules 深入沟通以明确目标"],
     ["Allow AI model training on content from public repositories", "允许 AI 模型使用公开代码库的内容进行训练"],
@@ -297,6 +298,7 @@ export const julesGoogleComZhCn = {
     ["Save", "保存"],
     ["Stop", "停止"],
     ["now", "刚刚"],
-    ["and", "和"]
+    ["and", "和"],
+    ["You", "您"]
   ],
 };

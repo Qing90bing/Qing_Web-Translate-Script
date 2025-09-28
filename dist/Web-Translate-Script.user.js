@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.1-2025-09-28-offline
+// @version      1.0.2-2025-09-28-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -96,6 +96,7 @@
       ['Enable memories to let Jules use context from your past tasks to improve its responses. ', '启用记忆功能，使 Jules 能够使用您过去任务的上下文来改进回答质量。'],
       ["I'd like to receive invitations to participate in research studies to help improve Google AI.", '我希望接收参与研究的邀请，以帮助改进 Google AI。'],
       ['Allow AI model training on content from tasks linked to public repositories.', '允许 AI 模型使用您公开代码库相关的仓库内容进行训练。'],
+      ['As Jules learns about your codebase,new memories will show up here.', '当 Jules 学习您的代码库时，新的记忆将在这里显示。'],
       ['Feedback submitted will include your conversation and related code.', '您提交的反馈将包含本次对话和相关的代码。'],
       ['Work with Jules to deeply understand goals before plan generation', '在生成计划前，与 Jules 深入沟通以明确目标'],
       ['Allow AI model training on content from public repositories', '允许 AI 模型使用公开代码库的内容进行训练'],
@@ -286,6 +287,7 @@
       ['Stop', '停止'],
       ['now', '刚刚'],
       ['and', '和'],
+      ['You', '您'],
     ],
   };
   var aistudioGoogleComZhCn = {
