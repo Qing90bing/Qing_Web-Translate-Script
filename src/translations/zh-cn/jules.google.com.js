@@ -28,7 +28,7 @@ export const julesGoogleComZhCn = {
     // 在这里添加CSS选择器，例如：
     // '.notranslate',
     // '#header .logo'
-    '.swebot-diff-editor'
+    '.view-lines'
   ],
 
   // 注入脚本 (JavaScript)

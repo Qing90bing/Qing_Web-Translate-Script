@@ -1398,16 +1398,21 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
     const antiFlickerStyle = document.createElement('style');
     antiFlickerStyle.id = STYLE_ID;
     const styleContent = `
-        /* 在翻译进行中时，隐藏body，但保持加载指示器可见 */
+        /* 当 <html> 标签有 'translation-in-progress' 类时，隐藏 <body> */
         html.translation-in-progress body {
             visibility: hidden !important;
             opacity: 0 !important;
         }
+        /* 当翻译完成后，此类被添加，使 <body> 平滑地淡入显示 */
         html.translation-complete body {
             visibility: visible !important;
             opacity: 1 !important;
             transition: opacity 0.1s ease-in !important;
         }
+        /*
+         * 一个重要的例外：即使在隐藏 body 时，也要保持常见的加载指示器 (spinner/loader) 可见。
+         * 这可以避免让用户误以为页面卡死或未加载，提升了等待期间的体验。
+         */
         html.translation-in-progress [class*="load"],
         html.translation-in-progress [class*="spin"],
         html.translation-in-progress [id*="load"],
@@ -1451,20 +1456,14 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
     const blockedElementSelectors = blockedSelectors || [];
     function isElementBlocked(element) {
       const tagName = element.tagName?.toLowerCase();
-      if (blockedElements.has(tagName)) {
-        return true;
-      }
+      if (blockedElements.has(tagName)) return true;
       if (element.classList) {
         for (const className of element.classList) {
-          if (BLOCKED_CSS_CLASSES.has(className)) {
-            return true;
-          }
+          if (BLOCKED_CSS_CLASSES.has(className)) return true;
         }
       }
       for (const selector of blockedElementSelectors) {
-        if (element.matches && element.matches(selector)) {
-          return true;
-        }
+        if (element.matches?.(selector)) return true;
       }
       return false;
     }
@@ -1501,46 +1500,27 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
       return translatedText;
     }
     function translateElementContent(element) {
-      const tagName = element.tagName?.toLowerCase();
-      const startTime = performance.now();
-      if (!element || isElementBlocked(element) || element.isContentEditable) {
-        return false;
-      }
-      if (element.childElementCount > 0) {
-        return false;
-      }
-      if (element.querySelector(Array.from(blockedElements).join(','))) {
-        return false;
-      }
+      if (!element || isElementBlocked(element) || element.isContentEditable) return false;
+      if (element.childElementCount > 0) return false;
+      if (element.querySelector(Array.from(blockedElements).join(','))) return false;
       const fullText = element.textContent?.trim();
-      if (!fullText) {
-        return false;
-      }
+      if (!fullText) return false;
       const translation = textTranslationMap.get(fullText);
-      if (!translation) {
-        return false;
-      }
-      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
-        acceptNode: (node) => (node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT),
-      });
+      if (!translation) return false;
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
       const textNodes = [];
       while (walker.nextNode()) textNodes.push(walker.currentNode);
-      if (textNodes.length === 0) {
-        return false;
-      }
+      if (textNodes.length === 0) return false;
       textNodes[0].nodeValue = translation;
       for (let i = 1; i < textNodes.length; i++) {
         textNodes[i].nodeValue = '';
       }
-      const duration = performance.now() - startTime;
-      perf('元素内容翻译', duration, `${tagName}`);
       log('整段翻译:', `"${fullText}"`, '->', `"${translation}"`);
       return true;
     }
     function translateElement(element) {
-      if (!element || translatedElements.has(element) || !(element instanceof Element)) return;
-      const tagName = element.tagName.toLowerCase();
-      const startTime = performance.now();
+      if (!element || translatedElements.has(element) || !(element instanceof Element || element instanceof ShadowRoot)) return;
+      const tagName = element.tagName?.toLowerCase();
       if (isElementBlocked(element) || element.isContentEditable) {
         translatedElements.add(element);
         return;
@@ -1549,8 +1529,6 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
       if (!isContentBlocked) {
         if (translateElementContent(element)) {
           translatedElements.add(element);
-          const duration2 = performance.now() - startTime;
-          perf('元素翻译完成', duration2, `${tagName} (整段)`);
           return;
         }
         const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
@@ -1570,59 +1548,35 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
         const nodesToTranslate = [];
         while (walker.nextNode()) nodesToTranslate.push(walker.currentNode);
         if (nodesToTranslate.length > 0) {
-          let translatedCount = 0;
           nodesToTranslate.forEach((textNode) => {
             const originalText = textNode.nodeValue;
             const translatedText = translateText(originalText);
             if (originalText !== translatedText) {
               textNode.nodeValue = translatedText;
-              translatedCount++;
             }
           });
-          if (translatedCount > 0) {
-            debug(`翻译了 ${tagName} 中的 ${translatedCount} 个文本节点`);
-          }
         }
       }
       const elementsWithAttributes = element.matches(`[${attributesToTranslate.join('], [')}]`) ? [element, ...element.querySelectorAll(`[${attributesToTranslate.join('], [')}]`)] : [...element.querySelectorAll(`[${attributesToTranslate.join('], [')}]`)];
       if (elementsWithAttributes.length > 0) {
-        let translatedAttrCount = 0;
         elementsWithAttributes.forEach((el) => {
-          let current = el;
-          let isBlockedByContainer = false;
-          while (current && current !== element.parentElement) {
-            if (isElementBlocked(current)) {
-              isBlockedByContainer = true;
-              break;
-            }
-            if (current === element) break;
-            current = current.parentElement;
-          }
-          if (isBlockedByContainer) {
-            return;
-          }
+          if (isElementBlocked(el)) return;
           attributesToTranslate.forEach((attr) => {
             if (el.hasAttribute(attr)) {
               const originalValue = el.getAttribute(attr);
               const translatedValue = translateText(originalValue);
               if (originalValue !== translatedValue) {
                 el.setAttribute(attr, translatedValue);
-                translatedAttrCount++;
                 translateLog(`属性[${attr}]`, originalValue, translatedValue);
               }
             }
           });
         });
-        if (translatedAttrCount > 0) {
-          debug(`翻译了 ${translatedAttrCount} 个属性`);
-        }
       }
       if (element.shadowRoot) {
         translateElement(element.shadowRoot);
       }
       translatedElements.add(element);
-      const duration = performance.now() - startTime;
-      perf('元素翻译完成', duration, `${tagName}`);
     }
     return {
       translate: translateElement,
@@ -1631,7 +1585,7 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
         translatedElements = /* @__PURE__ */ new WeakSet();
         log('翻译器状态已重置');
       },
-      // 允许 observer 删除单个元素的翻译记录
+      // 允许外部模块（如 observers.js）在 DOM 变动时，精确地使单个元素的缓存失效。
       deleteElement: (element) => {
         translatedElements.delete(element);
       },
@@ -1691,25 +1645,16 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
     }
     const mainObserver = new MutationObserver((mutations) => {
       const dirtyRoots = /* @__PURE__ */ new Set();
-      let attributeChanges = 0;
-      let childListChanges = 0;
-      let textChanges = 0;
       for (const mutation of mutations) {
         let target = null;
         if (mutation.type === 'childList') {
-          childListChanges++;
           target = mutation.target;
         } else if (mutation.type === 'attributes') {
-          attributeChanges++;
           target = mutation.target;
         } else if (mutation.type === 'characterData') {
-          textChanges++;
           target = mutation.target.parentElement;
         }
         if (target instanceof Element) dirtyRoots.add(target);
-      }
-      if (dirtyRoots.size > 5) {
-        debug(`检测到 DOM 变化: 子节点变化=${childListChanges}, 属性变化=${attributeChanges}, 文本变化=${textChanges}, 影响元素=${dirtyRoots.size}`);
       }
       if (dirtyRoots.size > 0) {
         for (const root of dirtyRoots) {
@@ -1762,10 +1707,15 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
     });
     mainObserver.observe(document.body, {
       childList: true,
+      // 监听子节点的添加或删除
       subtree: true,
+      // 监听以 document.body 为根的所有后代节点
       attributes: true,
+      // 监听属性变化
       attributeFilter: ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip'],
+      // 只关心这些可能包含文本的属性
       characterData: true,
+      // 监听文本节点的内容变化
     });
     pageObserver.observe(document.body, { childList: true, subtree: true });
     modelChangeObserver.observe(document.body, {
@@ -1857,23 +1807,15 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
     injectAntiFlickerStyle();
     function getUserLanguage() {
       const overrideLang = GM_getValue('web-translate-language-override', '');
-      if (overrideLang && SUPPORTED_LANGUAGE_CODES.includes(overrideLang)) {
-        return overrideLang;
-      }
+      if (overrideLang && SUPPORTED_LANGUAGE_CODES.includes(overrideLang)) return overrideLang;
       const storedLang = localStorage.getItem('web-translate-language');
-      if (storedLang && SUPPORTED_LANGUAGE_CODES.includes(storedLang)) {
-        return storedLang;
-      }
+      if (storedLang && SUPPORTED_LANGUAGE_CODES.includes(storedLang)) return storedLang;
       const browserLang = navigator.language || navigator.userLanguage;
       if (browserLang) {
         const lowerBrowserLang = browserLang.toLowerCase();
-        if (SUPPORTED_LANGUAGE_CODES.includes(lowerBrowserLang)) {
-          return lowerBrowserLang;
-        }
+        if (SUPPORTED_LANGUAGE_CODES.includes(lowerBrowserLang)) return lowerBrowserLang;
         const partialMatch = SUPPORTED_LANGUAGE_CODES.find((code) => lowerBrowserLang.startsWith(code));
-        if (partialMatch) {
-          return partialMatch;
-        }
+        if (partialMatch) return partialMatch;
       }
       return 'zh-cn';
     }
@@ -1895,10 +1837,10 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
                   reject(new Error(`请求失败，状态码: ${response.status}`));
                 }
               },
-              onerror: (error2) => {
+              onerror: (error) => {
                 const duration = performance.now() - startTime;
-                log(`从 ${url} 网络请求出错: ${error2.statusText}，耗时: ${duration.toFixed(2)}ms`, 'error');
-                reject(new Error(`网络请求出错: ${error2.statusText}`));
+                log(`从 ${url} 网络请求出错: ${error.statusText}，耗时: ${duration.toFixed(2)}ms`, 'error');
+                reject(new Error(`网络请求出错: ${error.statusText}`));
               },
               ontimeout: () => {
                 const duration = performance.now() - startTime;
@@ -1908,8 +1850,8 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
             });
           });
           return { content, sourceUrl: url };
-        } catch (error2) {
-          log(`从 ${url} 加载失败: ${error2.message}`, 'error');
+        } catch (error) {
+          log(`从 ${url} 加载失败: ${error.message}`, 'error');
         }
       }
       return { content: null, sourceUrl: null };
@@ -1920,24 +1862,20 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
       const cacheBuster = `?v=${/* @__PURE__ */ new Date().getTime()}`;
       const cdnUrls = [`https://raw.githubusercontent.com/${repoUser}/${repoName}/main/src/translations/${userLang2}/${hostname2}.js`, `https://cdn.jsdelivr.net/gh/${repoUser}/${repoName}@latest/src/translations/${userLang2}/${hostname2}.js${cacheBuster}`];
       log(`正在尝试从 CDN 加载翻译文件: ${hostname2}.js for ${userLang2}...`);
-      const startTime = performance.now();
       const result = await fetchWithFallbacks(cdnUrls);
-      const duration = performance.now() - startTime;
       if (!result.content) {
-        log(`无法从所有 CDN 源获取翻译文件: ${hostname2}.js，总耗时: ${duration.toFixed(2)}ms`, 'error');
+        log(`无法从所有 CDN 源获取翻译文件: ${hostname2}.js`, 'error');
         return null;
       }
-      log(`成功从 ${result.sourceUrl} 获取到翻译文件内容，总耗时: ${duration.toFixed(2)}ms`);
+      log(`成功从 ${result.sourceUrl} 获取到翻译文件内容`);
       let blobUrl = '';
       try {
         const blob = new Blob([result.content], { type: 'text/javascript' });
         blobUrl = URL.createObjectURL(blob);
-        const importStartTime = performance.now();
         const module = await import(blobUrl);
-        const importDuration = performance.now() - importStartTime;
         const dictionary = Object.values(module)[0];
         if (dictionary && typeof dictionary === 'object') {
-          log(`成功从 CDN 加载并解析翻译: ${hostname2}.js，模块导入耗时: ${importDuration.toFixed(2)}ms`, 'success');
+          log(`成功从 CDN 加载并解析翻译: ${hostname2}.js`, 'success');
           return dictionary;
         }
         log(`从 CDN 加载的脚本没有有效的导出对象: ${hostname2}.js`, 'error');
@@ -1955,7 +1893,7 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
     const userLang = getUserLanguage();
     let siteDictionary = null;
     if (typeof EMBEDDED_TRANSLATIONS !== 'undefined' && typeof EMBEDDED_SITES !== 'undefined') {
-      if (EMBEDDED_TRANSLATIONS[userLang] && EMBEDDED_TRANSLATIONS[userLang][hostname]) {
+      if (EMBEDDED_TRANSLATIONS[userLang]?.[hostname]) {
         log(`找到 ${hostname} 的内联翻译 (${userLang})。`);
         siteDictionary = EMBEDDED_TRANSLATIONS[userLang][hostname];
       } else if (EMBEDDED_SITES.includes(hostname)) {

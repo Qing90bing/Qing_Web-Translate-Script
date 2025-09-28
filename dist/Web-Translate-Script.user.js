@@ -33,7 +33,7 @@
     language: 'zh-cn',
     enabled: true,
     styles: ['.feedback-button { width: auto !important; white-space: nowrap !important; }'],
-    blockedElements: [],
+    blockedElements: ['.view-lines'],
     jsRules: [],
     regexRules: [
       [/Daily\s+task\s+limit\s*\(\s*(\d+)\s*\/\s*(\d+)\s*\)/gi, '每日任务上限 ($1/$2)'],
@@ -63,7 +63,6 @@
       [/Deleted file ([\w\/\.-]+)/i, '已删除文件：$1'],
       [/^Searching for\s+"(.+?)"$/i, '正在搜索“$1”'],
       [/Completed\s+<1 minute\s+ago/i, '刚刚完成'],
-      [/Ran command\s+"(.*?)"/i, '执行命令：“$1”'],
       [/(\d{1,2})\s+(\d{1,2})月/, '$2 月 $1 日'],
       [/^Searching for\s+(.+)$/i, '正在搜索：$1'],
       [/(\d+)\/(\d+)\s*tasks?/, '$1/$2 个任务'],
@@ -71,6 +70,7 @@
       [/(\d+)\s*minutes?\s*ago/, '$1 分钟前'],
       [/and\s+(\d+)\s+more/i, '及另外 $1 项'],
       [/Today\s+(\d{1,2}:\d{2})/i, '今天 $1'],
+      [/Ran command "(.*)"/i, '运行命令：$1'],
       [/Read\s+([\w\.\-]+)/i, '读取文件：$1'],
       [/(\d+)\s*hours?\s*ago/, '$1 小时前'],
       [/(\d+)\s*seconds?\s*ago/, '$1 秒前'],
@@ -96,7 +96,7 @@
       ['Enable memories to let Jules use context from your past tasks to improve its responses. ', '启用记忆功能，使 Jules 能够使用您过去任务的上下文来改进回答质量。'],
       ["I'd like to receive invitations to participate in research studies to help improve Google AI.", '我希望接收参与研究的邀请，以帮助改进 Google AI。'],
       ['Allow AI model training on content from tasks linked to public repositories.', '允许 AI 模型使用您公开代码库相关的仓库内容进行训练。'],
-      ['As Jules learns about your codebase,new memories will show up here.', '当 Jules 学习您的代码库时，新的记忆将在这里显示。'],
+      ['Are you sure you want to delete this memory? This action cannot be undone.', '您确定要删除此记忆吗？此操作无法撤销。'],
       ['Feedback submitted will include your conversation and related code.', '您提交的反馈将包含本次对话和相关的代码。'],
       ['Work with Jules to deeply understand goals before plan generation', '在生成计划前，与 Jules 深入沟通以明确目标'],
       ['Allow AI model training on content from public repositories', '允许 AI 模型使用公开代码库的内容进行训练'],
@@ -122,13 +122,16 @@
       ['Jules is not yet available in your region.', 'Jules 暂未在您的区域提供服务'],
       ['Failed to pause task. Please try again later.', '暂停任务失败，请稍后再试。'],
       ['Write a README for this project ...', '为这个项目编写一个 README 文件...'],
+      ['As Jules learns about your codebase,', '当 Jules 学习您的代码库时，'],
       ['Publish a branch with your changes', '发布一个包含您代码变更的分支'],
       ['Unpause the task to chat with Jules', '取消暂停任务以与 Jules 聊天'],
       ['Jules is waiting for you to review...', 'Jules 正在等待您审核...'],
+      ['Running environment setup script...', '正在运行环境配置脚本...'],
       ['Get started with some example prompts', '开始使用一些示例提示'],
       ['🦜 Celebrating talk like a pirate day', '🦜 庆祝国际海盗语言日'],
       ['Jules is awaiting plan approval', 'Jules 正在等待计划被批准'],
       ['Ask Jules to work on a task', '让 Jules 开始处理一项任务'],
+      ['new memories will show up here.', '新的记忆将在这里显示。'],
       ['Publish branch and generate PR', '发布分支并创建合并请求'],
       ['Searching for relevant documentation', '正在搜索相关文档'],
       ['Are you sure you want to continue?', '您确定要继续吗？'],
@@ -204,12 +207,14 @@
       ['Task - Jules', '任务 - Jules'],
       ['Task is paused', '任务已暂停'],
       ['Command Palette', '命令面板'],
+      ['Delete memory?', '删除记忆？'],
       ['Generate PR', '创建合并请求'],
       ['Stacked diffs', '堆叠式变更'],
       ['Submit the Fix.', '提交修复'],
       ['Write tests', '编写测试代码'],
       [' Collapse all ', '折叠所有'],
       ['Created file', '已创建文件'],
+      ['Leave feedback', '留下反馈'],
       ['Publish branch', '发布分支'],
       ['Publish PR', '发布合并请求'],
       ['Recent tasks', '最近的任务'],
@@ -222,6 +227,7 @@
       ['Searching for', '正在搜索'],
       [' Add Memory ', '添加记忆'],
       ['How it works', '工作原理'],
+      ['Memory deleted', '已删除'],
       ['No thanks', '不用了，谢谢'],
       ['Publish code', '发布代码'],
       ['Saving...', '正在保存...'],
@@ -247,6 +253,7 @@
       ['hours ago', '小时前'],
       ['Profile', '个人资料'],
       [' Manage ', ' 管理 '],
+      ['Deleting', '删除中'],
       ['disabled', '已禁用'],
       ['Failed', '任务失败'],
       [' Ran: ', '已运行：'],
@@ -267,6 +274,7 @@
       ['Stacked', '堆积'],
       ['Time: ', '耗时：'],
       ['Upgrade', '升级'],
+      ['Cancel', '取消'],
       ['Delete', '删除'],
       ['Enable', '启用'],
       ['Remove', '移除'],
@@ -3848,20 +3856,14 @@
     const blockedElementSelectors = blockedSelectors || [];
     function isElementBlocked(element) {
       const tagName = element.tagName?.toLowerCase();
-      if (blockedElements.has(tagName)) {
-        return true;
-      }
+      if (blockedElements.has(tagName)) return true;
       if (element.classList) {
         for (const className of element.classList) {
-          if (BLOCKED_CSS_CLASSES.has(className)) {
-            return true;
-          }
+          if (BLOCKED_CSS_CLASSES.has(className)) return true;
         }
       }
       for (const selector of blockedElementSelectors) {
-        if (element.matches && element.matches(selector)) {
-          return true;
-        }
+        if (element.matches?.(selector)) return true;
       }
       return false;
     }
@@ -3898,46 +3900,27 @@
       return translatedText;
     }
     function translateElementContent(element) {
-      const tagName = element.tagName?.toLowerCase();
-      const startTime = performance.now();
-      if (!element || isElementBlocked(element) || element.isContentEditable) {
-        return false;
-      }
-      if (element.childElementCount > 0) {
-        return false;
-      }
-      if (element.querySelector(Array.from(blockedElements).join(','))) {
-        return false;
-      }
+      if (!element || isElementBlocked(element) || element.isContentEditable) return false;
+      if (element.childElementCount > 0) return false;
+      if (element.querySelector(Array.from(blockedElements).join(','))) return false;
       const fullText = element.textContent?.trim();
-      if (!fullText) {
-        return false;
-      }
+      if (!fullText) return false;
       const translation = textTranslationMap.get(fullText);
-      if (!translation) {
-        return false;
-      }
-      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
-        acceptNode: (node) => (node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT),
-      });
+      if (!translation) return false;
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
       const textNodes = [];
       while (walker.nextNode()) textNodes.push(walker.currentNode);
-      if (textNodes.length === 0) {
-        return false;
-      }
+      if (textNodes.length === 0) return false;
       textNodes[0].nodeValue = translation;
       for (let i = 1; i < textNodes.length; i++) {
         textNodes[i].nodeValue = '';
       }
-      const duration = performance.now() - startTime;
-      perf('元素内容翻译', duration, `${tagName}`);
       log('整段翻译:', `"${fullText}"`, '->', `"${translation}"`);
       return true;
     }
     function translateElement(element) {
-      if (!element || translatedElements.has(element) || !(element instanceof Element)) return;
-      const tagName = element.tagName.toLowerCase();
-      const startTime = performance.now();
+      if (!element || translatedElements.has(element) || !(element instanceof Element || element instanceof ShadowRoot)) return;
+      const tagName = element.tagName?.toLowerCase();
       if (isElementBlocked(element) || element.isContentEditable) {
         translatedElements.add(element);
         return;
@@ -3946,8 +3929,6 @@
       if (!isContentBlocked) {
         if (translateElementContent(element)) {
           translatedElements.add(element);
-          const duration2 = performance.now() - startTime;
-          perf('元素翻译完成', duration2, `${tagName} (整段)`);
           return;
         }
         const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
@@ -3967,59 +3948,35 @@
         const nodesToTranslate = [];
         while (walker.nextNode()) nodesToTranslate.push(walker.currentNode);
         if (nodesToTranslate.length > 0) {
-          let translatedCount = 0;
           nodesToTranslate.forEach((textNode) => {
             const originalText = textNode.nodeValue;
             const translatedText = translateText(originalText);
             if (originalText !== translatedText) {
               textNode.nodeValue = translatedText;
-              translatedCount++;
             }
           });
-          if (translatedCount > 0) {
-            debug(`翻译了 ${tagName} 中的 ${translatedCount} 个文本节点`);
-          }
         }
       }
       const elementsWithAttributes = element.matches(`[${attributesToTranslate.join('], [')}]`) ? [element, ...element.querySelectorAll(`[${attributesToTranslate.join('], [')}]`)] : [...element.querySelectorAll(`[${attributesToTranslate.join('], [')}]`)];
       if (elementsWithAttributes.length > 0) {
-        let translatedAttrCount = 0;
         elementsWithAttributes.forEach((el) => {
-          let current = el;
-          let isBlockedByContainer = false;
-          while (current && current !== element.parentElement) {
-            if (isElementBlocked(current)) {
-              isBlockedByContainer = true;
-              break;
-            }
-            if (current === element) break;
-            current = current.parentElement;
-          }
-          if (isBlockedByContainer) {
-            return;
-          }
+          if (isElementBlocked(el)) return;
           attributesToTranslate.forEach((attr) => {
             if (el.hasAttribute(attr)) {
               const originalValue = el.getAttribute(attr);
               const translatedValue = translateText(originalValue);
               if (originalValue !== translatedValue) {
                 el.setAttribute(attr, translatedValue);
-                translatedAttrCount++;
                 translateLog(`属性[${attr}]`, originalValue, translatedValue);
               }
             }
           });
         });
-        if (translatedAttrCount > 0) {
-          debug(`翻译了 ${translatedAttrCount} 个属性`);
-        }
       }
       if (element.shadowRoot) {
         translateElement(element.shadowRoot);
       }
       translatedElements.add(element);
-      const duration = performance.now() - startTime;
-      perf('元素翻译完成', duration, `${tagName}`);
     }
     return {
       translate: translateElement,
@@ -4085,25 +4042,16 @@
     }
     const mainObserver = new MutationObserver((mutations) => {
       const dirtyRoots = new Set();
-      let attributeChanges = 0;
-      let childListChanges = 0;
-      let textChanges = 0;
       for (const mutation of mutations) {
         let target = null;
         if (mutation.type === 'childList') {
-          childListChanges++;
           target = mutation.target;
         } else if (mutation.type === 'attributes') {
-          attributeChanges++;
           target = mutation.target;
         } else if (mutation.type === 'characterData') {
-          textChanges++;
           target = mutation.target.parentElement;
         }
         if (target instanceof Element) dirtyRoots.add(target);
-      }
-      if (dirtyRoots.size > 5) {
-        debug(`检测到 DOM 变化: 子节点变化=${childListChanges}, 属性变化=${attributeChanges}, 文本变化=${textChanges}, 影响元素=${dirtyRoots.size}`);
       }
       if (dirtyRoots.size > 0) {
         for (const root of dirtyRoots) {
@@ -4257,18 +4205,12 @@
       const browserLang = navigator.language || navigator.userLanguage;
       if (browserLang) {
         const exactMatch = SUPPORTED_LANGUAGE_CODES.find((code) => browserLang.toLowerCase() === code.toLowerCase());
-        if (exactMatch) {
-          return exactMatch;
-        }
+        if (exactMatch) return exactMatch;
         const partialMatch = SUPPORTED_LANGUAGE_CODES.find((code) => browserLang.toLowerCase().startsWith(code.toLowerCase()));
-        if (partialMatch) {
-          return partialMatch;
-        }
+        if (partialMatch) return partialMatch;
         if (browserLang.toLowerCase().startsWith('zh')) {
           const chineseVariant = SUPPORTED_LANGUAGE_CODES.find((code) => code.toLowerCase().startsWith('zh'));
-          if (chineseVariant) {
-            return chineseVariant;
-          }
+          if (chineseVariant) return chineseVariant;
         }
       }
       return SUPPORTED_LANGUAGE_CODES[0] || 'zh-cn';
@@ -4282,11 +4224,7 @@
       return void 0;
     }
     const siteDictionary = selectTranslationForSite(window.location.hostname);
-    if (!siteDictionary) {
-      removeAntiFlickerStyle();
-      return;
-    }
-    if (!siteDictionary.enabled) {
+    if (!siteDictionary || !siteDictionary.enabled) {
       removeAntiFlickerStyle();
       return;
     }
