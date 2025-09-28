@@ -1341,7 +1341,7 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
   function perf(operation, duration, ...args) {
     if (isDebugMode) {
       if (duration > 5) {
-        console.log(`[汉化脚本-PERF] ${operation} 耗时: ${duration}ms`, ...args);
+        console.log(`[汉化脚本-PERF] ${operation} 耗时: ${duration.toFixed(2)}ms`, ...args);
       }
     }
   }
@@ -1436,7 +1436,7 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
 
   // src/config.js
   var BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(['script', 'style', 'pre', 'code']);
-  var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set(['textarea']);
+  var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set([]);
   var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
   var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip'];
   var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate']);
@@ -1504,6 +1504,9 @@ const EMBEDDED_SITES = ['aistudio.google.com'];
       const tagName = element.tagName?.toLowerCase();
       const startTime = performance.now();
       if (!element || isElementBlocked(element) || element.isContentEditable) {
+        return false;
+      }
+      if (element.childElementCount > 0) {
         return false;
       }
       if (element.querySelector(Array.from(blockedElements).join(','))) {

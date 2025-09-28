@@ -68,7 +68,11 @@ function formatArrayAsString(arr, keyType) {
     if (keyType === 'regexRules' && item[0] instanceof RegExp) {
       key = item[0].toString();
     } else {
-      key = `"${item[0].replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+      key = `"${item[0]
+        .replace(/\\/g, '\\\\')
+        .replace(/"/g, '\\"')
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '\\r')}"`;
     }
     return `    [${key}, "${value}"]`;
   });

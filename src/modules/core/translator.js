@@ -88,6 +88,12 @@ export function createTranslator(textMap, regexArr, blockedSelectors = []) {
         if (!element || isElementBlocked(element) || element.isContentEditable) {
             return false;
         }
+        // 安全检查：如果元素包含子元素（例如 <a>、<b>），则跳过此优化，
+        // 以防止破坏内部 DOM 结构。此优化仅适用于纯文本节点。
+        if (element.childElementCount > 0) {
+            return false;
+        }
+
         if (element.querySelector(Array.from(blockedElements).join(','))) {
             return false;
         }

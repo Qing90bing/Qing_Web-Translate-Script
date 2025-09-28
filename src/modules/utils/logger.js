@@ -65,7 +65,7 @@ export function perf(operation, duration, ...args) {
     if (isDebugMode) {
         // 只记录超过阈值的性能信息，避免过多输出
         if (duration > 5) {
-            console.log(`[汉化脚本-PERF] ${operation} 耗时: ${duration}ms`, ...args);
+            console.log(`[汉化脚本-PERF] ${operation} 耗时: ${duration.toFixed(2)}ms`, ...args);
         }
     }
 }
