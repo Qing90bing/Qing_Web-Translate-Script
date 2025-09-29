@@ -9,9 +9,7 @@ export default defineConfig({
   base: '/Qing_Web-Translate-Script/',
   // 站点图标
   head: [
-    ["link", { rel: "icon", href: "/logo.svg" }],
     ["link", { rel: "icon", type: "image/svg+xml", href: "/logo.svg" }],
-    ["link", { rel: "shortcut icon", href: "/logo.svg" }]
   ],
   // 网站的全局标题
   title: "WEB 中文汉化脚本",
@@ -52,7 +50,8 @@ export default defineConfig({
           ]
         },
         editLink: {
-          pattern: 'https://github.com/Qing90bing/Qing_Web-Translate-Script/edit/master/introduce/Qing_Web-Translate-Script-docs/:path',
+          // GitHub 仓库的 URL
+          pattern: 'https://github.com/Qing90bing/Qing_Web-Translate-Script/edit/main/introduce/Qing_Web-Translate-Script-docs/:path',
           text: '在 GitHub 上编辑此页'
         },
         footer: {
@@ -63,7 +62,6 @@ export default defineConfig({
           prev: '上一页',
           next: '下一页'
         },
-        // [修复] 将 "On this page" 翻译为中文
         outlineTitle: '在本页'
       }
     },
@@ -140,7 +138,6 @@ export default defineConfig({
           prev: '上一頁',
           next: '下一頁'
         },
-        // [修复] 将 "On this page" 翻译为繁体中文
         outlineTitle: '在本頁'
       }
     },
@@ -179,7 +176,6 @@ export default defineConfig({
           prev: '上一頁',
           next: '下一頁'
         },
-        // [修复] 将 "On this page" 翻译为繁体中文
         outlineTitle: '在本頁'
       }
     }
