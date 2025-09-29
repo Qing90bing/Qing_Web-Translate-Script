@@ -1,10 +1,8 @@
 <div align="center">
   <img src="introduce/icon/Qing_Web-Translate-Script.svg" width="100" height="100" alt="WEB 中文汉化插件图标">
-  
-  <h1 style="color: #007bff;">WEB 中文汉化插件</h1>
+  <h1>WEB 中文汉化插件</h1>
+  <p>提升常用网站浏览体验，减少阅读压力:)</p>
 </div>
-
-  <p style="text-align: center;">提升常用网站浏览体验，减少阅读压力:)</p>
 
 ## ✨ 功能特性
 
@@ -17,8 +15,10 @@
 ## 🖥️ 效果预览
 
 <div align="center">
-  <img src="introduce/img/googleaistudio_introduce.jpg" width="600" style="border-radius: 10px; margin: 10px;" alt="Google AI Studio 汉化效果预览">
-  <img src="introduce/img/jules_introduce.jpg" width="600" style="border-radius: 10px; margin: 10px;" alt="Jules 汉化效果预览">
+  <img src="introduce/img/googleaistudio_introduce.jpg" width="600" alt="Google AI Studio 汉化效果预览">
+  <br>
+  
+  <img src="introduce/img/jules_introduce.jpg" width="600" alt="Jules 汉化效果预览">
 </div>
 
 ## 🛠️ 兼容环境
@@ -33,13 +33,16 @@
 ### 1. 安装脚本管理器
 
 安装用户脚本管理器：
+
 - 推荐：[Tampermonkey](https://www.tampermonkey.net/)
+
+- Chrome / Chromium 内核浏览器，请务必开启 “扩展程序” 管理中的 “开发者模式”
 
 ### 2. 安装本脚本
 
 #### 从 GitHub 安装 (推荐) 
 
-- 访问 [Github 源 [ CDN版 ]](https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.cdn.user.js) 或者 [Github 源 [ 离线版 ]](https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.user.js)
+- 访问 [Github 源 [ CDN版 ]](https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.cdn.user.js) 或者 [Github 源 [ 离线版 ]](https.raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.user.js)
 - 点击页面上的"安装此脚本"按钮
 - Tampermonkey 会自动弹出安装确认窗口，再次点击"安装"即可
 
@@ -50,6 +53,8 @@
 ## 📝 待办事项
 
 - 开发一个更友好的浏览器图形化配置界面，管理网站翻译文件和配置。
-- 增加对更多网站的翻译支持，覆盖更多常用的在线工具和服务。
+- 增加对更多网站的翻译支持，覆盖更多常用的网站。
 
-## 🙏 特别鸣谢
+## 🙏 特别致谢
+
+这个项目的实现离不开以下优秀的技术和资源
