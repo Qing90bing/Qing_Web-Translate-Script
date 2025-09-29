@@ -139,7 +139,7 @@ export const julesGoogleComZhCn = {
     ["Publish a branch with your changes", "发布一个包含您代码变更的分支"],
     ["Unpause the task to chat with Jules", "取消暂停任务以与 Jules 聊天"],
     ["Jules is waiting for you to review...", "Jules 正在等待您审核..."],
-    ["Running environment setup script...", "正在运行环境配置脚本..."],
+    ["Running environment setup script", "正在运行环境配置脚本"],
     ["Get started with some example prompts", "开始使用一些示例提示"],
     ["🦜 Celebrating talk like a pirate day", "🦜 庆祝国际海盗语言日"],
     ["Jules is awaiting plan approval", "Jules 正在等待计划被批准"],

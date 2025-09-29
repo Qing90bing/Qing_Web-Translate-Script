@@ -1,0 +1,36 @@
+/*
+ * --- 主页 Logo 自定义动画 ---
+ * 这是自定义主题的一部分，用于美化主页“英雄区域”中的 Logo 图片。
+ */
+.VPHero .VPImage.image-src {
+  /*
+   * 让 Logo 默认逆时针旋转 15 度，创造一种不经意的、有设计感的效果。
+   */
+  transform: rotate(15deg);
+
+  /*
+   * 使用 filter: drop-shadow(...) 实现辉光效果。
+   * 它会根据图像的实际形状生成阴影，效果比 box-shadow 更贴合。
+   */
+  filter: drop-shadow(0 0 30px rgba(100, 108, 255, 0.7));
+
+  /*
+   * 添加过渡效果，使得 transform 和 filter 属性在变化时能有平滑的动画。
+   */
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+/*
+ * 当鼠标指针悬停在元素上时，此处的样式会生效。
+ */
+.VPHero .VPImage.image-src:hover {
+  /*
+   * 当鼠标悬停时，将 Logo 的旋转角度恢复到 0 度，即回正。
+   */
+  transform: rotate(0deg);
+
+  /*
+   * 增强辉光效果，创造出“点亮”或“激活”的视觉反馈。
+   */
+  filter: drop-shadow(0 0 45px rgba(100, 108, 255, 1));
+}
