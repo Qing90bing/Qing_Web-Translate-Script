@@ -89,7 +89,7 @@ export default defineConfig({
           ]
         },
         editLink: {
-          pattern: 'https://github.com/Qing90bing/Qing_Web-Translate-Script/edit/master/introduce/Qing_Web-Translate-Script-docs/:path',
+          pattern: 'https://github.com/Qing90bing/Qing_Web-Translate-Script/edit/main/introduce/Qing_Web-Translate-Script-docs/:path',
           text: 'Edit this page on GitHub'
         },
         footer: {
@@ -127,7 +127,7 @@ export default defineConfig({
           ]
         },
         editLink: {
-          pattern: 'https://github.com/Qing90bing/Qing_Web-Translate-Script/edit/master/introduce/Qing_Web-Translate-Script-docs/:path',
+          pattern: 'https://github.com/Qing90bing/Qing_Web-Translate-Script/edit/main/introduce/Qing_Web-Translate-Script-docs/:path',
           text: '在 GitHub 上編輯此頁'
         },
         footer: {
@@ -165,7 +165,7 @@ export default defineConfig({
           ]
         },
         editLink: {
-          pattern: 'https://github.com/Qing90bing/Qing_Web-Translate-Script/edit/master/introduce/Qing_Web-Translate-Script-docs/:path',
+          pattern: 'https://github.com/Qing90bing/Qing_Web-Translate-Script/edit/main/introduce/Qing_Web-Translate-Script-docs/:path',
           text: '在 GitHub 上編輯此頁'
         },
         footer: {
