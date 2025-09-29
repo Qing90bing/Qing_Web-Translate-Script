@@ -1,9 +1,10 @@
-<div align="center">
-  <img src="introduce/icon/Qing_Web-Translate-Script.svg" width="128" height="128" alt="WEB 中文汉化插件图标">
-  <h1>WEB 中文汉化脚本</h1>
-  <p>提升常用网站浏览体验，减少阅读压力:)</p>
+<p align="center">
+  <img src="introduce/icon/Qing_Web-Translate-Script.svg" width="100" height="100" alt="WEB 中文汉化插件图标">
+</p>
+<h1 align="center">WEB 中文汉化脚本</h1>
+<p align="center">提升常用网站浏览体验，减少阅读压力:)</p>
 
-  <p>
+<p align="center">
     <a href="https://github.com/Qing90bing/Qing_Web-Translate-Script/stargazers">
       <img src="https://img.shields.io/github/stars/Qing90bing/Qing_Web-Translate-Script?style=flat-square&logo=github&label=Stars" alt="GitHub Stars">
     </a>
@@ -16,8 +17,7 @@
     <a href="https://github.com/Qing90bing/Qing_Web-Translate-Script/blob/main/LICENSE">
       <img src="https://img.shields.io/github/license/Qing90bing/Qing_Web-Translate-Script?style=flat-square&logo=gitbook&label=License" alt="License">
     </a>
-  </p>
-</div>
+</p>
 
 ## 🤔 这是什么？
 
@@ -78,8 +78,17 @@
 
 ## 🙏 特别致谢
 
-这个项目的实现离不开以下优秀的技术和资源，在此表示感谢。
-<!-- 在此可以列出具体的技术栈或感谢的个人/组织 -->
+这个项目的实现离不开以下优秀的技术和资源，在此表示感谢：
+
+- **运行环境**: [Tampermonkey](https://www.tampermonkey.net/), [Greasy Fork](https://greasyfork.org/)
+- **AI 助理**: [Jules](https://https://jules.google.com/), [Gemini](https://https://gemini.google.com/)
+- **开发工具**: [Visual Studio Code](https://code.visualstudio.com/), [GitHub](https://github.com/)
+- **核心依赖**: [esbuild](https://esbuild.github.io/), [inquirer](https://github.com/SBoudrias/Inquirer.js/), [acorn](https://github.com/acornjs/acorn), [Prettier](https://prettier.io/)
+
+## 👨‍💻 作者声明
+
+> [!TIP]
+> 我只是一名小白，不懂计算机语言，该插件是全程在AI的协助下完成的。如果遇到bug，我会尽我所能去解决。
 
 ## 📜 许可证
 
