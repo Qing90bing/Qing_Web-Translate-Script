@@ -1,7 +1,10 @@
 import { defineConfig } from 'vitepress'
 
-// 为页脚动态生成版权信息
-const copyright = `Copyright © ${new Date().getFullYear()}-present Qing90bing`;
+// --- 用于动态生成版权年份的辅助函数 ---
+const currentYear = new Date().getFullYear();
+const copyrightSince = 2025;
+// 如果当前年份大于起始年份，则显示年份范围，否则只显示起始年份
+const copyrightYearRange = currentYear > copyrightSince ? `${copyrightSince}-${currentYear}` : `${copyrightSince}`;
 
 // VitePress 站点配置
 export default defineConfig({
@@ -9,7 +12,7 @@ export default defineConfig({
   base: '/Qing_Web-Translate-Script/',
   // 站点图标
   head: [
-    ["link", { rel: "icon", type: "image/svg+xml", href: "/logo.svg" }],
+    ["link", { rel: "icon", type: "image/svg+xml", href: "/Qing_Web-Translate-Script/logo.svg" }],
   ],
   // 网站的全局标题
   title: "WEB 中文汉化脚本",
@@ -50,13 +53,12 @@ export default defineConfig({
           ]
         },
         editLink: {
-          // GitHub 仓库的 URL
           pattern: 'https://github.com/Qing90bing/Qing_Web-Translate-Script/edit/main/introduce/Qing_Web-Translate-Script-docs/:path',
           text: '在 GitHub 上编辑此页'
         },
         footer: {
           message: '基于 MIT 许可发布',
-          copyright: copyright
+          copyright: `❤️ 版权所有 © ${copyrightYearRange} Qing90bing`
         },
         docFooter: {
           prev: '上一页',
@@ -94,13 +96,12 @@ export default defineConfig({
         },
         footer: {
           message: 'Released under the MIT License.',
-          copyright: copyright
+          copyright: `❤️ Copyright © ${copyrightYearRange} Qing90bing`
         },
         docFooter: {
           prev: 'Previous page',
           next: 'Next page'
         }
-        // 英文环境默认显示 "On this page"，无需配置
       }
     },
     // --- 繁体中文（香港）配置 ---
@@ -132,7 +133,7 @@ export default defineConfig({
         },
         footer: {
           message: '基於 MIT 許可發布',
-          copyright: copyright
+          copyright: `❤️ 版權所有 © ${copyrightYearRange} Qing90bing`
         },
         docFooter: {
           prev: '上一頁',
@@ -170,7 +171,7 @@ export default defineConfig({
         },
         footer: {
           message: '基於 MIT 許可發布',
-          copyright: copyright
+          copyright: `❤️ 版權所有 © ${copyrightYearRange} Qing90bing`
         },
         docFooter: {
           prev: '上一頁',
