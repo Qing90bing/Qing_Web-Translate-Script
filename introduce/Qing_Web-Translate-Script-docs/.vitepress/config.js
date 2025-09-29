@@ -3,12 +3,15 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   base: '/Qing_Web-Translate-Script/',
-  lang: 'zh-CN', // 告诉浏览器页面是中文
+  lang: 'zh-CN', // 告诉浏览器页面默认是中文
   title: "中文汉化插件",
   description: "提供帮助文档和贡献翻译教程",
   themeConfig: {
-    logo: '../logo.svg',
+    // logo 路径
+    logo: '/logo.svg',
+
     // https://vitepress.dev/reference/default-theme-config
+
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Examples', link: '/markdown-examples' }
@@ -25,7 +28,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
+      { icon: 'github', link: 'https://github.com/Qing90bing/Qing_Web-Translate-Script' }
     ]
   }
 })
