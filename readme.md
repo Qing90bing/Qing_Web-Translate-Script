@@ -88,10 +88,14 @@
 
 | 版本 | 安装链接 | 描述 |
 |:---:|:---:|:---|
-| **CDN 版 (推荐)** | [**点击安装**](https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.cdn.user.js) | **适合大多数用户**。通过 CDN 加载词典，脚本体积小，能更快地获取翻译更新。 |
-| **离线版** | [**点击安装**](https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.user.js) | 将所有翻译词典内置于脚本中，适合网络不稳定或希望离线使用的场景。 |
+| **CDN 版 (推荐)** | [**点击安装**](https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.cdn.user.js) | **适合大多数用户**。通过 CDN 加载词典，脚本体积小，能更快地获取翻译更新 |
+| **离线版** | [**点击安装**](https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.user.js) | 将所有翻译词典内置于脚本中，适合网络不稳定或希望离线使用的场景 |
 
 点击上方的“点击安装”链接，Tampermonkey 会自动弹出安装确认窗口，再次点击“安装”即可完成
+
+> [!Note]**翻译更新**
+>
+> - 翻译更新不定期，本人还是学生，也需顾及学业，请您理解，谢谢:)
 
 <a name="contributing"></a>
 
@@ -139,13 +143,13 @@
 ## 👨‍💻 作者声明
 
 > [!TIP]
-> 本人为计算机新手，该插件是全程在AI的协助下完成的。如果遇到bug，我会尽我所能去解决。
+> 本人为计算机新手，该插件是全程在AI的协助下完成的。如果遇到bug，我会尽我所能去解决
 
 <a name="license"></a>
 
 ## 📜 许可证
 
-本项目采用 [MIT License](LICENSE) 开源协议。
+本项目采用 [MIT License](LICENSE) 开源协议
 
 <!-- LINK GROUP -->
 [github-project-link]: https://github.com/Qing90bing/Qing_Web-Translate-Script "项目"
