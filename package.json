@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "node build.js"
+    "build": "node build.js",
+    "docs:dev": "vitepress dev introduce/Qing_Web-Translate-Script-docs",
+    "docs:build": "vitepress build introduce/Qing_Web-Translate-Script-docs",
+    "docs:preview": "vitepress preview introduce/Qing_Web-Translate-Script-docs"
   },
   "repository": {
     "type": "git",
@@ -19,9 +22,11 @@
   "description": "",
   "type": "module",
   "devDependencies": {
+    "acorn": "^8.12.1",
     "esbuild": "^0.25.9",
     "inquirer": "^9.3.5",
-    "acorn": "^8.12.1",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "vitepress": "^1.6.4",
+    "vue": "^3.5.22"
   }
 }

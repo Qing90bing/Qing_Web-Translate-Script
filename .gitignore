@@ -1,2 +1,6 @@
 # 安装的依赖工具，体积很大，不需要上传
 /node_modules/
+
+# vitepress 编译生成的文件
+introduce/Qing_Web-Translate-Script-docs/.vitepress/dist
+introduce/Qing_Web-Translate-Script-docs/.vitepress/cache

@@ -1,0 +1,65 @@
+# GitHub Pages a docs workflow YAML file
+#
+# To use this workflow, set up a class in your repository settings
+# Read more about YAML syntax at https://www.youtube.com/watch?v=11sy9kGLaIY
+name: Deploy VitePress Site to Pages
+
+on:
+  # 在推送到 main 分支时运行。
+  push:
+    branches: [main]
+  # 允许您在“Actions”选项卡上手动运行此工作流
+  workflow_dispatch:
+
+# 设置 GITHUB_TOKEN 的权限以允许部署到 GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 只允许一个并发部署，跳过在运行之间排队的运行。
+# 但是，不要取消正在进行的运行，因为我们希望允许这些生产部署完成。
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  # 构建任务
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 如果未启用 lastUpdated，则不需要
+      # - uses: pnpm/action-setup@v3 # 如果您使用 pnpm，请取消注释此块
+      #   with:
+      #     version: 9
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm # 如果您使用 pnpm 或 yarn，请更改
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Install dependencies
+        run: npm install # 如果您使用 pnpm 或 yarn，请更改
+      - name: Build with VitePress
+        run: npm run docs:build # 如果您使用 pnpm 或 yarn，请更改
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: introduce/Qing_Web-Translate-Script-docs/.vitepress/dist
+
+  # 部署任务
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
