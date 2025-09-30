@@ -885,6 +885,10 @@ export const claudeAiZhCn = {
     ["Star", "收藏"],
     ["All", "全部"],
     ["Tip", "提示"],
+    ["New","新"],
+    ["Start chatting","开始聊天"],
+    ["Meet Sonnet 4.5—Claude at its best","看看最好的 Sonnet 4.5——Claude"],
+    ["Claude just got better at working through ideas with you. That means sharper reasoning, higher-quality artifacts, and more helpful responses.","Claude 在与你共同梳理思路方面进步显著。这意味着他能提出更精辟的论证、产出更高质量的成果，并给出更有价值的反馈"],
     ["Web", "网页"],
     ["and", "和"]
   ],
