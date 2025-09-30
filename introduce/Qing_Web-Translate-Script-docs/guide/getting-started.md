@@ -21,19 +21,33 @@
 
 ## 步骤 2: 安装 WEB 中文汉化脚本
 
-安装好 Tampermonkey 后，您就可以安装我们的汉化脚本了。
+安装好 Tampermonkey 后，您就可以安装我们的汉化脚本了。我们提供两个版本供您选择：
 
-我们推荐您安装 **CDN 版**，它的脚本体积更小，并且能够自动获取最新的翻译更新，无需手动操作。
+<div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.5rem;">
 
-1.  **点击下方的安装链接**。
-2.  Tampermonkey 会自动捕获这个链接，并打开一个新的页面，向您展示脚本的源代码和信息。
-3.  在该页面上，**点击“安装”按钮**。
-
-<div style="text-align: center; margin: 20px 0;">
-  <a href="https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.cdn.user.js" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 10px 20px; background-color: #3eaf7c; color: white; border-radius: 8px; text-decoration: none; font-weight: bold;">
-    点击安装 (CDN 版)
-  </a>
+<div class="InstallationCard" style="flex: 1; min-width: 280px; display: flex; flex-direction: column; border-radius: 12px; background-color: var(--vp-c-bg-soft); padding: 24px;">
+  <h3 style="margin: 0 0 8px 0; border: none; font-size: 1.1em; font-weight: 600;">CDN 版 <span style="background-color: var(--vp-c-brand-1); color: var(--vp-c-bg-soft); padding: 3px 8px; border-radius: 6px; font-size: 0.8em; vertical-align: middle;">推荐</span></h3>
+  <p style="flex-grow: 1; font-size: 0.9em; color: var(--vp-c-text-2); line-height: 1.6;">脚本体积小，能自动获取最新词典，适合绝大多数用户。</p>
+  <div style="padding-top: 12px;">
+    <a href="https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.cdn.user.js" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 8px 16px; background-color: var(--vp-c-brand-1); color: var(--vp-c-bg-soft); border-radius: 8px; text-decoration: none; font-weight: 600;">
+      点击安装
+    </a>
+  </div>
 </div>
+
+<div class="InstallationCard" style="flex: 1; min-width: 280px; display: flex; flex-direction: column; border-radius: 12px; background-color: var(--vp-c-bg-soft); padding: 24px;">
+  <h3 style="margin: 0 0 8px 0; border: none; font-size: 1.1em; font-weight: 600;">离线版 <span style="background-color: var(--vp-c-gray-1); color: var(--vp-c-text-1); padding: 3px 8px; border-radius: 6px; font-size: 0.8em; vertical-align: middle;">稳定</span></h3>
+  <p style="flex-grow: 1; font-size: 0.9em; color: var(--vp-c-text-2); line-height: 1.6;">内置所有翻译数据，无需联网加载，但需手动更新脚本以获取最新词典。</p>
+  <div style="padding-top: 12px;">
+    <a href="https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.user.js" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 8px 16px; background-color: var(--vp-c-brand-1); color: var(--vp-c-bg-soft); border-radius: 8px; text-decoration: none; font-weight: 600;">
+      点击安装
+    </a>
+  </div>
+</div>
+
+</div>
+
+点击您选择版本的“点击安装”链接，Tampermonkey 会自动弹出安装确认窗口，再次点击“安装”即可完成。
 
 安装完成后，脚本就已经准备就绪了！
 
