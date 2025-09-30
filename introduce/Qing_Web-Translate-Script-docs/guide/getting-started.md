@@ -26,20 +26,20 @@
 <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.5rem;">
 
 <div class="InstallationCard" style="flex: 1; min-width: 280px; display: flex; flex-direction: column; border-radius: 12px; background-color: var(--vp-c-bg-soft); padding: 24px;">
-  <h3 style="margin: 0 0 8px 0; border: none; font-size: 1.1em; font-weight: 600;">CDN 版 <span style="background-color: var(--vp-c-brand-1); color: var(--vp-c-bg-soft); padding: 3px 8px; border-radius: 6px; font-size: 0.8em; vertical-align: middle;">推荐</span></h3>
-  <p style="flex-grow: 1; font-size: 0.9em; color: var(--vp-c-text-2); line-height: 1.6;">脚本体积小，能自动获取最新词典，适合绝大多数用户。</p>
-  <div style="padding-top: 12px;">
-    <a href="https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.cdn.user.js" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 8px 16px; background-color: var(--vp-c-brand-1); color: var(--vp-c-bg-soft); border-radius: 8px; text-decoration: none; font-weight: 600;">
+  <h3 style="margin: 0 0 8px 0; border: none; font-size: 1.1em; font-weight: 600;">CDN 版 <span style="background-color: var(--vp-c-brand-1); color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.8em; vertical-align: middle;">推荐</span></h3>
+  <p style="flex-grow: 1; font-size: 0.9em; color: var(--vp-c-text-2); line-height: 1.6;">脚本体积小，能自动获取最新词典，适合绝大多数用户</p>
+  <div style="padding-top: 12px; text-align: right;">
+    <a href="https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.cdn.user.js" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 8px 16px; background-color: var(--vp-c-brand-1); color: white;border-radius: 8px; text-decoration: none; font-weight: 600;">
       点击安装
     </a>
   </div>
 </div>
 
 <div class="InstallationCard" style="flex: 1; min-width: 280px; display: flex; flex-direction: column; border-radius: 12px; background-color: var(--vp-c-bg-soft); padding: 24px;">
-  <h3 style="margin: 0 0 8px 0; border: none; font-size: 1.1em; font-weight: 600;">离线版 <span style="background-color: var(--vp-c-gray-1); color: var(--vp-c-text-1); padding: 3px 8px; border-radius: 6px; font-size: 0.8em; vertical-align: middle;">稳定</span></h3>
-  <p style="flex-grow: 1; font-size: 0.9em; color: var(--vp-c-text-2); line-height: 1.6;">内置所有翻译数据，无需联网加载，但需手动更新脚本以获取最新词典。</p>
-  <div style="padding-top: 12px;">
-    <a href="https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.user.js" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 8px 16px; background-color: var(--vp-c-brand-1); color: var(--vp-c-bg-soft); border-radius: 8px; text-decoration: none; font-weight: 600;">
+  <h3 style="margin: 0 0 8px 0; border: none; font-size: 1.1em; font-weight: 600;">离线版 <span style="background-color: var(--vp-c-brand-1); color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.8em; vertical-align: middle;">稳定</span></h3>
+  <p style="flex-grow: 1; font-size: 0.9em; color: var(--vp-c-text-2); line-height: 1.6;">内置所有翻译数据，无需联网加载，但需手动更新脚本以获取最新词典</p>
+  <div style="padding-top: 12px; text-align: right;">
+    <a href="https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.user.js" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 8px 16px; background-color: var(--vp-c-brand-1); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">
       点击安装
     </a>
   </div>
