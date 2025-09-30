@@ -164,3 +164,24 @@
       drop-shadow(0 0 60px rgba(0, 225, 255, 0.6))
   }
 }
+
+/*
+ * --- 内容区域图片圆角 ---
+ * 为文档内容中的图片添加圆角，使其视觉上更柔和。
+ */
+.VPDoc img {
+  border-radius: 8px; /* 设置 8px 的圆角 */
+}
+
+/*
+ * --- 主页功能卡片悬停效果 ---
+ * 为主页的功能卡片添加一个平滑的描边淡入淡出效果。
+ */
+.VPFeature {
+  border: 1px solid transparent; /* 默认状态下边框透明 */
+  transition: border-color 0.3s ease-in-out; /* 为边框颜色变化添加过渡效果 */
+}
+
+.VPFeature:hover {
+  border-color: var(--vp-c-brand-1); /* 鼠标悬停时，边框颜色变为品牌色 */
+}

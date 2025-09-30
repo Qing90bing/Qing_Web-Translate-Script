@@ -5,8 +5,8 @@ layout: home
 # Hero section
 hero:
   name: "Web Translate Script"
-  text: "Enhance Your Web Browsing Experience"
-  tagline: Providing precise, high-quality manual translations for popular websites. Say goodbye to awkward machine translations and enjoy a smoother, more comfortable browsing experience.
+  text: "Enhance Your Browsing Experience"
+  tagline: "Provides manual translations for popular websites. Say goodbye to awkward machine translations and enjoy a smoother, more comfortable web browsing."
   image:
     src: /logo.svg
     alt: Web Translate Script Icon
@@ -20,16 +20,16 @@ hero:
 
 # Features section
 features:
-  - icon: '🎯'
-    title: Accurate Translations
-    details: All translations are manually contributed by the community, ensuring accurate terminology and context that fits the reading habits of native speakers.
+  - icon: '✏️'
+    title: Manual Proofreading
+    details: Translations are submitted and revised by community members to provide more natural translations for select websites.
   - icon: '🚀'
     title: Seamless Experience
-    details: A built-in "anti-flicker" mechanism keeps page content stable before and after translation is applied, eliminating page jitter and flickering.
+    details: A built-in "anti-flicker" mechanism keeps page content stable before and after translation is applied, eliminating page jitter.
   - icon: '🌐'
     title: Smart Adaptation
-    details: The script automatically detects the browser's language and applies translations. You can also switch manually in the Tampermonkey menu.
+    details: The script can automatically detect the browser's language to apply translations. You can also switch manually in the Tampermonkey menu.
   - icon: '🌍'
     title: Community Driven
-    details: This is an open-source project. We welcome all users to contribute, helping to expand and improve the translation library for the benefit of more websites.
+    details: An open project that welcomes all users to contribute, helping to expand and improve the translation library.
 ---

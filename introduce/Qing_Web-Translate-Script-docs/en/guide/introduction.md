@@ -2,21 +2,39 @@
 
 ## 🤔 What is this?
 
-"Web Translate Script" is a browser enhancement tool that runs on top of user script managers like [Tampermonkey](https://www.tampermonkey.net/).
+"WEB Chinese Localization Script" is a browser script that runs on a user script manager like [Tampermonkey](https://www.tampermonkey.net/).
 
-Unlike the browser's built-in "full-page translate" feature, all translations provided by this script are contributed by the community. We aim for "manual localization" that is precise and natural, rather than stiff machine translations.
+Different from the browser's built-in "Translate full page" feature, the translations in this script are contributed by community users. It aims to provide "manual localization" that is accurate and idiomatic, rather than rigid machine translation.
 
-Our goals are to:
-- **Improve the browsing experience on frequently used websites.**
-- **Reduce the reading strain on foreign language websites.**
-- **Provide high-quality, trustworthy translated content.**
+This project hopes to:
+- Improve the browsing experience of some frequently used websites.
+- Reduce the difficulty of reading foreign language websites.
+- Explore a community-driven translation model.
 
-Through the power of the community, we hope to make more great websites more accessible to a wider audience.
+Through the power of the community, we hope to make more quality websites more friendly to Chinese users.
 
-## ✨ Key Features
+## ✨ Main Features
 
-- **🎯 Accurate Translations**: All translations are manually written to ensure correct terminology and context.
-- **🚀 Seamless Experience**: A built-in "anti-flicker" loading mechanism keeps the page content stable, eliminating flickering and layout shifts.
-- **🌐 Smart Adaptation**: The script can automatically detect the browser's language and apply translations. You can also switch manually from the Tampermonkey menu.
-- **🌍 Community Driven**: An open project that welcomes all users to contribute, helping to expand and improve the translation library.
-- **🔧 Developer Tools**: Provides easy-to-use command-line tools for developers to check, build, and manage translation content.
+- **✏️ Manual Proofreading**: Translations are submitted and revised by community members to improve accuracy and appropriateness.
+- **🚀 Seamless Experience**: A built-in "anti-flicker" loading mechanism keeps the page content stable before and after the translation is applied, eliminating page jitter and flickering.
+- **🌐 Smart Adaptation**: The script can automatically detect the browser language and apply the translation, or you can switch manually in the Tampermonkey menu.
+- **🌍 Community Driven**: An open project that welcomes all users to contribute and jointly expand and improve the translation library.
+- **🔧 Terminal Tools**: Provides easy-to-use command-line tools for developers to check, build, and manage translation content.
+
+## 🖼️ Preview
+
+![Google AI Studio Localization Preview](../../public/img/googleaistudio_introduce.jpg)
+*Google AI Studio Localization Preview*
+
+<br/>
+
+![Jules AI Localization Preview](../../public/img/jules_introduce.jpg)
+*Jules AI Localization Preview*
+
+---
+
+:::tip About the Author
+I am a student and a beginner in the computer science field. This project was completed with the full assistance of AI, primarily for learning and practice.
+
+Due to academic and personal limitations, there may be many shortcomings in the project. Your valuable opinions and suggestions are welcome.
+:::
