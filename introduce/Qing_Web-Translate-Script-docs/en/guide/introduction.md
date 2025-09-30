@@ -2,39 +2,40 @@
 
 ## 🤔 What is this?
 
-"WEB Chinese Localization Script" is a browser script that runs on a user script manager like [Tampermonkey](https://www.tampermonkey.net/).
+The "Web Translate Script" is a browser script based on [Tampermonkey](https://www.tampermonkey.net/).
 
-Different from the browser's built-in "Translate full page" feature, the translations in this script are contributed by community users. It aims to provide "manual localization" that is accurate and idiomatic, rather than rigid machine translation.
+It differs from the browser's built-in "full-page translation" feature. The translations in this script are primarily contributed and proofread by the community, aiming to provide translations that better suit the reading habits of Chinese users for certain websites.
 
 This project hopes to:
-- Improve the browsing experience of some frequently used websites.
-- Reduce the difficulty of reading foreign language websites.
-- Explore a community-driven translation model.
 
-Through the power of the community, we hope to make more quality websites more friendly to Chinese users.
+- Improve the browsing experience on some frequently used websites
+- Lower the barrier to reading foreign language websites
+- Explore a community-collaborative translation model
 
-## ✨ Main Features
+Through the efforts of the community, we hope to make some websites more friendly to Chinese users.
 
-- **✏️ Manual Proofreading**: Translations are submitted and revised by community members to improve accuracy and appropriateness.
-- **🚀 Seamless Experience**: A built-in "anti-flicker" loading mechanism keeps the page content stable before and after the translation is applied, eliminating page jitter and flickering.
-- **🌐 Smart Adaptation**: The script can automatically detect the browser language and apply the translation, or you can switch manually in the Tampermonkey menu.
-- **🌍 Community Driven**: An open project that welcomes all users to contribute and jointly expand and improve the translation library.
+## ✨ Key Features
+
+- **✏️ Manual Proofreading**: Translations are submitted and corrected by community members to improve accuracy and appropriateness.
+- **🚀 Seamless Experience**: A built-in "anti-flicker" loading mechanism ensures page content remains stable before and after translation is applied, eliminating page shaking and flickering.
+- **🌐 Smart Adaptation**: The script automatically detects the browser's language and applies the translation. You can also switch manually in the Tampermonkey menu.
+- **🌍 Community Driven**: An open project that welcomes all users to contribute, jointly expanding and improving the translation library.
 - **🔧 Terminal Tools**: Provides easy-to-use command-line tools for developers to check, build, and manage translation content.
 
 ## 🖼️ Preview
 
-![Google AI Studio Localization Preview](../../public/img/googleaistudio_introduce.jpg)
-*Google AI Studio Localization Preview*
+![Google AI Studio Translation Effect](../../public/img/googleaistudio_introduce.jpg)
+*Google AI Studio Translation Effect*
 
 <br/>
 
-![Jules AI Localization Preview](../../public/img/jules_introduce.jpg)
-*Jules AI Localization Preview*
+![Jules AI Translation Effect](../../public/img/jules_introduce.jpg)
+*Jules AI Translation Effect*
 
 ---
 
 :::tip About the Author
-I am a student and a beginner in the computer science field. This project was completed with the full assistance of AI, primarily for learning and practice.
+I am a student and a beginner in the field of computer science. This project was completed with the full assistance of AI, primarily for learning and practice.
 
-Due to academic and personal limitations, there may be many shortcomings in the project. Your valuable opinions and suggestions are welcome.
+Due to academic and personal limitations, there may be many shortcomings in the project. Valuable opinions and suggestions are welcome.
 :::
