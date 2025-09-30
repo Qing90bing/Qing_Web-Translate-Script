@@ -185,3 +185,56 @@
 .VPFeature:hover {
   border-color: var(--vp-c-brand-1); /* 鼠标悬停时，边框颜色变为品牌色 */
 }
+
+
+/*
+ * ==========================================================================
+ * --- 全局滚动条样式 ---
+ * ==========================================================================
+ *
+ * 定义一个纤细、简约且能适配日夜间模式的滚动条。
+ * 这种样式适用于所有基于 WebKit 的浏览器 (Chrome, Safari, Edge)。
+ */
+
+/* --- 定义滚动条的整体尺寸 --- */
+::-webkit-scrollbar {
+  width: 6px;  /* 垂直滚动条的宽度 */
+  height: 6px; /* 水平滚动条的高度 */
+}
+
+/* --- 滚动条轨道 (背景) --- */
+::-webkit-scrollbar-track {
+  /*
+   * 使用 VitePress 的 `--vp-c-bg-soft` 变量作为轨道背景色。
+   * 这个颜色在日间和夜间模式下会自动调整，确保与页面背景完美融合。
+   */
+  background-color: var(--vp-c-bg-soft);
+  border-radius: 10px; /* 为轨道添加圆角，使其看起来更平滑 */
+}
+
+/* --- 滚动条滑块 (可拖动部分) --- */
+::-webkit-scrollbar-thumb {
+  /*
+   * 使用 VitePress 的 `--vp-c-gray-2` 变量作为滑块颜色。
+   * 这个颜色在日间模式下是浅灰色，在夜间模式下会自动变暗，
+   * 以保持与背景的适当对比度，实现了您要求的“浅灰色”且自适应的效果。
+   */
+  background-color: var(--vp-c-gray-2);
+  border-radius: 10px; /* 为滑块添加圆角，与轨道的圆角匹配 */
+
+  /*
+   * 添加一个透明边框并使用 `background-clip`，
+   * 可以在滑块和轨道之间创造一个微小的间隙，视觉上更显精致、简约。
+   */
+  border: 1px solid transparent;
+  background-clip: content-box;
+}
+
+/* --- 鼠标悬停在滑块上时的效果 --- */
+::-webkit-scrollbar-thumb:hover {
+  /*
+   * 当鼠标悬停在滑块上时，颜色变为 `--vp-c-gray-1`。
+   * 这个颜色比默认状态下的滑块颜色稍深，提供了一个清晰的视觉反馈。
+   */
+  background-color: var(--vp-c-gray-1);
+}

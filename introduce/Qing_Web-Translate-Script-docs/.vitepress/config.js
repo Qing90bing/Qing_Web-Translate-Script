@@ -24,7 +24,11 @@ export default defineConfig({
     logo: '/logo.svg',
     socialLinks: [
       { icon: 'github', link: 'https://github.com/Qing90bing/Qing_Web-Translate-Script' }
-    ]
+    ],
+    // -- 搜索配置 --
+    search: {
+      provider: 'local'
+    }
   },
 
   // --- 多语言支持配置 ---
@@ -64,7 +68,27 @@ export default defineConfig({
           prev: '上一页',
           next: '下一页'
         },
-        outlineTitle: '在本页'
+        outlineTitle: '在本页',
+        search: {
+          provider: 'local',
+          options: {
+            translations: {
+              button: {
+                buttonText: '搜索',
+                buttonAriaLabel: '搜索'
+              },
+              modal: {
+                noResultsText: '无法找到相关结果',
+                resetButtonTitle: '清除查询条件',
+                footer: {
+                  selectText: '选择',
+                  navigateText: '切换',
+                  closeText: '关闭'
+                }
+              }
+            }
+          }
+        }
       }
     },
     // --- 英文配置 ---
@@ -101,6 +125,26 @@ export default defineConfig({
         docFooter: {
           prev: 'Previous page',
           next: 'Next page'
+        },
+        search: {
+          provider: 'local',
+          options: {
+            translations: {
+              button: {
+                buttonText: 'Search',
+                buttonAriaLabel: 'Search'
+              },
+              modal: {
+                noResultsText: 'No results for',
+                resetButtonTitle: 'Reset search',
+                footer: {
+                  selectText: 'to select',
+                  navigateText: 'to navigate',
+                  closeText: 'to close'
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -139,7 +183,27 @@ export default defineConfig({
           prev: '上一頁',
           next: '下一頁'
         },
-        outlineTitle: '在本頁'
+        outlineTitle: '在本頁',
+        search: {
+          provider: 'local',
+          options: {
+            translations: {
+              button: {
+                buttonText: '搜尋',
+                buttonAriaLabel: '搜尋'
+              },
+              modal: {
+                noResultsText: '無法找到相關結果',
+                resetButtonTitle: '清除查詢條件',
+                footer: {
+                  selectText: '選擇',
+                  navigateText: '切換',
+                  closeText: '關閉'
+                }
+              }
+            }
+          }
+        }
       }
     },
     // --- 繁体中文（台湾）配置 ---
@@ -171,13 +235,33 @@ export default defineConfig({
         },
         footer: {
           message: '基於 MIT 許可發布',
-          copyright: `❤️ 版權所有 © ${copyrightYearRange} Qing90bing`
+          copyright: `❤️ 版權所有 © ${copyrightYearRange} Qing9ing`
         },
         docFooter: {
           prev: '上一頁',
           next: '下一頁'
         },
-        outlineTitle: '在本頁'
+        outlineTitle: '在本頁',
+        search: {
+          provider: 'local',
+          options: {
+            translations: {
+              button: {
+                buttonText: '搜尋',
+                buttonAriaLabel: '搜尋'
+              },
+              modal: {
+                noResultsText: '無法找到相關結果',
+                resetButtonTitle: '清除查詢條件',
+                footer: {
+                  selectText: '選擇',
+                  navigateText: '切換',
+                  closeText: '關閉'
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
