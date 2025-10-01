@@ -152,6 +152,8 @@ export const julesGoogleComZhCn = {
     ["Learn more about plans.", "了解关于“计划”的更多信息。"],
     ["Arr matey! We're celebrating ", "啊嗬！我们正在庆祝"],
     ["Setting up the repository...", "正在设置代码库..."],
+    ["Search repo files","搜索代码库文件"],
+    [" Upload images","上传图片"],
     ["View the branch on GitHub", "在 GitHub 上查看分支"],
     ["environment setup documentation", "环境配置文档"],
     ["Running code review ...", "正在进行代码审查..."],
