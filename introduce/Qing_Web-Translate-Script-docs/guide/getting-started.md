@@ -53,7 +53,7 @@
 
 ## 步骤 3: 验证安装
 
-安装成功后，您可以访问任何一个我们已经支持的网站（例如 [Google AI Studio](https://aistudio.google.com/)），脚本会自动检测并应用汉化。
+安装成功后，您可以访问一些已经支持翻译的网站（例如 [Google AI Studio](https://aistudio.google.com/)），脚本会自动检测并应用汉化。
 
 您也可以点击浏览器工具栏上的 Tampermonkey 图标，在“管理面板”中看到“WEB 中文汉化脚本”已处于启用状态。
 

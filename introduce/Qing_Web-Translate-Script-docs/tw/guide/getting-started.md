@@ -53,7 +53,7 @@
 
 ## 步驟 3: 驗證安裝
 
-安裝成功後，您可以造訪任何一個我們已經支援的網站（例如 [Google AI Studio](https://aistudio.google.com/)），腳本會自動偵測並套用漢化。
+安裝成功後，您可以瀏覽一些已經支援翻譯的網站（例如 [Google AI Studio](https://aistudio.google.com/)），腳本會自動偵測並套用中文化。
 
 您也可以點擊瀏覽器工具列上的 Tampermonkey 圖示，在「管理面板」中看到「WEB 中文漢化腳本」已處於啟用狀態。
 

@@ -53,7 +53,7 @@ After installation, the script is ready to use!
 
 ## Step 3: Verify the Installation
 
-After a successful installation, you can visit any supported website (e.g., [Google AI Studio](https://aistudio.google.com/)), and the script will automatically detect and apply the translation.
+After a successful installation, you can visit websites that support translation (e.g., [Google AI Studio](https://aistudio.google.com/)), and the script will automatically detect and apply the Chinese localization.
 
 You can also click the Tampermonkey icon in your browser's toolbar and see that the "Web Translate Script" is enabled in the dashboard.
 
