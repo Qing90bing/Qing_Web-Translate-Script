@@ -144,8 +144,28 @@
     drop-shadow(0 0 15px rgba(0, 122, 255, 0.8))
     drop-shadow(0 0 45px rgba(0, 225, 255, 0.5));
 
-  /* 添加无限循环的脉冲动画，让辉光更具“活力” */
-  animation: pulse-glow 10s infinite alternate;
+  /*
+   * --- 动画组合 ---
+   * 1. fade-in-slide-up: 页面加载时的入场动画 (持续1秒)
+   * 2. pulse-glow: 无限循环的辉光脉冲动画
+   */
+  animation:
+    fade-in-slide-up 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
+    pulse-glow 10s infinite alternate;
+}
+
+/*
+ * --- Logo 入场动画关键帧 (淡入 + 上滑) ---
+ */
+@keyframes fade-in-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(-80px) translateX(-100px) rotate(5deg); /* 初始位置稍低 */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-100px) translateX(-100px) rotate(5deg); /* 最终位置 */
+  }
 }
 
 /*
