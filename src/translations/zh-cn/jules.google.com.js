@@ -111,6 +111,8 @@ export const julesGoogleComZhCn = {
     ["I'd like to receive invitations to participate in research studies to help improve Google AI.", "我希望接收参与研究的邀请，以帮助改进 Google AI。"],
     ["Allow AI model training on content from tasks linked to public repositories.", "允许 AI 模型使用您公开代码库相关的仓库内容进行训练。"],
     ["Ask Jules to work on a session","让 Jules 工作在会话中"],
+    ["Pause session","暂停会话"],
+    ["Deleting a session is permanent and cannot be undone","删除会话是永久性操作，无法撤销"],
     ["Generate step-by-step plan to accomplish a session","生成步骤式计划来完成会话"],
     ["Are you sure you want to delete this memory? This action cannot be undone.", "您确定要删除此记忆吗？此操作无法撤销。"],
     ["Feedback submitted will include your conversation and related code.", "您提交的反馈将包含本次对话和相关的代码。"],
@@ -119,7 +121,7 @@ export const julesGoogleComZhCn = {
     ["e.g., add test coverage when creating new api endpoints", "例如，在创建新的 API 端点时添加测试覆盖率"],
     ["submitted will include your conversation and related code", "提交内容将包括您的对话和相关代码"],
     ["You have unsaved changes. Are you sure you want to leave?", "您有未保存的变更,确定要离开吗？"],
-    [" Jules tackles bugs, small feature requests, and other software engineering sessions, with direct export to GitHub. ","Jules 能够处理漏洞修复、小型功能请求及其他软件工程任务，并直接导出至 GitHub"]
+    ["Jules tackles bugs, small feature requests, and other software engineering sessions, with direct export to GitHub.","Jules 能够处理漏洞修复、小型功能请求及其他软件工程任务，并直接导出至 GitHub"]
     ["Jules encountered an error when working on the task.", "Jules 在处理任务时遇到了一个错误。"],
     ["Completed or dormant tasks will show up here", "已完成或处于休眠状态的任务将显示在此处"],
     ["This step was already completed in the previous plan.", "此步骤在上一个计划中已经完成。"],
