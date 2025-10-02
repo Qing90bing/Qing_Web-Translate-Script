@@ -44,7 +44,7 @@ export const julesGoogleComZhCn = {
   // 使用 $1, $2, ... 来引用正则表达式中的捕获组
   // 示例: [/^您好 (\w+)/, 'Hello $1']
   regexRules: [
-    [/Daily\s+task\s+limit\s*\(\s*(\d+)\s*\/\s*(\d+)\s*\)/gi, "每日任务上限 ($1/$2)"],
+    [/Daily session limit \((\d+)\/(\d+)\)/i, "每日会话上限：$1/$2"],
     [/^Step\s+(\d+)\s+of the plan is complete\.$/i, "“计划”的第 $1 步已完成。"],
     [/Loading snapshot for ([\w-]+)\/([\w\.-]+)/i, "正在加载快照：$1/$2"],
     [/Completed\s+(\d+)\s+minutes?\s+ago/i, "$1 分钟前完成"],
@@ -171,6 +171,8 @@ export const julesGoogleComZhCn = {
     ["Something went wrong.", "发生了一些错误。"],
     ["Start interactive plan", "开始交互式计划"],
     ["Talk like a Pirate Day", "国际海盗语言日"],
+    [" Allow AI model training on content from sessions linked to public repositories. ","允许 AI 模型使用来自会话链接的公开代码库的内容进行训练"],
+    [" Google does not train its generative AI models on content Jules receives from your sessions linked to private repositories. ","Google 不会利用您会话链接的私有代码库的内容来训练其生成式 AI 模型"],
     [" Pull Request settings ", "合并请求设置"],
     ["Copied to clipboard.", "已复制到剪贴板。"],
     ["Important account alert", "重要帐号提醒"],
@@ -231,6 +233,8 @@ export const julesGoogleComZhCn = {
     ["Created file", "已创建文件"],
     ["Leave feedback", "留下反馈"],
     ["Publish branch", "发布分支"],
+    ["Search for repo or sessions","搜索代码库或会话"],
+    ["Copy session URL","复制会话链接"],
     ["Publish PR", "发布合并请求"],
     ["Recent tasks", "最近的任务"],
     ["Recent updates", "最近更新"],
@@ -245,6 +249,7 @@ export const julesGoogleComZhCn = {
     ["How it works", "工作原理"],
     ["Memory deleted", "已删除"],
     ["No thanks", "不用了，谢谢"],
+    ["Recent sessions","最近会话"],
     ["Publish code", "发布代码"],
     ["Saving...", "正在保存..."],
     ["Create plan", "创建计划"],

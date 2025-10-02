@@ -73,6 +73,8 @@ export const claudeAiZhCn = {
     [/December\s+(\d{1,2}),\s+(\d{4})/i, "$2年12月$1日"],
     [/November\s+(\d{1,2}),\s+(\d{4})/i, "$2年11月$1日"],
     [/September\s+(\d{1,2}),\s+(\d{4})/i, "$2年9月$1日"],
+    [/Evening, (\w+)/i, "$1，晚上好"],
+    [/Morning, (\w+)/i, "$1，早上好"],
     [/February\s+(\d{1,2}),\s+(\d{4})/i, "$2年2月$1日"],
     [/October\s+(\d{1,2}),\s+(\d{4})/i, "$2年10月$1日"],
     [/January\s+(\d{1,2}),\s+(\d{4})/i, "$2年1月$1日"],
