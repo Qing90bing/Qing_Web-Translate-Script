@@ -112,6 +112,8 @@ export const julesGoogleComZhCn = {
     ["Allow AI model training on content from tasks linked to public repositories.", "允许 AI 模型使用您公开代码库相关的仓库内容进行训练。"],
     ["Ask Jules to work on a session","让 Jules 工作在会话中"],
     ["Pause session","暂停会话"],
+    ["Success","成功"],
+    ["Key must start with a letter or _, and contain only letters, numbers, or _.","密钥必须以字母或 _ 开头，只能包含字母、数字或 _"],
     ["Deleting a session is permanent and cannot be undone","删除会话是永久性操作，无法撤销"],
     ["Generate step-by-step plan to accomplish a session","生成步骤式计划来完成会话"],
     ["Are you sure you want to delete this memory? This action cannot be undone.", "您确定要删除此记忆吗？此操作无法撤销。"],
