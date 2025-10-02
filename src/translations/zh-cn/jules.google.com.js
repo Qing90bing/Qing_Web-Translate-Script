@@ -121,7 +121,7 @@ export const julesGoogleComZhCn = {
     ["e.g., add test coverage when creating new api endpoints", "例如，在创建新的 API 端点时添加测试覆盖率"],
     ["submitted will include your conversation and related code", "提交内容将包括您的对话和相关代码"],
     ["You have unsaved changes. Are you sure you want to leave?", "您有未保存的变更,确定要离开吗？"],
-    ["Jules tackles bugs, small feature requests, and other software engineering sessions, with direct export to GitHub.","Jules 能够处理漏洞修复、小型功能请求及其他软件工程任务，并直接导出至 GitHub"]
+    [" Jules tackles bugs, small feature requests, and other software engineering sessions, with direct export to GitHub. ","Jules 能够处理漏洞修复、小型功能请求及其他软件工程任务，并直接导出至 GitHub"]
     ["Jules encountered an error when working on the task.", "Jules 在处理任务时遇到了一个错误。"],
     ["Completed or dormant tasks will show up here", "已完成或处于休眠状态的任务将显示在此处"],
     ["This step was already completed in the previous plan.", "此步骤在上一个计划中已经完成。"],
