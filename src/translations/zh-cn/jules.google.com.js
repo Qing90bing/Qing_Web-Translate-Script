@@ -161,6 +161,7 @@ export const julesGoogleComZhCn = {
     ["Publish branch and generate PR", "发布分支并创建合并请求"],
     ["Running environment setup script", "正在运行环境配置脚本"],
     ["Searching for relevant documentation", "正在搜索相关文档"],
+    ["Once created, active sessions will show up here.", "创建后，进行中的会话将显示在这里"],
     ["Ask Jules to work on a session", "让 Jules 工作在会话中"],
     ["Are you sure you want to continue?", "您确定要继续吗？"],
     ["Jules encountered an error.", "Jules 遇到了一个错误。"],
