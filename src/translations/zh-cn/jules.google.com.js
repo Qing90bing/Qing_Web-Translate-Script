@@ -380,7 +380,7 @@ export const julesGoogleComZhCn = {
     ["Creating key","创建密钥中"],
     ["Last used", "上次使用"],
     ["API key copied","API 密钥已复制"],
-    ["Never","从未"]
+    ["Never","从未"],
     ["No keys to display", "没有可显示的密钥"],
     ["Remember to use your API keys securely. Don't share or embed them in public code. Learn more", "请务必安全地使用您的 API 密钥。不要在公共代码中分享或嵌入它们。了解更多在"],
     ["here", "此处"],
