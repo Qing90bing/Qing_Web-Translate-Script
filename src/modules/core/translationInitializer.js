@@ -112,6 +112,13 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
         
         // 1. 执行首次全文翻译
         translator.translate(document.body);
+
+        // 翻译页面标题
+        const titleElement = document.querySelector('title');
+        if (titleElement) {
+            translator.translate(titleElement);
+        }
+
         const duration = performance.now() - startTime;
         
         log(`初次翻译完成。使用语言: ${language || 'unknown'}, 耗时: ${duration.toFixed(2)}ms`);

@@ -220,6 +220,7 @@
       ['Open source licenses', '开源软件许可'],
       ['talk like a pirate', '像海盗一样说话'],
       ['Booting up the VM', '正在启动虚拟机'],
+      ['Command timed out.', '执行命令超时。'],
       ['Drop files here', '将文件拖放到此处'],
       ['Search repo files', '搜索代码库文件'],
       ['Jules 1P Pilot', 'Jules 内部试用版'],
@@ -380,7 +381,7 @@
     language: 'zh-cn',
     enabled: true,
     styles: [],
-    blockedElements: [],
+    blockedElements: ['.chat-container', '.view-line'],
     jsRules: [],
     regexRules: [
       [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  换行\nAlt + ↩  追加文本 (不执行)\nCtrl + ↩  执行指令'],
@@ -1163,6 +1164,7 @@
       ['Music generation', '音乐生成'],
       ['Script builder', '脚本生成器'],
       ['Sharing Prompt', '分享提示词'],
+      ['Speech to text', '语音转文本'],
       ['Terms of service', '服务条款'],
       ['Text translation', '文本翻译'],
       ['to get started.', '即可开始。'],
@@ -3830,8 +3832,11 @@
       src: local('Palatino Linotype'), local('Book Antiqua'), local('Palatino');
       unicode-range: U+30-39;
     }
-    body {
+    body, body * {
       font-family: 'custom-numbers', Georgia, 'STSong', '华文宋体', 'NSimSun', '新宋体', 'SimSun', '宋体', serif !important;
+    }
+    .img_imageZoomComp, .img_imageZoomComp * {
+      font-family: initial !important;
     }
   `,
     ],
@@ -3839,35 +3844,36 @@
     jsRules: [],
     regexRules: [],
     textRules: [
+      ['\n情報用Twitterアカウントと​中国アカウントは運営を関係者に任せています。', '\n【信息分享】Twitter账号和中国账号均由相关人员运营。'],
+      ['UTAUなど配布素材についてはこちら​(外部サイトに飛びます)', '关于发布的UTAU素材请访问此链接（外部网站）'],
+      ['ニコニコ動画内で映像を使用する場合、', '在 NicoNico 视频内使用视频时，请遵守以下规定，'],
+      ['\nまた、アボガド6が制作したと分かる様、', '\n此外，Avogado6 制作的作品均已在内容树中注册，'],
+      ['動画説明欄に作者名を記載してください。', '请在视频描述中包含作者姓名。'],
+      ['アボガド6が管理しているアカウントは上記のみです。', 'Avogado6 仅管理以上账号。'],
+      ['UTAU・素材配布サイト 仮倉庫', 'UTAU 素材发布站 - 临时仓库'],
+      ['下記メールアドレスまで​ご連絡下さい。', '请通过以下邮箱联系我们。'],
+      ['なりすましや故意的な類似名のアカウントに', '请谨防假冒及高仿账号'],
+      ['(たまにアカウントがロックされます)', '(偶尔账户会被锁定)'],
+      ['コンテンツツリーの登録をして下さい。', '请注册内容树。'],
+      ['・二次創作及び、', '・关于二次创作及，'],
+      ['作品使用についての規約', '作品使用条款'],
+      ['​Twitter【個人用】', 'Twitter【个人】'],
+      ['メインコンテンツにスキップ', '跳过主要内容'],
+      ['home | アボガド6', '首页 | アボガド6'],
+      ['about/contact', '关于/联系'],
+      ['Red(小紅書)', 'Red(小红书)'],
+      ['【ボカロ用】', '【VOCALOID专用】'],
+      ['何かありましたら', '如有任何事宜'],
+      ['トレース・模倣', '临摹与模仿'],
+      ['【情報用】', '【信息分享】'],
       ['利用規約', '使用条款'],
+      ['・映像 ', '・影像 '],
+      ['■ home', '■ 首页'],
+      ['​ご注意ください。', '。'],
+      ['について', '的规定'],
       ['works', '作品'],
       ['home', '首页'],
       ['shop', '周边'],
-      ['about/contact', '关于/联系'],
-      ['​Twitter【個人用】', 'Twitter【个人】'],
-      ['【情報用】', '【信息分享】'],
-      ['【ボカロ用】', '【VOCALOID专用】'],
-      ['(たまにアカウントがロックされます)', '(偶尔账户会被锁定)'],
-      ['■ home', '■ 首页'],
-      ['UTAU・素材配布サイト 仮倉庫', 'UTAU 素材发布站 - 临时仓库'],
-      ['Red(小紅書)', 'Red(小红书)'],
-      ['アボガド6が管理しているアカウントは上記のみです。', 'Avogado6 仅管理以上账号。'],
-      ['\n情報用Twitterアカウントと​中国アカウントは運営を関係者に任せています。', '\n【信息分享】Twitter账号和中国账号均由相关人员运营。'],
-      ['なりすましや故意的な類似名のアカウントに', '请谨防假冒及高仿账号'],
-      ['​ご注意ください。', '。'],
-      ['何かありましたら', '如有任何事宜'],
-      ['下記メールアドレスまで​ご連絡下さい。', '请通过以下邮箱联系我们。'],
-      ['メインコンテンツにスキップ', '跳过主要内容'],
-      ['UTAUなど配布素材についてはこちら​(外部サイトに飛びます)', '关于发布的UTAU素材请访问此链接（外部网站）'],
-      ['作品使用についての規約', '作品使用条款'],
-      ['・二次創作及び、', '・关于二次创作及，'],
-      ['トレース・模倣', '临摹与模仿'],
-      ['について', '的规定'],
-      ['・映像 ', '・影像 '],
-      ['ニコニコ動画内で映像を使用する場合、', '在 NicoNico 视频内使用视频时，请遵守以下规定，'],
-      ['コンテンツツリーの登録をして下さい。', '请注册内容树。'],
-      ['\nまた、アボガド6が制作したと分かる様、', '\n此外，Avogado6 制作的作品均已在内容树中注册，'],
-      ['動画説明欄に作者名を記載してください。', '请在视频描述中包含作者姓名。'],
     ],
   };
   var masterTranslationMap = {
@@ -4268,6 +4274,21 @@
       subtree: true,
       characterData: true,
     });
+    const titleObserver = new MutationObserver(() => {
+      const titleElement2 = document.querySelector('title');
+      if (titleElement2) {
+        translator.deleteElement(titleElement2);
+        translator.translate(titleElement2);
+        debug('页面标题已重新翻译');
+      }
+    });
+    const titleElement = document.querySelector('title');
+    if (titleElement) {
+      titleObserver.observe(titleElement, {
+        childList: true,
+        subtree: true,
+      });
+    }
     window.forceRetranslate = function () {
       log('强制重新翻译已触发。');
       translator.resetState();
@@ -4331,6 +4352,10 @@
       log2('开始执行初次全文翻译...');
       const startTime = performance.now();
       translator.translate(document.body);
+      const titleElement = document.querySelector('title');
+      if (titleElement) {
+        translator.translate(titleElement);
+      }
       const duration = performance.now() - startTime;
       log2(`初次翻译完成。使用语言: ${language || 'unknown'}, 耗时: ${duration.toFixed(2)}ms`);
       removeAntiFlickerStyle2();

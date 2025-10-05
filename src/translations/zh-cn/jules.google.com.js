@@ -231,6 +231,7 @@ export const julesGoogleComZhCn = {
     ["Open source licenses", "开源软件许可"],
     ["talk like a pirate", "像海盗一样说话"],
     ["Booting up the VM", "正在启动虚拟机"],
+    ["Command timed out.", "执行命令超时。"],
     ["Drop files here", "将文件拖放到此处"],
     ["Search repo files", "搜索代码库文件"],
     ["Jules 1P Pilot", "Jules 内部试用版"],

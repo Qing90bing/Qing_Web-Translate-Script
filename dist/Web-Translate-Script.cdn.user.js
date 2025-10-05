@@ -1741,6 +1741,23 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       subtree: true,
       characterData: true,
     });
+    const titleObserver = new MutationObserver(() => {
+      const titleElement2 = document.querySelector('title');
+      if (titleElement2) {
+        translator.deleteElement(titleElement2);
+        translator.translate(titleElement2);
+        debug('页面标题已重新翻译');
+      }
+    });
+    const titleElement = document.querySelector('title');
+    if (titleElement) {
+      titleObserver.observe(titleElement, {
+        childList: true,
+        // 监视文本节点的添加/删除
+        subtree: true,
+        // 必须监视子树以捕获文本节点的变化
+      });
+    }
     window.forceRetranslate = function () {
       log('强制重新翻译已触发。');
       translator.resetState();
@@ -1806,6 +1823,10 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       log2('开始执行初次全文翻译...');
       const startTime = performance.now();
       translator.translate(document.body);
+      const titleElement = document.querySelector('title');
+      if (titleElement) {
+        translator.translate(titleElement);
+      }
       const duration = performance.now() - startTime;
       log2(`初次翻译完成。使用语言: ${language || 'unknown'}, 耗时: ${duration.toFixed(2)}ms`);
       removeAntiFlickerStyle2();

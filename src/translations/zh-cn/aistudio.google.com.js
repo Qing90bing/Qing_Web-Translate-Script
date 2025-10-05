@@ -25,9 +25,8 @@ export const aistudioGoogleComZhCn = {
   // 禁止翻译的元素选择器
   // 为每个网站提供定制化的禁止翻译元素配置
   blockedElements: [
-    // 在这里添加CSS选择器，例如：
-    // '.notranslate',
-    // '#header .logo'
+    '.chat-container',
+    '.view-line'
   ],
 
   // 注入脚本（JavaScript）
@@ -820,6 +819,7 @@ export const aistudioGoogleComZhCn = {
     ["Music generation", "音乐生成"],
     ["Script builder", "脚本生成器"],
     ["Sharing Prompt", "分享提示词"],
+    ["Speech to text", "语音转文本"],
     ["Terms of service", "服务条款"],
     ["Text translation", "文本翻译"],
     ["to get started.", "即可开始。"],

@@ -203,6 +203,27 @@ export function initializeObservers(translator) {
         characterData: true
     });
 
+    // 4. 页面标题变化监听器：专门用于处理 <title> 标签的动态变化。
+    const titleObserver = new MutationObserver(() => {
+        const titleElement = document.querySelector('title');
+        if (titleElement) {
+            // 在重新翻译前，清除该元素的缓存
+            translator.deleteElement(titleElement);
+            // 重新翻译
+            translator.translate(titleElement);
+            debug('页面标题已重新翻译');
+        }
+    });
+
+    // 启动标题监听器
+    const titleElement = document.querySelector('title');
+    if (titleElement) {
+        titleObserver.observe(titleElement, {
+            childList: true, // 监视文本节点的添加/删除
+            subtree: true // 必须监视子树以捕获文本节点的变化
+        });
+    }
+
     // 在 window 对象上暴露一个强制重翻的函数，便于手动调试。
     window.forceRetranslate = function () {
         log('强制重新翻译已触发。');
