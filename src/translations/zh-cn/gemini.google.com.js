@@ -57,7 +57,6 @@ export const geminiGoogleComZhCn = {
   textRules: [
     [" Deep Research ", " 深度研究 "],
     [" Canvas ", " 画布 "],
-    [" Connected Apps "," 关联的应用 "],
-
+    [" Connected Apps "," 关联的应用 "]
   ],
 };
