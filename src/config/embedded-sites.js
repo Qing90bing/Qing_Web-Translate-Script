@@ -20,4 +20,5 @@
 // `Web-Translate-Script.cdn.user.js` 文件中。
 export const embeddedSites = [
   'aistudio.google.com',
+  'gemini.google.com'
 ];
