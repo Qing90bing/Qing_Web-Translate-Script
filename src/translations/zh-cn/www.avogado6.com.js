@@ -25,7 +25,7 @@ export const wwwAvogado6ComZhCn = {
       src: local('Palatino Linotype'), local('Book Antiqua'), local('Palatino');
       unicode-range: U+30-39;
     }
-    body {
+    body, body *:not(.img_imageZoomComp):not(.img_imageZoomComp *) {
       font-family: 'custom-numbers', Georgia, 'STSong', '华文宋体', 'NSimSun', '新宋体', 'SimSun', '宋体', serif !important;
     }
   `
