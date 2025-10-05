@@ -14,6 +14,8 @@
 // @match        *://claude.ai/*
 // @match        *://platform.claude.com/*
 // @match        *://status.anthropic.com/*
+// @match        *://gemini.google.com/*
+// @match        *://www.avogado6.com/*
 // @run-at       document-start
 // @grant        GM_getValue
 // @grant        GM_setValue
