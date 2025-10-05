@@ -19,7 +19,7 @@ export const wwwAvogado6ComZhCn = {
   // 样式 (CSS)
   // 支持编写多个CSS规则
   styles: [
-    `
+  `
     @font-face {
       font-family: 'custom-numbers';
       src: local('Palatino Linotype'), local('Book Antiqua'), local('Palatino');
@@ -33,9 +33,7 @@ export const wwwAvogado6ComZhCn = {
 
   // 禁止翻译的元素选择器
   blockedElements: [
-    // 在这里添加CSS选择器，例如：
-    // '.notranslate',
-    // '#header .logo'
+    '.img_imageZoomComp'
   ],
 
   // 注入脚本 (JavaScript)
@@ -62,6 +60,21 @@ export const wwwAvogado6ComZhCn = {
     ["利用規約", "使用条款"],
     ["works", "作品"],
     ["home", "首页"],
-    ["shop", "周边"]
+    ["shop", "周边"],
+    ["about/contact", "关于/联系"],
+    ["​Twitter【個人用】", "Twitter【个人】"],
+    ["【情報用】","【信息分享】"],
+    ["【ボカロ用】","【VOCALOID专用】"],
+    ["(たまにアカウントがロックされます)","(偶尔账户会被锁定)"],
+    ["■ home","■ 首页"],
+    ["UTAU・素材配布サイト 仮倉庫","UTAU 素材发布站 - 临时仓库"],
+    ["Red(小紅書)","Red(小红书)"],
+    ["アボガド6が管理しているアカウントは上記のみです。","Avogado6 仅管理以上账号。"],
+    ["【情報用】Twitterアカウントと​中国アカウントは運営を関係者に任せています。","【信息分享】Twitter账号和中国账号均由相关人员运营。"],
+    ["なりすましや故意的な類似名のアカウントに","请谨防假冒及高仿账号"],
+    ["​ご注意ください。","。"],
+    ["何かありましたら","如有任何事宜"],
+    ["下記メールアドレスまで​ご連絡下さい。","请通过以下邮箱联系我们。"],
+
   ],
 };
