@@ -19,7 +19,7 @@ export const wwwAvogado6ComZhCn = {
   // 样式 (CSS)
   // 支持编写多个CSS规则
   styles: [
-    "body, body * { font-family: Georgia, 'STSong', '华文宋体', 'NSimSun', '新宋体', 'SimSun', '宋体', serif !important; }"
+    "body, body * { font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, 'STSong', '华文宋体', 'NSimSun', '新宋体', 'SimSun', '宋体', serif !important; }"
   ],
 
   // 禁止翻译的元素选择器
