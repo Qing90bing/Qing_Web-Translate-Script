@@ -19,7 +19,16 @@ export const wwwAvogado6ComZhCn = {
   // 样式 (CSS)
   // 支持编写多个CSS规则
   styles: [
-    "body, body * { font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, 'STSong', '华文宋体', 'NSimSun', '新宋体', 'SimSun', '宋体', serif !important; }"
+    `
+    @font-face {
+      font-family: 'custom-numbers';
+      src: local('Palatino Linotype'), local('Book Antiqua'), local('Palatino');
+      unicode-range: U+30-39;
+    }
+    body, body * {
+      font-family: 'custom-numbers', Georgia, 'STSong', '华文宋体', 'NSimSun', '新宋体', 'SimSun', '宋体', serif !important;
+    }
+  `
   ],
 
   // 禁止翻译的元素选择器
