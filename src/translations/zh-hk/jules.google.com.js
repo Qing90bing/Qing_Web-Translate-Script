@@ -62,10 +62,10 @@ export const julesGoogleComZhHk = {
     [/Completed\s+(\d+)\s+days?\s+ago/i, "$1 天前完成"],
     [/^Searching for\s+"(.+?)"$/i, "正在搜尋「$1」"],
     [/Completed\s+<1 minute\s+ago/i, "剛剛完成"],
-    [/(\d{1,2})\s+(\d{1,2})月/, "$2 月 $1 日"],
     [/^Searching for\s+(.+)$/i, "正在搜尋：$1"],
-    [/Today\s+(\d{1,2}:\d{2})/i, "今天 $1"],
-    [/Read\s+([\w\.\-]+)/i, "讀取檔案：$1"]
+    [/(\d{1,2})\s+(\d{1,2})月/, "$2 月 $1 日"],
+    [/Read\s+([\w\.\-]+)/i, "讀取檔案：$1"],
+    [/Today\s+(\d{1,2}:\d{2})/i, "今天 $1"]
   ],
 
   // 純文字翻譯規則

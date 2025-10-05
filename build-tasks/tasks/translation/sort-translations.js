@@ -42,10 +42,10 @@ import { SUPPORTED_LANGUAGE_CODES } from '../../../src/config/languages.js';
 function visualLength(str) {
   let len = 0;
   for (const ch of str) {
-    if (/[\u4e00-\u9fff]/.test(ch)) { 
-      len += 2; // 中文字符计为2个单位长度
-    } else { 
-      len += 1; // 其他字符计为1个单位长度
+    if (/[^\x00-\xff]/.test(ch)) {
+      len += 2; // 全角字符（多字节）计为2个单位长度
+    } else {
+      len += 1; // 半角字符（单字节）计为1个单位长度
     }
   }
   return len;
