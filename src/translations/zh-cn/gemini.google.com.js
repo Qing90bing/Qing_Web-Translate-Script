@@ -46,17 +46,15 @@ export const geminiGoogleComZhCn = {
   // 格式: [/原始文本正则表达式/i, '翻译后的文本']
   // 使用 $1, $2, ... 来引用正则表达式中的捕获组
   // 示例: [/^Hello (\w+)/, '您好 $1']
-  regexRules: [
-    // 在这里添加正则表达式规则
-  ],
+  regexRules: [],
 
   // 纯文本翻译规则
   // 规则会完全匹配整个文本
   // 格式: ['原始文本', '翻译后的文本']
   // 示例: ['Login', '登录']
   textRules: [
+    [" Connected Apps ", " 关联的应用 "],
     [" Deep Research ", " 深度研究 "],
-    [" Canvas ", " 画布 "],
-    [" Connected Apps "," 关联的应用 "]
+    [" Canvas ", " 画布 "]
   ],
 };

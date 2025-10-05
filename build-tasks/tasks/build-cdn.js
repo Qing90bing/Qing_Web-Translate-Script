@@ -43,7 +43,8 @@ async function loadEmbeddedTranslations() {
         const siteFile = `${site}.js`;
         if (files.includes(siteFile)) {
           const filePath = path.join(langDir, siteFile);
-          const module = await import(pathToFileURL(filePath).href);
+          // 通过在导入路径后附加时间戳查询参数来禁用缓存
+          const module = await import(`${pathToFileURL(filePath).href}?v=${Date.now()}`);
           const dictionary = Object.values(module)[0];
 
           // 移除不需要的元数据字段
