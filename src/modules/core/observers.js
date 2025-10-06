@@ -15,6 +15,7 @@
  */
 
 import { log, debug, perf } from '../utils/logger.js';
+import { attributesToTranslate } from '../../config.js';
 
 /**
  * @function initializeObservers
@@ -191,7 +192,7 @@ export function initializeObservers(translator) {
         childList: true, // 监听子节点的添加或删除
         subtree: true,   // 监听以 document.body 为根的所有后代节点
         attributes: true, // 监听属性变化
-        attributeFilter: ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip'], // 只关心这些可能包含文本的属性
+        attributeFilter: attributesToTranslate, // 只关心这些可能包含文本的属性
         characterData: true // 监听文本节点的内容变化
     });
     

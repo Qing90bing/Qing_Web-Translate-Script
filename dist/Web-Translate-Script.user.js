@@ -4520,7 +4520,7 @@
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip'],
+      attributeFilter: attributesToTranslate,
       characterData: true,
     });
     pageObserver.observe(document.body, { childList: true, subtree: true });

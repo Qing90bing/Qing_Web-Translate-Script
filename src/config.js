@@ -50,7 +50,7 @@ export const ALL_UNTRANSLATABLE_TAGS = new Set([...BLOCKS_ALL_TRANSLATION, ...BL
  * 需要被翻译的 HTML 属性列表。
  * 翻译引擎会检查元素的这些属性，并对其值应用翻译规则。
  */
-export const attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip','label'];
+export const attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
 
 /**
  * @const {Set<string>} BLOCKED_CSS_CLASSES
