@@ -26,7 +26,8 @@ export const aistudioGoogleComZhCn = {
   // 为每个网站提供定制化的禁止翻译元素配置
   blockedElements: [
     '.chat-container',
-    '.view-line'
+    '.view-line',
+    '.ng-star-inserted'
   ],
 
   // 注入脚本（JavaScript）
