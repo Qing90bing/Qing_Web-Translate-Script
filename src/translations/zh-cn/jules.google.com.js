@@ -98,7 +98,8 @@ export const julesGoogleComZhCn = {
     [/(\d+)\s*hours?\s*ago/, "$1 小时前"],
     [/(\d+)\s*seconds?\s*ago/, "$1 秒前"],
     [/Error:\s*(.+)/, "错误：$1"],
-    [/(\d+)\s*mins?/, "$1 分钟"]
+    [/(\d+)\s*mins?/, "$1 分钟"],
+    [/\bEdit\b/g, "编辑"]
   ],
 
   // 纯文本翻译规则
@@ -373,7 +374,6 @@ export const julesGoogleComZhCn = {
     ["Code", "代码"],
     ["Copy", "复制"],
     ["Docs", "文档"],
-    ["Edit", "编辑"],
     ["here", "此处"],
     ["Hide", "隐藏"],
     ["More", "更多"],
