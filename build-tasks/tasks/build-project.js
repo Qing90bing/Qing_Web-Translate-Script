@@ -41,7 +41,10 @@ export default async function handleFullBuild(preserveFormatting) {
         finalScript = `${header}\n\n${formattedCode}`;
         console.log(color.green(t('buildProject.preservingFormatting')));
     } else {
-        bundledCode = bundledCode.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
+        bundledCode = bundledCode.replace(
+          /("(?:\\.|[^"\\])*")|('(?:\\.|[^'\\])*')|(`(?:\\.|[^`\\])*`)|(\/\*[\s\S]*?\*\/)|(\/\/.*)/g,
+          (m, dq, sq, tl) => (dq || sq || tl ? m : '')
+        );
         bundledCode = bundledCode.replace(/^\s*description:\s*["'][\s\S]*?["'],?\s*$/gm, '');
         bundledCode = bundledCode.replace(/^\s*testUrl:\s*["'][\s\S]*?["'],?\s*$/gm, '');
         bundledCode = bundledCode.replace(/^\s*createdAt:\s*["'][\s\S]*?["'],?\s*$/gm, '');
