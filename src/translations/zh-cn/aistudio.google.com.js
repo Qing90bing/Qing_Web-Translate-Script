@@ -26,8 +26,7 @@ export const aistudioGoogleComZhCn = {
   // 为每个网站提供定制化的禁止翻译元素配置
   blockedElements: [
     '.chat-container',
-    '.view-line',
-    '.ng-star-inserted'
+    '.view-line'
   ],
 
   // 注入脚本（JavaScript）
@@ -1069,6 +1068,7 @@ export const aistudioGoogleComZhCn = {
     ["Upload PDF", "上传 PDF"],
     ["Use Policy", "使用政策"],
     ["View usage", "查看用量"],
+    [" History ", "历史记录"],
     ["Add files", "添加文件"],
     ["Block few", "屏蔽少量"],
     ["Changelog", "更新日志"],
@@ -1120,7 +1120,6 @@ export const aistudioGoogleComZhCn = {
     ["Description", "描述"],
     ["Folding", "代码折叠"],
     ["Full screen", "全屏"],
-    ["History", "历史记录"],
     ["Mitigated", "已缓解"],
     ["Temperature", "温度"],
     ["Top P", "Top-P 采样"],
