@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.45-2025-10-6-cdn
+// @version      1.0.50-2025-10-6-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -1784,7 +1784,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       // 监听以 document.body 为根的所有后代节点
       attributes: true,
       // 监听属性变化
-      attributeFilter: ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip'],
+      attributeFilter: attributesToTranslate,
       // 只关心这些可能包含文本的属性
       characterData: true,
       // 监听文本节点的内容变化
