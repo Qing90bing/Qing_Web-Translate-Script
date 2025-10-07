@@ -33,6 +33,14 @@ export const ${variableName} = {
     // '#header .logo'
   ],
 
+  // 擴展翻譯元素選擇器
+  // 用於翻譯嗰啲預設情況下未被翻譯嘅元素
+  extendedElements: [
+    // 喺呢度新增CSS選擇器，例如：
+    // '#dynamic-content',
+    // '.custom-widget'
+  ],
+
   // 注入指令碼 (JavaScript)
   // 支援編寫多個JS規則，透過循環遍歷，每個規則都建立獨立嘅<script>標籤注入到頁面
   jsRules: [

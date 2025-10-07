@@ -27,6 +27,14 @@ export const platformClaudeComZhCn = {
     // '#header .logo'
   ],
 
+  // 扩展翻译元素选择器
+  // 用于翻译那些默认情况下未被翻译的元素
+  extendedElements: [
+    // 在这里添加CSS选择器，例如：
+    // '#dynamic-content',
+    // '.custom-widget'
+  ],
+
   // 注入脚本（JavaScript）
   jsRules: [
     // 在这里添加JavaScript代码，例如：

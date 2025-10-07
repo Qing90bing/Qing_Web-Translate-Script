@@ -24,7 +24,12 @@ const STYLE_ID = 'anti-flicker-style';
  *              此函数应在脚本执行的最开始被调用，以确保在任何内容被渲染到屏幕之前隐藏页面。
  */
 export function injectAntiFlickerStyle() {
-    // 立即在 <html> 根元素上添加一个类名。这是整个机制能够即时生效的关键。
+    // 关键修复：这是一个竞争条件保护。在极端的边缘情况下，此脚本可能在 `document.documentElement`
+    // (即 <html> 标签) 存在之前执行。如果它不存在，我们必须立即中止，否则将导致致命的 TypeError。
+    if (!document.documentElement) {
+        return;
+    }
+    
     document.documentElement.classList.add('translation-in-progress');
 
     const antiFlickerStyle = document.createElement('style');
@@ -62,6 +67,7 @@ export function injectAntiFlickerStyle() {
     // 这是一种更安全、更能兼容严格内容安全策略 (CSP) 和 Trusted Types 的方法。
     antiFlickerStyle.appendChild(document.createTextNode(styleContent));
     
+    // 此处 `document.documentElement` 已保证存在。
     const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
     // 使用 `insertBefore` 将样式插入到 <head> 的最前面，确保它能优先于其他样式被应用。
     head.insertBefore(antiFlickerStyle, head.firstChild);
@@ -73,6 +79,10 @@ export function injectAntiFlickerStyle() {
  *              此函数应在首次全文翻译完成后被调用。
  */
 export function removeAntiFlickerStyle() {
+    // 再次添加保护，以防万一。
+    if (!document.documentElement) {
+        return;
+    }
     // 切换 <html> 上的类名，这将触发 CSS 过渡效果，使页面平滑淡入。
     document.documentElement.classList.remove('translation-in-progress');
     document.documentElement.classList.add('translation-complete');

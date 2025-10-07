@@ -30,6 +30,14 @@ export const aistudioGoogleComZhCn = {
     '.very-large-text-container'
   ],
 
+  // 扩展翻译元素选择器
+  // 用于翻译那些默认情况下未被翻译的元素
+  extendedElements: [
+    // 在这里添加CSS选择器，例如：
+    // '#dynamic-content',
+    // '.custom-widget'
+  ],
+
   // 注入脚本（JavaScript）
   jsRules: [
     // 在这里添加JavaScript代码，例如：
@@ -342,7 +350,7 @@ export const aistudioGoogleComZhCn = {
     ["There is no billing currently set up for this project", "当前没有为此项目设置账单"],
     ["Unable to disable thinking mode for this model.", "无法为此模型关闭“思考”模式。"],
     ["What's wrong? How can the response be improved?", "回复内容有什么问题？如何改进？"],
-    ["Audio recording will be added to your prompt", "音频录音将被添加到您的提示词中。"],
+    ["Audio recording will be added to your prompt", "音频录音将被添加到您的提示词中"],
     ["Is my API key exposed when sharing apps?", "共享应用时，我的 API 密钥会暴露吗？"],
     ["Select a Google Cloud project to proceed:", "选择一个 Google Cloud 项目来继续："],
     ["Are you sure you want to delete this API key?", "你确定想要删掉该 API 密钥吗？"],
@@ -479,7 +487,7 @@ export const aistudioGoogleComZhCn = {
     ["Create a custom birthday card", "制作一张定制的生日贺卡"],
     ["Find and update time complexity", "分析并优化时间复杂度"],
     ["moving some logic server-side", "将部分逻辑移至服务器端"],
-    ["No recording devices available.", "没有可用的录制设备。"],
+    ["No recording devices available.", "没有可用的录制设备"],
     ["Restore code from this checkpoint", "从此检查点恢复代码"],
     ["Save the prompt before sharing it", "分享前请先保存对话"],
     ["Start Time (e.g., 1m10s)", "开始时间 (例如，1 分 10 秒)"],
@@ -560,7 +568,7 @@ export const aistudioGoogleComZhCn = {
     ["All Systems Operational", "所有系统均正常运行"],
     ["Generate videos with Veo", "使用 Veo 生成视频"],
     ["OpenAI SDK compatibility", "OpenAI SDK 兼容性"],
-    ["Time to first token: ", "首个Tokens响应时间："],
+    ["Time to first token: ", "首个 Tokens 响应时间："],
     ["Use Google AI Studio", "使用 Google AI Studio"],
     ["Casual, Lower middle pitch", "随意的，中低音"],
     ["Close run settings panel", "关闭运行设置面板"],
@@ -642,7 +650,7 @@ export const aistudioGoogleComZhCn = {
     ["Deleting prompt...", "正在删除提示词..."],
     ["Deploy to Cloud Run", "部署到 Cloud Run"],
     ["Description of the function", "函数描述"],
-    ["Gemma Terms of Use", "《Gemma使用条款》"],
+    ["Gemma Terms of Use", "《 Gemma 使用条款》"],
     ["Here are the changes:", "更改内容如下："],
     ["Lively, Lower pitch", "活泼的，较低音调"],
     ["Native image generation", "原生图像生成"],
@@ -686,7 +694,7 @@ export const aistudioGoogleComZhCn = {
     ["Select device preview", "选择设备预览"],
     ["Show file tree view", "显示文件树视图"],
     ["Target context size", "目标上下文大小"],
-    ["Tokens per second: ", "每秒Tokens数："],
+    ["Tokens per second: ", "每秒 Tokens 数："],
     ["Total API Requests", "总 API 请求次数"],
     ["Use Google Search", "使用 Google 搜索"],
     [" Supported values for ", " 支持的值 "],
@@ -753,7 +761,7 @@ export const aistudioGoogleComZhCn = {
     ["Saved to Drive", "已保存到云端硬盘"],
     ["Show code editor", "显示代码编辑器"],
     ["View Gemini API", "查看 Gemini API"],
-    ["YouTube URL", "YouTube 视频URL链接"],
+    ["YouTube URL", "YouTube 视频 URL 链接"],
     [" Items per page: ", "每页项目数："],
     [" Navigator APIs", " Navigator API"],
     [" Output resolution ", "输出分辨率"],
@@ -772,7 +780,7 @@ export const aistudioGoogleComZhCn = {
     ["View more actions", "查看更多操作"],
     ["(experimental)", "（实验性功能）"],
     ["App file changes", "应用文件变更"],
-    ["Defaults to 1 FPS", "默认为1 FPS"],
+    ["Defaults to 1 FPS", "默认为 1 FPS"],
     ["Edit name of app", "编辑应用名称"],
     ["Loading projects", "正在加载项目"],
     ["Lyria RealTime", "Lyria 实时交互"],

@@ -27,6 +27,14 @@ export const claudeAiZhTw = {
     // '#header .logo'
   ],
 
+  // 擴展翻譯元素選擇器
+  // 用於翻譯那些預設情況下未被翻譯的元素
+  extendedElements: [
+    // 在這裡新增CSS選擇器，例如：
+    // '#dynamic-content',
+    // '.custom-widget'
+  ],
+
   // 注入指令稿（JavaScript）
   jsRules: [
     // 在這裡新增JavaScript程式碼，例如：

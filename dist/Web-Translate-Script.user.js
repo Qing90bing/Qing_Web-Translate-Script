@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.42-2025-10-7-offline
+// @version      1.0.43-2025-10-7-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -37,6 +37,7 @@
     enabled: true,
     styles: ['.feedback-button { width: auto !important; white-space: nowrap !important; }'],
     blockedElements: ['.view-lines'],
+    extendedElements: [],
     jsRules: [],
     regexRules: [
       [/^Step\s+(\d+)\s+of the plan is complete\.$/i, '“计划”的第 $1 步已完成。'],
@@ -383,6 +384,7 @@
     enabled: true,
     styles: [],
     blockedElements: ['.chat-container', '.view-line', '.very-large-text-container'],
+    extendedElements: [],
     jsRules: [],
     regexRules: [
       [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  换行\nAlt + ↩  追加文本 (不执行)\nCtrl + ↩  执行指令'],
@@ -687,7 +689,7 @@
       ['There is no billing currently set up for this project', '当前没有为此项目设置账单'],
       ['Unable to disable thinking mode for this model.', '无法为此模型关闭“思考”模式。'],
       ["What's wrong? How can the response be improved?", '回复内容有什么问题？如何改进？'],
-      ['Audio recording will be added to your prompt', '音频录音将被添加到您的提示词中。'],
+      ['Audio recording will be added to your prompt', '音频录音将被添加到您的提示词中'],
       ['Is my API key exposed when sharing apps?', '共享应用时，我的 API 密钥会暴露吗？'],
       ['Select a Google Cloud project to proceed:', '选择一个 Google Cloud 项目来继续：'],
       ['Are you sure you want to delete this API key?', '你确定想要删掉该 API 密钥吗？'],
@@ -824,7 +826,7 @@
       ['Create a custom birthday card', '制作一张定制的生日贺卡'],
       ['Find and update time complexity', '分析并优化时间复杂度'],
       ['moving some logic server-side', '将部分逻辑移至服务器端'],
-      ['No recording devices available.', '没有可用的录制设备。'],
+      ['No recording devices available.', '没有可用的录制设备'],
       ['Restore code from this checkpoint', '从此检查点恢复代码'],
       ['Save the prompt before sharing it', '分享前请先保存对话'],
       ['Start Time (e.g., 1m10s)', '开始时间 (例如，1 分 10 秒)'],
@@ -905,7 +907,7 @@
       ['All Systems Operational', '所有系统均正常运行'],
       ['Generate videos with Veo', '使用 Veo 生成视频'],
       ['OpenAI SDK compatibility', 'OpenAI SDK 兼容性'],
-      ['Time to first token: ', '首个Tokens响应时间：'],
+      ['Time to first token: ', '首个 Tokens 响应时间：'],
       ['Use Google AI Studio', '使用 Google AI Studio'],
       ['Casual, Lower middle pitch', '随意的，中低音'],
       ['Close run settings panel', '关闭运行设置面板'],
@@ -987,7 +989,7 @@
       ['Deleting prompt...', '正在删除提示词...'],
       ['Deploy to Cloud Run', '部署到 Cloud Run'],
       ['Description of the function', '函数描述'],
-      ['Gemma Terms of Use', '《Gemma使用条款》'],
+      ['Gemma Terms of Use', '《 Gemma 使用条款》'],
       ['Here are the changes:', '更改内容如下：'],
       ['Lively, Lower pitch', '活泼的，较低音调'],
       ['Native image generation', '原生图像生成'],
@@ -1031,7 +1033,7 @@
       ['Select device preview', '选择设备预览'],
       ['Show file tree view', '显示文件树视图'],
       ['Target context size', '目标上下文大小'],
-      ['Tokens per second: ', '每秒Tokens数：'],
+      ['Tokens per second: ', '每秒 Tokens 数：'],
       ['Total API Requests', '总 API 请求次数'],
       ['Use Google Search', '使用 Google 搜索'],
       [' Supported values for ', ' 支持的值 '],
@@ -1098,7 +1100,7 @@
       ['Saved to Drive', '已保存到云端硬盘'],
       ['Show code editor', '显示代码编辑器'],
       ['View Gemini API', '查看 Gemini API'],
-      ['YouTube URL', 'YouTube 视频URL链接'],
+      ['YouTube URL', 'YouTube 视频 URL 链接'],
       [' Items per page: ', '每页项目数：'],
       [' Navigator APIs', ' Navigator API'],
       [' Output resolution ', '输出分辨率'],
@@ -1117,7 +1119,7 @@
       ['View more actions', '查看更多操作'],
       ['(experimental)', '（实验性功能）'],
       ['App file changes', '应用文件变更'],
-      ['Defaults to 1 FPS', '默认为1 FPS'],
+      ['Defaults to 1 FPS', '默认为 1 FPS'],
       ['Edit name of app', '编辑应用名称'],
       ['Loading projects', '正在加载项目'],
       ['Lyria RealTime', 'Lyria 实时交互'],
@@ -1602,6 +1604,7 @@
     enabled: true,
     styles: [],
     blockedElements: ['.token module'],
+    extendedElements: [],
     jsRules: [],
     regexRules: [
       [/You will receive an email at\s+([\w\.\-]+@[\w\.\-]+)\s+with a link which expires in\s+(\d+)\s+hours\.\s+There may be a small delay while we prepare the export\./i, '您将收到一封发送至 $1 的邮件，其中包含一个 $2 小时内有效的链接。在我们准备导出文件时，可能会稍有延迟。'],
@@ -2526,6 +2529,7 @@
     enabled: true,
     styles: [],
     blockedElements: [],
+    extendedElements: [],
     jsRules: [],
     regexRules: [
       [/^Launch your first project with just\s+\$(\d+(?:\.\d{1,2})?)\s+and use your credits flexibly in the Developer Console, Claude Code and the API$/i, '只需 $1 美元即可启动您的第一个项目，并在开发者控制台、Claude Code 和 API 中灵活使用您的积分'],
@@ -3300,6 +3304,7 @@
     enabled: true,
     styles: [],
     blockedElements: [],
+    extendedElements: [],
     jsRules: [],
     regexRules: [
       [/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s+(\d{2}:\d{2})\s+UTC/i, 'MM月DD日, $3 UTC'],
@@ -3634,6 +3639,7 @@
     enabled: true,
     styles: ['.feedback-button { width: auto !important; white-space: nowrap !important; }'],
     blockedElements: [],
+    extendedElements: [],
     jsRules: [],
     regexRules: [
       [/^Step\s+(\d+)\s+of the plan is complete\.$/i, '「計劃」的第 $1 步已完成。'],
@@ -3692,6 +3698,7 @@
     enabled: true,
     styles: [],
     blockedElements: [],
+    extendedElements: [],
     jsRules: [],
     regexRules: [
       [/↩\s*Add a new line\s*\s*Alt\s*\+\s*↩\s*Append text without running\s*\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  換行 Alt + ↩  附加文字 (不執行) Ctrl + ↩  執行提示'],
@@ -3754,6 +3761,7 @@
     enabled: true,
     styles: [],
     blockedElements: [],
+    extendedElements: [],
     jsRules: [],
     regexRules: [
       [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, '每人/月，享年度訂閱折扣。若按月計費則為 新幣 $1。最少 $2 名成員。'],
@@ -3815,6 +3823,7 @@
     enabled: true,
     styles: [],
     blockedElements: [],
+    extendedElements: [],
     jsRules: [],
     regexRules: [
       [/↩\s*Add a new line\s*\s*Alt\s*\+\s*↩\s*Append text without running\s*\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  換行 Alt + ↩  附加文字 (不執行) Ctrl + ↩  執行提示'],
@@ -3847,7 +3856,7 @@
       ['Image Editing', '圖片編輯'],
       ['Save app', '儲存應用程式'],
       ['Thinking...', '思考中...'],
-      ['Saving…..', '儲存中...'],
+      ['Saving…', '儲存中...'],
       ['Added', '已新增'],
       ['User', '使用者'],
       ['Live', '即時'],
@@ -3877,6 +3886,7 @@
     enabled: true,
     styles: [],
     blockedElements: [],
+    extendedElements: [],
     jsRules: [],
     regexRules: [
       [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, '每人/月，享年度訂閱折扣。若按月計費則為 新幣 $1。至少 $2 名成員。'],
@@ -3938,6 +3948,7 @@
     enabled: true,
     styles: [],
     blockedElements: [],
+    extendedElements: [],
     jsRules: [],
     regexRules: [],
     textRules: [
@@ -3965,6 +3976,7 @@
   `,
     ],
     blockedElements: ['.img_imageZoomComp', '[data-testid="gallery-item-title"]'],
+    extendedElements: [],
     jsRules: [],
     regexRules: [],
     textRules: [
@@ -4142,6 +4154,7 @@
     enabled: true,
     styles: [],
     blockedElements: [],
+    extendedElements: [],
     jsRules: [],
     regexRules: [
       [/^\s*You can paint more than\s+(\d+)\s+pixels?\s*$/i, '您可以绘制超过 $1 个像素'],
@@ -4158,6 +4171,7 @@
       ['✅ Painting over other artworks to complement them or create a new drawing is allowed', '✅ 允许在其他艺术作品上进行绘制以完善它们或创作新画作'],
       ['Violations of these rules may lead to suspension of your account or removal of drawings.', '违反这些规则可能会导致您的账户被暂停或作品被移除。'],
       ['✅ Griefing political party flags or portraits of politicians is allowed', '✅ 允许涂抹政党旗帜或政治人物肖像'],
+      ['No internet access or the servers are offline. Try again later.', '没有互联网连接或服务器离线，请稍后再试'],
       ['No corresponding region on the map (cosmetic effect only)', '地图上无对应区域（仅为装饰效果）'],
       ['🧑‍🤝‍🧑 Do not paint with more than one account', '🧑‍🤝‍🧑 请勿使用多个账户进行绘制'],
       ["🙅 Disclosing other's personal information is not allowed", '🙅 禁止泄露他人个人信息'],
@@ -4339,6 +4353,7 @@
       ['South Sudan', '南苏丹'],
       ['Sri Lanka', '斯里兰卡'],
       ['Timor-Leste', '东帝汶'],
+      ['to paint,', '绘制像素'],
       ['United States', '美国'],
       ['Venezuela', '委内瑞拉'],
       ['Verify if ', '请检查 '],
@@ -4374,7 +4389,6 @@
       ['Slovakia', '斯洛伐克'],
       ['South Africa', '南非'],
       ['Tanzania', '坦桑尼亚'],
-      ['to paint', '绘制像素'],
       ['Zimbabwe', '津巴布韦'],
       ['Argentina', '阿根廷'],
       ['Armenia', '亚美尼亚'],
@@ -4458,6 +4472,7 @@
       ['Ukraine', '乌克兰'],
       ['Uruguay', '乌拉圭'],
       [' Log Out', '注销'],
+      [' Offline', '离线'],
       [' Players', '玩家'],
       [' Regions', '地区'],
       ['Angola', '安哥拉'],
@@ -4693,6 +4708,9 @@
   }
   var STYLE_ID = 'anti-flicker-style';
   function injectAntiFlickerStyle() {
+    if (!document.documentElement) {
+      return;
+    }
     document.documentElement.classList.add('translation-in-progress');
     const antiFlickerStyle = document.createElement('style');
     antiFlickerStyle.id = STYLE_ID;
@@ -4728,6 +4746,9 @@
     head.insertBefore(antiFlickerStyle, head.firstChild);
   }
   function removeAntiFlickerStyle() {
+    if (!document.documentElement) {
+      return;
+    }
     document.documentElement.classList.remove('translation-in-progress');
     document.documentElement.classList.add('translation-complete');
     setTimeout(() => {
@@ -4852,22 +4873,35 @@
           });
         }
       }
-      const elementsWithAttributes = element.matches(`[${attributesToTranslate.join('], [')}]`) ? [element, ...element.querySelectorAll(`[${attributesToTranslate.join('], [')}]`)] : [...element.querySelectorAll(`[${attributesToTranslate.join('], [')}]`)];
-      if (elementsWithAttributes.length > 0) {
-        elementsWithAttributes.forEach((el) => {
-          if (isElementBlocked(el)) return;
-          attributesToTranslate.forEach((attr) => {
-            if (el.hasAttribute(attr)) {
-              const originalValue = el.getAttribute(attr);
-              const translatedValue = translateText(originalValue);
+      const standardAttributes = new Set(attributesToTranslate);
+      const elementsToProcess = element instanceof ShadowRoot ? Array.from(element.querySelectorAll('*')) : [element, ...Array.from(element.querySelectorAll('*'))];
+      elementsToProcess.forEach((el) => {
+        if (isElementBlocked(el) || !el.hasAttributes()) return;
+        for (const attr of el.attributes) {
+          const attrName = attr.name;
+          const originalValue = attr.value;
+          if (!originalValue || !originalValue.trim()) continue;
+          if (standardAttributes.has(attrName)) {
+            const translatedValue = translateText(originalValue);
+            if (originalValue !== translatedValue) {
+              el.setAttribute(attrName, translatedValue);
+              translateLog(`标准属性[${attrName}]`, originalValue, translatedValue);
+            }
+          } else {
+            const trimmedValue = originalValue.trim();
+            if (textTranslationMap.has(trimmedValue)) {
+              const translated = textTranslationMap.get(trimmedValue);
+              const leadingSpace = originalValue.match(/^\s*/)[0] || '';
+              const trailingSpace = originalValue.match(/\s*$/)[0] || '';
+              const translatedValue = leadingSpace + translated + trailingSpace;
               if (originalValue !== translatedValue) {
-                el.setAttribute(attr, translatedValue);
-                translateLog(`属性[${attr}]`, originalValue, translatedValue);
+                el.setAttribute(attrName, translatedValue);
+                translateLog(`自定义属性[${attrName}]`, originalValue, translatedValue);
               }
             }
-          });
-        });
-      }
+          }
+        }
+      });
       if (element.shadowRoot) {
         translateElement(element.shadowRoot);
       }
@@ -4885,7 +4919,7 @@
       },
     };
   }
-  function initializeObservers(translator) {
+  function initializeObservers(translator, extendedElements = []) {
     let translationTimer;
     let pendingNodes = new Set();
     let lastModelInfo = '';
@@ -4988,8 +5022,10 @@
         }
         if (mutation.type === 'characterData') {
           const parent = mutation.target.parentElement;
-          if (parent?.classList?.contains('model-name') || parent?.classList?.contains('model-info') || parent?.querySelector?.('.model-name, .model-info')) {
-            shouldCheckModel = true;
+          if (parent) {
+            if (parent.classList?.contains('model-name') || parent.classList?.contains('model-info') || parent.querySelector?.('.model-name, .model-info')) {
+              shouldCheckModel = true;
+            }
           }
         }
       });
@@ -5033,10 +5069,63 @@
         translator.translate(document.body);
       }
     };
+    if (extendedElements.length > 0) {
+      log(`正在为 ${extendedElements.length} 个选择器初始化扩展元素监控。`);
+      const processExtendedElements = (elements) => {
+        if (elements.length === 0) return;
+        elements.forEach((element) => {
+          translator.deleteElement(element);
+          const descendants = element.getElementsByTagName('*');
+          for (let i = 0; i < descendants.length; i++) {
+            translator.deleteElement(descendants[i]);
+          }
+          pendingNodes.add(element);
+        });
+        scheduleTranslation();
+      };
+      const findAndProcessSelector = (selector, rootNode = document) => {
+        try {
+          const elements = rootNode.querySelectorAll(selector);
+          if (elements.length > 0) {
+            debug(`为选择器 "${selector}" 找到 ${elements.length} 个扩展元素`);
+            processExtendedElements(Array.from(elements));
+          }
+        } catch (e) {
+          console.error(`extendedElements 中的选择器无效: "${selector}"`, e);
+        }
+      };
+      extendedElements.forEach((selector) => findAndProcessSelector(selector));
+      const additionObserver = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+          if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+            for (const addedNode of mutation.addedNodes) {
+              if (addedNode.nodeType === Node.ELEMENT_NODE) {
+                extendedElements.forEach((selector) => {
+                  const matchedElements = [];
+                  if (addedNode.matches(selector)) {
+                    matchedElements.push(addedNode);
+                  }
+                  addedNode.querySelectorAll(selector).forEach((el) => matchedElements.push(el));
+                  if (matchedElements.length > 0) {
+                    debug(`为选择器 "${selector}" 找到动态添加的扩展元素:`, matchedElements);
+                    processExtendedElements(matchedElements);
+                  }
+                });
+              }
+            }
+          }
+        }
+      });
+      additionObserver.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+      });
+      log('扩展元素观察器已激活。');
+    }
     log('监听器初始化完成。');
   }
   function initializeTranslation(siteDictionary, createTranslator2, removeAntiFlickerStyle2, initializeObservers2, log2) {
-    const { language, styles: cssRules = [], blockedElements = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
     log2(`开始初始化翻译流程，使用语言: ${language || 'unknown'}`);
     const textTranslationMap = new Map();
     for (const rule of textRules) {
@@ -5095,7 +5184,7 @@
       const duration = performance.now() - startTime;
       log2(`初次翻译完成。使用语言: ${language || 'unknown'}, 耗时: ${duration.toFixed(2)}ms`);
       removeAntiFlickerStyle2();
-      initializeObservers2(translator);
+      initializeObservers2(translator, extendedElements);
     }
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', startTranslation);

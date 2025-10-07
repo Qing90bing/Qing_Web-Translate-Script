@@ -27,7 +27,7 @@
  */
 export function initializeTranslation(siteDictionary, createTranslator, removeAntiFlickerStyle, initializeObservers, log) {
     // 从站点词典中解构出所有规则，并为可能不存在的规则提供默认空数组。
-    const { language, styles: cssRules = [], blockedElements = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
     
     log(`开始初始化翻译流程，使用语言: ${language || 'unknown'}`);
 
@@ -127,7 +127,7 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
         removeAntiFlickerStyle();
 
         // 3. 启动所有用于处理动态内容变化的 `MutationObserver`。
-        initializeObservers(translator);
+        initializeObservers(translator, extendedElements);
     }
 
     // 根据页面的加载状态，智能地选择启动翻译的时机。

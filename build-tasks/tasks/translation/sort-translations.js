@@ -301,7 +301,7 @@ async function handleSortTranslations() {
           { name: t('sortTranslations.backToMenu'), value: 'back' }
         ],
         prefix: '📂',
-        pageSize: 20,
+        pageSize: 9999,
       },
     ]);
     if (fileToSort === 'back') { return; }

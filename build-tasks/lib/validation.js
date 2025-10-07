@@ -215,9 +215,10 @@ function validateFileContent(file, content, options) {
 
   // 如果找不到翻译对象，则无需继续检查。
   if (!translationObjectNode) return errors;
+  const lines = content.split('\n');
 
   // 定义所有已知的、合法的顶级属性
-  const KNOWN_PROPERTIES = new Set(['description', 'testUrl', 'createdAt', 'styles', 'jsRules', 'regexRules', 'textRules', 'enabled', 'language', 'blockedElements']);
+  const KNOWN_PROPERTIES = new Set(['description', 'testUrl', 'createdAt', 'styles', 'jsRules', 'regexRules', 'textRules', 'enabled', 'language', 'blockedElements', 'extendedElements']);
 
   // 检查是否存在未知的属性
   for (const prop of translationObjectNode.properties) {
@@ -246,7 +247,6 @@ function validateFileContent(file, content, options) {
     allRuleNodes.push(...textRulesNode.elements);
   }
 
-  const lines = content.split('\n');
   const seenOriginals = new Map(); // 用于跟踪已见过的原文，以检查重复。
   const seenOriginalTexts = new Map(); // 用于跟踪已见过的原文，以检查原文重复。
 

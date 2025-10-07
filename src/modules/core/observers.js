@@ -22,7 +22,7 @@ import { attributesToTranslate } from '../../config.js';
  * @description 初始化并启动所有 MutationObservers，为页面提供动态翻译能力。
  * @param {object} translator - 从 `translator.js` 的 `createTranslator` 函数返回的翻译器实例。
  */
-export function initializeObservers(translator) {
+export function initializeObservers(translator, extendedElements = []) {
     // --- 状态与调度器定义 ---
 
     // 用于防抖的计时器 ID
@@ -175,10 +175,12 @@ export function initializeObservers(translator) {
             }
             if (mutation.type === 'characterData') {
                 const parent = mutation.target.parentElement;
-                if (parent?.classList?.contains('model-name') ||
-                    parent?.classList?.contains('model-info') ||
-                    parent?.querySelector?.('.model-name, .model-info')) {
-                    shouldCheckModel = true;
+                if (parent) {
+                    if (parent.classList?.contains('model-name') ||
+                        parent.classList?.contains('model-info') ||
+                        parent.querySelector?.('.model-name, .model-info')) {
+                        shouldCheckModel = true;
+                    }
                 }
             }
         });
@@ -234,6 +236,74 @@ export function initializeObservers(translator) {
             translator.translate(document.body);
         }
     };
+
+    // 5. 扩展元素监听器：专门处理 extendedElements
+    if (extendedElements.length > 0) {
+        log(`正在为 ${extendedElements.length} 个选择器初始化扩展元素监控。`);
+
+        const processExtendedElements = (elements) => {
+            if (elements.length === 0) return;
+
+            elements.forEach(element => {
+                translator.deleteElement(element);
+                const descendants = element.getElementsByTagName('*');
+                for (let i = 0; i < descendants.length; i++) {
+                    translator.deleteElement(descendants[i]);
+                }
+                pendingNodes.add(element);
+            });
+            scheduleTranslation();
+        };
+
+        const findAndProcessSelector = (selector, rootNode = document) => {
+            try {
+                const elements = rootNode.querySelectorAll(selector);
+                if (elements.length > 0) {
+                    debug(`为选择器 "${selector}" 找到 ${elements.length} 个扩展元素`);
+                    processExtendedElements(Array.from(elements));
+                }
+            } catch (e) {
+                console.error(`extendedElements 中的选择器无效: "${selector}"`, e);
+            }
+        };
+
+        // 步骤 5a: 对页面加载时已存在的扩展元素进行初次翻译
+        extendedElements.forEach(selector => findAndProcessSelector(selector));
+
+        // 步骤 5b: 创建一个观察器，用于监控后续动态添加到DOM中的扩展元素
+        const additionObserver = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    for (const addedNode of mutation.addedNodes) {
+                        if (addedNode.nodeType === Node.ELEMENT_NODE) {
+                            extendedElements.forEach(selector => {
+                                const matchedElements = [];
+                                // 检查新增节点本身是否匹配
+                                if (addedNode.matches(selector)) {
+                                    matchedElements.push(addedNode);
+                                }
+                                // 检查新增节点的后代是否匹配
+                                addedNode.querySelectorAll(selector).forEach(el => matchedElements.push(el));
+
+                                if (matchedElements.length > 0) {
+                                    debug(`为选择器 "${selector}" 找到动态添加的扩展元素:`, matchedElements);
+                                    processExtendedElements(matchedElements);
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        });
+
+        // 监听整个文档树的变动，以捕获任何位置的元素添加
+        additionObserver.observe(document.documentElement, {
+            childList: true,
+            subtree: true
+        });
+
+        log('扩展元素观察器已激活。');
+    }
 
     log('监听器初始化完成。');
 }

@@ -33,6 +33,14 @@ export const ${variableName} = {
     // '#header .logo'
   ],
 
+  // Extended translation element selectors.
+  // Use this to translate elements that are not automatically translated.
+  extendedElements: [
+    // Add CSS selectors here, for example:
+    // '#dynamic-content',
+    // '.custom-widget'
+  ],
+
   // Injected Scripts (JavaScript)
   // Supports writing multiple JS rules. Each rule creates a separate <script> tag injected into the page.
   jsRules: [

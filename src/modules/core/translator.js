@@ -203,28 +203,51 @@ export function createTranslator(textMap, regexArr, blockedSelectors = []) {
             }
         }
 
-        // --- 2. 翻译元素的属性 ---
-        const elementsWithAttributes = element.matches(`[${attributesToTranslate.join("], [")}]`)
-            ? [element, ...element.querySelectorAll(`[${attributesToTranslate.join("], [")}]`)]
-            : [...element.querySelectorAll(`[${attributesToTranslate.join("], [")}]`)];
+        // --- 2. 翻译所有元素的属性 ---
+        // 为了效率，创建一个标准属性的 Set
+        const standardAttributes = new Set(attributesToTranslate);
+        // 获取当前元素及其所有后代元素
+        const elementsToProcess = (element instanceof ShadowRoot)
+            ? Array.from(element.querySelectorAll('*'))
+            : [element, ...Array.from(element.querySelectorAll('*'))];
 
-        if (elementsWithAttributes.length > 0) {
-            elementsWithAttributes.forEach(el => {
-                // 再次检查，确保这个带属性的元素本身没有被禁止。
-                if (isElementBlocked(el)) return;
+        elementsToProcess.forEach(el => {
+            // 跳过被禁止的元素和没有属性的元素
+            if (isElementBlocked(el) || !el.hasAttributes()) return;
 
-                attributesToTranslate.forEach(attr => {
-                    if (el.hasAttribute(attr)) {
-                        const originalValue = el.getAttribute(attr);
-                        const translatedValue = translateText(originalValue);
+            // 遍历元素的所有属性
+            for (const attr of el.attributes) {
+                const attrName = attr.name;
+                const originalValue = attr.value;
+                
+                if (!originalValue || !originalValue.trim()) continue;
+
+                // 2a. 如果是标准属性，使用 translateText (支持文本和正则)
+                if (standardAttributes.has(attrName)) {
+                    const translatedValue = translateText(originalValue);
+                    if (originalValue !== translatedValue) {
+                        el.setAttribute(attrName, translatedValue);
+                        translateLog(`标准属性[${attrName}]`, originalValue, translatedValue);
+                    }
+                } 
+                // 2b. 如果是自定义属性，仅使用 textTranslationMap (仅精确匹配)
+                else {
+                    const trimmedValue = originalValue.trim();
+                    if (textTranslationMap.has(trimmedValue)) {
+                        const translated = textTranslationMap.get(trimmedValue);
+                        // 保留原文中的前后空白字符
+                        const leadingSpace = originalValue.match(/^\s*/)[0] || '';
+                        const trailingSpace = originalValue.match(/\s*$/)[0] || '';
+                        const translatedValue = leadingSpace + translated + trailingSpace;
+
                         if (originalValue !== translatedValue) {
-                            el.setAttribute(attr, translatedValue);
-                            translateLog(`属性[${attr}]`, originalValue, translatedValue);
+                            el.setAttribute(attrName, translatedValue);
+                            translateLog(`自定义属性[${attrName}]`, originalValue, translatedValue);
                         }
                     }
-                });
-            });
-        }
+                }
+            }
+        });
 
         // --- 3. 递归处理 Shadow DOM ---
         if (element.shadowRoot) {

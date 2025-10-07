@@ -29,6 +29,14 @@ export const aistudioGoogleComZhHk = {
     // '.notranslate',
     // '#header .logo'
   ],
+  
+  // 擴展翻譯元素選擇器
+  // 用於翻譯那些默認情況下未被翻譯的元素
+  extendedElements: [
+    // 在這裡新增CSS選擇器，例如：
+    // '#dynamic-content',
+    // '.custom-widget'
+  ],
 
   // 注入指令稿（JavaScript）
   jsRules: [

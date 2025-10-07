@@ -30,6 +30,14 @@ export const aistudioGoogleComZhTw = {
     // '#header .logo'
   ],
 
+  // 擴展翻譯元素選擇器
+  // 用於翻譯那些預設情況下未被翻譯的元素
+  extendedElements: [
+    // 在這裡新增CSS選擇器，例如：
+    // '#dynamic-content',
+    // '.custom-widget'
+  ],
+
   // 注入指令稿（JavaScript）
   jsRules: [
     // 在這裡新增JavaScript程式碼，例如：
@@ -70,7 +78,7 @@ export const aistudioGoogleComZhTw = {
     ["Image Editing", "圖片編輯"],
     ["Save app", "儲存應用程式"],
     ["Thinking...", "思考中..."],
-    ["Saving…..", "儲存中..."],
+    ["Saving…", "儲存中..."],
     ["Added", "已新增"],
     ["User", "使用者"],
     ["Live", "即時"],

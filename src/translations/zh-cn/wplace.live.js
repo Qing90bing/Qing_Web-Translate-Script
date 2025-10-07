@@ -32,6 +32,14 @@ export const wplaceLiveZhCn = {
     // '#header .logo'
   ],
 
+  // 扩展翻译元素选择器
+  // 用于翻译那些默认情况下未被翻译的元素
+  extendedElements: [
+    // 在这里添加CSS选择器，例如：
+    // '#dynamic-content',
+    // '.custom-widget'
+  ],
+
   // 注入脚本 (JavaScript)
   // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
   jsRules: [
@@ -66,6 +74,7 @@ export const wplaceLiveZhCn = {
     ["✅ Painting over other artworks to complement them or create a new drawing is allowed", "✅ 允许在其他艺术作品上进行绘制以完善它们或创作新画作"],
     ["Violations of these rules may lead to suspension of your account or removal of drawings.", "违反这些规则可能会导致您的账户被暂停或作品被移除。"],
     ["✅ Griefing political party flags or portraits of politicians is allowed", "✅ 允许涂抹政党旗帜或政治人物肖像"],
+    ["No internet access or the servers are offline. Try again later.", "没有互联网连接或服务器离线，请稍后再试"],
     ["No corresponding region on the map (cosmetic effect only)", "地图上无对应区域（仅为装饰效果）"],
     ["🧑‍🤝‍🧑 Do not paint with more than one account", "🧑‍🤝‍🧑 请勿使用多个账户进行绘制"],
     ["🙅 Disclosing other's personal information is not allowed", "🙅 禁止泄露他人个人信息"],
@@ -247,6 +256,7 @@ export const wplaceLiveZhCn = {
     ["South Sudan", "南苏丹"],
     ["Sri Lanka", "斯里兰卡"],
     ["Timor-Leste", "东帝汶"],
+    ["to paint,", "绘制像素"],
     ["United States", "美国"],
     ["Venezuela", "委内瑞拉"],
     ["Verify if ", "请检查 "],
@@ -282,7 +292,6 @@ export const wplaceLiveZhCn = {
     ["Slovakia", "斯洛伐克"],
     ["South Africa", "南非"],
     ["Tanzania", "坦桑尼亚"],
-    ["to paint", "绘制像素"],
     ["Zimbabwe", "津巴布韦"],
     ["Argentina", "阿根廷"],
     ["Armenia", "亚美尼亚"],
@@ -366,6 +375,7 @@ export const wplaceLiveZhCn = {
     ["Ukraine", "乌克兰"],
     ["Uruguay", "乌拉圭"],
     [" Log Out", "注销"],
+    [" Offline", "离线"],
     [" Players", "玩家"],
     [" Regions", "地区"],
     ["Angola", "安哥拉"],
