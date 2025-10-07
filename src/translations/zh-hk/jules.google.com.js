@@ -40,7 +40,7 @@ export const julesGoogleComZhHk = {
   
   // 自訂屬性白名單
   // 喺呢個陣列中新增嘅任何 HTML 屬性名，都會喺成個網站範圍內被翻譯。
-  // 範例: ['data-tip', 'data-title']
+  // 範例: 'data-tip', 'data-title'
   customAttributes: [
     // 喺呢度新增自訂屬性
   ],
@@ -48,7 +48,7 @@ export const julesGoogleComZhHk = {
   // 自訂屬性黑名單
   // 喺呢個陣列中新增嘅任何 HTML 屬性名，都會強制唔被翻譯。
   // 呢個列表嘅優先級高於白名單，可以用嚟覆蓋預設嘅翻譯行為。
-  // 範例: ['title']
+  // 範例: 'title'
   blockedAttributes: [
     // 喺呢度新增要阻止翻譯嘅屬性
   ],

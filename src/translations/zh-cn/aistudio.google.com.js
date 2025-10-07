@@ -40,7 +40,7 @@ export const aistudioGoogleComZhCn = {
 
   // 自定义属性白名单 
   // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
-  // 示例: ['data-tip', 'data-title']
+  // 示例: 'data-tip', 'data-title'
   customAttributes: [
     // 在这里添加自定义属性
   ],
@@ -48,7 +48,7 @@ export const aistudioGoogleComZhCn = {
   // 自定义属性黑名单 
   // 在此数组中添加的任何 HTML 属性名，都将强制不被翻译。
   // 此列表的优先级高于白名单，可用于覆盖默认翻译行为。
-  // 示例: ['title']
+  // 示例: 'title'
   blockedAttributes: [
     // 在这里添加要阻止翻译的属性
   ],
@@ -88,7 +88,7 @@ export const aistudioGoogleComZhCn = {
     [/May\s+(\d{1,2}),\s+(\d{4})/, "$2 年 5 月 $1 日"],
     [/Ran command\s+[“"](.*?)[”"]/i, "运行命令：$1"],
     [/Sep\s+(\d{1,2}),\s+(\d{4})/, "$2 年 9 月 $1 日"],
-    [/^\s*Manual\s*:\s*(\d+)\s*$/i, "思考预算：$1"],
+    [/^\s*Manual\s*:\s*(\d+)\s*$/i, " 思考预算：$1 "],
     [/Edit\s+([\w.-]*[._\d-][\w.-]*)/i, "编辑 $1"],
     [/(\d+) tokens \/ image/, "$1 Tokens / 图像"],
     [/\/\s+(\d+)\s+generations?/i, "/ $1 次生成"],
@@ -818,6 +818,8 @@ export const aistudioGoogleComZhCn = {
     ["Upload text file", "上传文本文件"],
     ["URL context tool", "网页内容工具"],
     ["Visual understanding", "视觉理解"],
+    ["<=200K tokens", "<=20 万 Tokens"],
+    ["> 200K tokens", "> 20 万 Tokens"],
     ["Add to prompt", "添加到提示词中"],
     ["Agentic use cases", "智能体用例"],
     ["Angular Example", "Angular 示例"],
@@ -838,8 +840,6 @@ export const aistudioGoogleComZhCn = {
     ["Untitled prompt", "无标题的对话"],
     ["Video understanding", "视频理解"],
     ["View full image", "查看完整图片"],
-    ["<=200K tokens", "<=20 万Tokens"],
-    ["> 200K tokens", "> 20 万Tokens"],
     ["400 BadRequest", "400 错误请求"],
     ["Add stop token", "添加停止标记"],
     ["Add stop...", "添加停止标记..."],
@@ -895,6 +895,7 @@ export const aistudioGoogleComZhCn = {
     ["Go to References", "转到引用"],
     ["Google Search", "Google 搜索"],
     ["Imagen prompt", "Imagen 对话"],
+    ["January 2025", "2025 年 1 月"],
     ["Music generation", "音乐生成"],
     ["OK, got it", "好的，我明白了"],
     ["projects page.", "项目页面，"],
@@ -908,6 +909,7 @@ export const aistudioGoogleComZhCn = {
     ["Video Analyzer", "视频分析器"],
     [" Back to start ", "返回开始"],
     ["Are you sure?", "您确定吗？"],
+    ["August 2024", "2024 年 8 月"],
     ["Billing Support", "结算支持"],
     ["Code generation", "代码生成"],
     ["Command Palette", "命令面板"],
@@ -954,6 +956,7 @@ export const aistudioGoogleComZhCn = {
     ["Code execution", "代码执行"],
     ["Copy as text", "复制为文本"],
     ["Delete content", "删除内容"],
+    ["Download app", "下载该 APP"],
     ["Explore models", "探索模型"],
     ["Font ligatures", "字体连字"],
     ["Gemma models", "Gemma 模型"],
@@ -977,6 +980,7 @@ export const aistudioGoogleComZhCn = {
     ["Stop recording", "停止录音"],
     ["Temporary chat", "临时聊天"],
     ["Thinking Space", "思考空间"],
+    ["Token count", "Tokens 计数"],
     ["Transportation", "交通工具"],
     ["Video duration", "视频时长"],
     ["Video settings", "视频设置"],
@@ -986,11 +990,9 @@ export const aistudioGoogleComZhCn = {
     ["Code Editor", "代码编辑器"],
     ["Delete prompt", "删除对话"],
     ["Dictation App", "听写应用"],
-    ["Download app", "下载该APP"],
     ["Edit an image", "编辑图像"],
     ["Image Editing", "图像编辑"],
     ["Infinite Wiki", "无限维基"],
-    ["January 2025", "2025年1月"],
     ["Output format", "输出格式"],
     ["Output length", "输出长度"],
     ["Paint A Place", "描绘一处"],
@@ -1004,14 +1006,12 @@ export const aistudioGoogleComZhCn = {
     ["Text wrapping", "文本换行"],
     ["Thinking mode", "思考模式"],
     ["To revision", "至修订版本"],
-    ["Token count", "Tokens计数"],
     ["Try Gemini", "体验 Gemini"],
     ["URL context", "网址上下文"],
     ["Use GitHub", "使用 GitHub"],
     ["A minute ago", "一分钟前"],
     ["Add property", "添加属性"],
     ["An empty app", "空白应用"],
-    ["August 2024", "2024年8月"],
     ["Chat example", "聊天示例"],
     ["Compare mode", "比较模式"],
     ["First opened", "首次打开"],

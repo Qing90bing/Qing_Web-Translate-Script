@@ -42,7 +42,7 @@ export const geminiGoogleComZhCn = {
   
   // 自定义属性白名单 
   // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
-  // 示例: ['data-tip', 'data-title']
+  // 示例: 'data-tip', 'data-title'
   customAttributes: [
     // 在这里添加自定义属性
   ],
@@ -50,7 +50,7 @@ export const geminiGoogleComZhCn = {
   // 自定义属性黑名单 
   // 在此数组中添加的任何 HTML 属性名，都将强制不被翻译。
   // 此列表的优先级高于白名单，可用于覆盖默认翻译行为。
-  // 示例: ['title']
+  // 示例: 'title'
   blockedAttributes: [
     // 在这里添加要阻止翻译的属性
   ],

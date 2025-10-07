@@ -37,7 +37,7 @@ export const claudeAiZhTw = {
   
   // 自訂屬性白名單
   // 在此陣列中新增的任何 HTML 屬性名稱，都將在整個網站範圍內被翻譯。
-  // 範例: ['data-tip', 'data-title']
+  // 範例: 'data-tip', 'data-title'
   customAttributes: [
     // 在這裡新增自訂屬性
   ],
@@ -45,7 +45,7 @@ export const claudeAiZhTw = {
   // 自訂屬性黑名單
   // 在此陣列中新增的任何 HTML 屬性名稱，都將強制不被翻譯。
   // 此列表的優先級高於白名單，可用於覆蓋預設的翻譯行為。
-  // 範例: ['title']
+  // 範例: 'title'
   blockedAttributes: [
     // 在這裡新增要阻止翻譯的屬性
   ],

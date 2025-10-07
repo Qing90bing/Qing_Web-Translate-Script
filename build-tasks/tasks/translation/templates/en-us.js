@@ -33,9 +33,17 @@ export const ${variableName} = {
     // '#header .logo'
   ],
 
+  // Extended translation element selectors.
+  // Use this to translate elements that are not automatically translated.
+  extendedElements: [
+    // Add CSS selectors here, for example:
+    // '#dynamic-content',
+    // '.custom-widget'
+  ],
+  
   // Custom attributes to be translated.
   // Add any HTML attribute names here that should be translated.
-  // Example: ['data-tip', 'data-title']
+  // Example: 'data-tip', 'data-title'
   customAttributes: [
     // Add custom attributes here
   ],
@@ -45,15 +53,7 @@ export const ${variableName} = {
   // This list takes precedence over the customAttributes list.
   blockedAttributes: [
     // Add blocked attributes here
-    // Example: ['title']
-  ],
-
-  // Extended translation element selectors.
-  // Use this to translate elements that are not automatically translated.
-  extendedElements: [
-    // Add CSS selectors here, for example:
-    // '#dynamic-content',
-    // '.custom-widget'
+    // Example: 'title'
   ],
 
   // Injected Scripts (JavaScript)
