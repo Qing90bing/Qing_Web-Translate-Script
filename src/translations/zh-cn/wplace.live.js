@@ -155,6 +155,7 @@ export const wplaceLiveZhCn = {
     ["Preferably, use a 16x16 image", "建议使用 16x16 图像"],
     ["Pixels painted inside the country", "国家内绘制的像素"],
     ["No more charges","没有更多的液滴可以绘制"],
+    ["Select a color","选择一种颜色绘制"],
     ["🤖 Use of bots is not allowed", "🤖 禁止使用机器人"],
     ["(Reason: Botting)", "\n(原因: 机器人/外挂/自动化)"],
     ["British Indian Ocean Territory", "英属印度洋领地"],
