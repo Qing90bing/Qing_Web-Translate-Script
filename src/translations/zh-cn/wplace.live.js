@@ -88,7 +88,7 @@ export const wplaceLiveZhCn = {
     [/\+(\d+)\s+Max\.\s+Charges/i, "+ $1 最大储量"],
     [/\+(\d+)\s+Paint\s+Charges/i, "+ $1 绘制储量"],
     [/^\s*([\d,]+)\s+Droplets?\s*$/i, "$1 液滴"],
-    [/^\s*\+([\d,]+)\s+bonus\s*$/i, "+$1 奖励"],
+    [/^\s*\+([\d,]+)\s+bonus\s*$/i, "+$1 额外奖励"],
     [/^\s*Level\s+(\d+)\s*$/i, "等级 $1"]
   ],
 
