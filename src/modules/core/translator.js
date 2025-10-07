@@ -28,7 +28,7 @@ import { log, debug, translateLog, perf } from '../utils/logger.js';
  * @param {string[]} [blockedSelectors=[]] - 针对当前网站的、额外的禁止翻译的 CSS 选择器数组。
  * @returns {{translate: Function, resetState: Function, deleteElement: Function}} - 返回一个包含翻译 API 的对象。
  */
-export function createTranslator(textMap, regexArr, blockedSelectors = [], extendedSelectors = []) {
+export function createTranslator(textMap, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = []) {
     // --- 模块内部状态 ---
     // 通过闭包来管理每个翻译器实例的状态，确保实例之间互不干扰。
     let textTranslationMap = textMap;
@@ -40,11 +40,25 @@ export function createTranslator(textMap, regexArr, blockedSelectors = [], exten
     const blockedElements = new Set([...ALL_UNTRANSLATABLE_TAGS]);
     const blockedElementSelectors = blockedSelectors || [];
 
+    // --- 属性白名单与黑名单处理 ---
+    // 1. 合并全局白名单和网站自定义白名单。
+    const whitelist = new Set([...attributesToTranslate, ...customAttributes]);
+
+    // 2. 从白名单中移除所有在黑名单中定义的属性，确保黑名单的最高优先级。
+    for (const attr of blockedAttributes) {
+        whitelist.delete(attr);
+    }
+
+    // 3. 生成最终的待翻译属性列表。
+    const finalAttributesToTranslate = whitelist;
+
     /**
      * @function isInsideExtendedElement
      * @description 检查一个元素是否位于“扩展翻译”容器之内。
      * @param {Element} element - 要检查的 DOM 元素。
      * @returns {boolean} 如果元素在扩展容器内，则返回 true。
+     * @deprecated 该功能的设计目标是为非标准属性提供一个有限的、仅支持纯文本的翻译补充。
+     *             随着 `customAttributes` 功能的引入，推荐使用新功能来实现更强大、更灵活的属性翻译。
      */
     function isInsideExtendedElement(element) {
         if (!element || extendedSelectors.length === 0) return false;
@@ -221,8 +235,6 @@ export function createTranslator(textMap, regexArr, blockedSelectors = [], exten
         }
 
         // --- 2. 翻译所有元素的属性 ---
-        // 为了效率，创建一个标准属性的 Set
-        const standardAttributes = new Set(attributesToTranslate);
         // 获取当前元素及其所有后代元素
         const elementsToProcess = (element instanceof ShadowRoot)
             ? Array.from(element.querySelectorAll('*'))
@@ -239,30 +251,29 @@ export function createTranslator(textMap, regexArr, blockedSelectors = [], exten
                 
                 if (!originalValue || !originalValue.trim()) continue;
 
-                // 2a. 如果是标准属性，使用 translateText (支持文本和正则)
-                if (standardAttributes.has(attrName)) {
+                // 2a. 如果属性在“待翻译白名单”中 (包括标准属性和自定义属性)，
+                //     则使用 translateText 进行翻译 (支持纯文本和正则表达式)。
+                if (finalAttributesToTranslate.has(attrName)) {
                     const translatedValue = translateText(originalValue);
                     if (originalValue !== translatedValue) {
                         el.setAttribute(attrName, translatedValue);
-                        translateLog(`标准属性[${attrName}]`, originalValue, translatedValue);
+                        translateLog(`属性[${attrName}]`, originalValue, translatedValue);
                     }
                 } 
-                // 2b. 如果是自定义属性，则仅当其位于“扩展翻译”容器内部时，才使用 textTranslationMap 进行翻译。
-                else {
-                    // 这是实现“翻译特区”功能的核心检查。
-                    if (isInsideExtendedElement(el)) {
-                        const trimmedValue = originalValue.trim();
-                        if (textTranslationMap.has(trimmedValue)) {
-                            const translated = textTranslationMap.get(trimmedValue);
-                            // 保留原文中的前后空白字符
-                            const leadingSpace = originalValue.match(/^\s*/)[0] || '';
-                            const trailingSpace = originalValue.match(/\s*$/)[0] || '';
-                            const translatedValue = leadingSpace + translated + trailingSpace;
+                // 2b. (保留旧逻辑) 如果属性不在白名单中，但其所在元素位于“扩展翻译”容器内部，
+                //     则使用仅支持纯文本的翻译方式。这确保了向后兼容性。
+                else if (isInsideExtendedElement(el)) {
+                    const trimmedValue = originalValue.trim();
+                    if (textTranslationMap.has(trimmedValue)) {
+                        const translated = textTranslationMap.get(trimmedValue);
+                        // 保留原文中的前后空白字符
+                        const leadingSpace = originalValue.match(/^\s*/)[0] || '';
+                        const trailingSpace = originalValue.match(/\s*$/)[0] || '';
+                        const translatedValue = leadingSpace + translated + trailingSpace;
 
-                            if (originalValue !== translatedValue) {
-                                el.setAttribute(attrName, translatedValue);
-                                translateLog(`自定义属性[${attrName}]`, originalValue, translatedValue);
-                            }
+                        if (originalValue !== translatedValue) {
+                            el.setAttribute(attrName, translatedValue);
+                            translateLog(`扩展属性[${attrName}]`, originalValue, translatedValue);
                         }
                     }
                 }

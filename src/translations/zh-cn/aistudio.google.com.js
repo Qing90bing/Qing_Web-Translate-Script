@@ -38,6 +38,21 @@ export const aistudioGoogleComZhCn = {
     // '.custom-widget'
   ],
 
+  // 自定义属性白名单 
+  // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
+  // 示例: ['data-tip', 'data-title']
+  customAttributes: [
+    // 在这里添加自定义属性
+  ],
+
+  // 自定义属性黑名单 
+  // 在此数组中添加的任何 HTML 属性名，都将强制不被翻译。
+  // 此列表的优先级高于白名单，可用于覆盖默认翻译行为。
+  // 示例: ['title']
+  blockedAttributes: [
+    // 在这里添加要阻止翻译的属性
+  ],
+
   // 注入脚本（JavaScript）
   jsRules: [
     // 在这里添加JavaScript代码，例如：
@@ -71,6 +86,7 @@ export const aistudioGoogleComZhCn = {
     [/Jun\s+(\d{1,2}),\s+(\d{4})/, "$2 年 6 月 $1 日"],
     [/Mar\s+(\d{1,2}),\s+(\d{4})/, "$2 年 3 月 $1 日"],
     [/May\s+(\d{1,2}),\s+(\d{4})/, "$2 年 5 月 $1 日"],
+    [/Ran command\s+[“"](.*?)[”"]/i, "运行命令：$1"],
     [/Sep\s+(\d{1,2}),\s+(\d{4})/, "$2 年 9 月 $1 日"],
     [/^\s*Manual\s*:\s*(\d+)\s*$/i, "思考预算：$1"],
     [/Edit\s+([\w.-]*[._\d-][\w.-]*)/i, "编辑 $1"],
@@ -350,10 +366,10 @@ export const aistudioGoogleComZhCn = {
     ["There is no billing currently set up for this project", "当前没有为此项目设置账单"],
     ["Unable to disable thinking mode for this model.", "无法为此模型关闭“思考”模式。"],
     ["What's wrong? How can the response be improved?", "回复内容有什么问题？如何改进？"],
-    ["Audio recording will be added to your prompt", "音频录音将被添加到您的提示词中"],
     ["Is my API key exposed when sharing apps?", "共享应用时，我的 API 密钥会暴露吗？"],
     ["Select a Google Cloud project to proceed:", "选择一个 Google Cloud 项目来继续："],
     ["Are you sure you want to delete this API key?", "你确定想要删掉该 API 密钥吗？"],
+    ["Audio recording will be added to your prompt", "音频录音将被添加到您的提示词中"],
     ["A vintage-style poster of a local coffee shop", "一张本地咖啡店的复古风格海报"],
     ["Block medium or high probability of being harmful", "屏蔽中、高风险的有害内容"],
     ["Get recipe ideas based on an image of ingredients", "根据食材图片获取食谱创意"],
@@ -487,7 +503,6 @@ export const aistudioGoogleComZhCn = {
     ["Create a custom birthday card", "制作一张定制的生日贺卡"],
     ["Find and update time complexity", "分析并优化时间复杂度"],
     ["moving some logic server-side", "将部分逻辑移至服务器端"],
-    ["No recording devices available.", "没有可用的录制设备"],
     ["Restore code from this checkpoint", "从此检查点恢复代码"],
     ["Save the prompt before sharing it", "分享前请先保存对话"],
     ["Start Time (e.g., 1m10s)", "开始时间 (例如，1 分 10 秒)"],
@@ -505,6 +520,7 @@ export const aistudioGoogleComZhCn = {
     ["Image of a futuristic cityscape", "未来城市景观的图片"],
     ["Image of an afternoon tea table", "一张下午茶桌的图片"],
     ["Model used to generate response", "用于生成回复的模型"],
+    ["No recording devices available.", "没有可用的录制设备"],
     ["Your response is Feedback under the", "您的反馈将遵循"],
     ["Add an image to the prompt", "向提示词中添加一张图片"],
     ["Analyze the sentiment of texts", "分析文本的情感倾向"],
@@ -552,6 +568,7 @@ export const aistudioGoogleComZhCn = {
     ["No Cloud Projects Available", "没有可用的云项目"],
     ["Robotics visual understanding", "机器人视觉理解"],
     ["Scroll to previous prompt", "滚动到上一条提示词"],
+    ["Time to first token: ", "首个 Tokens 响应时间："],
     ["Total API Errors per day", "每天的 API 错误总数"],
     ["Use Gemini to greet you", "使用 Gemini 向您问好"],
     [" Try Nano Banana ", "尝试 Nano Banana 图像模型"],
@@ -568,7 +585,6 @@ export const aistudioGoogleComZhCn = {
     ["All Systems Operational", "所有系统均正常运行"],
     ["Generate videos with Veo", "使用 Veo 生成视频"],
     ["OpenAI SDK compatibility", "OpenAI SDK 兼容性"],
-    ["Time to first token: ", "首个 Tokens 响应时间："],
     ["Use Google AI Studio", "使用 Google AI Studio"],
     ["Casual, Lower middle pitch", "随意的，中低音"],
     ["Close run settings panel", "关闭运行设置面板"],
@@ -615,6 +631,7 @@ export const aistudioGoogleComZhCn = {
     ["Create Generative Media", "创建生成式媒体"],
     ["Forward, Middle pitch", "有力的，中等音调"],
     ["Gemini API Billing", "Gemini API 计费账单"],
+    ["Gemma Terms of Use", "《 Gemma 使用条款》"],
     ["Gravelly, Lower pitch", "沙哑的，较低音调"],
     ["Maximum output tokens", "最大输出Tokens数"],
     ["OpenAPI schema object", "OpenAPI 架构对象"],
@@ -650,13 +667,13 @@ export const aistudioGoogleComZhCn = {
     ["Deleting prompt...", "正在删除提示词..."],
     ["Deploy to Cloud Run", "部署到 Cloud Run"],
     ["Description of the function", "函数描述"],
-    ["Gemma Terms of Use", "《 Gemma 使用条款》"],
     ["Here are the changes:", "更改内容如下："],
     ["Lively, Lower pitch", "活泼的，较低音调"],
     ["Native image generation", "原生图像生成"],
     ["Run settings - Right", "运行设置 - 右侧"],
     ["Smooth, Lower pitch", "平滑的，较低音调"],
     ["Start typing a prompt", "开始输入提示词"],
+    ["Tokens per second: ", "每秒 Tokens 数："],
     ["Video to Learning App", "视频转学习应用"],
     ["A banyan tree building", "一座榕树建筑"],
     ["Browse the url context", "浏览网页内容"],
@@ -694,7 +711,6 @@ export const aistudioGoogleComZhCn = {
     ["Select device preview", "选择设备预览"],
     ["Show file tree view", "显示文件树视图"],
     ["Target context size", "目标上下文大小"],
-    ["Tokens per second: ", "每秒 Tokens 数："],
     ["Total API Requests", "总 API 请求次数"],
     ["Use Google Search", "使用 Google 搜索"],
     [" Supported values for ", " 支持的值 "],
@@ -713,6 +729,7 @@ export const aistudioGoogleComZhCn = {
     ["Text safety settings", "文本安全设置"],
     ["Toggle thinking mode", "切换思考模式"],
     ["Upload a local image", "上传本地图像"],
+    ["YouTube URL", "YouTube 视频 URL 链接"],
     ["429 TooManyRequests", "429 过多请求"],
     ["Adjust writing tone", "调整写作语气"],
     ["Call tools natively", "原生调用工具"],
@@ -761,7 +778,6 @@ export const aistudioGoogleComZhCn = {
     ["Saved to Drive", "已保存到云端硬盘"],
     ["Show code editor", "显示代码编辑器"],
     ["View Gemini API", "查看 Gemini API"],
-    ["YouTube URL", "YouTube 视频 URL 链接"],
     [" Items per page: ", "每页项目数："],
     [" Navigator APIs", " Navigator API"],
     [" Output resolution ", "输出分辨率"],
@@ -770,6 +786,7 @@ export const aistudioGoogleComZhCn = {
     ["Choose a template", "选择一个模板"],
     ["Copy to clipboard", "复制到剪贴板"],
     ["Create new folder", "创建新文件夹"],
+    ["Defaults to 1 FPS", "默认为 1 FPS"],
     ["Export to Drive", "导出到云端硬盘"],
     ["Function declarations", "函数声明"],
     ["Open in Drive", "在云端硬盘中打开"],
@@ -780,7 +797,6 @@ export const aistudioGoogleComZhCn = {
     ["View more actions", "查看更多操作"],
     ["(experimental)", "（实验性功能）"],
     ["App file changes", "应用文件变更"],
-    ["Defaults to 1 FPS", "默认为 1 FPS"],
     ["Edit name of app", "编辑应用名称"],
     ["Loading projects", "正在加载项目"],
     ["Lyria RealTime", "Lyria 实时交互"],

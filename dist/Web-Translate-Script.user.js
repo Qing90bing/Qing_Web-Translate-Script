@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.44-2025-10-7-offline
+// @version      1.0.45-2025-10-7-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -38,6 +38,8 @@
     styles: ['.feedback-button { width: auto !important; white-space: nowrap !important; }'],
     blockedElements: ['.view-lines'],
     extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
     jsRules: [],
     regexRules: [
       [/^Step\s+(\d+)\s+of the plan is complete\.$/i, '“计划”的第 $1 步已完成。'],
@@ -385,6 +387,8 @@
     styles: [],
     blockedElements: ['.chat-container', '.view-line', '.very-large-text-container'],
     extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
     jsRules: [],
     regexRules: [
       [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  换行\nAlt + ↩  追加文本 (不执行)\nCtrl + ↩  执行指令'],
@@ -401,6 +405,7 @@
       [/^Copied\s+(.+)\s+to\s+clipboard$/i, '已将模型“$1”复制到剪贴板'],
       [/Analyzed errors for (\d+) seconds/, '分析了 $1 秒的错误'],
       [/^\s*Move\s+([\w./-]+)\s+to\s*$/i, '移动文件：$1 到'],
+      [/Ran command\s+[“"](.*?)[”"]/i, '运行命令：$1'],
       [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2 年 12 月 $1 日'],
       [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2 年 11 月 $1 日'],
       [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2 年 10 月 $1 日'],
@@ -1605,6 +1610,8 @@
     styles: [],
     blockedElements: ['.token module'],
     extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
     jsRules: [],
     regexRules: [
       [/You will receive an email at\s+([\w\.\-]+@[\w\.\-]+)\s+with a link which expires in\s+(\d+)\s+hours\.\s+There may be a small delay while we prepare the export\./i, '您将收到一封发送至 $1 的邮件，其中包含一个 $2 小时内有效的链接。在我们准备导出文件时，可能会稍有延迟。'],
@@ -2530,6 +2537,8 @@
     styles: [],
     blockedElements: [],
     extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
     jsRules: [],
     regexRules: [
       [/^Launch your first project with just\s+\$(\d+(?:\.\d{1,2})?)\s+and use your credits flexibly in the Developer Console, Claude Code and the API$/i, '只需 $1 美元即可启动您的第一个项目，并在开发者控制台、Claude Code 和 API 中灵活使用您的积分'],
@@ -3305,6 +3314,8 @@
     styles: [],
     blockedElements: [],
     extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
     jsRules: [],
     regexRules: [
       [/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s+(\d{2}:\d{2})\s+UTC/i, 'MM月DD日, $3 UTC'],
@@ -3640,6 +3651,8 @@
     styles: ['.feedback-button { width: auto !important; white-space: nowrap !important; }'],
     blockedElements: [],
     extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
     jsRules: [],
     regexRules: [
       [/^Step\s+(\d+)\s+of the plan is complete\.$/i, '「計劃」的第 $1 步已完成。'],
@@ -3699,6 +3712,8 @@
     styles: [],
     blockedElements: [],
     extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
     jsRules: [],
     regexRules: [
       [/↩\s*Add a new line\s*\s*Alt\s*\+\s*↩\s*Append text without running\s*\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  換行 Alt + ↩  附加文字 (不執行) Ctrl + ↩  執行提示'],
@@ -3762,6 +3777,8 @@
     styles: [],
     blockedElements: [],
     extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
     jsRules: [],
     regexRules: [
       [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, '每人/月，享年度訂閱折扣。若按月計費則為 新幣 $1。最少 $2 名成員。'],
@@ -3824,6 +3841,8 @@
     styles: [],
     blockedElements: [],
     extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
     jsRules: [],
     regexRules: [
       [/↩\s*Add a new line\s*\s*Alt\s*\+\s*↩\s*Append text without running\s*\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  換行 Alt + ↩  附加文字 (不執行) Ctrl + ↩  執行提示'],
@@ -3887,6 +3906,8 @@
     styles: [],
     blockedElements: [],
     extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
     jsRules: [],
     regexRules: [
       [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, '每人/月，享年度訂閱折扣。若按月計費則為 新幣 $1。至少 $2 名成員。'],
@@ -3949,6 +3970,8 @@
     styles: [],
     blockedElements: [],
     extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
     jsRules: [],
     regexRules: [],
     textRules: [
@@ -3977,6 +4000,8 @@
     ],
     blockedElements: ['.img_imageZoomComp', '[data-testid="gallery-item-title"]'],
     extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
     jsRules: [],
     regexRules: [],
     textRules: [
@@ -4155,6 +4180,8 @@
     styles: [],
     blockedElements: [],
     extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
     jsRules: [],
     regexRules: [
       [/^\s*You can paint more than\s+(\d+)\s+pixels?\s*$/i, '您可以绘制超过 $1 个像素'],
@@ -4775,14 +4802,19 @@
   var BLOCKS_CONTENT_ONLY = new Set([]);
   var ALL_UNTRANSLATABLE_TAGS = new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
   var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
-  var BLOCKED_CSS_CLASSES = new Set(['notranslate', 'kbd']);
-  function createTranslator(textMap, regexArr, blockedSelectors = [], extendedSelectors = []) {
+  var BLOCKED_CSS_CLASSES = new Set(['notranslate', 'kbd', 'svg']);
+  function createTranslator(textMap, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = []) {
     let textTranslationMap = textMap;
     let regexRules = regexArr;
     let translationCache = new Map();
     let translatedElements = new WeakSet();
     const blockedElements = new Set([...ALL_UNTRANSLATABLE_TAGS]);
     const blockedElementSelectors = blockedSelectors || [];
+    const whitelist = new Set([...attributesToTranslate, ...customAttributes]);
+    for (const attr of blockedAttributes) {
+      whitelist.delete(attr);
+    }
+    const finalAttributesToTranslate = whitelist;
     function isInsideExtendedElement(element) {
       if (!element || extendedSelectors.length === 0) return false;
       for (const selector of extendedSelectors) {
@@ -4895,7 +4927,6 @@
           });
         }
       }
-      const standardAttributes = new Set(attributesToTranslate);
       const elementsToProcess = element instanceof ShadowRoot ? Array.from(element.querySelectorAll('*')) : [element, ...Array.from(element.querySelectorAll('*'))];
       elementsToProcess.forEach((el) => {
         if (isElementBlocked(el) || !el.hasAttributes()) return;
@@ -4903,24 +4934,22 @@
           const attrName = attr.name;
           const originalValue = attr.value;
           if (!originalValue || !originalValue.trim()) continue;
-          if (standardAttributes.has(attrName)) {
+          if (finalAttributesToTranslate.has(attrName)) {
             const translatedValue = translateText(originalValue);
             if (originalValue !== translatedValue) {
               el.setAttribute(attrName, translatedValue);
-              translateLog(`标准属性[${attrName}]`, originalValue, translatedValue);
+              translateLog(`属性[${attrName}]`, originalValue, translatedValue);
             }
-          } else {
-            if (isInsideExtendedElement(el)) {
-              const trimmedValue = originalValue.trim();
-              if (textTranslationMap.has(trimmedValue)) {
-                const translated = textTranslationMap.get(trimmedValue);
-                const leadingSpace = originalValue.match(/^\s*/)[0] || '';
-                const trailingSpace = originalValue.match(/\s*$/)[0] || '';
-                const translatedValue = leadingSpace + translated + trailingSpace;
-                if (originalValue !== translatedValue) {
-                  el.setAttribute(attrName, translatedValue);
-                  translateLog(`自定义属性[${attrName}]`, originalValue, translatedValue);
-                }
+          } else if (isInsideExtendedElement(el)) {
+            const trimmedValue = originalValue.trim();
+            if (textTranslationMap.has(trimmedValue)) {
+              const translated = textTranslationMap.get(trimmedValue);
+              const leadingSpace = originalValue.match(/^\s*/)[0] || '';
+              const trailingSpace = originalValue.match(/\s*$/)[0] || '';
+              const translatedValue = leadingSpace + translated + trailingSpace;
+              if (originalValue !== translatedValue) {
+                el.setAttribute(attrName, translatedValue);
+                translateLog(`扩展属性[${attrName}]`, originalValue, translatedValue);
               }
             }
           }
@@ -4943,7 +4972,7 @@
       },
     };
   }
-  function initializeObservers(translator, extendedElements = []) {
+  function initializeObservers(translator, extendedElements = [], customAttributes = [], blockedAttributes = []) {
     let translationTimer;
     let pendingNodes = new Set();
     let lastModelInfo = '';
@@ -5057,11 +5086,16 @@
         setTimeout(() => detectModelChange(), 50);
       }
     });
+    const whitelist = new Set([...attributesToTranslate, ...customAttributes]);
+    for (const attr of blockedAttributes) {
+      whitelist.delete(attr);
+    }
+    const finalAttributeFilter = [...whitelist];
     mainObserver.observe(document.body, {
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: attributesToTranslate,
+      attributeFilter: finalAttributeFilter,
       characterData: true,
     });
     pageObserver.observe(document.body, { childList: true, subtree: true });
@@ -5183,7 +5217,7 @@
     log('监听器初始化完成。');
   }
   function initializeTranslation(siteDictionary, createTranslator2, removeAntiFlickerStyle2, initializeObservers2, log2) {
-    const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
     log2(`开始初始化翻译流程，使用语言: ${language || 'unknown'}`);
     const textTranslationMap = new Map();
     for (const rule of textRules) {
@@ -5218,7 +5252,7 @@
         log2(`执行了 ${executedScripts} 条自定义JS脚本`);
       }
     }
-    const translator = createTranslator2(textTranslationMap, regexRules, blockedElements, extendedElements);
+    const translator = createTranslator2(textTranslationMap, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes);
     function startTranslation() {
       if (document.body) {
         initializeFullTranslation();
@@ -5242,7 +5276,7 @@
       const duration = performance.now() - startTime;
       log2(`初次翻译完成。使用语言: ${language || 'unknown'}, 耗时: ${duration.toFixed(2)}ms`);
       removeAntiFlickerStyle2();
-      initializeObservers2(translator, extendedElements);
+      initializeObservers2(translator, extendedElements, customAttributes, blockedAttributes);
     }
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', startTranslation);

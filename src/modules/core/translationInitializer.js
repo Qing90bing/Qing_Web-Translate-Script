@@ -27,7 +27,7 @@
  */
 export function initializeTranslation(siteDictionary, createTranslator, removeAntiFlickerStyle, initializeObservers, log) {
     // 从站点词典中解构出所有规则，并为可能不存在的规则提供默认空数组。
-    const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
     
     log(`开始初始化翻译流程，使用语言: ${language || 'unknown'}`);
 
@@ -79,8 +79,8 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
 
     // --- 步骤 3: 创建翻译器实例 ---
     // 将处理好的规则传递给翻译器工厂函数，创建一个包含特定网站翻译逻辑的翻译器实例。
-    // 此处将 extendedElements 作为第四个参数传入，以告知翻译器“翻译特区”的范围。
-    const translator = createTranslator(textTranslationMap, regexRules, blockedElements, extendedElements);
+    // 此处将 extendedElements, customAttributes, 和 blockedAttributes 作为参数传入。
+    const translator = createTranslator(textTranslationMap, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes);
 
     // --- 步骤 4: 协调并启动翻译流程 ---
 
@@ -128,7 +128,7 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
         removeAntiFlickerStyle();
 
         // 3. 启动所有用于处理动态内容变化的 `MutationObserver`。
-        initializeObservers(translator, extendedElements);
+        initializeObservers(translator, extendedElements, customAttributes, blockedAttributes);
     }
 
     // 根据页面的加载状态，智能地选择启动翻译的时机。

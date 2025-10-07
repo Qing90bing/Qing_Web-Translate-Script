@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.54-2025-10-7-cdn
+// @version      1.0.55-2025-10-7-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -37,6 +37,8 @@ const EMBEDDED_TRANSLATIONS = {
       styles: [],
       blockedElements: ['.chat-container', '.view-line', '.very-large-text-container'],
       extendedElements: [],
+      customAttributes: [],
+      blockedAttributes: [],
       jsRules: [],
       regexRules: [
         [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  换行\nAlt + ↩  追加文本 (不执行)\nCtrl + ↩  执行指令'],
@@ -53,6 +55,7 @@ const EMBEDDED_TRANSLATIONS = {
         [/^Copied\s+(.+)\s+to\s+clipboard$/i, '已将模型“$1”复制到剪贴板'],
         [/Analyzed errors for (\d+) seconds/, '分析了 $1 秒的错误'],
         [/^\s*Move\s+([\w./-]+)\s+to\s*$/i, '移动文件：$1 到'],
+        [/Ran command\s+[“"](.*?)[”"]/i, '运行命令：$1'],
         [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2 年 12 月 $1 日'],
         [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2 年 11 月 $1 日'],
         [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2 年 10 月 $1 日'],
@@ -1257,6 +1260,8 @@ const EMBEDDED_TRANSLATIONS = {
       styles: [],
       blockedElements: [],
       extendedElements: [],
+      customAttributes: [],
+      blockedAttributes: [],
       jsRules: [],
       regexRules: [],
       textRules: [
@@ -1273,6 +1278,8 @@ const EMBEDDED_TRANSLATIONS = {
       styles: [],
       blockedElements: [],
       extendedElements: [],
+      customAttributes: [],
+      blockedAttributes: [],
       jsRules: [],
       regexRules: [
         [/↩\s*Add a new line\s*\s*Alt\s*\+\s*↩\s*Append text without running\s*\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  換行 Alt + ↩  附加文字 (不執行) Ctrl + ↩  執行提示'],
@@ -1338,6 +1345,8 @@ const EMBEDDED_TRANSLATIONS = {
       styles: [],
       blockedElements: [],
       extendedElements: [],
+      customAttributes: [],
+      blockedAttributes: [],
       jsRules: [],
       regexRules: [
         [/↩\s*Add a new line\s*\s*Alt\s*\+\s*↩\s*Append text without running\s*\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  換行 Alt + ↩  附加文字 (不執行) Ctrl + ↩  執行提示'],
@@ -1537,16 +1546,21 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
   var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set([]);
   var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
   var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
-  var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate', 'kbd']);
+  var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate', 'kbd', 'svg']);
 
   // src/modules/core/translator.js
-  function createTranslator(textMap, regexArr, blockedSelectors = [], extendedSelectors = []) {
+  function createTranslator(textMap, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = []) {
     let textTranslationMap = textMap;
     let regexRules = regexArr;
     let translationCache = /* @__PURE__ */ new Map();
     let translatedElements = /* @__PURE__ */ new WeakSet();
     const blockedElements = /* @__PURE__ */ new Set([...ALL_UNTRANSLATABLE_TAGS]);
     const blockedElementSelectors = blockedSelectors || [];
+    const whitelist = /* @__PURE__ */ new Set([...attributesToTranslate, ...customAttributes]);
+    for (const attr of blockedAttributes) {
+      whitelist.delete(attr);
+    }
+    const finalAttributesToTranslate = whitelist;
     function isInsideExtendedElement(element) {
       if (!element || extendedSelectors.length === 0) return false;
       for (const selector of extendedSelectors) {
@@ -1659,7 +1673,6 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
           });
         }
       }
-      const standardAttributes = new Set(attributesToTranslate);
       const elementsToProcess = element instanceof ShadowRoot ? Array.from(element.querySelectorAll('*')) : [element, ...Array.from(element.querySelectorAll('*'))];
       elementsToProcess.forEach((el) => {
         if (isElementBlocked(el) || !el.hasAttributes()) return;
@@ -1667,24 +1680,22 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
           const attrName = attr.name;
           const originalValue = attr.value;
           if (!originalValue || !originalValue.trim()) continue;
-          if (standardAttributes.has(attrName)) {
+          if (finalAttributesToTranslate.has(attrName)) {
             const translatedValue = translateText(originalValue);
             if (originalValue !== translatedValue) {
               el.setAttribute(attrName, translatedValue);
-              translateLog(`标准属性[${attrName}]`, originalValue, translatedValue);
+              translateLog(`属性[${attrName}]`, originalValue, translatedValue);
             }
-          } else {
-            if (isInsideExtendedElement(el)) {
-              const trimmedValue = originalValue.trim();
-              if (textTranslationMap.has(trimmedValue)) {
-                const translated = textTranslationMap.get(trimmedValue);
-                const leadingSpace = originalValue.match(/^\s*/)[0] || '';
-                const trailingSpace = originalValue.match(/\s*$/)[0] || '';
-                const translatedValue = leadingSpace + translated + trailingSpace;
-                if (originalValue !== translatedValue) {
-                  el.setAttribute(attrName, translatedValue);
-                  translateLog(`自定义属性[${attrName}]`, originalValue, translatedValue);
-                }
+          } else if (isInsideExtendedElement(el)) {
+            const trimmedValue = originalValue.trim();
+            if (textTranslationMap.has(trimmedValue)) {
+              const translated = textTranslationMap.get(trimmedValue);
+              const leadingSpace = originalValue.match(/^\s*/)[0] || '';
+              const trailingSpace = originalValue.match(/\s*$/)[0] || '';
+              const translatedValue = leadingSpace + translated + trailingSpace;
+              if (originalValue !== translatedValue) {
+                el.setAttribute(attrName, translatedValue);
+                translateLog(`扩展属性[${attrName}]`, originalValue, translatedValue);
               }
             }
           }
@@ -1710,7 +1721,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
   }
 
   // src/modules/core/observers.js
-  function initializeObservers(translator, extendedElements = []) {
+  function initializeObservers(translator, extendedElements = [], customAttributes = [], blockedAttributes = []) {
     let translationTimer;
     let pendingNodes = /* @__PURE__ */ new Set();
     let lastModelInfo = '';
@@ -1824,6 +1835,11 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         setTimeout(() => detectModelChange(), 50);
       }
     });
+    const whitelist = /* @__PURE__ */ new Set([...attributesToTranslate, ...customAttributes]);
+    for (const attr of blockedAttributes) {
+      whitelist.delete(attr);
+    }
+    const finalAttributeFilter = [...whitelist];
     mainObserver.observe(document.body, {
       childList: true,
       // 监听子节点的添加或删除
@@ -1831,8 +1847,8 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       // 监听以 document.body 为根的所有后代节点
       attributes: true,
       // 监听属性变化
-      attributeFilter: attributesToTranslate,
-      // 只关心这些可能包含文本的属性
+      attributeFilter: finalAttributeFilter,
+      // 只关心白名单中的属性
       characterData: true,
       // 监听文本节点的内容变化
     });
@@ -1959,7 +1975,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
 
   // src/modules/core/translationInitializer.js
   function initializeTranslation(siteDictionary, createTranslator2, removeAntiFlickerStyle2, initializeObservers2, log2) {
-    const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
     log2(`开始初始化翻译流程，使用语言: ${language || 'unknown'}`);
     const textTranslationMap = /* @__PURE__ */ new Map();
     for (const rule of textRules) {
@@ -1994,7 +2010,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         log2(`执行了 ${executedScripts} 条自定义JS脚本`);
       }
     }
-    const translator = createTranslator2(textTranslationMap, regexRules, blockedElements, extendedElements);
+    const translator = createTranslator2(textTranslationMap, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes);
     function startTranslation() {
       if (document.body) {
         initializeFullTranslation();
@@ -2018,7 +2034,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       const duration = performance.now() - startTime;
       log2(`初次翻译完成。使用语言: ${language || 'unknown'}, 耗时: ${duration.toFixed(2)}ms`);
       removeAntiFlickerStyle2();
-      initializeObservers2(translator, extendedElements);
+      initializeObservers2(translator, extendedElements, customAttributes, blockedAttributes);
     }
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', startTranslation);

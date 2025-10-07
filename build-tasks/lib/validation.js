@@ -218,7 +218,7 @@ function validateFileContent(file, content, options) {
   const lines = content.split('\n');
 
   // 定义所有已知的、合法的顶级属性
-  const KNOWN_PROPERTIES = new Set(['description', 'testUrl', 'createdAt', 'styles', 'jsRules', 'regexRules', 'textRules', 'enabled', 'language', 'blockedElements', 'extendedElements']);
+  const KNOWN_PROPERTIES = new Set(['description', 'testUrl', 'createdAt', 'styles', 'jsRules', 'regexRules', 'textRules', 'enabled', 'language', 'blockedElements', 'extendedElements', 'customAttributes', 'blockedAttributes']);
 
   // 检查是否存在未知的属性
   for (const prop of translationObjectNode.properties) {

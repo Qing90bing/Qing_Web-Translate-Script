@@ -62,4 +62,4 @@ export const attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt
  * @example
  * // <p class="notranslate">This text will be ignored.</p>
  */
-export const BLOCKED_CSS_CLASSES = new Set(['notranslate','kbd']);
+export const BLOCKED_CSS_CLASSES = new Set(['notranslate','kbd','svg']);

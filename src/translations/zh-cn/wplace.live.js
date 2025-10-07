@@ -39,6 +39,21 @@ export const wplaceLiveZhCn = {
     // '#dynamic-content',
     // '.custom-widget'
   ],
+  
+  // 自定义属性白名单 
+  // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
+  // 示例: ['data-tip', 'data-title']
+  customAttributes: [
+    // 在这里添加自定义属性
+  ],
+
+  // 自定义属性黑名单 
+  // 在此数组中添加的任何 HTML 属性名，都将强制不被翻译。
+  // 此列表的优先级高于白名单，可用于覆盖默认翻译行为。
+  // 示例: ['title']
+  blockedAttributes: [
+    // 在这里添加要阻止翻译的属性
+  ],
 
   // 注入脚本 (JavaScript)
   // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
@@ -70,15 +85,21 @@ export const wplaceLiveZhCn = {
     ["Display your country’s flag next to your username. Plus, when painting in regions where you own the corresponding flag, you recover 10% of the charges spent.", "在您的用户名旁边显示您国家的旗帜。此外，在您拥有相应旗帜的地区进行绘制时，您将恢复 10% 的已用储量。"],
     ["When painting, click on the button on the top right corner of the screen. This will lock the screen but it'll also enable painting by moving your finger over the map.", "绘制时，请点击屏幕右上角的按钮。这将锁定屏幕，但您可以通过在地图上移动手指来进行绘制。"],
     ["🚫 No inappropriate content (+18, hate speech, inappropriate links, highly suggestive material, ...)", "🚫 禁止不当内容（+18、仇恨言论、不当链接、强暗示性内容等）"],
+    [" This will permanently delete your account and all associated data. This action cannot be undone.", "这将永久删除您的账户和所有关联数据。此操作无法撤销"],
     ["😈 Do not paint over other artworks using random colors or patterns just to mess things up", "😈 不要使用随机颜色或图案涂抹其他艺术作品，蓄意破坏"],
+    ["This action is irreversible, do you want to proceed? Please confirm by entering your username:", "此操作不可逆，是否继续？请输入您的用户名确认："],
     ["✅ Painting over other artworks to complement them or create a new drawing is allowed", "✅ 允许在其他艺术作品上进行绘制以完善它们或创作新画作"],
     ["Violations of these rules may lead to suspension of your account or removal of drawings.", "违反这些规则可能会导致您的账户被暂停或作品被移除。"],
+    ["You gain 1 droplet per pixel painted and 500 droplets per level", "您每绘制一个像素点，就会获得 1 个液滴；每完成一个等级，就会获得 500 个液滴"],
     ["✅ Griefing political party flags or portraits of politicians is allowed", "✅ 允许涂抹政党旗帜或政治人物肖像"],
     ["No internet access or the servers are offline. Try again later.", "没有互联网连接或服务器离线，请稍后再试"],
+    ["For refund requests and processing details, please see our ", "退款请求和处理详情，请参阅我们的"],
     ["No corresponding region on the map (cosmetic effect only)", "地图上无对应区域（仅为装饰效果）"],
     ["🧑‍🤝‍🧑 Do not paint with more than one account", "🧑‍🤝‍🧑 请勿使用多个账户进行绘制"],
+    ["This action will log your account out from all devices.", "此操作将从所有设备注销您的账户"],
     ["🙅 Disclosing other's personal information is not allowed", "🙅 禁止泄露他人个人信息"],
     ["Your account has been banned for violating the rules ", "您的帐户因违反规则已被封禁"],
+    ["This action may take some time to be completed.", "此操作可能需要一些时间才能完成"],
     ["Account Enforcement Policy and Code of Conduct", "账户执行政策和行为准则"],
     ["Increase your maximum paint charges capacity", "增加您的最大绘制储量上限"],
     ["South Georgia and the South Sandwich Islands", "南乔治亚和南桑威奇群岛"],
@@ -92,7 +113,6 @@ export const wplaceLiveZhCn = {
     ["By continuing, you agree to our ", "通过继续，您同意我们的"],
     ["You can paint more than 1 pixel", "你可以绘制不止 1 个像素"],
     ["Heard Island and McDonald Islands", "赫德岛和麦克唐纳群岛"],
-    ["Wplace - Paint the world", "Wplace - 绘制世界"],
     ["Saint Vincent and the Grenadines", "圣文森特和格林纳丁斯"],
     ["United States Minor Outlying Islands", "美国本土外小岛屿"],
     ["For more details, see our ", "更多详情，请参阅我们的 "],
@@ -108,6 +128,7 @@ export const wplaceLiveZhCn = {
     ["Turks and Caicos Islands", "特克斯和凯科斯群岛"],
     ["Cocos (Keeling) Islands", "科科斯（基林）群岛"],
     ["Saint Pierre and Miquelon", "圣皮埃尔和密克隆"],
+    ["Wplace - Paint the world", "Wplace - 绘制世界"],
     ["You are not in an alliance:", "您不在联盟中:"],
     ["French Southern Territories", "法属南部领地"],
     ["Zoom in to see the pixels", "放大以查看像素"],
@@ -124,9 +145,11 @@ export const wplaceLiveZhCn = {
     ["Saint Kitts and Nevis", "圣基茨和尼维斯"],
     ["Trinidad and Tobago", "特立尼达和多巴哥"],
     [" Link your Discord", "链接您的 Discord"],
+    ["Are you absolutely sure?", "您确定吗？"],
     ["Central African Republic", "中非共和国"],
     ["Recharge paint charges", "补充绘制储量"],
     ["Toggle art opacity", "切换作品不透明度"],
+    ["Type your username", "请输入您的用户名"],
     ["Antigua and Barbuda", "安提瓜和巴布达"],
     ["How to paint faster", "如何更快地绘制"],
     ["Login with Google", "使用 Google 登录"],
@@ -163,24 +186,13 @@ export const wplaceLiveZhCn = {
     ["Virgin Islands", "维尔京群岛"],
     [" 🇺🇸 English", " 🇺🇸 英语"],
     ["Create alliance", "创建联盟"],
-    ["Painted by:", "绘制者："],
-    [" Report User", "举报该用户"],
     ["Dark Slate Blue", "暗灰蓝色"],
-    ["Are you absolutely sure?","您确定吗？"],
-    [" This will permanently delete your account and all associated data. This action cannot be undone.","这将永久删除您的账户和所有关联数据。此操作无法撤销"],
-    ["This action is irreversible, do you want to proceed? Please confirm by entering your username:","此操作不可逆，是否继续？请输入您的用户名确认："],
-    ["Type your username","请输入您的用户名"],
-    ["This action will log your account out from all devices.", "此操作将从所有设备注销您的账户"],
-    ["This action may take some time to be completed.", "此操作可能需要一些时间才能完成"],
-    ["Confirm ","确认"],
-    ["You gain 1 droplet per pixel painted and 500 droplets per level","您每绘制一个像素点，就会获得 1 个液滴；每完成一个等级，就会获得 500 个液滴"],
-    ["For refund requests and processing details, please see our ","退款请求和处理详情，请参阅我们的"],
-    ["Refund Policy", "退款政策"],
     ["French Guiana", "法属圭亚那"],
     ["Guinea-Bissau", "几内亚比绍"],
     ["Liechtenstein", "列支敦士登"],
     ["North Macedonia", "北马其顿"],
     ["Profile picture", "个人头像"],
+    [" Report User", "举报该用户"],
     ["Burkina Faso", "布基纳法索"],
     ["Cayman Islands", "开曼群岛"],
     ["Christmas Island", "圣诞岛"],
@@ -199,6 +211,7 @@ export const wplaceLiveZhCn = {
     ["Alliance Name", "联盟名称"],
     ["Côte d'Ivoire", "科特迪瓦"],
     ["Faroe Islands", "法罗群岛"],
+    ["Refund Policy", "退款政策"],
     ["Suggestions...", "建议..."],
     [" Install App", "安装应用"],
     [" Share place", "分享位置"],
@@ -221,6 +234,7 @@ export const wplaceLiveZhCn = {
     ["Light Slate", "浅岩灰色"],
     ["My location", "我的位置"],
     ["Paint pixel", "绘制像素"],
+    ["Painted by:", "绘制者："],
     ["Puerto Rico", "波多黎各"],
     ["Saint Lucia", "圣卢西亚"],
     ["Azerbaijan", "阿塞拜疆"],
@@ -394,6 +408,7 @@ export const wplaceLiveZhCn = {
     ["Angola", "安哥拉"],
     ["Belize", "伯利兹"],
     ["Canada", "加拿大"],
+    ["Confirm ", "确认"],
     ["Copied", "已复制"],
     ["Droplets", "液滴"],
     ["Eraser", "橡皮擦"],

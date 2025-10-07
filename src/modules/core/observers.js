@@ -22,7 +22,7 @@ import { attributesToTranslate } from '../../config.js';
  * @description 初始化并启动所有 MutationObservers，为页面提供动态翻译能力。
  * @param {object} translator - 从 `translator.js` 的 `createTranslator` 函数返回的翻译器实例。
  */
-export function initializeObservers(translator, extendedElements = []) {
+export function initializeObservers(translator, extendedElements = [], customAttributes = [], blockedAttributes = []) {
     // --- 状态与调度器定义 ---
 
     // 用于防抖的计时器 ID
@@ -190,11 +190,22 @@ export function initializeObservers(translator, extendedElements = []) {
     });
 
     // --- 启动所有监听器 ---
+
+    // 为 MutationObserver 创建最终的属性过滤器，确保与 translator.js 的逻辑同步。
+    // 1. 合并标准属性和自定义属性白名单。
+    const whitelist = new Set([...attributesToTranslate, ...customAttributes]);
+    // 2. 从白名单中移除所有在黑名单中定义的属性。
+    for (const attr of blockedAttributes) {
+        whitelist.delete(attr);
+    }
+    // 3. 将最终的 Set 转换为数组。
+    const finalAttributeFilter = [...whitelist];
+
     mainObserver.observe(document.body, {
         childList: true, // 监听子节点的添加或删除
         subtree: true,   // 监听以 document.body 为根的所有后代节点
         attributes: true, // 监听属性变化
-        attributeFilter: attributesToTranslate, // 只关心这些可能包含文本的属性
+        attributeFilter: finalAttributeFilter, // 只关心白名单中的属性
         characterData: true // 监听文本节点的内容变化
     });
     

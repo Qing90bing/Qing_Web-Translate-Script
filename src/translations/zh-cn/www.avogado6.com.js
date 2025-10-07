@@ -46,6 +46,21 @@ export const wwwAvogado6ComZhCn = {
     // '#dynamic-content',
     // '.custom-widget'
   ],
+  
+  // 自定义属性白名单 
+  // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
+  // 示例: ['data-tip', 'data-title']
+  customAttributes: [
+    // 在这里添加自定义属性
+  ],
+
+  // 自定义属性黑名单 
+  // 在此数组中添加的任何 HTML 属性名，都将强制不被翻译。
+  // 此列表的优先级高于白名单，可用于覆盖默认翻译行为。
+  // 示例: ['title']
+  blockedAttributes: [
+    // 在这里添加要阻止翻译的属性
+  ],
 
   // 注入脚本 (JavaScript)
   // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
