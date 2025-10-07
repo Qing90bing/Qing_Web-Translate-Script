@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.51-2025-10-7-cdn
+// @version      1.0.52-2025-10-7-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -35,7 +35,7 @@ const EMBEDDED_TRANSLATIONS = {
       language: 'zh-cn',
       enabled: true,
       styles: [],
-      blockedElements: ['.chat-container', '.view-line'],
+      blockedElements: ['.chat-container', '.view-line', '.very-large-text-container'],
       jsRules: [],
       regexRules: [
         [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  换行\nAlt + ↩  追加文本 (不执行)\nCtrl + ↩  执行指令'],
@@ -141,6 +141,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Your AI creative coding partner for p5.js. Chat to generate interactive art and games, then edit and preview live.', '您的 p5.js AI 创意编程伙伴 。通过聊天生成交互式艺术和游戏，并进行实时编辑和预览。'],
         [' “Create an image of a fancy house by a pond in the forest in front of grassland with wildflowers, close ...” ', ' “创建一张图片，内容为森林池塘边的一栋漂亮房子，前面是长满野花的草地，近景...” '],
         ['This feature enables the model to choose to not respond to audio that’s not relevant to the ongoing conversation', '让 Gemini 拥有“抗干扰”能力，能自动忽略背景噪音或无关的旁人对话，使交流更加专注'],
+        ['The number of free generations that are remaining for this model. To continue generating past the free limit, please use the Gemini API.', '此模型剩余的免费生成次数。若需继续生成，请使用Gemini API'],
         ['Sketch and prompt, Gemini brings your drawings to life! Co-create amazing art collaboratively with AI.', '寥寥几笔，加上提示词，Gemini 就能让您的画作栩栩如生！与 AI 携手，共同创作惊艳的艺术作品。'],
         ['Usage information displayed is for the API and does not reflect AI Studio usage, which is offered free of charge.', '显示的使用信息适用于 API ，不反映 AI Studio 的使用情况，该信息是免费提供的。'],
         ['An interactive video player that lets you summarize, describe scenes, extract text, search for objects, and more.', '一款交互式视频播放器，可以帮您总结内容、描述场景、提取文字、搜索物体等等。'],
@@ -481,6 +482,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Save the prompt before sharing it', '分享前请先保存对话'],
         ['Start Time (e.g., 1m10s)', '开始时间 (例如，1 分 10 秒)'],
         ['Summarizing text research content', '总结研究性文本内容'],
+        [' Verify AI generated content with ', '验证 AI 生成内容'],
         [', by running the following code:', '，请运行以下代码：'],
         ['Gemini powered code review', '由 Gemini 赋能的代码审核'],
         ['Learn more about Gemini models', '详细了解 Gemini 模型'],
@@ -1140,6 +1142,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['screenshot', '截屏'],
         ['Screenshot', '截屏'],
         ['Stream', '流式传输'],
+        ['SynthID', '合成 ID'],
         ['System', '跟随系统'],
         ['Take photo', '拍照'],
         ['Thinking', '思考中'],
