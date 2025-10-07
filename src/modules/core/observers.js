@@ -239,6 +239,30 @@ export function initializeObservers(translator, extendedElements = []) {
 
     // 5. 扩展元素监听器：专门处理 extendedElements
     if (extendedElements.length > 0) {
+        // 5a. 创建一个专用的内容变化监听器，用于监控扩展元素内部的文本变化。
+        const extendedContentObserver = new MutationObserver((mutations) => {
+            const dirtyRoots = new Set();
+            for (const mutation of mutations) {
+                if (mutation.type === 'characterData') {
+                    const target = mutation.target.parentElement;
+                    if (target instanceof Element) {
+                        dirtyRoots.add(target);
+                    }
+                }
+            }
+
+            if (dirtyRoots.size > 0) {
+                for (const root of dirtyRoots) {
+                    translator.deleteElement(root);
+                    const descendants = root.getElementsByTagName('*');
+                    for (let i = 0; i < descendants.length; i++) {
+                        translator.deleteElement(descendants[i]);
+                    }
+                    pendingNodes.add(root);
+                }
+                scheduleTranslation();
+            }
+        });
         log(`正在为 ${extendedElements.length} 个选择器初始化扩展元素监控。`);
 
         const processExtendedElements = (elements) => {
@@ -255,22 +279,29 @@ export function initializeObservers(translator, extendedElements = []) {
             scheduleTranslation();
         };
 
-        const findAndProcessSelector = (selector, rootNode = document) => {
+        // 步骤 5b: 对页面加载时已存在的扩展元素进行初次翻译，并启动内容监听。
+        extendedElements.forEach(selector => {
             try {
-                const elements = rootNode.querySelectorAll(selector);
+                const elements = document.querySelectorAll(selector);
                 if (elements.length > 0) {
-                    debug(`为选择器 "${selector}" 找到 ${elements.length} 个扩展元素`);
-                    processExtendedElements(Array.from(elements));
+                    const elementsArray = Array.from(elements);
+                    debug(`为选择器 "${selector}" 找到 ${elementsArray.length} 个已存在的扩展元素`);
+                    // 首先，将这些元素排队进行初次翻译
+                    processExtendedElements(elementsArray);
+                    // 然后，启动对这些元素的内容变化监听
+                    elementsArray.forEach(el => {
+                        extendedContentObserver.observe(el, {
+                            characterData: true,
+                            subtree: true
+                        });
+                    });
                 }
             } catch (e) {
                 console.error(`extendedElements 中的选择器无效: "${selector}"`, e);
             }
-        };
+        });
 
-        // 步骤 5a: 对页面加载时已存在的扩展元素进行初次翻译
-        extendedElements.forEach(selector => findAndProcessSelector(selector));
-
-        // 步骤 5b: 创建一个观察器，用于监控后续动态添加到DOM中的扩展元素
+        // 步骤 5c: 创建一个观察器，用于监控后续动态添加到DOM中的扩展元素
         const additionObserver = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
                 if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
@@ -287,7 +318,15 @@ export function initializeObservers(translator, extendedElements = []) {
 
                                 if (matchedElements.length > 0) {
                                     debug(`为选择器 "${selector}" 找到动态添加的扩展元素:`, matchedElements);
+                                    // 首先，将这些新元素排队进行初次翻译
                                     processExtendedElements(matchedElements);
+                                    // 然后，为这些新元素也启动内容变化监听，确保它们未来的变化也能被翻译
+                                    matchedElements.forEach(el => {
+                                        extendedContentObserver.observe(el, {
+                                            characterData: true,
+                                            subtree: true
+                                        });
+                                    });
                                 }
                             });
                         }

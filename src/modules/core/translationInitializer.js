@@ -79,7 +79,8 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
 
     // --- 步骤 3: 创建翻译器实例 ---
     // 将处理好的规则传递给翻译器工厂函数，创建一个包含特定网站翻译逻辑的翻译器实例。
-    const translator = createTranslator(textTranslationMap, regexRules, blockedElements);
+    // 此处将 extendedElements 作为第四个参数传入，以告知翻译器“翻译特区”的范围。
+    const translator = createTranslator(textTranslationMap, regexRules, blockedElements, extendedElements);
 
     // --- 步骤 4: 协调并启动翻译流程 ---
 

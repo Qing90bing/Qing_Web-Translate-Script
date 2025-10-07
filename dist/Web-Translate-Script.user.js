@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.43-2025-10-7-offline
+// @version      1.0.44-2025-10-7-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -4189,6 +4189,7 @@
       ['By continuing, you agree to our ', '通过继续，您同意我们的'],
       ['You can paint more than 1 pixel', '你可以绘制不止 1 个像素'],
       ['Heard Island and McDonald Islands', '赫德岛和麦克唐纳群岛'],
+      ['Wplace - Paint the world', 'Wplace - 绘制世界'],
       ['Saint Vincent and the Grenadines', '圣文森特和格林纳丁斯'],
       ['United States Minor Outlying Islands', '美国本土外小岛屿'],
       ['For more details, see our ', '更多详情，请参阅我们的 '],
@@ -4259,7 +4260,19 @@
       ['Virgin Islands', '维尔京群岛'],
       [' 🇺🇸 English', ' 🇺🇸 英语'],
       ['Create alliance', '创建联盟'],
+      ['Painted by:', '绘制者：'],
+      [' Report User', '举报该用户'],
       ['Dark Slate Blue', '暗灰蓝色'],
+      ['Are you absolutely sure?', '您确定吗？'],
+      [' This will permanently delete your account and all associated data. This action cannot be undone.', '这将永久删除您的账户和所有关联数据。此操作无法撤销'],
+      ['This action is irreversible, do you want to proceed? Please confirm by entering your username:', '此操作不可逆，是否继续？请输入您的用户名确认：'],
+      ['Type your username', '请输入您的用户名'],
+      ['This action will log your account out from all devices.', '此操作将从所有设备注销您的账户'],
+      ['This action may take some time to be completed.', '此操作可能需要一些时间才能完成'],
+      ['Confirm ', '确认'],
+      ['You gain 1 droplet per pixel painted and 500 droplets per level', '您每绘制一个像素点，就会获得 1 个液滴；每完成一个等级，就会获得 500 个液滴'],
+      ['For refund requests and processing details, please see our ', '退款请求和处理详情，请参阅我们的'],
+      ['Refund Policy', '退款政策'],
       ['French Guiana', '法属圭亚那'],
       ['Guinea-Bissau', '几内亚比绍'],
       ['Liechtenstein', '列支敦士登'],
@@ -4763,13 +4776,22 @@
   var ALL_UNTRANSLATABLE_TAGS = new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
   var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
   var BLOCKED_CSS_CLASSES = new Set(['notranslate', 'kbd']);
-  function createTranslator(textMap, regexArr, blockedSelectors = []) {
+  function createTranslator(textMap, regexArr, blockedSelectors = [], extendedSelectors = []) {
     let textTranslationMap = textMap;
     let regexRules = regexArr;
     let translationCache = new Map();
     let translatedElements = new WeakSet();
     const blockedElements = new Set([...ALL_UNTRANSLATABLE_TAGS]);
     const blockedElementSelectors = blockedSelectors || [];
+    function isInsideExtendedElement(element) {
+      if (!element || extendedSelectors.length === 0) return false;
+      for (const selector of extendedSelectors) {
+        if (element.closest(selector)) {
+          return true;
+        }
+      }
+      return false;
+    }
     function isElementBlocked(element) {
       const tagName = element.tagName?.toLowerCase();
       if (blockedElements.has(tagName)) return true;
@@ -4888,15 +4910,17 @@
               translateLog(`标准属性[${attrName}]`, originalValue, translatedValue);
             }
           } else {
-            const trimmedValue = originalValue.trim();
-            if (textTranslationMap.has(trimmedValue)) {
-              const translated = textTranslationMap.get(trimmedValue);
-              const leadingSpace = originalValue.match(/^\s*/)[0] || '';
-              const trailingSpace = originalValue.match(/\s*$/)[0] || '';
-              const translatedValue = leadingSpace + translated + trailingSpace;
-              if (originalValue !== translatedValue) {
-                el.setAttribute(attrName, translatedValue);
-                translateLog(`自定义属性[${attrName}]`, originalValue, translatedValue);
+            if (isInsideExtendedElement(el)) {
+              const trimmedValue = originalValue.trim();
+              if (textTranslationMap.has(trimmedValue)) {
+                const translated = textTranslationMap.get(trimmedValue);
+                const leadingSpace = originalValue.match(/^\s*/)[0] || '';
+                const trailingSpace = originalValue.match(/\s*$/)[0] || '';
+                const translatedValue = leadingSpace + translated + trailingSpace;
+                if (originalValue !== translatedValue) {
+                  el.setAttribute(attrName, translatedValue);
+                  translateLog(`自定义属性[${attrName}]`, originalValue, translatedValue);
+                }
               }
             }
           }
@@ -5070,6 +5094,28 @@
       }
     };
     if (extendedElements.length > 0) {
+      const extendedContentObserver = new MutationObserver((mutations) => {
+        const dirtyRoots = new Set();
+        for (const mutation of mutations) {
+          if (mutation.type === 'characterData') {
+            const target = mutation.target.parentElement;
+            if (target instanceof Element) {
+              dirtyRoots.add(target);
+            }
+          }
+        }
+        if (dirtyRoots.size > 0) {
+          for (const root of dirtyRoots) {
+            translator.deleteElement(root);
+            const descendants = root.getElementsByTagName('*');
+            for (let i = 0; i < descendants.length; i++) {
+              translator.deleteElement(descendants[i]);
+            }
+            pendingNodes.add(root);
+          }
+          scheduleTranslation();
+        }
+      });
       log(`正在为 ${extendedElements.length} 个选择器初始化扩展元素监控。`);
       const processExtendedElements = (elements) => {
         if (elements.length === 0) return;
@@ -5083,18 +5129,24 @@
         });
         scheduleTranslation();
       };
-      const findAndProcessSelector = (selector, rootNode = document) => {
+      extendedElements.forEach((selector) => {
         try {
-          const elements = rootNode.querySelectorAll(selector);
+          const elements = document.querySelectorAll(selector);
           if (elements.length > 0) {
-            debug(`为选择器 "${selector}" 找到 ${elements.length} 个扩展元素`);
-            processExtendedElements(Array.from(elements));
+            const elementsArray = Array.from(elements);
+            debug(`为选择器 "${selector}" 找到 ${elementsArray.length} 个已存在的扩展元素`);
+            processExtendedElements(elementsArray);
+            elementsArray.forEach((el) => {
+              extendedContentObserver.observe(el, {
+                characterData: true,
+                subtree: true,
+              });
+            });
           }
         } catch (e) {
           console.error(`extendedElements 中的选择器无效: "${selector}"`, e);
         }
-      };
-      extendedElements.forEach((selector) => findAndProcessSelector(selector));
+      });
       const additionObserver = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
           if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
@@ -5109,6 +5161,12 @@
                   if (matchedElements.length > 0) {
                     debug(`为选择器 "${selector}" 找到动态添加的扩展元素:`, matchedElements);
                     processExtendedElements(matchedElements);
+                    matchedElements.forEach((el) => {
+                      extendedContentObserver.observe(el, {
+                        characterData: true,
+                        subtree: true,
+                      });
+                    });
                   }
                 });
               }
@@ -5160,7 +5218,7 @@
         log2(`执行了 ${executedScripts} 条自定义JS脚本`);
       }
     }
-    const translator = createTranslator2(textTranslationMap, regexRules, blockedElements);
+    const translator = createTranslator2(textTranslationMap, regexRules, blockedElements, extendedElements);
     function startTranslation() {
       if (document.body) {
         initializeFullTranslation();

@@ -28,7 +28,7 @@ import { log, debug, translateLog, perf } from '../utils/logger.js';
  * @param {string[]} [blockedSelectors=[]] - 针对当前网站的、额外的禁止翻译的 CSS 选择器数组。
  * @returns {{translate: Function, resetState: Function, deleteElement: Function}} - 返回一个包含翻译 API 的对象。
  */
-export function createTranslator(textMap, regexArr, blockedSelectors = []) {
+export function createTranslator(textMap, regexArr, blockedSelectors = [], extendedSelectors = []) {
     // --- 模块内部状态 ---
     // 通过闭包来管理每个翻译器实例的状态，确保实例之间互不干扰。
     let textTranslationMap = textMap;
@@ -39,6 +39,23 @@ export function createTranslator(textMap, regexArr, blockedSelectors = []) {
     // 合并全局配置和网站特定配置，构建最终的禁止翻译元素列表。
     const blockedElements = new Set([...ALL_UNTRANSLATABLE_TAGS]);
     const blockedElementSelectors = blockedSelectors || [];
+
+    /**
+     * @function isInsideExtendedElement
+     * @description 检查一个元素是否位于“扩展翻译”容器之内。
+     * @param {Element} element - 要检查的 DOM 元素。
+     * @returns {boolean} 如果元素在扩展容器内，则返回 true。
+     */
+    function isInsideExtendedElement(element) {
+        if (!element || extendedSelectors.length === 0) return false;
+        // 使用 `closest` 方法高效地向上查找，看是否能匹配任何一个扩展元素选择器。
+        for (const selector of extendedSelectors) {
+            if (element.closest(selector)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * @function isElementBlocked
@@ -230,19 +247,22 @@ export function createTranslator(textMap, regexArr, blockedSelectors = []) {
                         translateLog(`标准属性[${attrName}]`, originalValue, translatedValue);
                     }
                 } 
-                // 2b. 如果是自定义属性，仅使用 textTranslationMap (仅精确匹配)
+                // 2b. 如果是自定义属性，则仅当其位于“扩展翻译”容器内部时，才使用 textTranslationMap 进行翻译。
                 else {
-                    const trimmedValue = originalValue.trim();
-                    if (textTranslationMap.has(trimmedValue)) {
-                        const translated = textTranslationMap.get(trimmedValue);
-                        // 保留原文中的前后空白字符
-                        const leadingSpace = originalValue.match(/^\s*/)[0] || '';
-                        const trailingSpace = originalValue.match(/\s*$/)[0] || '';
-                        const translatedValue = leadingSpace + translated + trailingSpace;
+                    // 这是实现“翻译特区”功能的核心检查。
+                    if (isInsideExtendedElement(el)) {
+                        const trimmedValue = originalValue.trim();
+                        if (textTranslationMap.has(trimmedValue)) {
+                            const translated = textTranslationMap.get(trimmedValue);
+                            // 保留原文中的前后空白字符
+                            const leadingSpace = originalValue.match(/^\s*/)[0] || '';
+                            const trailingSpace = originalValue.match(/\s*$/)[0] || '';
+                            const translatedValue = leadingSpace + translated + trailingSpace;
 
-                        if (originalValue !== translatedValue) {
-                            el.setAttribute(attrName, translatedValue);
-                            translateLog(`自定义属性[${attrName}]`, originalValue, translatedValue);
+                            if (originalValue !== translatedValue) {
+                                el.setAttribute(attrName, translatedValue);
+                                translateLog(`自定义属性[${attrName}]`, originalValue, translatedValue);
+                            }
                         }
                     }
                 }

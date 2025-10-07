@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.53-2025-10-7-cdn
+// @version      1.0.54-2025-10-7-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -1540,13 +1540,22 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
   var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate', 'kbd']);
 
   // src/modules/core/translator.js
-  function createTranslator(textMap, regexArr, blockedSelectors = []) {
+  function createTranslator(textMap, regexArr, blockedSelectors = [], extendedSelectors = []) {
     let textTranslationMap = textMap;
     let regexRules = regexArr;
     let translationCache = /* @__PURE__ */ new Map();
     let translatedElements = /* @__PURE__ */ new WeakSet();
     const blockedElements = /* @__PURE__ */ new Set([...ALL_UNTRANSLATABLE_TAGS]);
     const blockedElementSelectors = blockedSelectors || [];
+    function isInsideExtendedElement(element) {
+      if (!element || extendedSelectors.length === 0) return false;
+      for (const selector of extendedSelectors) {
+        if (element.closest(selector)) {
+          return true;
+        }
+      }
+      return false;
+    }
     function isElementBlocked(element) {
       const tagName = element.tagName?.toLowerCase();
       if (blockedElements.has(tagName)) return true;
@@ -1665,15 +1674,17 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
               translateLog(`标准属性[${attrName}]`, originalValue, translatedValue);
             }
           } else {
-            const trimmedValue = originalValue.trim();
-            if (textTranslationMap.has(trimmedValue)) {
-              const translated = textTranslationMap.get(trimmedValue);
-              const leadingSpace = originalValue.match(/^\s*/)[0] || '';
-              const trailingSpace = originalValue.match(/\s*$/)[0] || '';
-              const translatedValue = leadingSpace + translated + trailingSpace;
-              if (originalValue !== translatedValue) {
-                el.setAttribute(attrName, translatedValue);
-                translateLog(`自定义属性[${attrName}]`, originalValue, translatedValue);
+            if (isInsideExtendedElement(el)) {
+              const trimmedValue = originalValue.trim();
+              if (textTranslationMap.has(trimmedValue)) {
+                const translated = textTranslationMap.get(trimmedValue);
+                const leadingSpace = originalValue.match(/^\s*/)[0] || '';
+                const trailingSpace = originalValue.match(/\s*$/)[0] || '';
+                const translatedValue = leadingSpace + translated + trailingSpace;
+                if (originalValue !== translatedValue) {
+                  el.setAttribute(attrName, translatedValue);
+                  translateLog(`自定义属性[${attrName}]`, originalValue, translatedValue);
+                }
               }
             }
           }
@@ -1857,6 +1868,28 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       }
     };
     if (extendedElements.length > 0) {
+      const extendedContentObserver = new MutationObserver((mutations) => {
+        const dirtyRoots = /* @__PURE__ */ new Set();
+        for (const mutation of mutations) {
+          if (mutation.type === 'characterData') {
+            const target = mutation.target.parentElement;
+            if (target instanceof Element) {
+              dirtyRoots.add(target);
+            }
+          }
+        }
+        if (dirtyRoots.size > 0) {
+          for (const root of dirtyRoots) {
+            translator.deleteElement(root);
+            const descendants = root.getElementsByTagName('*');
+            for (let i = 0; i < descendants.length; i++) {
+              translator.deleteElement(descendants[i]);
+            }
+            pendingNodes.add(root);
+          }
+          scheduleTranslation();
+        }
+      });
       log(`正在为 ${extendedElements.length} 个选择器初始化扩展元素监控。`);
       const processExtendedElements = (elements) => {
         if (elements.length === 0) return;
@@ -1870,18 +1903,24 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         });
         scheduleTranslation();
       };
-      const findAndProcessSelector = (selector, rootNode = document) => {
+      extendedElements.forEach((selector) => {
         try {
-          const elements = rootNode.querySelectorAll(selector);
+          const elements = document.querySelectorAll(selector);
           if (elements.length > 0) {
-            debug(`为选择器 "${selector}" 找到 ${elements.length} 个扩展元素`);
-            processExtendedElements(Array.from(elements));
+            const elementsArray = Array.from(elements);
+            debug(`为选择器 "${selector}" 找到 ${elementsArray.length} 个已存在的扩展元素`);
+            processExtendedElements(elementsArray);
+            elementsArray.forEach((el) => {
+              extendedContentObserver.observe(el, {
+                characterData: true,
+                subtree: true,
+              });
+            });
           }
         } catch (e) {
           console.error(`extendedElements 中的选择器无效: "${selector}"`, e);
         }
-      };
-      extendedElements.forEach((selector) => findAndProcessSelector(selector));
+      });
       const additionObserver = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
           if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
@@ -1896,6 +1935,12 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
                   if (matchedElements.length > 0) {
                     debug(`为选择器 "${selector}" 找到动态添加的扩展元素:`, matchedElements);
                     processExtendedElements(matchedElements);
+                    matchedElements.forEach((el) => {
+                      extendedContentObserver.observe(el, {
+                        characterData: true,
+                        subtree: true,
+                      });
+                    });
                   }
                 });
               }
@@ -1949,7 +1994,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         log2(`执行了 ${executedScripts} 条自定义JS脚本`);
       }
     }
-    const translator = createTranslator2(textTranslationMap, regexRules, blockedElements);
+    const translator = createTranslator2(textTranslationMap, regexRules, blockedElements, extendedElements);
     function startTranslation() {
       if (document.body) {
         initializeFullTranslation();
