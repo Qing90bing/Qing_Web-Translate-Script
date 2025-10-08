@@ -27,7 +27,9 @@ export const aistudioGoogleComZhCn = {
   blockedElements: [
     '.chat-container',
     '.view-line',
-    '.very-large-text-container'
+    '.very-large-text-container',
+    '.name-btn',
+    '.page-title'
   ],
 
   // 扩展翻译元素选择器
@@ -50,7 +52,7 @@ export const aistudioGoogleComZhCn = {
   // 此列表的优先级高于白名单，可用于覆盖默认翻译行为。
   // 示例: 'title'
   blockedAttributes: [
-    // 在这里添加要阻止翻译的属性
+    'ms-prompt-chunk'
   ],
 
   // 注入脚本（JavaScript）
@@ -70,8 +72,8 @@ export const aistudioGoogleComZhCn = {
     [/Text • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, "文本 | 输入：$$ $1，输出：$ $2"],
     [/Last modified:\s*(\d{4})\/(\d{1,2})\/(\d{1,2})/, "最后修改于：$1 年 $2 月 $3 日"],
     [/Knowledge cut off:\s+(\d{1,2})月\s+(\d{4})/i, "知识截止日期: $2 年 $1 月"],
+    [/^\s*(\d+)\s+[–-]\s+(\d+)\s+of\s+(\d+)\s*$/i, "第 $1 - $2 项 / 共 $3 项"],
     [/^Copied\s+models\/(.+)\s+to\s+clipboard$/i, "已将模型“$1”复制到剪贴板"],
-    [/^\s*(\d+)\s+[–-]\s+(\d+)\s+of\s+(\d+)\s*$/i, "第 $1-$2 项 / 共 $3 项"],
     [/^Copied\s+(.+)\s+to\s+clipboard$/i, "已将模型“$1”复制到剪贴板"],
     [/Analyzed errors for (\d+) seconds/, "分析了 $1 秒的错误"],
     [/^\s*Move\s+([\w./-]+)\s+to\s*$/i, "移动文件：$1 到"],
@@ -107,13 +109,13 @@ export const aistudioGoogleComZhCn = {
     [/(\d+)\s*days?\s*ago/, "$1 天前"],
     [/Share\s+"(.+?)"/i, "分享“$1”"],
     [/^Deleted\s+(.+)$/i, "已删除$1"],
+    [/(^|\s)(\d+)m\b/g, "$1$2 分钟"],
     [/^(\d+)\s+months?$/i, "$1 月"],
     [/^Delete\s+(.+)$/i, "删除 $1"],
     [/^(\d+)\s+weeks?$/i, "$1 周"],
     [/^(\d+)\s+years?$/i, "$1 年"],
     [/^(\d+)\s+days?$/i, "$1 天"],
     [/(\d+)h/i, "$1 小时"],
-    [/(\d+)m/i, "$1 分钟"],
     [/\bEdit\b/g, "编辑"],
     [/(\d+)d/i, "$1 天"]
   ],
@@ -304,9 +306,11 @@ export const aistudioGoogleComZhCn = {
     [" This model is not stable and may not be suitable for production use. ", "此模型不稳定，不适合用于生产环境"],
     ["Gemini API throttling some users using the OpenAI library", "Gemini API 对部分使用 OpenAI 库的用户进行限流"],
     ["Gemini automatically generates a response for each function call.", "Gemini 会为每个函数调用自动生成响应。"],
+    ["Peak usage per model compared to its limit over the last 90 days", "模型过去 90 天内的使用量与其限制的对比"],
     ["Users are experiencing unavailability issues with Gemini 2.5 Pro", "用户正遇到 Gemini 2.5 Pro 不可用的问题"],
     ["Open model built for handling text-only tasks with low latency.", "为低延迟处理纯文本任务而构建的开放模型"],
     ["Users are experiencing throttling issues with Gemini 2.0 Flash.", "用户正遇到 Gemini 2.0 Flash 的限流问题"],
+    ["Peak usage per model compared to its limit over the last 7 days", "模型过去 7 天内的使用量与其限制的对比"],
     ["You need to create and run a prompt in order to share it", "您需要先创建并运行提示词，然后才能进行分享。"],
     [" Users are experiencing throttling issues with Gemini 1.5 Pro. ", "用户正遇到 Gemini 1.5 Pro 的限流问题"],
     ["Drag, drop, and visualize any product in your personal space.", "在您的个人空间中拖放并可视化任何产品。"],
@@ -322,10 +326,12 @@ export const aistudioGoogleComZhCn = {
     [" “Create an image of a futuristic cityscape with...” ", " “创建一张具有未来感的城市景观图片...” "],
     [", and may be used to improve our services subject to our ", "，并可能根据我们的服务条款用于改进服务"],
     ["Choose a system instructions configuration to use with the applet", "选择一个系统指令配置用于小程序"],
+    ["Peak usage per model compared to its limit over the last hour", "模型每小时最大使用量与其限制的对比"],
     ["Please tell us more about the reason for your feedback (optional)", "请详细说明您反馈的原因（选填）"],
     ["The fastest path from prompt to production with Gemini", "借助 Gemini，轻松实现从提示词到生产的飞跃"],
     ["A photorealistic long exposure photograph of a subway platform", "一张地铁站台的写实风格长曝光照片"],
     ["Interactively create, control, and perform music in the moment", "实时、交互地创作、控制和演奏音乐"],
+    ["Peak usage per model compared to its limit over the last 1 day", "模型每天最大使用量与其限制的对比"],
     ["Provide Gemini with functions it can use to create responses", "为 Gemini 提供可用于生成回复的函数"],
     ["Search for Cloud Project by Project Name or Project ID", "通过项目名称或项目 ID 搜索 Google 云项目"],
     [" “Create an image of rolling countryside landscape... ” ", "“创建一张连绵起伏的乡村风景图...”"],

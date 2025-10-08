@@ -22,7 +22,7 @@ export const claudeAiZhCn = {
   // 禁止翻译的元素选择器
   // 为每个网站提供定制化的禁止翻译元素配置
   blockedElements: [
-    '.token module'
+    '.token module','.user-message'
   ],
 
   // 扩展翻译元素选择器
@@ -174,14 +174,15 @@ export const claudeAiZhCn = {
     ["By providing your payment information, you allow Anthropic to charge your card in the amount above. Purchase non-refundable.", "提供您的支付信息 即表示您允许 Anthropic 公司从您的卡中扣除上述金额。购买后不可退款。"],
     ["Try something like: \nWrite for marketing professionals. They’re tech-savvy and appreciate a dash of humor with their data.", "尝试这样的方法：\n我想为营销专业人员编写。他们技术 savvy，喜欢在数据中添加一些幽默。"],
     ["Try something like: \nWrite like an excited scientist explaining fascinating discoveries - technical but energetic.", "尝试这样的方法：\n我想以一种兴奋的科学家的方式编写，解释着有趣的发现 - 技术上但充满活力。"],
+    ["Claude Code is a command-line tool that allows you to delegate any coding task to Claude directly from your terminal.", "Claude Code 是一款命令行工具，可让您直接从终端将任何编码任务委托给 Claude 处理。"],
     ["Describe details of the target audience you’d like Claude to write for including relevant information, needs, or preferences.", "描述您希望 Claude 为其编写的受众的详细信息，包括相关信息、需求或偏好。"],
     ["A high-performance MCP server for Metabase analytics data access with intelligent caching and response optimization.", "一个用于 Metabase 分析数据访问的高性能 MCP 服务器，具有智能缓存和响应优化功能。"],
     ["Anthropic may use conversations flagged for safety violations to ensure safety of our systems for all users. ", "Anthropic 公司可能会使用标记为存在安全违规的对话，以确保我们系统对所有用户的安全性。"],
     ["I consent to collection and use of my personal information in accordance with the <privacyLink>Privacy Policy</privacyLink>.", "我同意根据<privacyLink>隐私政策</privacyLink>收集和使用我的个人信息。"],
     ["Submitting this report will send the entire current conversation to Anthropic for future improvements to our models.", "提交此报告将发送当前对话的全部内容到 Anthropic 公司，用于未来改进我们的模型。"],
     ["Think about characteristics like formality, emotion, personality, and how you want the written responses to feel.", "考虑写作风格的特征，如正式性、情感、人物特征，以及您希望回答的内容如何感觉。"],
-    ["Editing this message will create a new conversation branch. You can switch between branches using the arrow navigation buttons.", "编辑此消息将创建新的对话分支,您可以使用箭头导航按钮切换分支。"],
     ["When you sign in to Claude Code using your subscription, your subscription usage limits are shared with Claude Code.", "当您使用订阅登录 Claude Code 时，您的订阅使用限制将与 Claude Code 共享。"],
+    ["Editing this message will create a new conversation branch. You can switch between branches using the arrow navigation buttons.", "编辑此消息将创建新的对话分支,您可以使用箭头导航按钮切换分支"],
     ["Give your creations the ability to use the Claude API from within the artifact itself. Available in feature preview.", "让您的创作能够直接在构件 内部使用 Claude API。该功能处于特性预览阶段。"],
     ["Share a writing example or describe your style and Claude will make a custom writing style tailored just for you.", "分享一个写作示例或描述您的写作风格，Claude 会为您定制一个定制的写作风格。"],
     ["Allow the use of your chats and coding sessions to train and improve Anthropic AI models. Change anytime in your ", "允许使用您的聊天和编码会话来训练和改进 Anthropic AI 模型。随时改变你的"],
@@ -500,6 +501,7 @@ export const claudeAiZhCn = {
     ["Search or create a project", "搜索或创建项目"],
     ["Should have searched the web", "应该搜索网络"],
     ["What are you working on?", "您在做什么项目？"],
+    ["Chat deleted successfully", "聊天已成功删除"],
     ["Copy unmodified message", "复制未修改的消息"],
     ["Customize this Artifact", "自定义此应用构件"],
     ["Customize your styles", "自定义您的风格样式"],
@@ -597,8 +599,8 @@ export const claudeAiZhCn = {
     ["Paste GitHub URL", "粘贴 GitHub URL"],
     ["Select a repository", "选择一个仓库"],
     ["Team activity ideas", "团队活动创意"],
-    ["Usage limits apply.", "有使用限制。"],
     ["Where’s the sloth?", "树懒在哪里？"],
+    ["You’re incognito", "你正在匿名模式"],
     ["add a custom one", "添加自定义工具"],
     ["Add payment method", "添加付款方式"],
     ["Better than very", "比“非常”更好"],
@@ -613,6 +615,7 @@ export const claudeAiZhCn = {
     ["Select tax ID type", "选择税号类型"],
     ["Stories in the sky", "天空中的故事"],
     ["Synesthesia symphony", "联觉交响曲"],
+    ["Usage limits apply.", "有使用限制 "],
     ["With extended thinking", "扩展思考"],
     ["Your life in weeks", "你的人生周历"],
     ["Add from GitHub", "从 GitHub 添加"],
@@ -905,6 +908,7 @@ export const claudeAiZhCn = {
     ["Address", "地址"],
     ["Billing", "账单"],
     ["Connect", "连接"],
+    ["Created", "创建"],
     ["Default", "默认"],
     ["Delete ", "删除"],
     ["Details", "详情"],

@@ -17,7 +17,7 @@
  * @example
  * // <pre><code>...</code></pre> 中的所有内容都不会被翻译。
  */
-export const BLOCKS_ALL_TRANSLATION = new Set(['script', 'style', 'pre', 'code']);
+export const BLOCKS_ALL_TRANSLATION = new Set(['script', 'style', 'pre', 'code', 'svg']);
 
 /**
  * @const {Set<string>} BLOCKS_CONTENT_ONLY
@@ -62,4 +62,4 @@ export const attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt
  * @example
  * // <p class="notranslate">This text will be ignored.</p>
  */
-export const BLOCKED_CSS_CLASSES = new Set(['notranslate','kbd','svg']);
+export const BLOCKED_CSS_CLASSES = new Set(['notranslate','kbd'],);

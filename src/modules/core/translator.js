@@ -207,6 +207,15 @@ export function createTranslator(textMap, regexArr, blockedSelectors = [], exten
             const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
                 acceptNode: function (node) {
                     if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
+
+                    // 检查 Shadow DOM 宿主元素
+                    const root = node.getRootNode();
+                    if (root instanceof ShadowRoot) {
+                        if (isElementBlocked(root.host) || root.host.isContentEditable) {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+                    }
+
                     // 向上遍历，确保该文本节点的任何父级元素都不是被禁止翻译的。
                     let parent = node.parentElement;
                     while (parent) {
