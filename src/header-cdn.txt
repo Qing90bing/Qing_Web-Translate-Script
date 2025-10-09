@@ -14,7 +14,7 @@
 // @match        *://aistudio.google.com/*
 // @match        *://claude.ai/*
 // @match        *://platform.claude.com/*
-// @match        *://status.anthropic.com/*
+// @match        *://status.claude.com/*
 // @run-at       document-start
 // @grant        GM_getValue
 // @grant        GM_setValue

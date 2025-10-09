@@ -1,11 +1,11 @@
-// src/translations/status.anthropic.com.js
+// src/translations/status.claude.com.js
 
-export const statusAnthropicComZhCn = {
+export const statusClaudeComZhCn = {
   // 描述：此翻译配置的描述信息
-  description: '此翻译配置适用于 status.anthropic.com 网站的本地化。',
+  description: '此翻译配置适用于 status.claude.com 网站的本地化。',
 
   // 测试链接：用于开发者测试网站显示效果的URL
-  testUrl: 'https://status.anthropic.com/',
+  testUrl: 'https://status.claude.com/',
 
   // 创建日期：此翻译配置的创建日期
   createdAt: '2025-08-21',

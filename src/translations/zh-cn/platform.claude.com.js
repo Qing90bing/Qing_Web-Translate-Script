@@ -786,6 +786,7 @@ export const platformClaudeComZhCn = {
     ["Thailand", "泰国"],
     ["Thinking", "思考"],
     ["Timezone", "时区"],
+    ["Get help", "获取帮助"],
     ["Turkey", "土耳其"],
     ["Tuvalu", "图瓦卢"],
     ["Uganda", "乌干达"],

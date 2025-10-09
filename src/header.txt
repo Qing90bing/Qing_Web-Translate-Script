@@ -13,7 +13,7 @@
 // @match        *://aistudio.google.com/*
 // @match        *://claude.ai/*
 // @match        *://platform.claude.com/*
-// @match        *://status.anthropic.com/*
+// @match        *://status.claude.com/*
 // @match        *://gemini.google.com/*
 // @match        *://www.avogado6.com/*
 // @match        *://wplace.live/*
