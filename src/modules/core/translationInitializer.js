@@ -5,11 +5,14 @@
  * 它负责在页面上执行翻译前的所有准备工作，并协调后续的翻译和监听任务。
  *
  * **核心职责**:
- * 1.  **处理站点词典**: 解析从 `main.js` 传入的特定于当前网站的翻译配置（`siteDictionary`）。
- * 2.  **注入资源**: 将配置中的自定义 CSS 样式和 JavaScript 脚本注入到页面中。
- * 3.  **创建翻译器**: 调用 `createTranslator` 函数，创建一个包含所有翻译规则的翻译器实例。
- * 4.  **协调启动**: 智能地判断页面的加载状态（`DOMContentLoaded`），在合适的时机启动首次全文翻译。
- * 5.  **启动监听**: 在首次翻译完成后，调用 `initializeObservers` 来启动 `MutationObserver`，以处理页面后续的动态内容变化。
+ * 1.  **解析站点词典**: 从 `siteDictionary` 中提取所有翻译规则，包括文本、正则、样式、脚本，
+ *     以及 `blockedElements` (翻译禁区), `extendedElements` (内容增强翻译区),
+ *     `customAttributes` (属性白名单) 和 `blockedAttributes` (属性黑名单)。
+ * 2.  **注入资源**: 将自定义 CSS 和 JS 注入页面。
+ * 3.  **创建翻译器**: 调用 `createTranslator` 工厂函数，将解析后的规则注入，创建一个翻译器实例。
+ * 4.  **协调启动**: 智能地判断页面加载状态，在合适的时机启动首次全文翻译。
+ * 5.  **启动监听**: 在首次翻译完成后，调用 `initializeObservers` 来启动 `MutationObserver`，
+ *     并将相关规则传递给它，以处理页面后续的动态内容变化。
  *
  * **设计模式**:
  * 此模块大量使用“依赖注入”模式，它不直接创建依赖（如 `translator`, `logger`），而是接收外部传入的函数或实例。
@@ -20,6 +23,10 @@
  * @function initializeTranslation
  * @description 初始化翻译流程的入口函数。
  * @param {object} siteDictionary - 当前网站的翻译配置对象。
+ *   @property {string[]} [blockedElements] - **翻译禁区**：CSS选择器数组，匹配的元素及其所有后代完全不被翻译。
+ *   @property {string[]} [extendedElements] - **内容增强翻译区**：CSS选择器数组，匹配的元素内部，所有属性值都将经过“仅纯文本”的翻译。
+ *   @property {string[]} [customAttributes] - **属性白名单**：属性名数组，这些属性将在整个网站范围内被完整翻译（支持文本和正则）。
+ *   @property {string[]} [blockedAttributes] - **属性黑名单**：属性名数组，这些属性绝不会被翻译，优先级最高。
  * @param {Function} createTranslator - 用于创建翻译器实例的工厂函数。
  * @param {Function} removeAntiFlickerStyle - 用于移除“防闪烁”样式的函数。
  * @param {Function} initializeObservers - 用于初始化 `MutationObserver` 的函数。

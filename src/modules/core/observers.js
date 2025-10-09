@@ -256,24 +256,39 @@ export function initializeObservers(translator, extendedElements = [], customAtt
             for (const mutation of mutations) {
                 if (mutation.type === 'characterData') {
                     const target = mutation.target.parentElement;
-                    if (target instanceof Element) {
-                        dirtyRoots.add(target);
-                    }
+                    if (target instanceof Element) dirtyRoots.add(target);
                 }
             }
-
             if (dirtyRoots.size > 0) {
                 for (const root of dirtyRoots) {
                     translator.deleteElement(root);
-                    const descendants = root.getElementsByTagName('*');
-                    for (let i = 0; i < descendants.length; i++) {
-                        translator.deleteElement(descendants[i]);
-                    }
                     pendingNodes.add(root);
                 }
                 scheduleTranslation();
             }
         });
+
+        // 5b. 创建一个专用的属性变化监听器，用于监控扩展元素内部所有属性的变化。
+        // 这是对主 `mainObserver` 的补充，因为它使用 attributeFilter 忽略了非白名单属性。
+        const extendedAttributeObserver = new MutationObserver((mutations) => {
+            const dirtyRoots = new Set();
+            for (const mutation of mutations) {
+                if (mutation.type === 'attributes') {
+                    const target = mutation.target;
+                    if (target instanceof Element) dirtyRoots.add(target);
+                }
+            }
+            if (dirtyRoots.size > 0) {
+                for (const root of dirtyRoots) {
+                    // 属性变化时，只需将该元素标记为待处理。
+                    // `translator.translate()` 会处理其所有属性。
+                    translator.deleteElement(root);
+                    pendingNodes.add(root);
+                }
+                scheduleTranslation();
+            }
+        });
+
         log(`正在为 ${extendedElements.length} 个选择器初始化扩展元素监控。`);
 
         const processExtendedElements = (elements) => {
@@ -290,21 +305,19 @@ export function initializeObservers(translator, extendedElements = [], customAtt
             scheduleTranslation();
         };
 
-        // 步骤 5b: 对页面加载时已存在的扩展元素进行初次翻译，并启动内容监听。
+        // 步骤 5c: 对页面加载时已存在的扩展元素进行初次翻译，并启动监听。
         extendedElements.forEach(selector => {
             try {
                 const elements = document.querySelectorAll(selector);
                 if (elements.length > 0) {
                     const elementsArray = Array.from(elements);
                     debug(`为选择器 "${selector}" 找到 ${elementsArray.length} 个已存在的扩展元素`);
-                    // 首先，将这些元素排队进行初次翻译
                     processExtendedElements(elementsArray);
-                    // 然后，启动对这些元素的内容变化监听
                     elementsArray.forEach(el => {
-                        extendedContentObserver.observe(el, {
-                            characterData: true,
-                            subtree: true
-                        });
+                        // 监听文本内容变化
+                        extendedContentObserver.observe(el, { characterData: true, subtree: true });
+                        // 监听所有属性变化
+                        extendedAttributeObserver.observe(el, { attributes: true, subtree: true });
                     });
                 }
             } catch (e) {
@@ -312,7 +325,7 @@ export function initializeObservers(translator, extendedElements = [], customAtt
             }
         });
 
-        // 步骤 5c: 创建一个观察器，用于监控后续动态添加到DOM中的扩展元素
+        // 步骤 5d: 创建一个观察器，用于监控后续动态添加到DOM中的扩展元素。
         const additionObserver = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
                 if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
@@ -320,23 +333,16 @@ export function initializeObservers(translator, extendedElements = [], customAtt
                         if (addedNode.nodeType === Node.ELEMENT_NODE) {
                             extendedElements.forEach(selector => {
                                 const matchedElements = [];
-                                // 检查新增节点本身是否匹配
-                                if (addedNode.matches(selector)) {
-                                    matchedElements.push(addedNode);
-                                }
-                                // 检查新增节点的后代是否匹配
+                                if (addedNode.matches(selector)) matchedElements.push(addedNode);
                                 addedNode.querySelectorAll(selector).forEach(el => matchedElements.push(el));
 
                                 if (matchedElements.length > 0) {
                                     debug(`为选择器 "${selector}" 找到动态添加的扩展元素:`, matchedElements);
-                                    // 首先，将这些新元素排队进行初次翻译
                                     processExtendedElements(matchedElements);
-                                    // 然后，为这些新元素也启动内容变化监听，确保它们未来的变化也能被翻译
                                     matchedElements.forEach(el => {
-                                        extendedContentObserver.observe(el, {
-                                            characterData: true,
-                                            subtree: true
-                                        });
+                                        // 为新发现的元素也启动监听
+                                        extendedContentObserver.observe(el, { characterData: true, subtree: true });
+                                        extendedAttributeObserver.observe(el, { attributes: true, subtree: true });
                                     });
                                 }
                             });

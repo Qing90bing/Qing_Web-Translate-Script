@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.59-2025-10-9-cdn
+// @version      1.0.60-2025-10-9-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -14,7 +14,7 @@
 // @match        *://aistudio.google.com/*
 // @match        *://claude.ai/*
 // @match        *://platform.claude.com/*
-// @match        *://status.anthropic.com/*
+// @match        *://status.claude.com/*
 // @run-at       document-start
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -54,6 +54,7 @@ const EMBEDDED_TRANSLATIONS = {
         [/^Copied\s+models\/(.+)\s+to\s+clipboard$/i, '已将模型“$1”复制到剪贴板'],
         [/^Copied\s+(.+)\s+to\s+clipboard$/i, '已将模型“$1”复制到剪贴板'],
         [/Analyzed errors for (\d+) seconds/, '分析了 $1 秒的错误'],
+        [/Ran command\s+[“"]([\s\S]*?)[”"]/i, '运行命令：$1'],
         [/^\s*Move\s+([\w./-]+)\s+to\s*$/i, '移动文件：$1 到'],
         [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2 年 12 月 $1 日'],
         [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2 年 11 月 $1 日'],
@@ -66,7 +67,6 @@ const EMBEDDED_TRANSLATIONS = {
         [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2 年 6 月 $1 日'],
         [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2 年 3 月 $1 日'],
         [/May\s+(\d{1,2}),\s+(\d{4})/, '$2 年 5 月 $1 日'],
-        [/Ran command\s+[“"](.*?)[”"]/i, '运行命令：$1'],
         [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2 年 9 月 $1 日'],
         [/^\s*Manual\s*:\s*(\d+)\s*$/i, ' 思考预算：$1 '],
         [/Edit\s+([\w.-]*[._\d-][\w.-]*)/i, '编辑 $1'],
@@ -385,12 +385,12 @@ const EMBEDDED_TRANSLATIONS = {
         ['Select an image or video to add to the prompt', '选择要添加到提示词中的图像或视频'],
         ['Tackle difficult code, math and STEM problems', '应对复杂的代码、数学和 STEM 难题'],
         ['There is no billing currently set up for this project', '当前没有为此项目设置账单'],
-        ['Unable to disable thinking mode for this model.', '无法为此模型关闭“思考”模式。'],
         ["What's wrong? How can the response be improved?", '回复内容有什么问题？如何改进？'],
         ['Gemini 1.5 Pro and Flash Throttling Incident', 'Gemini 1.5 Pro 和 Flash 限流事件'],
         ['Gemini 2.5 Pro is unavailable for some users.', '部分用户无法使用 Gemini 2.5 Pro'],
         ['Is my API key exposed when sharing apps?', '共享应用时，我的 API 密钥会暴露吗？'],
         ['Select a Google Cloud project to proceed:', '选择一个 Google Cloud 项目来继续：'],
+        ['Unable to disable thinking mode for this model.', '无法为此模型关闭“思考”模式'],
         ['Are you sure you want to delete this API key?', '你确定想要删掉该 API 密钥吗？'],
         ['Audio recording will be added to your prompt', '音频录音将被添加到您的提示词中'],
         ['A vintage-style poster of a local coffee shop', '一张本地咖啡店的复古风格海报'],
@@ -398,7 +398,6 @@ const EMBEDDED_TRANSLATIONS = {
         ['Get recipe ideas based on an image of ingredients', '根据食材图片获取食谱创意'],
         ['Imagen makes mistakes, so double-check it.', 'Imagen 会出错，所以请仔细检查。'],
         ['The entire contents of all of the files of your app', '您应用中的所有文件内容'],
-        ["This model doesn't support System Instructions.", '此模型不支持“系统指令”。'],
         ['Access Gemini models with the OpenAI SDK', '使用 OpenAI SDK 访问 Gemini 模型'],
         ['Insert a text file to add it to your prompt.', '将文本文件添加至您的提示词中'],
         ['Render indentation guides for each line of code.', '为每行代码渲染缩进参考线'],
@@ -407,6 +406,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['“Angular is running in development mode.”', 'Angular 正在开发模式下运行。'],
         ['Can I run apps outside of AI Studio?', '我可以在 AI Studio 之外运行应用吗？'],
         ['Get Started with Gemini 2.5 Flash Image', '开始使用 Gemini 2.5 Flash Image '],
+        ["This model doesn't support System Instructions.", '此模型不支持“系统指令”'],
         ['You can only add one image to the prompt.', '您只能向提示词中添加一张图片。'],
         ['Generate logo and swag ideas for a brand', '为品牌构思 Logo 和周边产品创意'],
         ['Loading your Google Cloud projects...', '正在加载您的 Google Cloud 项目...'],
@@ -889,6 +889,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Affective dialog', '情感化对话'],
         ['Chat with Docs', '与 Docs 聊天'],
         ['Copy markdown', '复制 Markdown'],
+        ['Copy project ID', '复制项目 ID'],
         ['Copy Project ID', '复制项目 ID'],
         ['Go to Symbol...', '转到符号...'],
         ['Input tokens:', '输入 Tokens：'],
@@ -898,6 +899,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['relevant package', '相关软件包'],
         ['Reload the app', '重新加载应用'],
         ['Reset defaults', '恢复默认设置'],
+        ['Search for a model', '搜索模型'],
         ['Style instructions', '风格指令'],
         ['View in charts', '在图表中查看'],
         ['Advanced settings', '高级设置'],
@@ -1655,6 +1657,16 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       }
       return false;
     }
+    function isInsideBlockedElement(element) {
+      let current = element;
+      while (current) {
+        if (isElementBlocked(current)) {
+          return true;
+        }
+        current = current.parentElement;
+      }
+      return false;
+    }
     function translateText(text) {
       if (!text || typeof text !== 'string') return text;
       const originalText = text;
@@ -1753,16 +1765,19 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       }
       const elementsToProcess = element instanceof ShadowRoot ? Array.from(element.querySelectorAll('*')) : [element, ...Array.from(element.querySelectorAll('*'))];
       elementsToProcess.forEach((el) => {
-        if (isElementBlocked(el) || !el.hasAttributes()) return;
+        if (isInsideBlockedElement(el) || !el.hasAttributes()) return;
         for (const attr of el.attributes) {
           const attrName = attr.name;
           const originalValue = attr.value;
           if (!originalValue || !originalValue.trim()) continue;
+          if (blockedAttributes.includes(attrName)) {
+            continue;
+          }
           if (finalAttributesToTranslate.has(attrName)) {
             const translatedValue = translateText(originalValue);
             if (originalValue !== translatedValue) {
               el.setAttribute(attrName, translatedValue);
-              translateLog(`属性[${attrName}]`, originalValue, translatedValue);
+              translateLog(`白名单属性[${attrName}]`, originalValue, translatedValue);
             }
           } else if (isInsideExtendedElement(el)) {
             const trimmedValue = originalValue.trim();
@@ -1773,7 +1788,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
               const translatedValue = leadingSpace + translated + trailingSpace;
               if (originalValue !== translatedValue) {
                 el.setAttribute(attrName, translatedValue);
-                translateLog(`扩展属性[${attrName}]`, originalValue, translatedValue);
+                translateLog(`扩展区属性[${attrName}]`, originalValue, translatedValue);
               }
             }
           }
@@ -1967,18 +1982,28 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         for (const mutation of mutations) {
           if (mutation.type === 'characterData') {
             const target = mutation.target.parentElement;
-            if (target instanceof Element) {
-              dirtyRoots.add(target);
-            }
+            if (target instanceof Element) dirtyRoots.add(target);
           }
         }
         if (dirtyRoots.size > 0) {
           for (const root of dirtyRoots) {
             translator.deleteElement(root);
-            const descendants = root.getElementsByTagName('*');
-            for (let i = 0; i < descendants.length; i++) {
-              translator.deleteElement(descendants[i]);
-            }
+            pendingNodes.add(root);
+          }
+          scheduleTranslation();
+        }
+      });
+      const extendedAttributeObserver = new MutationObserver((mutations) => {
+        const dirtyRoots = /* @__PURE__ */ new Set();
+        for (const mutation of mutations) {
+          if (mutation.type === 'attributes') {
+            const target = mutation.target;
+            if (target instanceof Element) dirtyRoots.add(target);
+          }
+        }
+        if (dirtyRoots.size > 0) {
+          for (const root of dirtyRoots) {
+            translator.deleteElement(root);
             pendingNodes.add(root);
           }
           scheduleTranslation();
@@ -2005,10 +2030,8 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
             debug(`为选择器 "${selector}" 找到 ${elementsArray.length} 个已存在的扩展元素`);
             processExtendedElements(elementsArray);
             elementsArray.forEach((el) => {
-              extendedContentObserver.observe(el, {
-                characterData: true,
-                subtree: true,
-              });
+              extendedContentObserver.observe(el, { characterData: true, subtree: true });
+              extendedAttributeObserver.observe(el, { attributes: true, subtree: true });
             });
           }
         } catch (e) {
@@ -2022,18 +2045,14 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
               if (addedNode.nodeType === Node.ELEMENT_NODE) {
                 extendedElements.forEach((selector) => {
                   const matchedElements = [];
-                  if (addedNode.matches(selector)) {
-                    matchedElements.push(addedNode);
-                  }
+                  if (addedNode.matches(selector)) matchedElements.push(addedNode);
                   addedNode.querySelectorAll(selector).forEach((el) => matchedElements.push(el));
                   if (matchedElements.length > 0) {
                     debug(`为选择器 "${selector}" 找到动态添加的扩展元素:`, matchedElements);
                     processExtendedElements(matchedElements);
                     matchedElements.forEach((el) => {
-                      extendedContentObserver.observe(el, {
-                        characterData: true,
-                        subtree: true,
-                      });
+                      extendedContentObserver.observe(el, { characterData: true, subtree: true });
+                      extendedAttributeObserver.observe(el, { attributes: true, subtree: true });
                     });
                   }
                 });

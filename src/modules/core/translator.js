@@ -54,11 +54,11 @@ export function createTranslator(textMap, regexArr, blockedSelectors = [], exten
 
     /**
      * @function isInsideExtendedElement
-     * @description 检查一个元素是否位于“扩展翻译”容器之内。
+     * @description 检查一个元素是否位于“内容增强翻译区” (`extendedElements`) 之内。
+     *              此区域内的元素，其所有未被白名单 (`customAttributes`) 覆盖的属性，
+     *              都会经过一个严格的、仅限纯文本的全值匹配翻译。
      * @param {Element} element - 要检查的 DOM 元素。
-     * @returns {boolean} 如果元素在扩展容器内，则返回 true。
-     * @deprecated 该功能的设计目标是为非标准属性提供一个有限的、仅支持纯文本的翻译补充。
-     *             随着 `customAttributes` 功能的引入，推荐使用新功能来实现更强大、更灵活的属性翻译。
+     * @returns {boolean} 如果元素在“内容增强翻译区”内，则返回 true。
      */
     function isInsideExtendedElement(element) {
         if (!element || extendedSelectors.length === 0) return false;
@@ -94,6 +94,26 @@ export function createTranslator(textMap, regexArr, blockedSelectors = [], exten
             if (element.matches?.(selector)) return true;
         }
         
+        return false;
+    }
+
+    /**
+     * @function isInsideBlockedElement
+     * @description (更健壮的检查) 检查一个元素本身或其任何祖先元素是否匹配“翻译禁区”规则。
+     *              这可以确保即使是深层嵌套的元素，只要其任何一个父容器被屏蔽，它也会被正确地屏蔽。
+     * @param {Element} element - 要检查的 DOM 元素。
+     * @returns {boolean} 如果元素位于“翻译禁区”内，则返回 true。
+     */
+    function isInsideBlockedElement(element) {
+        let current = element;
+        // 向上遍历DOM树，直到文档的根节点
+        while (current) {
+            // 在每个层级上，调用 isElementBlocked 进行检查
+            if (isElementBlocked(current)) {
+                return true;
+            }
+            current = current.parentElement;
+        }
         return false;
     }
 
@@ -250,27 +270,33 @@ export function createTranslator(textMap, regexArr, blockedSelectors = [], exten
             : [element, ...Array.from(element.querySelectorAll('*'))];
 
         elementsToProcess.forEach(el => {
-            // 跳过被禁止的元素和没有属性的元素
-            if (isElementBlocked(el) || !el.hasAttributes()) return;
+            // 使用新的、更健壮的检查函数来跳过位于“翻译禁区”内的元素。
+            if (isInsideBlockedElement(el) || !el.hasAttributes()) return;
 
-            // 遍历元素的所有属性
+            // 遍历元素的所有属性，应用新的三级优先级翻译模型。
             for (const attr of el.attributes) {
                 const attrName = attr.name;
                 const originalValue = attr.value;
-                
+
                 if (!originalValue || !originalValue.trim()) continue;
 
-                // 2a. 如果属性在“待翻译白名单”中 (包括标准属性和自定义属性)，
-                //     则使用 translateText 进行翻译 (支持纯文本和正则表达式)。
+                // 优先级 1: 检查属性是否在黑名单中。如果是，则绝对不翻译。
+                // 注意：`blockedAttributes` 是从 `siteDictionary` 传入的原始黑名单数组。
+                if (blockedAttributes.includes(attrName)) {
+                    continue;
+                }
+
+                // 优先级 2: 检查属性是否在白名单中 (`customAttributes` + 全局配置)。
+                // 如果是，则使用完整翻译引擎（纯文本 + 正则表达式）。
                 if (finalAttributesToTranslate.has(attrName)) {
                     const translatedValue = translateText(originalValue);
                     if (originalValue !== translatedValue) {
                         el.setAttribute(attrName, translatedValue);
-                        translateLog(`属性[${attrName}]`, originalValue, translatedValue);
+                        translateLog(`白名单属性[${attrName}]`, originalValue, translatedValue);
                     }
-                } 
-                // 2b. (保留旧逻辑) 如果属性不在白名单中，但其所在元素位于“扩展翻译”容器内部，
-                //     则使用仅支持纯文本的翻译方式。这确保了向后兼容性。
+                }
+                // 优先级 3: 如果属性不在白名单中，但其宿主元素位于“内容增强翻译区”内，
+                // 则进行仅限纯文本的全值匹配翻译。
                 else if (isInsideExtendedElement(el)) {
                     const trimmedValue = originalValue.trim();
                     if (textTranslationMap.has(trimmedValue)) {
@@ -282,7 +308,7 @@ export function createTranslator(textMap, regexArr, blockedSelectors = [], exten
 
                         if (originalValue !== translatedValue) {
                             el.setAttribute(attrName, translatedValue);
-                            translateLog(`扩展属性[${attrName}]`, originalValue, translatedValue);
+                            translateLog(`扩展区属性[${attrName}]`, originalValue, translatedValue);
                         }
                     }
                 }
