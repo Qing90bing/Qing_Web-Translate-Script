@@ -185,7 +185,7 @@ export function initializeObservers(translator, extendedElements = [], customAtt
             }
         });
         if (shouldCheckModel) {
-            setTimeout(() => detectModelChange(), 50); // 快速响应模型切换
+            setTimeout(() => detectModelChange(), 0); // 快速响应模型切换
         }
     });
 

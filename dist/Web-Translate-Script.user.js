@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.50-2025-10-9-offline
+// @version      1.0.51-2025-10-10-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -59,6 +59,7 @@
       [/^\s*May\s+(\d{1,2}),\s+(\d{4})\s*$/i, '$2 年 5 月 $1 日'],
       [/^\s*Sep\s+(\d{1,2}),\s+(\d{4})\s*$/i, '$2 年 9 月 $1 日'],
       [/Completed\s+(\d+)\s+minutes?\s+ago/i, '$1 分钟前完成'],
+      [/Ran command\s+[“"]([\s\S]*?)[”"]/i, '运行命令：$1'],
       [/Completed\s+(\d+)\s+hours?\s+ago/i, '$1 小时前完成'],
       [/Completed\s+(\d+)\s+seconds?\s+ago/i, '$1 秒前完成'],
       [/Cloning\s+([\w.-]+)\/([\w.-]+)/i, '正在克隆 $1/$2'],
@@ -78,7 +79,6 @@
       [/(\d+)\s*memories?\s*updated/i, '$1 条记忆已更新'],
       [/Completed\s+(\d+)\s+days?\s+ago/i, '$1 天前完成'],
       [/Updated\s*(\d+)\s*hours?\s*ago/, '$1 小时前更新'],
-      [/Ran command\s+[“"](.*?)[”"]/i, '运行命令：$1'],
       [/^Searching for\s+"(.+?)"$/i, '正在搜索“$1”'],
       [/Created file ([\w\/\.-]+)/i, '已创建文件：$1'],
       [/Deleted file ([\w\/\.-]+)/i, '已删除文件：$1'],
@@ -387,7 +387,7 @@
     language: 'zh-cn',
     enabled: true,
     styles: [],
-    blockedElements: ['.chat-container', '.view-line', '.very-large-text-container', '.name-btn', '.page-title'],
+    blockedElements: ['.view-line', '.very-large-text-container', '.name-btn'],
     extendedElements: [],
     customAttributes: [],
     blockedAttributes: ['ms-prompt-chunk'],
@@ -446,8 +446,8 @@
       [/^(\d+)\s+years?$/i, '$1 年'],
       [/^(\d+)\s+days?$/i, '$1 天'],
       [/(\d+)h/i, '$1 小时'],
-      [/\bEdit\b/g, '编辑'],
-      [/(\d+)d/i, '$1 天'],
+      [/(\d+)d\b/, '$1 天'],
+      [/^Edit$/g, '编辑'],
     ],
     textRules: [
       [" from AI Studio, which will give your app a public URL. It's deployed along with a proxy server that will keep your API key private, however the deployed app will use your API key for all users' Gemini API calls. You can also download your app as a zip file. If you replace the placeholder value with a real API key, it should still work. But you ", '系统将为您的应用生成公共 URL 。部署时会同步配置代理服务器以保护 API 密钥隐私，但部署后的应用将使用您的 API 密钥处理所有用户的 Gemini API 调用。您也可将应用下载为 zip 文件。若将占位符替换为真实 API 密钥，应用仍可正常运行。但您'],
@@ -545,6 +545,7 @@
       ['Further investigation determined the issue affected all Drive-generated links for AI Studio.', '进一步调查确定该问题影响了所有为 AI Studio 生成的云端硬盘链接'],
       [' apply to use of apps featured on the Showcase tab in AI Studio, unless otherwise noted. ', '适用于 AI Studio“展示”选项卡中特色应用的使用，除非另有说明。'],
       ['Are you sure you want to delete your prompt and generated output? This action cannot be undone.', '您确定要删除您的提示词和已生成的内容吗？此操作无法撤销。'],
+      ['Sources are provided when a significant portion of the model response\ncomes from a particular source.', '当模型响应的显著部分来自特定来源时，将提供来源信息'],
       ['An issue affecting some users using the OpenAI library with the Gemini API was reported.', '据报告，一个影响部分使用 OpenAI 库与 Gemini API 的用户的问题'],
       ['Gemini API and AI Studio are unavailable for some users. We are investigating the issue.', '部分用户无法使用 Gemini API 和 AI Studio，我们正在调查此问题'],
       ['Usage is only reflective of GenerateContent requests. Other request types are not yet supported.', '用量仅反映 “生成内容” 请求。其他请求类型暂不支持。'],
@@ -555,6 +556,7 @@
       ['Probability threshold for top-p sampling', '筛选出一个“精英候选词”的范围。值越高，候选范围越大，回复更多样；值越低，范围越小，回复也更专注和可预测'],
       ['You are responsible for ensuring that safety settings for your intended use case comply with the', '您有责任确保安全设置符合您预期用途的相关规定 。'],
       [" “The building's primary structure mimics a colossal, ancient banyan tree, with a ...” ", ' “该建筑的主要结构模仿一棵巨大而古老的榕树，其...” '],
+      [" You don't have any projects with a paid quota tier. If you want to use the paid tier, ", '您当前没有使用付费配额层级的项目，若需启用付费层级，'],
       ['(aka Gemini 2.5 Flash Image) State-of-the-art image generation and editing model.', '（又名 Gemini 2.5 Flash Image）最先进的图像生成和编辑模型'],
       ['Our hybrid reasoning model, with a 1M token context window and thinking budgets.', '我们的混合推理模型，拥有 100 万 Token 上下文窗口和思考预算'],
       ['API pricing per 1M tokens. Usage in AI Studio UI is free of charge', 'API 定价以每百万 token 为单位计算,在 AI Studio 界面中的使用则完全免费'],
@@ -585,6 +587,7 @@
       [' Gemini 2.5 Flash Image, state-of-the-art image generation and editing ', ' Gemini 2.5 Flash Image，最先进的图像生成和编辑模型'],
       ['Use Google Search\n\n This tool is not compatible with the current active tools.', '使用 Google 搜索，此工具与当前活动工具不兼容'],
       ['Our most balanced multimodal model with great performance across all tasks.', '我们最均衡的多模态模型，在所有任务中都表现出色'],
+      [' Display of Search Suggestions is required when using Grounding with Google Search. ', '使用 Google 搜索时，显示搜索建议功能'],
       ['Our smallest and most cost effective model, built for at scale usage.', '我们最小、最具成本效益的模型，专为大规模使用而构建'],
       ['Select or upload a file on Google Drive to include in your prompt', '从 Google 云端硬盘选择或上传文件，以包含在您的提示词中'],
       ['Video Understanding is unavailable for some users. Investigation is underway.', '部分用户无法使用视频理解功能，正在进行调查'],
@@ -601,11 +604,11 @@
       ['Truncate response including and after string', '设定一个“刹车词”，当模型准备生成这个词（或短语）时，就会立刻停止输出'],
       [' Google AI models may make mistakes, so double-check outputs.', 'Google AI 模型可能会出错，因此请仔细检查其输出内容。'],
       ['Generate a scavenger hunt for street food around the city of Seoul, Korea', '为韩国首尔市的街头小吃设计一个寻宝游戏。'],
-      ['The below reflects how to structure your script in your API request.', '以下示例展示了如何在 API 请求中构建您的脚本。'],
       ['ListModels requests fail for all users. Investigation is underway.', '所有用户的 ListModels 请求均失败，正在进行调查'],
       ['Plot sin(x) from 0 to 2*pi. Generate the resulting graph image.', '绘制 sin(x) 从 0 到 2*pi 的函数图像，并生成图片。'],
       ['Speaker names must be consistent with speakers used in your prompt', '发言人姓名必须与提示词中使用的发言人保持一致。'],
       ['Add new features or easily modify this app with a prompt or the suggestions below', '添加新功能或轻松修改此应用程序'],
+      ['The below reflects how to structure your script in your API request.', '以下示例展示了如何在 API 请求中构建您的脚本'],
       ['This model is not stable and may not be suitable for production use', '此模型尚不稳定，可能不适合在生产环境中使用。'],
       [' Branch out from one generation to the next with multimodal workflows ', '多模态工作流，从一种生成方式分支到下一种'],
       ['. App creators can add these permission requests to their app’s ', '. 应用创建者可以将这些权限请求添加到其应用的 '],
@@ -652,6 +655,7 @@
       ['Are you sure you want to clear? This action cannot be undone.', '您确定要清除对话吗？该操作不能撤消。'],
       ['Usage is reflective of all request types to the Gemini API.', '使用情况反映了Gemini API的所有请求类型'],
       [' “Create an image of a futuristic cityscape with...” ', ' “创建一张具有未来感的城市景观图片...” '],
+      ['Failed to count tokens: permission denied. Please try again.', '计数 Tokens 失败：权限被拒绝，请重试'],
       [', and may be used to improve our services subject to our ', '，并可能根据我们的服务条款用于改进服务'],
       ['Choose a system instructions configuration to use with the applet', '选择一个系统指令配置用于小程序'],
       ['Peak usage per model compared to its limit over the last hour', '模型每小时最大使用量与其限制的对比'],
@@ -700,6 +704,7 @@
       ['Explain the probability of rolling two dice and getting 7', '解释掷两个骰子得到 7 的概率'],
       ['Explore multimodal native image generation and editing', '探索多模态图像的生成和编辑功能'],
       ['Gemini 2.0 Flash and 1.5 Pro Throttling Incident', 'Gemini 2.0 Flash 和 1.5 Pro 限流事件'],
+      ['If this happens again, report it by sending feedback', '如果再次发生，请通过发送反馈报告'],
       ['Imagen makes mistakes, so double-check it', 'Imagen 生成的内容可能存在错误，请仔细核对。'],
       ['Prompt Gemini in this simple example', '通过这个简单的示例，学习如何向 Gemini 发出提示词'],
       ['The number of free generations that are remaining for this model', '此模型的免费生成次数'],
@@ -795,6 +800,8 @@
       ['Ask questions about key details in a video', '就视频中的关键细节提问'],
       ['Dynamic text game using Gemini', '使用 Gemini 打造的动态文字冒险游戏'],
       ['Example chat app built with Gemini', '使用 Gemini 构建的聊天应用示例'],
+      ['Failed to count tokens. Please try again.', 'Tokens 计数失败，请重试'],
+      ['Failed to list models. Please try again.', '无法列出模型，请稍后重试'],
       ['Gemini API and AI Studio outage.', 'Gemini API 和 AI Studio 服务中断'],
       ['Ground responses with Google Search.', '基于 Google 搜索结果生成回复'],
       ['How can I use GitHub with my apps?', '我如何将 GitHub 用于我的应用？'],
@@ -917,6 +924,7 @@
       ['No issues recorded on this day', '今天没有记录的问题'],
       ['Write a Docker set up script', '编写 Docker 设置脚本'],
       ['15 RPM 500 req/day', '每分钟 15 次请求，每天 500 次'],
+      ['An internal error has occurred.', '系统发生内部错误'],
       ['Edit app name and description', '编辑应用名称和描述'],
       ['Gemini API Usage & Billing', 'Gemini API 用量和结算'],
       ['Generate images with Imagen', '使用 Imagen 生成图片'],
@@ -949,6 +957,7 @@
       ['Select a Cloud Project', '选择一个 Google 云项目'],
       ['You can run this prompt from the', '您可以运行从'],
       [' Upload an instructions file ', ' 上传说明文件 '],
+      ['? This cannot be undone. ', '? 该操作不可撤销。'],
       ['“name” must be specified', '“name” 必须指定'],
       ['Are you sure you want to delete', '你确定要删除'],
       ['Gemini 2.5 Flash Audio', 'Gemini 2.5 Flash 音频'],
@@ -971,7 +980,6 @@
       ['Input Tokens per day', '每天的输入 Tokens 次数'],
       ['Input/Output API Pricing', '输入/输出 API 定价'],
       ['Only one option is supported', '仅支持一个选项'],
-      ['? This cannot be undone. ', '该操作不可撤销。'],
       ['All Systems Operational', '所有系统均正常运行'],
       ['Generate videos with Veo', '使用 Veo 生成视频'],
       ['OpenAI SDK compatibility', 'OpenAI SDK 兼容性'],
@@ -1016,6 +1024,7 @@
       ['Who can see my apps?', '谁能看到我的应用？'],
       ['Youthful, Higher pitch', '年轻的，较高音调'],
       ['A sci-fi movie poster', '一张科幻电影海报'],
+      ['An unknown error occurred', '发生未知错误'],
       ['Code Assistant messages', '代码助手的消息'],
       ['Combine images of flowers', '组合花卉图像'],
       ['Create generative media', '创建生成式媒体'],
@@ -1023,6 +1032,7 @@
       ['Forward, Middle pitch', '有力的，中等音调'],
       ['Gemini API Billing', 'Gemini API 计费账单'],
       ['Gemma Terms of Use', '《 Gemma 使用条款》'],
+      ['Google Search Suggestions', '谷歌搜索建议'],
       ['Gravelly, Lower pitch', '沙哑的，较低音调'],
       ['Maximum output tokens', '最大输出Tokens数'],
       ['OpenAPI schema object', 'OpenAPI 架构对象'],
@@ -1279,6 +1289,7 @@
       ['Visual Editor', '可视化编辑器'],
       ['YouTube Video', 'YouTube 视频'],
       [' Create project ', '创建项目'],
+      [' Generate media ', '生成媒体'],
       [' Import project ', '导入项目'],
       [' Save changes ', ' 保存更改 '],
       ['Choose a key', '选择一个密钥'],
@@ -1306,6 +1317,7 @@
       ['Total tokens:', '总 Tokens：'],
       ['Video Analyzer', '视频分析器'],
       [' Back to start ', '返回开始'],
+      [' Enable saving ', '启用保存'],
       ['Are you sure?', '您确定吗？'],
       ['August 2024', '2024 年 8 月'],
       ['Billing Support', '结算支持'],
@@ -1575,6 +1587,7 @@
       ['Take photo', '拍照'],
       ['Thinking', '思考中'],
       [' Settings', '设置'],
+      [' Sources ', '来源'],
       ['Light', '日间主题'],
       ['Reasoning', '推理'],
       ['Rerun', '重新运行'],
@@ -3488,29 +3501,29 @@
     blockedAttributes: [],
     jsRules: [],
     regexRules: [
-      [/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s+(\d{2}:\d{2})\s+UTC/i, 'MM月DD日, $3 UTC'],
-      [/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s+(\d{4})/i, 'YYYY年MM月DD日'],
+      [/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s+(\d{2}:\d{2})\s+UTC/i, 'MM 月 DD 日, $3 UTC'],
+      [/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s+(\d{4})/i, 'YYYY 年 MM 月 DD 日'],
       [/Uptime over the past\s+(\d+)\s+days\./i, '过去 $1 天的正常运行时间。'],
       [/Resend OTP in:\s*(\d+)\s*seconds/i, '在 $1 秒后重新发送 OTP'],
-      [/^(\d{1,2})\s+Dec\s+(\d{4})$/i, '$2年12月$1日'],
-      [/^(\d{1,2})\s+Nov\s+(\d{4})$/i, '$2年11月$1日'],
-      [/^(\d{1,2})\s+Oct\s+(\d{4})$/i, '$2年10月$1日'],
+      [/^(\d{1,2})\s+Dec\s+(\d{4})$/i, '$2 年 12 月 $1 日'],
+      [/^(\d{1,2})\s+Nov\s+(\d{4})$/i, '$2 年 11 月 $1 日'],
+      [/^(\d{1,2})\s+Oct\s+(\d{4})$/i, '$2 年 10 月 $1 日'],
+      [/^(\d{1,2})\s+Apr\s+(\d{4})$/i, '$2 年 4 月 $1 日'],
+      [/^(\d{1,2})\s+Aug\s+(\d{4})$/i, '$2 年 8 月 $1 日'],
+      [/^(\d{1,2})\s+Feb\s+(\d{4})$/i, '$2 年 2 月 $1 日'],
+      [/^(\d{1,2})\s+Jan\s+(\d{4})$/i, '$2 年 1 月 $1 日'],
+      [/^(\d{1,2})\s+Jul\s+(\d{4})$/i, '$2 年 7 月 $1 日'],
+      [/^(\d{1,2})\s+Jun\s+(\d{4})$/i, '$2 年 6 月 $1 日'],
+      [/^(\d{1,2})\s+Mar\s+(\d{4})$/i, '$2 年 3 月 $1 日'],
+      [/^(\d{1,2})\s+May\s+(\d{4})$/i, '$2 年 5 月 $1 日'],
+      [/^(\d{1,2})\s+Sep\s+(\d{4})$/i, '$2 年 9 月 $1 日'],
       [/([\d\.]+)\s*%\s*uptime/i, '正常运行时间 $1%'],
-      [/^(\d{1,2})\s+Apr\s+(\d{4})$/i, '$2年4月$1日'],
-      [/^(\d{1,2})\s+Aug\s+(\d{4})$/i, '$2年8月$1日'],
-      [/^(\d{1,2})\s+Feb\s+(\d{4})$/i, '$2年2月$1日'],
-      [/^(\d{1,2})\s+Jan\s+(\d{4})$/i, '$2年1月$1日'],
-      [/^(\d{1,2})\s+Jul\s+(\d{4})$/i, '$2年7月$1日'],
-      [/^(\d{1,2})\s+Jun\s+(\d{4})$/i, '$2年6月$1日'],
-      [/^(\d{1,2})\s+Mar\s+(\d{4})$/i, '$2年3月$1日'],
-      [/^(\d{1,2})\s+May\s+(\d{4})$/i, '$2年5月$1日'],
-      [/^(\d{1,2})\s+Sep\s+(\d{4})$/i, '$2年9月$1日'],
       [/(\d+)\s+components?/i, '$1 个组件'],
       [/(\d+)\s+days ago/i, '$1 天前'],
       [/^(\d+)\s*mins?$/i, '$1分钟'],
       [/^(\d+)\s*hrs?$/i, '$1小时'],
+      [/^(\d+)\s*secs?$/i, '$1 秒'],
       [/(\d+)\s+mins/i, '$1 分钟'],
-      [/^(\d+)\s*secs?$/i, '$1秒'],
       [/(\d+)\s+hrs/i, '$1 小时'],
     ],
     textRules: [
@@ -3559,31 +3572,30 @@
       ['Australia/Cocos/Christmas Island', '澳大利亚/科科斯/圣诞岛'],
       ['Claude.ai chats not saved', 'Claude.ai 聊天记录未保存'],
       ['Elevated errors across models', '各模型错误率普遍升高'],
-      ['No downtime recorded on this day.', '本日无停机记录。'],
-      ['This incident has been resolved.', '此事件已解决。'],
-      ['View historical uptime.', '查看历史正常运行时间。'],
+      ['No downtime recorded on this day.', '本日无停机记录'],
+      ['No incidents reported today.', '今日未发生任何事件'],
+      ['This incident has been resolved.', '此事件已解决'],
       ["Didn't receive the OTP?", '没有收到一次性密码？'],
+      ['View historical uptime.', '查看历史正常运行时间'],
       ['Bosnia and Herzegovina', '波斯尼亚和黑塞哥维那'],
       ["Channel's Webhook URL:", '频道的 Webhook URL：'],
       ['the URL of a teams channel', 'Teams 频道的 URL'],
       ['Turks and Caicos Islands', '特克斯和凯科斯群岛'],
       ['St Vincent Grenadines', '圣文森特和格林纳丁斯'],
-      ['No data exists for this day.', '本日无数据。'],
       ['All Systems Operational', '所有系统运行正常'],
       ['Subscription Upgrade Broken', '订阅升级中断'],
       [', (opens new window)', '（在新窗口中打开）'],
+      ['No data exists for this day.', '本日无数据'],
       ['Subscribe via Text Message', '通过短信订阅'],
       ['Subscribe via webhook', '通过 Webhook 订阅'],
       ['Morocco/Western Sahara', '摩洛哥/西撒哈拉'],
       ['Virgin Islands, British', '英属维尔京群岛'],
       ['United Arab Emirates', '阿拉伯联合酋长国'],
-      ['had a partial outage.', '发生部分中断。'],
       ['Subscribe via email', '通过电子邮件订阅'],
       ['Subscribe via Email', '通过电子邮件订阅'],
       ['Trinidad and Tobago', '特立尼达和多巴哥'],
       ['Anthropic Status', 'Anthropic 服务状态'],
       ['Finland/Aland Islands', '芬兰/奥兰群岛'],
-      ['No incidents reported.', '无事件报告。'],
       ['Russia/Kazakhstan', '俄罗斯/哈萨克斯坦'],
       ['Subscribe via slack', '通过 Slack 订阅'],
       ['Subscribe via Slack', '通过 Slack 订阅'],
@@ -3591,13 +3603,15 @@
       ['Subscribe via Teams', '通过 Teams 订阅'],
       ['Virgin Islands, U.S.', '美属维尔京群岛'],
       ['Antigua and Barbuda', '安提瓜和巴布达'],
-      ['had a major outage.', '发生严重中断。'],
+      ['had a partial outage.', '发生部分中断'],
       ['Palestinian Territory', '巴勒斯坦领土'],
       ['Uptime over the past ', '正常运行时间'],
       ['Close subscribe form', '关闭订阅表单'],
       ['Cloud Terms of Service', '云服务条款'],
       ['Dominican Republic', '多米尼加共和国'],
+      ['No incidents reported.', '无事件报告'],
       ['St Kitts and Nevis', '圣基茨和尼维斯'],
+      ['had a major outage.', '发生严重中断'],
       ['French Polynesia', '法属波利尼西亚'],
       ["Here's where to find", '在此处查找'],
       ['Subscribe via RSS', '通过 RSS 订阅'],
@@ -3609,9 +3623,10 @@
       ['Reunion/Mayotte', '留尼汪/马约特'],
       ['Subscribe to updates', '订阅更新'],
       ['Equatorial Guinea', '赤道几内亚'],
+      [' Current Status\n  ', '当前状态'],
       ['Enter OTP:', '输入一次性密码：'],
+      ['Filter Components', '筛选域名'],
       ['Subscribing...', '正在订阅...'],
-      ['Webhook URL:', 'Webhook URL：'],
       ['American Samoa', '美属萨摩亚'],
       ['Czech Republic', '捷克共和国'],
       ['Incident History', '事件历史'],
@@ -3659,6 +3674,7 @@
       ['San Marino', '圣马力诺'],
       ['Slovenia', '斯洛文尼亚'],
       ['United Kingdom', '英国'],
+      ['Uptime', '正常运行时间'],
       ['Afghanistan', '阿富汗'],
       ['Albania', '阿尔巴尼亚'],
       ['Algeria', '阿尔及利亚'],
@@ -3673,7 +3689,6 @@
       ['Sri Lanka', '斯里兰卡'],
       ['Swaziland', '斯威士兰'],
       ['United States', '美国'],
-      ['Venezuela', '委内瑞拉'],
       ['Barbados', '巴巴多斯'],
       ['Botswana', '博茨瓦纳'],
       ['Bulgaria', '保加利亚'],
@@ -3735,6 +3750,7 @@
       ['Comoros', '科摩罗'],
       ['Hong Kong', '香港'],
       ['Hungary', '匈牙利'],
+      ['Incidents', '事件'],
       ['Ireland', '爱尔兰'],
       ['Jamaica', '牙买加'],
       ['Lebanon', '黎巴嫩'],
@@ -3812,7 +3828,6 @@
       ['Oman', '阿曼'],
       ['Peru', '秘鲁'],
       ['Togo', '多哥'],
-      ['x', '×'],
     ],
   };
   var julesGoogleComZhHk = {
@@ -5082,6 +5097,7 @@
       return false;
     }
     function isElementBlocked(element) {
+      if (element.isContentEditable) return true;
       const tagName = element.tagName?.toLowerCase();
       if (blockedElements.has(tagName)) return true;
       if (element.classList) {
@@ -5100,7 +5116,12 @@
         if (isElementBlocked(current)) {
           return true;
         }
-        current = current.parentElement;
+        const root = current.getRootNode();
+        if (root instanceof ShadowRoot) {
+          current = root.host;
+        } else {
+          current = current.parentElement;
+        }
       }
       return false;
     }
@@ -5137,7 +5158,7 @@
       return translatedText;
     }
     function translateElementContent(element) {
-      if (!element || isElementBlocked(element) || element.isContentEditable) return false;
+      if (!element || isInsideBlockedElement(element)) return false;
       if (element.childElementCount > 0) return false;
       if (element.querySelector(Array.from(blockedElements).join(','))) return false;
       const fullText = element.textContent?.trim();
@@ -5157,11 +5178,11 @@
     }
     function translateElement(element) {
       if (!element || translatedElements.has(element) || !(element instanceof Element || element instanceof ShadowRoot)) return;
-      const tagName = element.tagName?.toLowerCase();
-      if (isElementBlocked(element) || element.isContentEditable) {
+      if (isInsideBlockedElement(element)) {
         translatedElements.add(element);
         return;
       }
+      const tagName = element.tagName?.toLowerCase();
       const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
       if (!isContentBlocked) {
         if (translateElementContent(element)) {
@@ -5170,20 +5191,11 @@
         }
         const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
           acceptNode: function (node) {
-            if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
-            const root = node.getRootNode();
-            if (root instanceof ShadowRoot) {
-              if (isElementBlocked(root.host) || root.host.isContentEditable) {
-                return NodeFilter.FILTER_REJECT;
-              }
+            if (!node.nodeValue?.trim()) {
+              return NodeFilter.FILTER_REJECT;
             }
-            let parent = node.parentElement;
-            while (parent) {
-              if (isElementBlocked(parent) || parent.isContentEditable) {
-                return NodeFilter.FILTER_REJECT;
-              }
-              if (parent === element) break;
-              parent = parent.parentElement;
+            if (isInsideBlockedElement(node.parentElement)) {
+              return NodeFilter.FILTER_REJECT;
             }
             return NodeFilter.FILTER_ACCEPT;
           },
@@ -5359,7 +5371,7 @@
         }
       });
       if (shouldCheckModel) {
-        setTimeout(() => detectModelChange(), 50);
+        setTimeout(() => detectModelChange(), 0);
       }
     });
     const whitelist = new Set([...attributesToTranslate, ...customAttributes]);

@@ -73,46 +73,57 @@ export function createTranslator(textMap, regexArr, blockedSelectors = [], exten
 
     /**
      * @function isElementBlocked
-     * @description 检查一个元素是否应该被阻止翻译。
+     * @description 检查一个元素是否应该被阻止翻译。此函数是“原子”检查，仅检查元素自身，不检查祖先。
      * @param {Element} element - 要检查的 DOM 元素。
      * @returns {boolean} 如果元素应被阻止，则返回 true。
      */
     function isElementBlocked(element) {
+        // 优先检查 isContentEditable，因为这是不应翻译的强信号。
+        if (element.isContentEditable) return true;
+
         const tagName = element.tagName?.toLowerCase();
         // 检查标签名是否在全局禁止列表中 (如 <style>, <script>)。
         if (blockedElements.has(tagName)) return true;
-        
+
         // 检查元素是否具有被阻止的 CSS 类名。
         if (element.classList) {
             for (const className of element.classList) {
                 if (BLOCKED_CSS_CLASSES.has(className)) return true;
             }
         }
-        
+
         // 检查元素是否匹配网站特定的禁止选择器。
         for (const selector of blockedElementSelectors) {
             if (element.matches?.(selector)) return true;
         }
-        
+
         return false;
     }
 
     /**
      * @function isInsideBlockedElement
-     * @description (更健壮的检查) 检查一个元素本身或其任何祖先元素是否匹配“翻译禁区”规则。
-     *              这可以确保即使是深层嵌套的元素，只要其任何一个父容器被屏蔽，它也会被正确地屏蔽。
+     * @description (漏洞修复版) 检查一个元素本身或其任何祖先元素（包括 Shadow DOM 的宿主）是否匹配“翻译禁区”规则。
+     *              这确保了屏蔽规则能正确地“继承”并“跨越” Shadow DOM 边界。
      * @param {Element} element - 要检查的 DOM 元素。
      * @returns {boolean} 如果元素位于“翻译禁区”内，则返回 true。
      */
     function isInsideBlockedElement(element) {
         let current = element;
-        // 向上遍历DOM树，直到文档的根节点
+        // 向上遍历DOM树，包括跨越 Shadow DOM 的边界
         while (current) {
-            // 在每个层级上，调用 isElementBlocked 进行检查
+            // 在每个层级上，调用 isElementBlocked 进行“原子”检查
             if (isElementBlocked(current)) {
                 return true;
             }
-            current = current.parentElement;
+
+            const root = current.getRootNode();
+            // 如果到达了 Shadow Root 的顶层，则跳到其宿主元素 (host) 继续向上遍历
+            if (root instanceof ShadowRoot) {
+                current = root.host;
+            } else {
+                // 否则，在常规 DOM 中正常向上遍历
+                current = current.parentElement;
+            }
         }
         return false;
     }
@@ -170,7 +181,8 @@ export function createTranslator(textMap, regexArr, blockedSelectors = [], exten
      * @returns {boolean} 如果成功执行了整段翻译，则返回 true。
      */
     function translateElementContent(element) {
-        if (!element || isElementBlocked(element) || element.isContentEditable) return false;
+        // 使用新的 isInsideBlockedElement 进行更可靠的前置检查
+        if (!element || isInsideBlockedElement(element)) return false;
 
         // 安全检查：如果元素包含任何子元素（例如 <a>、<b>），则跳过此优化，
         // 因为直接修改 textContent 会破坏内部的 DOM 结构。此优化仅适用于只包含文本节点的元素。
@@ -205,14 +217,13 @@ export function createTranslator(textMap, regexArr, blockedSelectors = [], exten
     function translateElement(element) {
         if (!element || translatedElements.has(element) || !(element instanceof Element || element instanceof ShadowRoot)) return;
 
-        const tagName = element.tagName?.toLowerCase();
-
-        // 检查元素是否应被完全跳过
-        if (isElementBlocked(element) || element.isContentEditable) {
+        // 使用新的、更健壮的检查来决定是否应完全跳过此元素及其后代。
+        if (isInsideBlockedElement(element)) {
             translatedElements.add(element);
             return;
         }
 
+        const tagName = element.tagName?.toLowerCase();
         const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
 
         // --- 1. 翻译元素内的文本节点 ---
@@ -226,24 +237,14 @@ export function createTranslator(textMap, regexArr, blockedSelectors = [], exten
             // 如果整段翻译不适用，则回退到标准的 `TreeWalker` 遍历。
             const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
                 acceptNode: function (node) {
-                    if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
-
-                    // 检查 Shadow DOM 宿主元素
-                    const root = node.getRootNode();
-                    if (root instanceof ShadowRoot) {
-                        if (isElementBlocked(root.host) || root.host.isContentEditable) {
-                            return NodeFilter.FILTER_REJECT;
-                        }
+                    // 基本过滤条件：非空文本节点
+                    if (!node.nodeValue?.trim()) {
+                        return NodeFilter.FILTER_REJECT;
                     }
-
-                    // 向上遍历，确保该文本节点的任何父级元素都不是被禁止翻译的。
-                    let parent = node.parentElement;
-                    while (parent) {
-                        if (isElementBlocked(parent) || parent.isContentEditable) {
-                            return NodeFilter.FILTER_REJECT;
-                        }
-                        if (parent === element) break;
-                        parent = parent.parentElement;
+                    // 核心检查：使用新的、更健壮的函数来检查该文本节点的父元素是否位于任何“翻译禁区”内。
+                    // 这样就统一了对常规 DOM 和 Shadow DOM 的处理。
+                    if (isInsideBlockedElement(node.parentElement)) {
+                        return NodeFilter.FILTER_REJECT;
                     }
                     return NodeFilter.FILTER_ACCEPT;
                 }

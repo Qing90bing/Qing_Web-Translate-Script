@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.60-2025-10-9-cdn
+// @version      1.0.61-2025-10-10-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -35,7 +35,7 @@ const EMBEDDED_TRANSLATIONS = {
       language: 'zh-cn',
       enabled: true,
       styles: [],
-      blockedElements: ['.chat-container', '.view-line', '.very-large-text-container', '.name-btn', '.page-title'],
+      blockedElements: ['.view-line', '.very-large-text-container', '.name-btn'],
       extendedElements: [],
       customAttributes: [],
       blockedAttributes: ['ms-prompt-chunk'],
@@ -94,8 +94,8 @@ const EMBEDDED_TRANSLATIONS = {
         [/^(\d+)\s+years?$/i, '$1 年'],
         [/^(\d+)\s+days?$/i, '$1 天'],
         [/(\d+)h/i, '$1 小时'],
-        [/\bEdit\b/g, '编辑'],
-        [/(\d+)d/i, '$1 天'],
+        [/(\d+)d\b/, '$1 天'],
+        [/^Edit$/g, '编辑'],
       ],
       textRules: [
         [" from AI Studio, which will give your app a public URL. It's deployed along with a proxy server that will keep your API key private, however the deployed app will use your API key for all users' Gemini API calls. You can also download your app as a zip file. If you replace the placeholder value with a real API key, it should still work. But you ", '系统将为您的应用生成公共 URL 。部署时会同步配置代理服务器以保护 API 密钥隐私，但部署后的应用将使用您的 API 密钥处理所有用户的 Gemini API 调用。您也可将应用下载为 zip 文件。若将占位符替换为真实 API 密钥，应用仍可正常运行。但您'],
@@ -193,6 +193,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Further investigation determined the issue affected all Drive-generated links for AI Studio.', '进一步调查确定该问题影响了所有为 AI Studio 生成的云端硬盘链接'],
         [' apply to use of apps featured on the Showcase tab in AI Studio, unless otherwise noted. ', '适用于 AI Studio“展示”选项卡中特色应用的使用，除非另有说明。'],
         ['Are you sure you want to delete your prompt and generated output? This action cannot be undone.', '您确定要删除您的提示词和已生成的内容吗？此操作无法撤销。'],
+        ['Sources are provided when a significant portion of the model response\ncomes from a particular source.', '当模型响应的显著部分来自特定来源时，将提供来源信息'],
         ['An issue affecting some users using the OpenAI library with the Gemini API was reported.', '据报告，一个影响部分使用 OpenAI 库与 Gemini API 的用户的问题'],
         ['Gemini API and AI Studio are unavailable for some users. We are investigating the issue.', '部分用户无法使用 Gemini API 和 AI Studio，我们正在调查此问题'],
         ['Usage is only reflective of GenerateContent requests. Other request types are not yet supported.', '用量仅反映 “生成内容” 请求。其他请求类型暂不支持。'],
@@ -203,6 +204,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Probability threshold for top-p sampling', '筛选出一个“精英候选词”的范围。值越高，候选范围越大，回复更多样；值越低，范围越小，回复也更专注和可预测'],
         ['You are responsible for ensuring that safety settings for your intended use case comply with the', '您有责任确保安全设置符合您预期用途的相关规定 。'],
         [" “The building's primary structure mimics a colossal, ancient banyan tree, with a ...” ", ' “该建筑的主要结构模仿一棵巨大而古老的榕树，其...” '],
+        [" You don't have any projects with a paid quota tier. If you want to use the paid tier, ", '您当前没有使用付费配额层级的项目，若需启用付费层级，'],
         ['(aka Gemini 2.5 Flash Image) State-of-the-art image generation and editing model.', '（又名 Gemini 2.5 Flash Image）最先进的图像生成和编辑模型'],
         ['Our hybrid reasoning model, with a 1M token context window and thinking budgets.', '我们的混合推理模型，拥有 100 万 Token 上下文窗口和思考预算'],
         ['API pricing per 1M tokens. Usage in AI Studio UI is free of charge', 'API 定价以每百万 token 为单位计算,在 AI Studio 界面中的使用则完全免费'],
@@ -233,6 +235,7 @@ const EMBEDDED_TRANSLATIONS = {
         [' Gemini 2.5 Flash Image, state-of-the-art image generation and editing ', ' Gemini 2.5 Flash Image，最先进的图像生成和编辑模型'],
         ['Use Google Search\n\n This tool is not compatible with the current active tools.', '使用 Google 搜索，此工具与当前活动工具不兼容'],
         ['Our most balanced multimodal model with great performance across all tasks.', '我们最均衡的多模态模型，在所有任务中都表现出色'],
+        [' Display of Search Suggestions is required when using Grounding with Google Search. ', '使用 Google 搜索时，显示搜索建议功能'],
         ['Our smallest and most cost effective model, built for at scale usage.', '我们最小、最具成本效益的模型，专为大规模使用而构建'],
         ['Select or upload a file on Google Drive to include in your prompt', '从 Google 云端硬盘选择或上传文件，以包含在您的提示词中'],
         ['Video Understanding is unavailable for some users. Investigation is underway.', '部分用户无法使用视频理解功能，正在进行调查'],
@@ -249,11 +252,11 @@ const EMBEDDED_TRANSLATIONS = {
         ['Truncate response including and after string', '设定一个“刹车词”，当模型准备生成这个词（或短语）时，就会立刻停止输出'],
         [' Google AI models may make mistakes, so double-check outputs.', 'Google AI 模型可能会出错，因此请仔细检查其输出内容。'],
         ['Generate a scavenger hunt for street food around the city of Seoul, Korea', '为韩国首尔市的街头小吃设计一个寻宝游戏。'],
-        ['The below reflects how to structure your script in your API request.', '以下示例展示了如何在 API 请求中构建您的脚本。'],
         ['ListModels requests fail for all users. Investigation is underway.', '所有用户的 ListModels 请求均失败，正在进行调查'],
         ['Plot sin(x) from 0 to 2*pi. Generate the resulting graph image.', '绘制 sin(x) 从 0 到 2*pi 的函数图像，并生成图片。'],
         ['Speaker names must be consistent with speakers used in your prompt', '发言人姓名必须与提示词中使用的发言人保持一致。'],
         ['Add new features or easily modify this app with a prompt or the suggestions below', '添加新功能或轻松修改此应用程序'],
+        ['The below reflects how to structure your script in your API request.', '以下示例展示了如何在 API 请求中构建您的脚本'],
         ['This model is not stable and may not be suitable for production use', '此模型尚不稳定，可能不适合在生产环境中使用。'],
         [' Branch out from one generation to the next with multimodal workflows ', '多模态工作流，从一种生成方式分支到下一种'],
         ['. App creators can add these permission requests to their app’s ', '. 应用创建者可以将这些权限请求添加到其应用的 '],
@@ -300,6 +303,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Are you sure you want to clear? This action cannot be undone.', '您确定要清除对话吗？该操作不能撤消。'],
         ['Usage is reflective of all request types to the Gemini API.', '使用情况反映了Gemini API的所有请求类型'],
         [' “Create an image of a futuristic cityscape with...” ', ' “创建一张具有未来感的城市景观图片...” '],
+        ['Failed to count tokens: permission denied. Please try again.', '计数 Tokens 失败：权限被拒绝，请重试'],
         [', and may be used to improve our services subject to our ', '，并可能根据我们的服务条款用于改进服务'],
         ['Choose a system instructions configuration to use with the applet', '选择一个系统指令配置用于小程序'],
         ['Peak usage per model compared to its limit over the last hour', '模型每小时最大使用量与其限制的对比'],
@@ -348,6 +352,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Explain the probability of rolling two dice and getting 7', '解释掷两个骰子得到 7 的概率'],
         ['Explore multimodal native image generation and editing', '探索多模态图像的生成和编辑功能'],
         ['Gemini 2.0 Flash and 1.5 Pro Throttling Incident', 'Gemini 2.0 Flash 和 1.5 Pro 限流事件'],
+        ['If this happens again, report it by sending feedback', '如果再次发生，请通过发送反馈报告'],
         ['Imagen makes mistakes, so double-check it', 'Imagen 生成的内容可能存在错误，请仔细核对。'],
         ['Prompt Gemini in this simple example', '通过这个简单的示例，学习如何向 Gemini 发出提示词'],
         ['The number of free generations that are remaining for this model', '此模型的免费生成次数'],
@@ -443,6 +448,8 @@ const EMBEDDED_TRANSLATIONS = {
         ['Ask questions about key details in a video', '就视频中的关键细节提问'],
         ['Dynamic text game using Gemini', '使用 Gemini 打造的动态文字冒险游戏'],
         ['Example chat app built with Gemini', '使用 Gemini 构建的聊天应用示例'],
+        ['Failed to count tokens. Please try again.', 'Tokens 计数失败，请重试'],
+        ['Failed to list models. Please try again.', '无法列出模型，请稍后重试'],
         ['Gemini API and AI Studio outage.', 'Gemini API 和 AI Studio 服务中断'],
         ['Ground responses with Google Search.', '基于 Google 搜索结果生成回复'],
         ['How can I use GitHub with my apps?', '我如何将 GitHub 用于我的应用？'],
@@ -565,6 +572,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['No issues recorded on this day', '今天没有记录的问题'],
         ['Write a Docker set up script', '编写 Docker 设置脚本'],
         ['15 RPM 500 req/day', '每分钟 15 次请求，每天 500 次'],
+        ['An internal error has occurred.', '系统发生内部错误'],
         ['Edit app name and description', '编辑应用名称和描述'],
         ['Gemini API Usage & Billing', 'Gemini API 用量和结算'],
         ['Generate images with Imagen', '使用 Imagen 生成图片'],
@@ -597,6 +605,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Select a Cloud Project', '选择一个 Google 云项目'],
         ['You can run this prompt from the', '您可以运行从'],
         [' Upload an instructions file ', ' 上传说明文件 '],
+        ['? This cannot be undone. ', '? 该操作不可撤销。'],
         ['“name” must be specified', '“name” 必须指定'],
         ['Are you sure you want to delete', '你确定要删除'],
         ['Gemini 2.5 Flash Audio', 'Gemini 2.5 Flash 音频'],
@@ -619,7 +628,6 @@ const EMBEDDED_TRANSLATIONS = {
         ['Input Tokens per day', '每天的输入 Tokens 次数'],
         ['Input/Output API Pricing', '输入/输出 API 定价'],
         ['Only one option is supported', '仅支持一个选项'],
-        ['? This cannot be undone. ', '该操作不可撤销。'],
         ['All Systems Operational', '所有系统均正常运行'],
         ['Generate videos with Veo', '使用 Veo 生成视频'],
         ['OpenAI SDK compatibility', 'OpenAI SDK 兼容性'],
@@ -664,6 +672,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Who can see my apps?', '谁能看到我的应用？'],
         ['Youthful, Higher pitch', '年轻的，较高音调'],
         ['A sci-fi movie poster', '一张科幻电影海报'],
+        ['An unknown error occurred', '发生未知错误'],
         ['Code Assistant messages', '代码助手的消息'],
         ['Combine images of flowers', '组合花卉图像'],
         ['Create generative media', '创建生成式媒体'],
@@ -671,6 +680,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Forward, Middle pitch', '有力的，中等音调'],
         ['Gemini API Billing', 'Gemini API 计费账单'],
         ['Gemma Terms of Use', '《 Gemma 使用条款》'],
+        ['Google Search Suggestions', '谷歌搜索建议'],
         ['Gravelly, Lower pitch', '沙哑的，较低音调'],
         ['Maximum output tokens', '最大输出Tokens数'],
         ['OpenAPI schema object', 'OpenAPI 架构对象'],
@@ -927,6 +937,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Visual Editor', '可视化编辑器'],
         ['YouTube Video', 'YouTube 视频'],
         [' Create project ', '创建项目'],
+        [' Generate media ', '生成媒体'],
         [' Import project ', '导入项目'],
         [' Save changes ', ' 保存更改 '],
         ['Choose a key', '选择一个密钥'],
@@ -954,6 +965,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Total tokens:', '总 Tokens：'],
         ['Video Analyzer', '视频分析器'],
         [' Back to start ', '返回开始'],
+        [' Enable saving ', '启用保存'],
         ['Are you sure?', '您确定吗？'],
         ['August 2024', '2024 年 8 月'],
         ['Billing Support', '结算支持'],
@@ -1223,6 +1235,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Take photo', '拍照'],
         ['Thinking', '思考中'],
         [' Settings', '设置'],
+        [' Sources ', '来源'],
         ['Light', '日间主题'],
         ['Reasoning', '推理'],
         ['Rerun', '重新运行'],
@@ -1645,6 +1658,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       return false;
     }
     function isElementBlocked(element) {
+      if (element.isContentEditable) return true;
       const tagName = element.tagName?.toLowerCase();
       if (blockedElements.has(tagName)) return true;
       if (element.classList) {
@@ -1663,7 +1677,12 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         if (isElementBlocked(current)) {
           return true;
         }
-        current = current.parentElement;
+        const root = current.getRootNode();
+        if (root instanceof ShadowRoot) {
+          current = root.host;
+        } else {
+          current = current.parentElement;
+        }
       }
       return false;
     }
@@ -1700,7 +1719,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       return translatedText;
     }
     function translateElementContent(element) {
-      if (!element || isElementBlocked(element) || element.isContentEditable) return false;
+      if (!element || isInsideBlockedElement(element)) return false;
       if (element.childElementCount > 0) return false;
       if (element.querySelector(Array.from(blockedElements).join(','))) return false;
       const fullText = element.textContent?.trim();
@@ -1720,11 +1739,11 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     }
     function translateElement(element) {
       if (!element || translatedElements.has(element) || !(element instanceof Element || element instanceof ShadowRoot)) return;
-      const tagName = element.tagName?.toLowerCase();
-      if (isElementBlocked(element) || element.isContentEditable) {
+      if (isInsideBlockedElement(element)) {
         translatedElements.add(element);
         return;
       }
+      const tagName = element.tagName?.toLowerCase();
       const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
       if (!isContentBlocked) {
         if (translateElementContent(element)) {
@@ -1733,20 +1752,11 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         }
         const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
           acceptNode: function (node) {
-            if (!node.nodeValue?.trim()) return NodeFilter.FILTER_REJECT;
-            const root = node.getRootNode();
-            if (root instanceof ShadowRoot) {
-              if (isElementBlocked(root.host) || root.host.isContentEditable) {
-                return NodeFilter.FILTER_REJECT;
-              }
+            if (!node.nodeValue?.trim()) {
+              return NodeFilter.FILTER_REJECT;
             }
-            let parent = node.parentElement;
-            while (parent) {
-              if (isElementBlocked(parent) || parent.isContentEditable) {
-                return NodeFilter.FILTER_REJECT;
-              }
-              if (parent === element) break;
-              parent = parent.parentElement;
+            if (isInsideBlockedElement(node.parentElement)) {
+              return NodeFilter.FILTER_REJECT;
             }
             return NodeFilter.FILTER_ACCEPT;
           },
@@ -1925,7 +1935,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         }
       });
       if (shouldCheckModel) {
-        setTimeout(() => detectModelChange(), 50);
+        setTimeout(() => detectModelChange(), 0);
       }
     });
     const whitelist = /* @__PURE__ */ new Set([...attributesToTranslate, ...customAttributes]);
