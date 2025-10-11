@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.62-2025-10-11-cdn
+// @version      1.0.63-2025-10-12-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -82,6 +82,7 @@ const EMBEDDED_TRANSLATIONS = {
         [/(\d+)\s*months?\s*ago/, '$1 个月前'],
         [/(\d+)\s*hours?\s*ago/, '$1 小时前'],
         [/(\d+)\s*seconds?\s*ago/, '$1 秒前'],
+        [/([\d,]+)\s*tokens/i, '$1 Tokens'],
         [/(\d+)\s*weeks?\s*ago/, '$1 周前'],
         [/(\d+)\s*years?\s*ago/, '$1 年前'],
         [/^Selected\s+(.+)$/i, '已选择 $1'],
@@ -944,6 +945,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Create new file', '创建新文件'],
         ['Dangerous Content', '危险内容'],
         ['Developer forum', '开发者论坛'],
+        ['Filter by Model', '按模型筛选'],
         ['Flashcard Maker', '闪卡制作器'],
         ['Format Document', '格式化文档'],
         ['Image Enhancement', '图像增强'],
@@ -1214,6 +1216,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Block none', '不屏蔽'],
         ['Checkpoint', '检查点'],
         ['Close?', '要关闭吗？'],
+        ['Extracting', '提取中'],
         ['Get code', '获取代码'],
         ['Identified', '已识别'],
         ['Instructions', '说明'],
