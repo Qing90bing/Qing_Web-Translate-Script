@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.53-2025-10-12-offline
+// @version      1.0.54-2025-10-12-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -5135,7 +5135,6 @@
       ['​ご注意ください。', '。'],
       ['\n2月22日', '\n2 月 22 日'],
       ['\n青写真', '\n蓝色的照片'],
-      ['\n愿你幸福', '\n祝你幸福'],
       ['\n子供の国', '\n孩童之国'],
       ['置き換えて', '进行替换'],
       ['ラブシック', 'Lovesick'],
