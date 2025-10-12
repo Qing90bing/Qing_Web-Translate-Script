@@ -160,7 +160,7 @@
     "lineLabel": " - Line: {0}",
     "contentLabel": " - Content: {0}",
     "separator": "--------------------------------------------------",
-    "highlightNote": "(highlighted part is new)",
+    "highlightNote": "Highlighted part shows the fix",
     "unknownSource": "Unknown Source",
     "unknownTranslation": "Unknown Translation",
     "lineRange": "(Line {0}-{1})",

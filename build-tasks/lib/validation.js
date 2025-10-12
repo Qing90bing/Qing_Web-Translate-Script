@@ -378,10 +378,8 @@ function validateFileContent(file, content, options) {
         const firstOccurrence = occurrences[0];
         const { originalValue, translationValue } = firstOccurrence;
 
-        // 截断长字符串，避免错误信息过长
-        const truncate = (str, len = 30) => (str.length > len ? `${str.substring(0, len)}...` : str);
-        const displayOriginal = truncate(originalValue);
-        const displayTranslation = truncate(translationValue);
+        const displayOriginal = originalValue;
+        const displayTranslation = translationValue;
 
         errors.push({
           file,
@@ -403,18 +401,15 @@ function validateFileContent(file, content, options) {
         // 从第一次出现的地方获取原文，用于生成更清晰的错误信息
         const firstOccurrence = occurrences[0];
         const originalParts = firstOccurrence.originalParts;
-
-        // 截断长字符串，避免错误信息过长
-        const truncate = (str, len = 30) => (str.length > len ? `${str.substring(0, len)}...` : str);
         
         // 根据是否是正则表达式来显示不同的格式
         let displayOriginal;
         if (originalParts.flags) {
           // 正则表达式显示为 /.../flags 格式
-          displayOriginal = truncate(`/${originalParts.pattern}/${originalParts.flags}`);
+          displayOriginal = `/${originalParts.pattern}/${originalParts.flags}`;
         } else {
           // 纯文本显示为字符串
-          displayOriginal = truncate(originalParts.pattern);
+          displayOriginal = originalParts.pattern;
         }
 
         errors.push({

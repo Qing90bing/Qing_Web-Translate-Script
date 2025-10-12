@@ -132,11 +132,17 @@ export async function promptForManualFix(duplicateErrors) {
     // 从错误对象中直接获取原文文本，避免依赖易变的错误消息格式。
     const originalText = error.occurrences[0].originalValue || t('validation.unknownSource');
     
-    // 1. 为每个出现的位置（occurrence）创建一个选项，显示其行号和行内容。
-    const choices = error.occurrences.map(occ => ({
-      name: t('prompting.choiceKeep', occ.line, occ.lineContent),
-      value: occ.line, // `value` 是该选项的实际返回值
-    }));
+    // 1. 计算最大行号长度以便对齐。
+    const maxLineLength = Math.max(...error.occurrences.map(occ => String(occ.line).length));
+
+    // 2. 为每个出现的位置（occurrence）创建一个选项，显示其行号和行内容。
+    const choices = error.occurrences.map(occ => {
+      const paddedLine = String(occ.line).padEnd(maxLineLength, ' ');
+      return {
+        name: t('prompting.choiceKeep', paddedLine, occ.lineContent),
+        value: occ.line, // `value` 是该选项的实际返回值
+      };
+    });
 
     // 2. 添加"跳过"和"退出"这两个特殊操作选项。
     choices.push(new inquirer.Separator());
@@ -381,7 +387,7 @@ ${error.lineContent}
 --------------------------
 
 +++ ${t('validation.contentLabel').split(':')[0]} ${t('validation.highlightNote')} +++
-${originalLine.trimEnd()}${color.green(',')}
+${color.green(fixedLine)}
 ${error.lineContent}
 ++++++++++++++++++++++++++`;
 
@@ -471,11 +477,7 @@ export async function promptForSingleCommaFix(error, remainingCount) {
   const relativeColumn = error.pos - lineStartPos;
 
   // 3. 构建带有颜色高亮的建议修复行，使新增的逗号在视觉上更醒目。
-  //    `\x1b[32m` 是设置颜色为绿色的转义码, `\x1b[0m` 是重置颜色的转义码。
-  const fixedLine =
-    errorLine.slice(0, relativeColumn) +
-    color.green(',') +
-    errorLine.slice(relativeColumn);
+  const fixedLine = errorLine.slice(0, relativeColumn) + ',' + errorLine.slice(relativeColumn);
   
   // 4. 构建完整的预览文本，包括原始问题代码和建议的修复方案。
   const preview = `
@@ -487,7 +489,7 @@ ${lineBelow}
 
 +++ ${t('validation.contentLabel').split(':')[0]} ${t('validation.highlightNote')} +++
 ${lineAbove}
-${fixedLine}
+${color.green(fixedLine)}
 ${lineBelow}
 ++++++++++++++++++++++++++++++++++`;
 
@@ -667,13 +669,16 @@ export async function promptForSourceDuplicateManualFix(sourceDuplicateErrors) {
     // 从错误对象中直接获取原文文本，避免依赖易变的错误消息格式。
     const originalText = error.occurrences[0].originalValue || t('validation.unknownSource');
     
-    // 1. 为每个出现的位置（occurrence）创建一个选项，显示其行号、对应的译文和行内容。
+    // 1. 计算最大行号长度以便对齐。
+    const maxLineLength = Math.max(...error.occurrences.map(occ => String(occ.line).length));
+
+    // 2. 为每个出现的位置（occurrence）创建一个选项，显示其行号、对应的译文和行内容。
     const choices = error.occurrences.map((occ, index) => {
       const translationText = occ.translationValue || t('validation.unknownTranslation');
-      const truncate = (str, len = 25) => (str.length > len ? `${str.substring(0, len)}...` : str);
-      const displayTranslation = truncate(translationText);
+      const displayTranslation = translationText;
+      const paddedLine = String(occ.line).padEnd(maxLineLength, ' ');
       return {
-        name: t('prompting.sourceDuplicateChoiceKeep', occ.line, originalText, displayTranslation),
+        name: t('prompting.sourceDuplicateChoiceKeep', paddedLine, originalText, displayTranslation),
         value: occ.line, // `value` 是该选项的实际返回值
       };
     });
@@ -752,13 +757,16 @@ export async function promptForSourceDuplicateManualFixImmediate(sourceDuplicate
     // 从错误对象中直接获取原文文本，避免依赖易变的错误消息格式。
     const originalText = error.occurrences[0].originalValue || t('validation.unknownSource');
     
-    // 1. 为每个出现的位置（occurrence）创建一个选项，显示其行号、对应的译文和行内容。
+    // 1. 计算最大行号长度以便对齐。
+    const maxLineLength = Math.max(...error.occurrences.map(occ => String(occ.line).length));
+
+    // 2. 为每个出现的位置（occurrence）创建一个选项，显示其行号、对应的译文和行内容。
     const choices = error.occurrences.map((occ, index) => {
       const translationText = occ.translationValue || t('validation.unknownTranslation');
-      const truncate = (str, len = 25) => (str.length > len ? `${str.substring(0, len)}...` : str);
-      const displayTranslation = truncate(translationText);
+      const displayTranslation = translationText;
+      const paddedLine = String(occ.line).padEnd(maxLineLength, ' ');
       return {
-        name: t('prompting.sourceDuplicateChoiceKeep', occ.line, originalText, displayTranslation),
+        name: t('prompting.sourceDuplicateChoiceKeep', paddedLine, originalText, displayTranslation),
         value: occ.line, // `value` 是该选项的实际返回值
       };
     });

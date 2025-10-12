@@ -160,7 +160,7 @@
     "lineLabel": " - 行號：{0}",
     "contentLabel": " - 內容：{0}",
     "separator": "--------------------------------------------------",
-    "highlightNote": "(反白部分為新增)",
+    "highlightNote": "高亮部分為修復後",
     "unknownSource": "未知來源",
     "unknownTranslation": "未知翻譯",
     "lineRange": "(第 {0}-{1} 行)",
