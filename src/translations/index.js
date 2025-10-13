@@ -14,6 +14,7 @@ import { claudeAiZhTw } from './zh-tw/claude.ai.js';
 import { geminiGoogleComZhCn } from './zh-cn/gemini.google.com.js';
 import { wwwAvogado6ComZhCn } from './zh-cn/www.avogado6.com.js';
 import { wplaceLiveZhCn } from './zh-cn/wplace.live.js';
+import { huggingfaceCoZhCn } from './zh-cn/huggingface.co.js';
 // 导出主翻译映射
 export const masterTranslationMap = {
   "jules.google.com#zh-cn": julesGoogleComZhCn,
@@ -31,4 +32,5 @@ export const masterTranslationMap = {
   "gemini.google.com#zh-cn": geminiGoogleComZhCn,
   "www.avogado6.com#zh-cn": wwwAvogado6ComZhCn,
   "wplace.live#zh-cn": wplaceLiveZhCn,
+  "huggingface.co#zh-cn": huggingfaceCoZhCn,
 };
