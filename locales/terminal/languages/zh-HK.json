@@ -18,7 +18,8 @@
     "checkSourceDuplicates": "🔧 檢查「原文重複」問題",
     "fullBuild": "🚀 構建插件專案 (不進行檢查)",
     "manageTranslations": "🗂️ 管理網站翻譯檔案",
-    "sortTranslations": "✨ 整理與排序翻譯檔案"
+    "sortTranslations": "✨ 整理與排序翻譯檔案",
+    "viewStatistics": "檢視專案統計數據"
   },
   "manageTranslationsMenu": {
     "title": "🗂️ 管理網站翻譯檔案",
@@ -353,5 +354,28 @@
     "invalidFileSelection": "❌ 無效的檔案選擇",
     "unknownSortKeyType": "未知的排序鍵類型：{0}",
     "invalidFormat": "無效格式"
+  },
+  "statistics": {
+    "selectLanguage": "請選擇您想檢視的語言：",
+    "websiteCount": "覆蓋 {0} 個網站",
+    "totalRules": "共 {0} 條翻譯",
+    "totalConfigs": "共 {0} 條設定",
+    "selectWebsite": "[{0}] 請選擇您想檢視的網站：",
+    "back": "↩️ 返回上一級",
+    "details": "詳情",
+    "rulesTitle": "規則統計",
+    "textRules": "純文字翻譯",
+    "regexRules": "正規表示式翻譯",
+    "rulesUnit": "條",
+    "configTitle": "設定統計",
+    "customAttributes": "擴展翻譯屬性",
+    "blockedElements": "已封鎖的元素",
+    "blockedAttributes": "已封鎖的屬性",
+    "extendedElements": "擴展翻譯元素",
+    "configUnit": "個",
+    "pressEnterToReturn": "按 Enter 鍵返回上一級",
+    "noData": "找不到可供統計的翻譯資料。",
+    "errorProcessingFile": "處理檔案 {0} 時出錯：",
+    "errorReadingDir": "讀取翻譯目錄時出錯："
   }
 }

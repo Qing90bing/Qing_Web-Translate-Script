@@ -36,6 +36,7 @@ import handleFullBuild from './build-tasks/tasks/build-project.js';
 import handleCdnBuild from './build-tasks/tasks/build-cdn.js';
 import handleManageTranslations from './build-tasks/tasks/translation/manage-translations.js';
 import handleSortTranslations from './build-tasks/tasks/translation/sort-translations.js';
+import handleStatistics from './build-tasks/tasks/statistics.js';
 
 
 /**
@@ -79,11 +80,12 @@ async function main() {
           { name: `7. ${color.cyan(t('actions.manageTranslations'))}`, value: 'manageTranslations' },
           { name: `8. ${color.magenta(t('actions.sortTranslations'))}`, value: 'sortTranslations' },
           new inquirer.Separator(color.dim(t('menu.terminalToolsSeparator'))),
+          { name: `📊 ${t('actions.viewStatistics')}`, value: 'viewStatistics' },
           { name: `🌐 ${t('menu.languageSetting')} ${currentLanguage ? `(${currentLanguage.name})` : `(${currentLanguageCode})`}`, value: 'terminalLanguage' },
           new inquirer.Separator(),
           { name: `9. ${color.cyan(t('menu.exit'))}`, value: 'exit' },
         ],
-        pageSize: 20, // 增加列表显示行数，避免滚动。
+        pageSize: 25, // 增加列表显示行数，避免滚动。
       },
     ]);
 
@@ -121,6 +123,10 @@ async function main() {
       case 'sortTranslations':
         await handleSortTranslations();
         shouldPause = false; // 排序任务也有自己的暂停逻辑。
+        break;
+      case 'viewStatistics':
+        await handleStatistics();
+        shouldPause = false;
         break;
       case 'terminalLanguage':
         await handleTerminalLanguage();

@@ -18,7 +18,8 @@
     "checkSourceDuplicates": "🔧 Check \"Source Duplicates\" Issues",
     "fullBuild": "🚀 Build Plugin Project (without checks)",
     "manageTranslations": "🗂️ Manage Website Translation Files",
-    "sortTranslations": "✨ Organize & Sort Translation Files"
+    "sortTranslations": "✨ Organize & Sort Translation Files",
+    "viewStatistics": "View Project Statistics"
   },
   "manageTranslationsMenu": {
     "title": "🗂️ Manage Website Translation Files",
@@ -353,5 +354,28 @@
     "invalidFileSelection": "❌ Invalid file selection",
     "unknownSortKeyType": "Unknown sort key type: {0}",
     "invalidFormat": "Invalid format"
+  },
+  "statistics": {
+    "selectLanguage": "Please select a language to view:",
+    "websiteCount": "Covers {0} websites",
+    "totalRules": "{0} translations",
+    "totalConfigs": "{0} configurations",
+    "selectWebsite": "[{0}] Please select a website to view:",
+    "back": "↩️ Back to previous",
+    "details": "Details",
+    "rulesTitle": "Rule Statistics",
+    "textRules": "Plain Text ",
+    "regexRules": "Regular Expression",
+    "rulesUnit": "rules",
+    "configTitle": "Configuration Statistics",
+    "customAttributes": "Extended Attributes",
+    "blockedElements": "Blocked Elements",
+    "blockedAttributes": "Blocked Attributes",
+    "extendedElements": "Extended Elements",
+    "configUnit": "items",
+    "pressEnterToReturn": "Press Enter to return",
+    "noData": "No translation data found for statistics.",
+    "errorProcessingFile": "Error processing file {0}:",
+    "errorReadingDir": "Error reading translations directory:"
   }
 }

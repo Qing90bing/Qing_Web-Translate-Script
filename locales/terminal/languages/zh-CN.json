@@ -18,7 +18,8 @@
     "checkSourceDuplicates": "🔧 检查\"原文重复\"问题",
     "fullBuild": "🚀 构建插件项目 (不包含检查)",
     "manageTranslations": "🗂️ 管理网站翻译文件",
-    "sortTranslations": "✨ 整理与排序翻译文件"
+    "sortTranslations": "✨ 整理与排序翻译文件",
+    "viewStatistics": "查看项目统计数据"
   },
   "manageTranslationsMenu": {
     "title": "🗂️ 管理网站翻译文件",
@@ -353,5 +354,28 @@
     "invalidFileSelection": "❌ 无效的文件选择",
     "unknownSortKeyType": "未知的排序键类型: {0}",
     "invalidFormat": "无效的格式"
+  },
+  "statistics": {
+    "selectLanguage": "请选择您想查看的语言:",
+    "websiteCount": "覆盖 {0} 个网站",
+    "totalRules": "共 {0} 条翻译",
+    "totalConfigs": "共 {0} 条配置",
+    "selectWebsite": "[{0}] 请选择您想查看的网站:",
+    "back": "↩️ 返回上一级",
+    "details": "详情",
+    "rulesTitle": "规则统计",
+    "textRules": "纯文本翻译",
+    "regexRules": "正则表达式翻译",
+    "rulesUnit": "条",
+    "configTitle": "配置统计",
+    "customAttributes": "扩展翻译属性",
+    "blockedElements": "屏蔽的元素",
+    "blockedAttributes": "屏蔽的属性",
+    "extendedElements": "扩展翻译元素",
+    "configUnit": "个",
+    "pressEnterToReturn": "按回车键返回上一级",
+    "noData": "未找到可供统计的翻译数据。",
+    "errorProcessingFile": "处理文件 {0} 时出错:",
+    "errorReadingDir": "读取翻译目录时出错:"
   }
 }
