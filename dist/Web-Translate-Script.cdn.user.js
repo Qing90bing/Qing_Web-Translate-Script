@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.66-2025-10-13-cdn
+// @version      1.0.67-2025-10-13-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -78,7 +78,6 @@ const EMBEDDED_TRANSLATIONS = {
         [/Edit\s+([\w-]+\.[\w.-]+)/i, '编辑 $1'],
         [/(\d+)\s*minutes?\s*ago/, '$1 分钟前'],
         [/(\d+)h\s+(\d+)m/i, '$1 小时 $2 分钟'],
-        [/(\d+\s+generations?)\b/gi, '$1 生成'],
         [/(\d+)\s*months?\s*ago/, '$1 个月前'],
         [/(\d+)\s*hours?\s*ago/, '$1 小时前'],
         [/(\d+)\s*seconds?\s*ago/, '$1 秒前'],

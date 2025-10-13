@@ -98,7 +98,6 @@ export const aistudioGoogleComZhCn = {
     [/Edit\s+([\w-]+\.[\w.-]+)/i, "编辑 $1"],
     [/(\d+)\s*minutes?\s*ago/, "$1 分钟前"],
     [/(\d+)h\s+(\d+)m/i, "$1 小时 $2 分钟"],
-    [/(\d+\s+generations?)\b/gi, "$1 生成"],
     [/(\d+)\s*months?\s*ago/, "$1 个月前"],
     [/(\d+)\s*hours?\s*ago/, "$1 小时前"],
     [/(\d+)\s*seconds?\s*ago/, "$1 秒前"],
