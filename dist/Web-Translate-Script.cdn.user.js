@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.68-2025-10-14-cdn
+// @version      1.0.69-2025-10-14-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -293,6 +293,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Users are experiencing throttling issues with Gemini 2.0 Flash.', '用户正遇到 Gemini 2.0 Flash 的限流问题'],
         ['Peak usage per model compared to its limit over the last 7 days', '模型过去 7 天内的使用量与其限制的对比'],
         ['You need to create and run a prompt in order to share it', '您需要先创建并运行提示词，然后才能进行分享。'],
+        [' Closing the chat will lose the data. Do you want to continue? ', '关闭聊天将丢失数据，您确定要继续吗？'],
         [' Users are experiencing throttling issues with Gemini 1.5 Pro. ', '用户正遇到 Gemini 1.5 Pro 的限流问题'],
         ['Drag, drop, and visualize any product in your personal space.', '在您的个人空间中拖放并可视化任何产品。'],
         ['Gemini API and AI Studio File Service / Veo outages.', 'Gemini API 和 AI Studio 文件服务 / Veo 服务中断'],
