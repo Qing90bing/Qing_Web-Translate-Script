@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.59-2025-10-14-offline
+// @version      1.0.60-2025-11-1-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -131,6 +131,7 @@
       ['Feedback submitted will include your conversation and related code.', '您提交的反馈将包含本次对话和相关的代码。'],
       ['Work with Jules to deeply understand goals before plan generation', '在生成计划前，与 Jules 深入沟通以明确目标'],
       ['Chat with Jules to understand goals before planning and approval', '在规划和审批前，先与 Jules 沟通以明确目标'],
+      ['All plan steps have been successfully completed. Ready for submission.', '所有计划步骤已成功完成，准备提交。'],
       ['Allow AI model training on content from public repositories', '允许 AI 模型使用公开代码库的内容进行训练'],
       ['e.g., add test coverage when creating new api endpoints', '例如，在创建新的 API 端点时添加测试覆盖率'],
       [' any API keys found to be publicly exposed to prevent abuse. ', '任何被发现公开发布的 API 密钥'],
@@ -192,6 +193,7 @@
       [' Are you sure you want to delete ', '确定要删除'],
       ['environment setup documentation', '环境配置文档'],
       ['Search for repo or sessions', '搜索代码库或会话'],
+      ['All plan steps completed', '所有计划步骤已完成'],
       ['Running code review ...', '正在进行代码审查...'],
       ['Jules is planning...', 'Jules 正在制定计划...'],
       ['Find an environment variable', '查找环境变量'],
