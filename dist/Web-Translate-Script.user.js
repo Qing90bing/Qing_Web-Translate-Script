@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.60-2025-11-1-offline
+// @version      1.0.60-2025-11-24-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -8115,8 +8115,15 @@
   var ALL_UNTRANSLATABLE_TAGS = new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
   var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
   var BLOCKED_CSS_CLASSES = new Set(['notranslate', 'kbd']);
-  function createTranslator(textMap, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = []) {
-    let textTranslationMap = textMap;
+  function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = []) {
+    const textTranslationMap = new Map();
+    if (Array.isArray(textRules)) {
+      for (const rule of textRules) {
+        if (Array.isArray(rule) && rule.length === 2 && typeof rule[0] === 'string' && typeof rule[1] === 'string') {
+          textTranslationMap.set(rule[0].trim(), rule[1]);
+        }
+      }
+    }
     let regexRules = regexArr;
     let translationCache = new Map();
     let translatedElements = new WeakSet();
@@ -8551,14 +8558,8 @@
   function initializeTranslation(siteDictionary, createTranslator2, removeAntiFlickerStyle2, initializeObservers2, log2) {
     const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
     log2(`开始初始化翻译流程，使用语言: ${language || 'unknown'}`);
-    const textTranslationMap = new Map();
-    for (const rule of textRules) {
-      if (Array.isArray(rule) && rule.length === 2 && typeof rule[0] === 'string' && typeof rule[1] === 'string') {
-        textTranslationMap.set(rule[0].trim(), rule[1]);
-      }
-    }
-    if (textTranslationMap.size > 0) {
-      log2(`加载了 ${textTranslationMap.size} 条文本翻译规则`);
+    if (textRules && textRules.length > 0) {
+      log2(`加载了 ${textRules.length} 条文本翻译规则`);
     }
     if (cssRules.length > 0) {
       const customStyleElement = document.createElement('style');
@@ -8584,7 +8585,7 @@
         log2(`执行了 ${executedScripts} 条自定义JS脚本`);
       }
     }
-    const translator = createTranslator2(textTranslationMap, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes);
+    const translator = createTranslator2(textRules, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes);
     function startTranslation() {
       if (document.body) {
         initializeFullTranslation();

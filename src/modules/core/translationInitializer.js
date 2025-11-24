@@ -39,17 +39,9 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
     log(`开始初始化翻译流程，使用语言: ${language || 'unknown'}`);
 
     // --- 步骤 1: 预处理翻译规则 ---
-    // 将纯文本翻译规则放入一个 Map 中，以实现 O(1) 的查找复杂度，显著提高翻译性能。
-    const textTranslationMap = new Map();
-    for (const rule of textRules) {
-        if (Array.isArray(rule) && rule.length === 2 && typeof rule[0] === 'string' && typeof rule[1] === 'string') {
-            // 对原文进行 trim() 处理，可以避免因前后空格不一致导致的匹配失败问题。
-            textTranslationMap.set(rule[0].trim(), rule[1]);
-        }
-    }
-    
-    if (textTranslationMap.size > 0) {
-        log(`加载了 ${textTranslationMap.size} 条文本翻译规则`);
+    // (逻辑已移动至 translator.js 内部，以增强封装性)
+    if (textRules && textRules.length > 0) {
+        log(`加载了 ${textRules.length} 条文本翻译规则`);
     }
 
     // --- 步骤 2: 注入自定义资源 ---
@@ -87,7 +79,7 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
     // --- 步骤 3: 创建翻译器实例 ---
     // 将处理好的规则传递给翻译器工厂函数，创建一个包含特定网站翻译逻辑的翻译器实例。
     // 此处将 extendedElements, customAttributes, 和 blockedAttributes 作为参数传入。
-    const translator = createTranslator(textTranslationMap, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes);
+    const translator = createTranslator(textRules, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes);
 
     // --- 步骤 4: 协调并启动翻译流程 ---
 

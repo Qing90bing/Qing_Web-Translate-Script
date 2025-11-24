@@ -28,10 +28,20 @@ import { log, debug, translateLog, perf } from '../utils/logger.js';
  * @param {string[]} [blockedSelectors=[]] - 针对当前网站的、额外的禁止翻译的 CSS 选择器数组。
  * @returns {{translate: Function, resetState: Function, deleteElement: Function}} - 返回一个包含翻译 API 的对象。
  */
-export function createTranslator(textMap, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = []) {
+export function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = []) {
     // --- 模块内部状态 ---
     // 通过闭包来管理每个翻译器实例的状态，确保实例之间互不干扰。
-    let textTranslationMap = textMap;
+
+    // 预处理翻译规则：将纯文本规则转换为 Map 以实现 O(1) 查找
+    const textTranslationMap = new Map();
+    if (Array.isArray(textRules)) {
+        for (const rule of textRules) {
+            if (Array.isArray(rule) && rule.length === 2 && typeof rule[0] === 'string' && typeof rule[1] === 'string') {
+                textTranslationMap.set(rule[0].trim(), rule[1]);
+            }
+        }
+    }
+
     let regexRules = regexArr;
     let translationCache = new Map(); // 缓存已翻译的文本片段，避免对相同文本的重复计算。
     let translatedElements = new WeakSet(); // 使用 WeakSet 存储已处理过的元素节点，防止重复翻译，且不会阻止垃圾回收。
