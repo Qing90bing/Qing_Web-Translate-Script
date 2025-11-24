@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.60-2025-11-24-offline
+// @version      1.0.70-2025-11-24-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -8236,19 +8236,29 @@
           translatedElements.add(element);
           return;
         }
-        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
           acceptNode: function (node) {
-            if (!node.nodeValue?.trim()) {
-              return NodeFilter.FILTER_REJECT;
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              if (isElementBlocked(node)) {
+                return NodeFilter.FILTER_REJECT;
+              }
+              return NodeFilter.FILTER_SKIP;
             }
-            if (isInsideBlockedElement(node.parentElement)) {
-              return NodeFilter.FILTER_REJECT;
+            if (node.nodeType === Node.TEXT_NODE) {
+              if (!node.nodeValue?.trim()) {
+                return NodeFilter.FILTER_REJECT;
+              }
+              return NodeFilter.FILTER_ACCEPT;
             }
-            return NodeFilter.FILTER_ACCEPT;
+            return NodeFilter.FILTER_SKIP;
           },
         });
         const nodesToTranslate = [];
-        while (walker.nextNode()) nodesToTranslate.push(walker.currentNode);
+        while (walker.nextNode()) {
+          if (walker.currentNode.nodeType === Node.TEXT_NODE) {
+            nodesToTranslate.push(walker.currentNode);
+          }
+        }
         if (nodesToTranslate.length > 0) {
           nodesToTranslate.forEach((textNode) => {
             const originalText = textNode.nodeValue;

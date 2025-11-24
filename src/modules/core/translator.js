@@ -244,24 +244,44 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                 return;
             }
 
-            // 如果整段翻译不适用，则回退到标准的 `TreeWalker` 遍历。
-            const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+            // 核心性能优化：
+            // 将过滤器改为 SHOW_ELEMENT | SHOW_TEXT，利用 TreeWalker 的剪枝能力。
+            // 当检测到某个元素被屏蔽时，直接返回 FILTER_REJECT，这会让 TreeWalker 完全跳过该元素及其所有后代，
+            // 极大地减少了遍历次数和 isInsideBlockedElement 的调用。
+            const walker = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
                 acceptNode: function (node) {
-                    // 基本过滤条件：非空文本节点
-                    if (!node.nodeValue?.trim()) {
-                        return NodeFilter.FILTER_REJECT;
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        // 如果元素本身被屏蔽，拒绝并跳过其整个子树。
+                        // 注意：这里不需要再递归调用 isInsideBlockedElement，因为如果是被屏蔽元素的子节点，
+                        // 它的父节点（即当前节点）之前就已经被 REJECT 了，根本不会走到这里。
+                        if (isElementBlocked(node)) {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+                        // 否则，跳过元素本身（因为我们只关心文本节点），但继续遍历其子节点。
+                        return NodeFilter.FILTER_SKIP;
                     }
-                    // 核心检查：使用新的、更健壮的函数来检查该文本节点的父元素是否位于任何“翻译禁区”内。
-                    // 这样就统一了对常规 DOM 和 Shadow DOM 的处理。
-                    if (isInsideBlockedElement(node.parentElement)) {
-                        return NodeFilter.FILTER_REJECT;
+                    
+                    // 对于文本节点：
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        if (!node.nodeValue?.trim()) {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+                        // 文本节点的父元素已经在上方通过检查（或其祖先通过检查），因此这里是安全的。
+                        // 除非有非常特殊的 CSS 继承覆盖（极少见），否则不需要再次检查父元素。
+                        return NodeFilter.FILTER_ACCEPT;
                     }
-                    return NodeFilter.FILTER_ACCEPT;
+                    
+                    return NodeFilter.FILTER_SKIP;
                 }
             });
 
             const nodesToTranslate = [];
-            while (walker.nextNode()) nodesToTranslate.push(walker.currentNode);
+            while (walker.nextNode()) {
+                // 由于我们同时监听了 ELEMENT 和 TEXT，我们需要确保只收集 TEXT 节点
+                if (walker.currentNode.nodeType === Node.TEXT_NODE) {
+                    nodesToTranslate.push(walker.currentNode);
+                }
+            }
             
             if (nodesToTranslate.length > 0) {
                 nodesToTranslate.forEach(textNode => {
