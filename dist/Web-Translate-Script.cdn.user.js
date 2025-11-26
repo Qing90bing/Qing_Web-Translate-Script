@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.80-2025-11-24-cdn
+// @version      1.0.80-2025-11-26-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT

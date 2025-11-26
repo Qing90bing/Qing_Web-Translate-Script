@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.70-2025-11-24-offline
+// @version      1.0.70-2025-11-26-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -34,8 +34,11 @@
 
 (() => {
   var julesGoogleComZhCn = {
+    description: '此翻译配置适用于 jules.google.com 网站的本地化。',
+    testUrl: 'https://jules.google.com/',
+    createdAt: '2025-08-21',
     language: 'zh-cn',
-    enabled: true,
+    enabled: !0,
     styles: ['.feedback-button { width: auto !important; white-space: nowrap !important; }'],
     blockedElements: ['.view-lines'],
     extendedElements: [],
@@ -77,6 +80,7 @@
       [/Mar\s+(\d{1,2})\s+(\d{2}:\d{2})/, '3 月 $1 日 $2'],
       [/May\s+(\d{1,2})\s+(\d{2}:\d{2})/, '5 月 $1 日 $2'],
       [/Sep\s+(\d{1,2})\s+(\d{2}:\d{2})/, '9 月 $1 日 $2'],
+      [/Completed\s+(\d+)\s+months?\s+ago/, '$1 个月前完成'],
       [/(\d+)\s*memories?\s*updated/i, '$1 条记忆已更新'],
       [/Completed\s+(\d+)\s+days?\s+ago/i, '$1 天前完成'],
       [/Updated\s*(\d+)\s*hours?\s*ago/, '$1 小时前更新'],
@@ -325,10 +329,47 @@
       ['Learn more', '了解更多'],
       ['Pause task', '暂停任务'],
       ['Configuration', '配置'],
+      ['Get started without plan approval', '无需计划审批即可开始'],
+      [' Start ', '立即开始'],
+      ['Auto-generate PR', '自动生成合并请求'],
+      ['Meet Jules: your autonomous coding agent.', 'Jules 是一个自主编码代理'],
+      [' Jules will research, code, test, and then submit changes for review. Focus on what you care about while Jules works! ', 'Jules 会研究、编码、测试，然后提交变更以供审核。在 Jules 工作时，专注于你关心的问题！'],
       ['Knowledge', '知识记忆'],
+      [" I'd like to receive emails for model updates, offers, useful tips and news about Google AI. ", '我想接收关于 Google AI 的模型更新、优惠、有用提示和新闻'],
+      [" I'd like to receive invitations to participate in research studies to help improve Google AI. ", '我想接收关于 Google AI 研究研究的邀请，以帮助改进 Google AI'],
+      ['Data settings', '数据设置'],
+      [' Export settings ', '导出设置'],
+      [' Set your preferences for how Jules should export the task when it is completed. ', '设置当任务完成时，Jules 应该如何导出任务'],
+      [' Export as pull request ', '导出为合并请求'],
+      ['Save and close', '保存并关闭'],
+      ['Choose a repo', '选择一个代码仓库'],
+      [' Configure repo access ', '配置代码仓库访问'],
+      ['Session is completed', '会话已完成'],
+      ['Choose a base branch', '选择一个基础分支'],
+      ['No results found', '未找到结果'],
+      [' Archived ', '已归档'],
+      ['Unarchive', '取消归档'],
+      ['Delete permanently', '永久删除'],
+      ['Task unarchived successfully.', '任务已取消归档'],
+      ['Task archived successfully.', '任务已归档'],
+      ['Archive', '归档'],
+      [' Read-only ', '只读'],
+      ['Completed sessions will show up here', '已完成的会话将显示在这里'],
+      ['Archived sessions will show up here', '已归档的会话将显示在这里'],
+      ['Attach repo', '选择代码仓库'],
+      [' All ', '全部'],
+      [' In progress ', '进行中'],
+      [' Complete ', '已完成'],
+      ['Detach repo', '不选择代码仓库'],
+      ['Download zip', '下载 ZIP 文件'],
+      ['Hide Panel', '隐藏面板'],
+      ['Show Panel', '显示面板'],
+      ['1 memory updated', '1 条记忆已更新'],
+      ['Jules is awaiting your review', 'Jules 正在等待您的审核'],
       ['Last used', '上次使用'],
       ['Load More', '加载更多'],
       ['Thinking', '思考中...'],
+      [' Upload directory', '上传目录'],
       ['View less', '查看折叠'],
       ['View more', '查看更多'],
       ['Created at', '创建于'],
@@ -395,8 +436,11 @@
     ],
   };
   var aistudioGoogleComZhCn = {
+    description: '此翻译配置适用于 aistudio.google.com 网站的本地化。',
+    testUrl: 'https://aistudio.google.com/',
+    createdAt: '2025-08-21',
     language: 'zh-cn',
-    enabled: true,
+    enabled: !0,
     styles: [],
     blockedElements: ['.view-line', '.very-large-text-container', '.name-btn'],
     extendedElements: [],
@@ -404,12 +448,21 @@
     blockedAttributes: ['ms-prompt-chunk'],
     jsRules: [],
     regexRules: [
-      [/↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  换行\nAlt + ↩  追加文本 (不执行)\nCtrl + ↩  执行指令'],
+      [
+        /↩\s*Add a new line\s*\n\s*Alt\s*\+\s*↩\s*Append text without running\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i,
+        `↩  换行
+Alt + ↩  追加文本 (不执行)
+Ctrl + ↩  执行指令`,
+      ],
       [/Invalid JSON: SyntaxError: Unexpected token '(.+?)', "(.+?)" is not valid JSON/i, '无效的 JSON 语法错误：在 “$2” 中存在意外的字符 “$1”'],
       [/([<>]=?)\s*(\d+K)\s+tokens\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '$1$2 Tokens | 输入: $$ $3 / 输出: $$ $4'],
       [/Image \(\*Output per image\) • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, '图像 (*每张图片输出) | 输入: $$ $1 / 输出: $$ $2'],
       [/All context lengths\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '所有上下文长度 | 输入: $$ $1 / 输出: $$ $2'],
-      [/↩\s*Add a new line\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  换行\nCtrl + ↩  执行指令'],
+      [
+        /↩\s*Add a new line\s*\n\s*Ctrl\s*\+\s*↩\s*Run prompt/i,
+        `↩  换行
+Ctrl + ↩  执行指令`,
+      ],
       [/Text • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, '文本 | 输入：$$ $1，输出：$ $2'],
       [/Last modified:\s*(\d{4})\/(\d{1,2})\/(\d{1,2})/, '最后修改于：$1 年 $2 月 $3 日'],
       [/Knowledge cut off:\s+(\d{1,2})月\s+(\d{4})/i, '知识截止日期: $2 年 $1 月'],
@@ -480,7 +533,18 @@
       ['Deploy your app as a Cloud Run Service. The app will be accessible via a public URL. Your API key will not be exposed in the app, but will be used by the application', '将您的应用部署为 Cloud Run 服务后，即可通过一个公开网址访问。您的 API 密钥不会在应用中泄露，但会被后端服务使用。'],
       [' deploy your app like this, as any user will be able to see the API key. To make an app run securely outside of AI Studio requires ', '这种方式部署应用程序，因为任何用户都能看到 API 密钥。要使应用程序在 AI Studio 外部安全运行，需要将部分逻辑移至服务器端，从而避免 API 密钥暴露。'],
       ['Deploy your app as a Cloud Run Service. The app will be accessible via a public URL. Your API key will not be exposed in the app, but will be used by the application.', '将您的应用部署为 Cloud Run 服务。该应用将通过公共 URL 访问。您的 API 密钥不会暴露在应用中，但会被应用使用'],
-      ['// An example instruction set for a model\n\nYou will always:\n* Use emojis instead of SVG icons\n* Do not change model strings found in code\n* Avoid using gradients', '// 模型示例指令集\n\n您必须始终：\n* 使用表情符号替代SVG图标\n* 不得修改代码中存在的模型字符串\n* 避免使用渐变效果'],
+      [
+        `// An example instruction set for a model
+You will always:
+* Use emojis instead of SVG icons
+* Do not change model strings found in code
+* Avoid using gradients`,
+        `// 模型示例指令集
+您必须始终：
+* 使用表情符号替代SVG图标
+* 不得修改代码中存在的模型字符串
+* 避免使用渐变效果`,
+      ],
       ['Apps run in your browser in a sandboxed iframe. There is no server-side component. To run an app that requires additional services such as a backend, consider using', '应用在您浏览器中的沙盒化 iframe 中运行。没有服务器端组件。要运行需要额外服务（例如后端）的应用，请考虑使用'],
       ['When you share an app with another user, they will be able to see all of its source code. Ensure that your code does not contain any sensitive information, such as API keys.', '当您与其他用户分享应用时，他们将能看到全部源代码。请确保您的代码不含任何敏感信息，例如 API 密钥。'],
       ['Individual customer availability may vary depending on billing status and surface used: free tier, billed tier, as well as the chosen model and API features in use.', '您能使用的具体功能，取决于您的账户类型 (例如免费或付费套餐)、所选择的模型以及正在使用的特定 API 功能。'],
@@ -541,13 +605,21 @@
       ["You don't have any Google Cloud projects with a paid quota tier. If you want to use the paid tier,", '您没有任何已启用付费方案的 Google Cloud 项目。如果您想使用付费方案，'],
       [" “An evocative image of an English afternoon tea table with newspaper headline of 'Gemini 2.5' ...” ", '“一张引人入胜的英式下午茶桌图片，报纸头条为‘Gemini 2.5’...”'],
       ['Explore an infinite wiki where every word is a hyperlink to descriptions generated in real-time.', '探索一个无限的知识库，其中每个词都是一个超链 接，指向实时生成的解释。'],
-      ['Lets you define functions that Gemini can call\n\n This tool is not compatible with the current active tools.', '允许您定义 Gemini 可调用的函数，此工具与当前活动工具不兼容'],
+      [
+        `Lets you define functions that Gemini can call
+ This tool is not compatible with the current active tools.`,
+        '允许您定义 Gemini 可调用的函数，此工具与当前活动工具不兼容',
+      ],
       ['Start building with Gemini, try “Build me an AI photo editing app using Nano Banana”', '使用 Gemini 开始构建，尝试“使用 Nano Banana 为我构建一个 AI 照片编辑应用程序”'],
       ['Let Gemini adapt its response style to the input expression and tone', '让 Gemini 的回应更有“人情味”。它会尝试感知您的情绪和语气，并用相应的风格来回应，使交流更有共鸣'],
       ["No speakers detected. Please ensure your script's speaker names are also set in the right sidebar.", '未检测到发言人。请确保您已在右侧边栏中设置了脚本对应的发言人名称。'],
       ['Set how much the model should think, with 32768 being as much as possible', '设定模型的“思考”计算量 (上限 32768)。更高的值能提升复杂推理能力，但会增加费用和响应时间。'],
       ['Builds apps using the SDK without a key, try “an image generator that uses Imagen”', '无需 API 密钥即可使用 SDK 构建应用，例如试试“一个使用 Imagen 的图片生成器”。'],
-      ['Lets Gemini use code to solve complex tasks\n\n This tool is not compatible with the current active tools.', '让 Gemini 用代码解决复杂的任务，此工具与当前活动工具不兼容'],
+      [
+        `Lets Gemini use code to solve complex tasks
+ This tool is not compatible with the current active tools.`,
+        '让 Gemini 用代码解决复杂的任务，此工具与当前活动工具不兼容',
+      ],
       ['Chat with Gemini to explore and understand the Gemini API documentation using the URL Context tool.', '与 Gemini 聊天，使用URL上下文工具探索和理解 Gemini API 文档。'],
       ['Enable a sliding context window to automatically shorten chat history by removing the oldest turns.', '启用滑动上下文窗口，通过移除最早的对话轮次来自动精简聊天记录'],
       ['Extra text was returned in Gemini API responses and on AI Studio with Gemini 2.5 models.', '在使用 Gemini 2.5 模型的 Gemini API 响应和 AI Studio 中返回了额外的文本'],
@@ -555,7 +627,11 @@
       ['A playground to discover the range of creative voices that the Gemini native audio out has to offer.', '一个可以体验 Gemini 原生音频各种创意声音 的“游乐场”。'],
       ['. Note that some older packages not designed as ES modules (ESM) may not work correctly. ', '。请注意，一些未设计为 ES 模块 (ESM) 的旧软件包可能无法正常工作。'],
       ['Further investigation determined the issue affected all Drive-generated links for AI Studio.', '进一步调查确定该问题影响了所有为 AI Studio 生成的云端硬盘链接'],
-      ['Sources are provided when a significant portion of the model response\n  comes from a particular source.', '当模型响应的显著部分来自特定来源时，将提供来源信息'],
+      [
+        `Sources are provided when a significant portion of the model response
+  comes from a particular source.`,
+        '当模型响应的显著部分来自特定来源时，将提供来源信息',
+      ],
       [' apply to use of apps featured on the Showcase tab in AI Studio, unless otherwise noted. ', '适用于 AI Studio“展示”选项卡中特色应用的使用，除非另有说明。'],
       ['Are you sure you want to delete your prompt and generated output? This action cannot be undone.', '您确定要删除您的提示词和已生成的内容吗？此操作无法撤销。'],
       ['Usage is only reflective of Imagen and Veo requests. Other request types are not yet supported.', '使用情况仅反映 Imagen 和 Veo 请求，其他请求类型尚未支持'],
@@ -594,11 +670,19 @@
       ['Users are experiencing throttling issues with Gemini 1.5 Pro and Flash models.', '用户正遇到 Gemini 1.5 Pro 和 Flash 模型的限流问题'],
       ['Explore a retro OS that brings back nostalgic memories with an AI twist.', '探索一款复古操作系统，体验 AI 为其注入的全新怀旧风情。'],
       ['Throttling issues with Gemini 2.0 Flash and 1.5 Pro models have been resolved.', 'Gemini 2.0 Flash 和 1.5 Pro 模型的限流问题已解决'],
-      ['Browse the url context\n\n This tool is not compatible with the current active tools.', '浏览网址上下文，此工具与当前活动工具不兼容'],
+      [
+        `Browse the url context
+ This tool is not compatible with the current active tools.`,
+        '浏览网址上下文，此工具与当前活动工具不兼容',
+      ],
       ["Don't use a real API key in your app. Use a placeholder value instead.", '请勿在您的应用中使用真实的 API 密钥，而应使用占位符值。'],
       ['Your prompt is being queued. Your generated video will appear here shortly', '您的提示词已加入队列。生成的视频稍后将在此处显示。'],
       [' Gemini 2.5 Flash Image, state-of-the-art image generation and editing ', ' Gemini 2.5 Flash Image，最先进的图像生成和编辑模型'],
-      ['Use Google Search\n\n This tool is not compatible with the current active tools.', '使用 Google 搜索，此工具与当前活动工具不兼容'],
+      [
+        `Use Google Search
+ This tool is not compatible with the current active tools.`,
+        '使用 Google 搜索，此工具与当前活动工具不兼容',
+      ],
       ['Our most balanced multimodal model with great performance across all tasks.', '我们最均衡的多模态模型，在所有任务中都表现出色'],
       [' Display of Search Suggestions is required when using Grounding with Google Search. ', '使用 Google 搜索时，显示搜索建议功能'],
       ['Our smallest and most cost effective model, built for at scale usage.', '我们最小、最具成本效益的模型，专为大规模使用而构建'],
@@ -797,7 +881,12 @@
       ["Define what you don't want to see", '描述您不希望在生成内容中看到的事物'],
       ['Enable folding to collapse code blocks.', '启用代码折叠功能以收起代码块'],
       ['Screenshot will be added to your prompt', '屏幕截图将添加到您的提示词中'],
-      ['Submit: Enter\nNewline: Shift + Enter', '提交：Enter\n换行：Shift + Enter'],
+      [
+        `Submit: Enter
+Newline: Shift + Enter`,
+        `提交：Enter
+换行：Shift + Enter`,
+      ],
       ['The ratio of width to height of the generated image', '生成图片的宽高比'],
       [' Fetch real-time information from web links ', '从网页链接获取实时信息'],
       ['An image of a fictional soda advertisement', '一张虚构的苏打水广告图片'],
@@ -812,7 +901,12 @@
       ['Image to a JSON structured recipe', '将食材图片转换为 JSON 格式的食谱'],
       ['Insert an image to add it to your prompt.', '将图片添加至您的提示词中'],
       ['Show conversation without markdown formatting', '以纯文本格式显示对话'],
-      ['Submit: Ctrl + Enter\nNewline: Enter', '提交：Ctrl + Enter\n换行：Enter'],
+      [
+        `Submit: Ctrl + Enter
+Newline: Enter`,
+        `提交：Ctrl + Enter
+换行：Enter`,
+      ],
       ['Test if AI knows which number is bigger', '测试 AI 是否能判断数字大小'],
       [', so the API key is no longer exposed. ', '因此， API 密钥不再暴露。'],
       ['Ask questions about key details in a video', '就视频中的关键细节提问'],
@@ -1736,8 +1830,11 @@
     ],
   };
   var claudeAiZhCn = {
+    description: '此翻译配置适用于 claude.ai 网站的本地化。',
+    testUrl: 'https://claude.ai/',
+    createdAt: '2025-08-21',
     language: 'zh-cn',
-    enabled: true,
+    enabled: !0,
     styles: [],
     blockedElements: ['.token module', '.user-message'],
     extendedElements: [],
@@ -1851,18 +1948,63 @@
     textRules: [
       ['Create an interactive react app to let people watch their favorite historical events in SVG. Users will enter the name of a historical event, then it will generate a series of SVG’s representing famous scenes from that event. The setting should be a cinema, and the SVG’s should be played in the screen. Make sure it fits within the bounds of the screen. Use the claude API to generate the SVG’s. Use the analysis tool to check how to use the API first. The user should really feel as if they are at the movies, make it immersive! The SVG images should be representative of the scene and obvious to anyone who is familiar with that historical event. Aim to wow the user with your SVG skills! Write a very good prompt to claude for generating the SVG to get this point across. Generate 1-5 famous scenes specific to the specified historical event. Ensure that everything works, do not mock any functionality. Ensure that the react app looks like a movie theatre and that all the pieces fit together.', '创建一个交互式 React 应用，让人们可以用 SVG 观看他们最喜欢的历史事件。用户输入历史事件的名称，然后它将生成一系列代表该事件著名场景的 SVG。场景应设置为电影院，SVG 应在屏幕上播放。确保它适合屏幕的边界。使用 Claude API 生成 SVG。首先使用分析工具检查如何使用 API。用户应该真正感觉像在看电影，让它身临其境！SVG 图像应能代表场景，并且对于熟悉该历史事件的人来说显而易见。力求用您的 SVG 技能让用户惊叹！为 Claude 编写一个非常好的提示来生成 SVG，以传达这一点。生成 1-5 个特定于指定历史事件的著名场景。确保一切正常，不要模拟任何功能。确保 React 应用看起来像一个电影院，并且所有部分都完美契合。'],
       ['Create a react app artifact that creates childrens bedtime stories based on certain user inputs. User inputs should be: * Age * Gender * Interest areas * Style (funny, serious etc.) * What lesson you are trying to teach the kid Use Claude’s public API to allow users to input answers in for these items, before creating the bedtime childrens story. Make it extremely visually appealing as well. Remember, you are the world’s most talented front-end engineer, and you have a masters degree in visual design, so this should really set the bar in terms of looking and feeling beautiful. Don’t make it gimmicky – we don’t need any spinning icons or anything like that, it needs to be sleek and balanced. Make sure that any buttons are actually clickable and navigate to where they should go. Reduce load time between clicks, make sure that all bugs are taken care of, and double and triple check your work. It’s critical that this succeeds.', '创建一个 React 应用构件，根据某些用户输入创作儿童睡前故事。用户输入应包括：* 年龄 * 性别 * 兴趣领域 * 风格（有趣、严肃等）* 您想教给孩子的道理。使用 Claude 的公共 API，让用户在创作睡前儿童故事前输入这些项目。让它在视觉上极具吸引力。记住，您是世界上最有才华的前端工程师，并且拥有视觉设计硕士学位，所以这应该在外观和感觉上树立标杆。不要做得花哨——我们不需要任何旋转图标之类的东西，它需要简洁而平衡。确保所有按钮都是可点击的，并能导航到正确的位置。减少点击间的加载时间，确保所有错误都已修复，并反复检查您的工作。这个项目的成功至关重要。'],
-      ['Create an AI brainstorming tool that helps teams generate planning ideas.\nThe tool should ask for context like company name, product, timeline, team goals, and what type of brainstorming session they want (product development, marketing, etc.).\nWhen they click generate, it should use Claude API to first understand the company/product, then create 6 relevant ideas based on that understanding. Show Claude’s understanding summary so users know it’s not just generic templates.\nMake it look modern and polished with cards, gradients, and good spacing. Each idea should show priority, effort needed, and impact level. Include a fallback if the API doesn’t work.\nThe whole point is proving the ideas are contextual to their actual company, not just random suggestions.', '创建一个 AI 头脑风暴工具，帮助团队生成规划想法。\n该工具应询问公司名称、产品、时间线、团队目标以及他们想要的头脑风暴会议类型（产品开发、营销等）等背景信息。\n当他们点击生成时，它应使用 Claude API 首先了解公司/产品，然后根据该理解创建 6 个相关想法。显示 Claude 的理解摘要，以便用户知道这不仅仅是通用模板。\n通过卡片、渐变和良好的间距使其看起来现代而精致。每个想法都应显示优先级、所需精力和影响级别。如果 API 不工作，应包含一个备用方案。\n重点是证明这些想法是针对他们实际公司的，而不仅仅是随机建议。'],
-      ['Create a React app that transforms raw notes into professional formatted output. Key features:\n* Note type selector with Interview Notes and Meeting Notes (displayed side by side)\n* Context fields for each note type (4 fields each like position, interviewer, date, duration)\n* Raw notes input textarea\n* Final use case selector that adapts to note type: Interview Notes gets Evaluation Scorecard/Slack Update/Email Summary; Meeting Notes gets Google Doc/Slack Update/Email Summary\n* Use Claude API to transform notes, expanding abbreviations like ‘q’ → ‘questions’ while staying true to the original content\n* 2-column layout with input on left, output on right\n* Copy functionality and sample data loading\n* Clean, modern design', '创建一个 React 应用，将原始笔记转换为专业格式的输出。主要功能：\n* 笔记类型选择器，包含面试笔记和会议笔记（并排显示）\n* 每种笔记类型的上下文栏位（各 4 个栏位，如职位、面试官、日期、时长）\n* 原始笔记输入文本区\n* 适应笔记类型的最终用例选择器：面试笔记可生成评估记分卡/Slack 更新/邮件摘要；会议笔记可生成 Google 文档/Slack 更新/邮件摘要\n* 使用 Claude API 转换笔记，扩展缩写（如 ‘q’ → ‘questions’），同时忠于原始内容\n* 2 列布局，左侧输入，右侧输出\n* 复制功能和示例数据加载\n* 简洁、现代的设计'],
+      [
+        `Create an AI brainstorming tool that helps teams generate planning ideas.
+The tool should ask for context like company name, product, timeline, team goals, and what type of brainstorming session they want (product development, marketing, etc.).
+When they click generate, it should use Claude API to first understand the company/product, then create 6 relevant ideas based on that understanding. Show Claude’s understanding summary so users know it’s not just generic templates.
+Make it look modern and polished with cards, gradients, and good spacing. Each idea should show priority, effort needed, and impact level. Include a fallback if the API doesn’t work.
+The whole point is proving the ideas are contextual to their actual company, not just random suggestions.`,
+        `创建一个 AI 头脑风暴工具，帮助团队生成规划想法。
+该工具应询问公司名称、产品、时间线、团队目标以及他们想要的头脑风暴会议类型（产品开发、营销等）等背景信息。
+当他们点击生成时，它应使用 Claude API 首先了解公司/产品，然后根据该理解创建 6 个相关想法。显示 Claude 的理解摘要，以便用户知道这不仅仅是通用模板。
+通过卡片、渐变和良好的间距使其看起来现代而精致。每个想法都应显示优先级、所需精力和影响级别。如果 API 不工作，应包含一个备用方案。
+重点是证明这些想法是针对他们实际公司的，而不仅仅是随机建议。`,
+      ],
+      [
+        `Create a React app that transforms raw notes into professional formatted output. Key features:
+* Note type selector with Interview Notes and Meeting Notes (displayed side by side)
+* Context fields for each note type (4 fields each like position, interviewer, date, duration)
+* Raw notes input textarea
+* Final use case selector that adapts to note type: Interview Notes gets Evaluation Scorecard/Slack Update/Email Summary; Meeting Notes gets Google Doc/Slack Update/Email Summary
+* Use Claude API to transform notes, expanding abbreviations like ‘q’ → ‘questions’ while staying true to the original content
+* 2-column layout with input on left, output on right
+* Copy functionality and sample data loading
+* Clean, modern design`,
+        `创建一个 React 应用，将原始笔记转换为专业格式的输出。主要功能：
+* 笔记类型选择器，包含面试笔记和会议笔记（并排显示）
+* 每种笔记类型的上下文栏位（各 4 个栏位，如职位、面试官、日期、时长）
+* 原始笔记输入文本区
+* 适应笔记类型的最终用例选择器：面试笔记可生成评估记分卡/Slack 更新/邮件摘要；会议笔记可生成 Google 文档/Slack 更新/邮件摘要
+* 使用 Claude API 转换笔记，扩展缩写（如 ‘q’ → ‘questions’），同时忠于原始内容
+* 2 列布局，左侧输入，右侧输出
+* 复制功能和示例数据加载
+* 简洁、现代的设计`,
+      ],
       ['I want to build a one-pager PRD creator. This should help anyone on the team write PRDs based on a set of inputs. The user should be asked 3 simple questions in one screen and Claude should write a PRD based on that. Follow this template outline for the PRD generated - One-pager: [NAME] 1. TL;DR: A short summary—what is this, who’s it for, and why does it matter? 2. Goals: Business goals, user goals, non-goals 3. User stories: Personas and their jobs-to-be-done 4. Functional requirements: Grouped features by priority 5. User experience: Bullet-pointed user journeys 6. Narrative: A day-in-the-life 7. Success metrics 8. Milestones & sequencing: Lean roadmap, phases.', '我想创建一个单页 PRD 生成器。这应该能帮助团队中的任何人根据一组输入编写 PRD。用户应在一个屏幕上被问到 3 个简单问题，然后 Claude 应据此编写 PRD。请遵循以下模板大纲生成 PRD - 单页：[名称] 1. 摘要：简短总结——这是什么，为谁而设，为什么重要？2. 目标：业务目标、用户目标、非目标 3. 用户故事：用户画像及其待办事项 4. 功能需求：按优先级分组的功能 5. 用户体验：分点列出的用户旅程 6. 叙述：生活中的一天 7. 成功指标 8. 里程碑与顺序：精益路线图、阶段。'],
       ['Build a react app that allows users write better emails. The user should be able to briefly write what they are trying to say and then choose a tone for the email (e.g. concise, warm, formal, etc) Use the Claude API to transform their raw thoughts into a finished email. Make the app extremely visually appealing. You are the world’s best front-end engineer and you also have a masters degree in visual design, so you should be able to really do this extremely well. The color palette should draw from blues, whites, and greys. Have an optional section to enter the email you are responding to. For the generated email, include a button to copy it to the clipboard.', '构建一个 React 应用，帮助用户写出更好的邮件。用户应能简要写下他们想说的内容，然后选择邮件的语气（例如：简洁、热情、正式等）。使用 Claude API 将他们的原始想法转化为一封完整的邮件。让应用在视觉上极具吸引力。您是世界上最优秀的前端工程师，并且拥有视觉设计硕士学位，所以您应该能做得非常出色。调色板应采用蓝色、白色和灰色。设置一个可选区域，用于输入您正在回复的邮件。对于生成的邮件，应包含一个复制到剪贴板的按钮。'],
       ['To actually run the analysis make a call to the Claude API to generate the Javascript to do the requested analysis. When the Claude API returns the javascript, then run it in the browser to implement the analysis. Make sure the number of output tokens from the Claude API is set to 16k. While you are waiting for the Claude API to return or running the calculation show a spinner. Put the label “Planning analysis” under the spinner when calling the API and change the label to “Calculating results” when executing the javascript. Dismiss the spinner when the calculation is complete The prompt to Claude should include a sample of the first 5 lines of data.', '要实际运行分析，请调用 Claude API 以生成执行所请求分析的 Javascript。当 Claude API 返回 Javascript 时，在浏览器中运行它以实现分析。确保 Claude API 的输出令牌数设置为 16k。在等待 Claude API 返回或运行计算时，显示一个加载动画。调用 API 时，在加载动画下方放置标签“正在规划分析”，并在执行 Javascript 时将标签更改为“正在计算结果”。计算完成后，关闭加载动画。给 Claude 的提示应包括前 5 行数据的样本。'],
-      ['I want to create a webpage called PRD to Prototype. The way it works is a user uploads a file that is a PRD for an app. The page then makes an API call to Claude to read the PRD and generates a static HTML page for the prototype that is then returned and rendered in the browser by setting innerHTML for the pane where we show the prototype + script extraction to make sure the scripts in the returned content work. Make sure Claude just returns html/javascript and doesn’t return backticks . Also the max tokens should be set to 32k\nThe design should be white background with black buttons.', '我想创建一个名为“从 PRD 到原型”的网页。它的工作方式是：用户上传一个应用程序的 PRD 文件。页面随后调用 Claude API 读取 PRD，并生成一个静态 HTML 原型页面，然后通过设置显示原型的窗格的 innerHTML 在浏览器中返回并渲染，同时提取脚本以确保返回内容中的脚本能够工作。确保 Claude 只返回 html/javascript，不返回反引号。此外，最大令牌数应设置为 32k。\n设计应为白色背景，黑色按钮。'],
+      [
+        `I want to create a webpage called PRD to Prototype. The way it works is a user uploads a file that is a PRD for an app. The page then makes an API call to Claude to read the PRD and generates a static HTML page for the prototype that is then returned and rendered in the browser by setting innerHTML for the pane where we show the prototype + script extraction to make sure the scripts in the returned content work. Make sure Claude just returns html/javascript and doesn’t return backticks . Also the max tokens should be set to 32k
+The design should be white background with black buttons.`,
+        `我想创建一个名为“从 PRD 到原型”的网页。它的工作方式是：用户上传一个应用程序的 PRD 文件。页面随后调用 Claude API 读取 PRD，并生成一个静态 HTML 原型页面，然后通过设置显示原型的窗格的 innerHTML 在浏览器中返回并渲染，同时提取脚本以确保返回内容中的脚本能够工作。确保 Claude 只返回 html/javascript，不返回反引号。此外，最大令牌数应设置为 32k。
+设计应为白色背景，黑色按钮。`,
+      ],
       ['You decide which websites Claude can visit and what actions it can take. Claude asks permission before visiting new sites and before taking potentially risky actions like publishing content or making purchases. You can revoke access to specific websites anytime in Settings. For trusted workflows, you can choose to skip all permissions, but you should supervise Claude closely. While some safeguards exist for sensitive actions, malicious actors could still trick Claude into taking actions that were not intended by you.', '您决定 Claude 可以访问哪些网站以及可以采取哪些操作。在访问新网站以及采取发布内容或进行购买等潜在风险操作之前，Claude 会请求许可。您可以随时在“设置”中撤销对特定网站的访问权限。对于受信任的工作流程，您可以选择跳过所有权限，但应密切监督 Claude。虽然对敏感操作存在一些安全措施，但恶意行为者仍可能诱骗 Claude 采取您不希望的操作。'],
       ['Build a project dashboard generator that: - Accepts project data (tasks, deadlines, team members, milestones) - Creates a visual dashboard with: - Progress bars for overall and task completion - Gantt chart visualization - Team member workload distribution - Upcoming deadlines widget - Milestone timeline - Includes filtering by team member, priority, or status Style it with a professional look suitable for presentations.', '构建一个项目仪表板生成器，功能如下： - 接受项目数据（任务、截止日期、团队成员、里程碑） - 创建一个可视化仪表板，包含： - 整体和任务完成进度条 - 甘特图可视化 - 团队成员工作量分布 - 即将到期的截止日期小部件 - 里程碑时间线 - 包括按团队成员、优先级或状态筛选的功能，并以适合演示的专业外观进行设计。'],
       ['Create a React app called “Meeting notes summary” that helps professionals convert raw meeting notes into structured summaries. The user should be able to paste raw meeting notes/transcripts into a large text area for and click on a *A “Summarize” *button to process the notes use Claude API. Make sure the summary is nicely formatted and easy to read. Use a background color of #C4DDAB, #374528 as the primary color, and inter as the font.', '创建一个名为“会议纪要摘要”的 React 应用，帮助专业人士将原始会议纪要转换为结构化摘要。用户应能将原始会议纪要/文字记录粘贴到一个大的文本区域，并点击一个“摘要”按钮来处理纪要。请确保摘要格式美观、易于阅读。使用 #C4DDAB 作为背景色，#374528 作为主色，inter 作为字体。'],
       ['Create full screen algorithmic art in react that will amaze a human. At any point, let the human enter in how they’re feeling into a textbox and update the algorithmic art to reflect that feeling. Try to keep to a similar pattern but use the pattern creatively for the different feelings. Use the Claude API in a clever way to do this. Use the analysis tool to confirm your use of the Claude API first.', '在 React 中创建全屏算法艺术，让人们惊叹不已。在任何时候，让用户在文本框中输入他们的感受，并更新算法艺术以反映这种感受。尝试保持相似的模式，但要创造性地利用该模式来表现不同的感受。巧妙地使用 Claude API 来实现这一点。首先使用分析工具确认您对 Claude API 的使用。'],
-      ['Create ‘Molecule Studio’ - a React artifact that is a minimalist molecular visualizer that emphasizes structure over decoration.\nUsers should be able to type in the name of any molecule. Then make a call to Claude that returns JSON with the chemical formula as well as a list of elements with the position on x, y, z axis and a list of bonds between the elements. Then display a 3D visualization of the molecule', '创建“分子工作室”——一个 React 构件，它是一个极简的分子可视化工具，强调结构而非装饰。\n用户应该能够输入任何分子的名称。然后调用 Claude，返回包含化学式、元素列表（及其 x、y、z 轴位置）以及元素之间键合列表的 JSON。然后显示该分子的 3D 可视化。'],
-      ['Build an image color palette extractor web app. It should allow users to upload or browse for images and display the uploaded image in a large preview area on the right.\nThe app should extract 5 prominent colors and show these with circular indicators on the image. The user should be able to move the circular indicators to change the colors. The extracted color palette should be shown on the left side as colored rectangles.', '构建一个图像调色板提取器 Web 应用。它应允许用户上传或浏览图片，并在右侧的大预览区显示上传的图片。\n该应用应提取 5 种主要颜色，并在图片上用圆形指示器显示。用户应能移动圆形指示器来更改颜色。提取的调色板应在左侧以彩色矩形显示。'],
+      [
+        `Create ‘Molecule Studio’ - a React artifact that is a minimalist molecular visualizer that emphasizes structure over decoration.
+Users should be able to type in the name of any molecule. Then make a call to Claude that returns JSON with the chemical formula as well as a list of elements with the position on x, y, z axis and a list of bonds between the elements. Then display a 3D visualization of the molecule`,
+        `创建“分子工作室”——一个 React 构件，它是一个极简的分子可视化工具，强调结构而非装饰。
+用户应该能够输入任何分子的名称。然后调用 Claude，返回包含化学式、元素列表（及其 x、y、z 轴位置）以及元素之间键合列表的 JSON。然后显示该分子的 3D 可视化。`,
+      ],
+      [
+        `Build an image color palette extractor web app. It should allow users to upload or browse for images and display the uploaded image in a large preview area on the right.
+The app should extract 5 prominent colors and show these with circular indicators on the image. The user should be able to move the circular indicators to change the colors. The extracted color palette should be shown on the left side as colored rectangles.`,
+        `构建一个图像调色板提取器 Web 应用。它应允许用户上传或浏览图片，并在右侧的大预览区显示上传的图片。
+该应用应提取 5 种主要颜色，并在图片上用圆形指示器显示。用户应能移动圆形指示器来更改颜色。提取的调色板应在左侧以彩色矩形显示。`,
+      ],
       ['Create a color contrast checker app. It should have two color input fields (text color and background color), calculate the WCAG contrast ratio in real-time, display the numerical result with accessibility ratings (AA/AAA compliance), and show a live preview of the color combination. Include visual feedback like star ratings and color-coded results to indicate contrast quality.', '创建一个颜色对比度检查器应用程序。它应该有两个颜色输入字段（文本颜色和背景颜色），实时计算 WCAG 对比度，显示带有可访问性评级（AA/AAA 合规性）的数值结果，并显示颜色组合的实时预览。包括星级评定和颜色编码结果等视觉反馈，以指示对比度质量。'],
       ['Can you build a minimalist rhyming clock that uses the Claude API to tell the time with a new poem every minute? Only show the poem, and when there’s a new poem, I want the poem to type in. Use skeuomorphism to make this look like an actual clock with a text display. I want this to look like a high-tech piece of sleek engineering like Dieter Rams.', '你能构建一个极简主义的押韵时钟吗？它使用 Claude API 每分钟用一首新诗来报时。只显示诗歌，当有新诗时，我希望诗歌能逐字输入。使用拟物化设计，让它看起来像一个带有文本显示的真实时钟。我希望它看起来像迪特·拉姆斯设计的 sleek 高科技工程作品。'],
       ['Unlock insights from your data with Claude-powered analytics and visualization tools. Create interactive charts, build comprehensive dashboards, and transform complex datasets into clear, actionable insights. Whether you’re analyzing business metrics, research data, or personal statistics, these tools make data analysis accessible and powerful.', '使用由 Claude 驱动的分析和可视化工具，从您的数据中解锁洞见。创建交互式图表，构建全面的仪表板，并将复杂的数据集转化为清晰、可操作的见解。无论您是在分析业务指标、研究数据还是个人统计数据，这些工具都能让数据分析变得易于使用且功能强大。'],
@@ -1970,15 +2112,30 @@
       ['Add to project knowledge or share your chats to spark ideas, learn from teammates, and discover how your team uses Claude.', '添加到项目知识库或分享您的聊天，以激发想法、向队友学习，并了解您的团队如何使用 Claude。'],
       ['Create Projects and add knowledge so that you can deliver expert-level results with the Claude Pro, Team and Enterprise plans.', '创建项目并添加知识，以便您可以通过 Claude Pro、团队版和企业版方案获得专家级的结果。'],
       ['Keeping your data safe is a priority. Learn how your information is protected when using Anthropic products, and visit our', '确保您的数据安全是首要任务。了解使用 Anthropic 公司产品时如何保护您的信息，并访问我们的'],
-      ['Try something like: \nWrite in a warm, approachable tone with light professional humor - like a friendly mentor.', '尝试这样的方法：\n我想以一种温暖、平易近人的方式编写，同时添加一些专业的幽默 - 就像一个友好的导师。'],
+      [
+        `Try something like: 
+Write in a warm, approachable tone with light professional humor - like a friendly mentor.`,
+        `尝试这样的方法：
+我想以一种温暖、平易近人的方式编写，同时添加一些专业的幽默 - 就像一个友好的导师。`,
+      ],
       ['By providing your payment information, you allow Anthropic to charge your card in the amount above. Purchase non-refundable.', '提供您的支付信息 即表示您允许 Anthropic 公司从您的卡中扣除上述金额。购买后不可退款。'],
       ['Claude will guide your learning process instead of just giving answers. You can adjust these instructions in the project anytime.', 'Claude 将引导您的学习过程，而不仅仅是给出答案。您可以随时在项目中调整这些说明。'],
       ['Please try launching again from your Canvas course. If the problem persists, contact your instructor or system administrator.', '请尝试从您的 Canvas 课程中再次启动。如果问题仍然存在，请联系您的讲师或系统管理员。'],
-      ['Try something like: \nWrite for marketing professionals. They’re tech-savvy and appreciate a dash of humor with their data.', '尝试这样的方法：\n我想为营销专业人员编写。他们技术 savvy，喜欢在数据中添加一些幽默。'],
+      [
+        `Try something like: 
+Write for marketing professionals. They’re tech-savvy and appreciate a dash of humor with their data.`,
+        `尝试这样的方法：
+我想为营销专业人员编写。他们技术 savvy，喜欢在数据中添加一些幽默。`,
+      ],
       ['Incorrect code entered. Please check that the code matches what you received in your other browser or device and try again.', '输入的代码不正确。请检查代码是否与您在其他浏览器或设备上收到的代码匹配，然后重试。'],
       ['We’re rolling out access to the browser extension gradually. Join the waitlist and we’ll let you know as soon as it’s your turn!', '我们正在逐步开放浏览器扩展的访问权限。加入候补名单，轮到您时我们会通知您！'],
       ['The same attachment was already added earlier. Claude sees the full conversation when replying, so there’s no need to re-upload.', '之前已添加过相同的附件。Claude 在回复时会看到完整的对话，因此无需重新上传。'],
-      ['Try something like: \nWrite like an excited scientist explaining fascinating discoveries - technical but energetic.', '尝试这样的方法：\n我想以一种兴奋的科学家的方式编写，解释着有趣的发现 - 技术上但充满活力。'],
+      [
+        `Try something like: 
+Write like an excited scientist explaining fascinating discoveries - technical but energetic.`,
+        `尝试这样的方法：
+我想以一种兴奋的科学家的方式编写，解释着有趣的发现 - 技术上但充满活力。`,
+      ],
       ['Developer MCP servers are disabled on this device. Please contact your IT administrator to enable developer MCP servers.', '此设备上的开发者 MCP 服务器已禁用。请联系您的 IT 管理员以启用开发者 MCP 服务器。'],
       ['Chats and projects in this organization will be permanently deleted if they are inactive for the duration of their retention period.', '如果此组织中的聊天和项目在其保留期内处于非活动状态，将被永久删除。'],
       ['There was an error starting authentication. Please check your server URL and make sure your server handles auth correctly.', '启动身份验证时出错。请检查您的服务器 URL，并确保您的服务器正确处理身份验证。'],
@@ -2048,7 +2205,12 @@
       ['Anthropic may conduct aggregated, anonymized analysis of data to understand how people use Claude.', 'Anthropic 可能会对数据进行汇总、匿名的分析，以了解人们如何使用 Claude。'],
       ['upstream connect error or disconnect/reset before headers. reset reason: connection termination', '连接后端服务器失败，或在收到其响应数据前连接被重置。重置原因：连接被终止。'],
       ['Discover companies, contacts, and business insights—powered by dozens of trusted external data sources.', '发现公司、联系人和商业洞察——由数十个可信的外部数据源提供支持。'],
-      ['Try something like: \nI want to teach complex topics step-by-step, with a focus on building understanding.', '尝试这样的方法：\n我想一步一步地教授复杂的主题，重点是建立理解。'],
+      [
+        `Try something like: 
+I want to teach complex topics step-by-step, with a focus on building understanding.`,
+        `尝试这样的方法：
+我想一步一步地教授复杂的主题，重点是建立理解。`,
+      ],
       ['We recommend first setting up the appropriate groups in your Identity Provider before enabling this feature.', '我们建议在启用此功能之前，先在您的身份提供商中设置适当的组。'],
       ['Cloud environments power Claude’s code execution. Choose the security level that works for your needs:', '云环境为 Claude 的代码执行提供支持。请选择适合您需求的安全级别：'],
       ['If you intended to log into <link>Anthropic Console</link>, please navigate to that page and try again.', '如果您打算登录 <link>Anthropic 控制台</link>，请前往该页面重试。'],
@@ -4992,8 +5154,11 @@
     ],
   };
   var platformClaudeComZhCn = {
+    description: '此翻译配置适用于 platform.claude.com 网站的本地化。',
+    testUrl: 'https://platform.claude.com/',
+    createdAt: '2025-08-21',
     language: 'zh-cn',
-    enabled: true,
+    enabled: !0,
     styles: [],
     blockedElements: [],
     extendedElements: [],
@@ -5863,8 +6028,11 @@
     ],
   };
   var statusClaudeComZhCn = {
+    description: '此翻译配置适用于 status.claude.com 网站的本地化。',
+    testUrl: 'https://status.claude.com/',
+    createdAt: '2025-08-21',
     language: 'zh-cn',
-    enabled: true,
+    enabled: !0,
     styles: [],
     blockedElements: [],
     extendedElements: [],
@@ -5994,7 +6162,11 @@
       ['Reunion/Mayotte', '留尼汪/马约特'],
       ['Subscribe to updates', '订阅更新'],
       ['Equatorial Guinea', '赤道几内亚'],
-      [' Current Status\n  ', '当前状态'],
+      [
+        ` Current Status
+  `,
+        '当前状态',
+      ],
       ['Enter OTP:', '输入一次性密码：'],
       ['Filter Components', '筛选域名'],
       ['Subscribing...', '正在订阅...'],
@@ -6202,8 +6374,11 @@
     ],
   };
   var julesGoogleComZhHk = {
+    description: '此翻譯配置適用於 jules.google.com 網站的本地化。',
+    testUrl: 'https://jules.google.com/',
+    createdAt: '2025-08-21',
     language: 'zh-hk',
-    enabled: true,
+    enabled: !0,
     styles: ['.feedback-button { width: auto !important; white-space: nowrap !important; }'],
     blockedElements: [],
     extendedElements: [],
@@ -6263,8 +6438,11 @@
     ],
   };
   var aistudioGoogleComZhHk = {
+    description: '此翻譯配置適用於 aistudio.google.com 網站的本地化。',
+    testUrl: 'https://aistudio.google.com/',
+    createdAt: '2025-08-21',
     language: 'zh-hk',
-    enabled: true,
+    enabled: !0,
     styles: [],
     blockedElements: [],
     extendedElements: [],
@@ -6328,8 +6506,11 @@
     ],
   };
   var claudeAiZhHk = {
+    description: '此翻譯配置適用於 claude.ai 網站的本地化。',
+    testUrl: 'https://claude.ai/',
+    createdAt: '2025-08-21',
     language: 'zh-hk',
-    enabled: true,
+    enabled: !0,
     styles: [],
     blockedElements: [],
     extendedElements: [],
@@ -6392,8 +6573,11 @@
     ],
   };
   var aistudioGoogleComZhTw = {
+    description: '此翻譯配置適用於 aistudio.google.com 網站的在地化。',
+    testUrl: 'https://aistudio.google.com/',
+    createdAt: '2025-08-21',
     language: 'zh-tw',
-    enabled: true,
+    enabled: !0,
     styles: [],
     blockedElements: [],
     extendedElements: [],
@@ -6457,8 +6641,11 @@
     ],
   };
   var claudeAiZhTw = {
+    description: '此翻譯配置適用於 claude.ai 網站的在地化。',
+    testUrl: 'https://claude.ai/',
+    createdAt: '2025-08-21',
     language: 'zh-tw',
-    enabled: true,
+    enabled: !0,
     styles: [],
     blockedElements: [],
     extendedElements: [],
@@ -6521,8 +6708,11 @@
     ],
   };
   var geminiGoogleComZhCn = {
+    description: '此翻译配置适用于 gemini.google.com 网站的本地化。',
+    testUrl: 'https://gemini.google.com',
+    createdAt: '2025-10-05',
     language: 'zh-cn',
-    enabled: true,
+    enabled: !0,
     styles: [],
     blockedElements: [],
     extendedElements: [],
@@ -6537,8 +6727,11 @@
     ],
   };
   var wwwAvogado6ComZhCn = {
+    description: '此翻译配置适用于 www.avogado6.com 网站的本地化。',
+    testUrl: 'https://www.avogado6.com',
+    createdAt: '2025-10-05',
     language: 'zh-cn',
-    enabled: true,
+    enabled: !0,
     styles: [
       `
     @font-face {
@@ -6561,157 +6754,618 @@
     jsRules: [],
     regexRules: [],
     textRules: [
-      ['映像と音楽 / アボガド6\n歌 / v-flower\nへるコール / 旭音エマ　唄音ウタ　ネウマフ　おたま帽子　頻音クロク　電歌セン　松田っぽいよ　塩音ルト　水音ラル　罪告ナエ　彩音ゆめ　吼音ブシ', '影像与音乐 / アボガド6\n演唱 / v-flower\nヘル合唱 / 旭音エマ　唄音ウタ　ネウマフ　おたま帽子　頻音クロク　電歌セン　松田っぽいよ　塩音ルト　水音ラル　罪告ナエ　彩音ゆめ　吼音ブシ'],
-      ['アボガド6 OFFICIAL GOODS #6\n\n受付期間：	3/22(金)18:00〜4/14(日)23:59\n商品発送：	6月下旬より順次発送予定', 'アボガド６ 官方周边商品 #6\n\n受理期间：    3 月 22 日 (周五) 18:00 ～ 4 月 14 日 (周日) 23:59 \n商品发货：    预计 6 月下旬起陆续发货'],
-      ['音楽映像作品集\n\nバルーンさん、有機酸さんの書き下ろし楽曲を含む、計6つのMVを収録。\n絵コンテなどのおまけつき。', '音乐影像作品集\n\n共收录 6 支 MV，包含音乐人 Balloon、有机酸 (YUKISAN) 的新创歌曲。\n附带分镜图等特典内容。'],
-      ['作詞作曲 バルーン\nIllustration アボガド6\nArtwork Design・XFD制作 Kotaro Okusu（MIRROR）\n各参加者は動画説明文参照', '作词作曲 Balloon\n插画 アボガド６\n美术设计・XFD 制作 奥须孝太郎（ MIRROR ）\n各参与者请参阅视频说明文'],
-      ['ボカロ版\n音楽　ぬゆり\n歌　v_flower・結月ゆかり\nギター　和田たけあき(くらげP)\nマスタリング 中村リョーマ', 'Vocaloid 版\n音乐　Lanndo\n演唱　v_flower・結月ゆかり\n吉他　和田たけあき(くらげP)\n母带处理 中村リョーマ'],
+      [
+        `映像と音楽 / アボガド6
+歌 / v-flower
+へるコール / 旭音エマ　唄音ウタ　ネウマフ　おたま帽子　頻音クロク　電歌セン　松田っぽいよ　塩音ルト　水音ラル　罪告ナエ　彩音ゆめ　吼音ブシ`,
+        `影像与音乐 / アボガド6
+演唱 / v-flower
+ヘル合唱 / 旭音エマ　唄音ウタ　ネウマフ　おたま帽子　頻音クロク　電歌セン　松田っぽいよ　塩音ルト　水音ラル　罪告ナエ　彩音ゆめ　吼音ブシ`,
+      ],
+      [
+        `アボガド6 OFFICIAL GOODS #6
+受付期間：	3/22(金)18:00〜4/14(日)23:59
+商品発送：	6月下旬より順次発送予定`,
+        `アボガド６ 官方周边商品 #6
+受理期间：    3 月 22 日 (周五) 18:00 ～ 4 月 14 日 (周日) 23:59 
+商品发货：    预计 6 月下旬起陆续发货`,
+      ],
+      [
+        `音楽映像作品集
+バルーンさん、有機酸さんの書き下ろし楽曲を含む、計6つのMVを収録。
+絵コンテなどのおまけつき。`,
+        `音乐影像作品集
+共收录 6 支 MV，包含音乐人 Balloon、有机酸 (YUKISAN) 的新创歌曲。
+附带分镜图等特典内容。`,
+      ],
+      [
+        `作詞作曲 バルーン
+Illustration アボガド6
+Artwork Design・XFD制作 Kotaro Okusu（MIRROR）
+各参加者は動画説明文参照`,
+        `作词作曲 Balloon
+插画 アボガド６
+美术设计・XFD 制作 奥须孝太郎（ MIRROR ）
+各参与者请参阅视频说明文`,
+      ],
+      [
+        `ボカロ版
+音楽　ぬゆり
+歌　v_flower・結月ゆかり
+ギター　和田たけあき(くらげP)
+マスタリング 中村リョーマ`,
+        `Vocaloid 版
+音乐　Lanndo
+演唱　v_flower・結月ゆかり
+吉他　和田たけあき(くらげP)
+母带处理 中村リョーマ`,
+      ],
       ['読み上げ 足立レイ(レプリボイス)、VOICEVOX:もち子(cv 明日葉よもぎ)、VOICEVOX:雀松朱司、VOICEVOX:後鬼', '朗读 足立零(Replivoice)、VOICEVOX:望月子(cv 明日叶蓬)、VOICEVOX:雀松朱司、VOICEVOX:后鬼'],
-      ['オリジナル自主制作アニメ\nBGM：フリー音楽素材 Senses Circuit　http://www.senses-circuit.com/', '原创自主制作动画\n背景音乐：免费音乐素材 Senses Circuit　http://www.senses-circuit.com/'],
-      ['作詞・作曲　ゆずひこ\n歌　ichigo(岸田教団&THE明星ロケッツ)\n映像　しきみ　アボガド6', '作词・作曲　ゆずひこ\n演唱　ichigo ( 岸田教団&THE明星ロケッツ )\n影像　しきみ　アボガド６'],
-      ['作詞作曲　ぬゆり\n歌　Flower・結月ゆかり\nギター　和田たけあき\nマスタリング 中村リョーマ', '作词作曲　Lanndo\n演唱　Flower・結月ゆかり\n吉他　和田たけあき\n母带处理 中村リョーマ'],
-      ['Music：Keina Suda\nDirector : Avogado6\nShooting Director：UDO\n詳細クレジットは動画説明文参照', '音乐：Keina Suda\n导演 : アボガド６\n摄影导演：UDO\n详细制作人员请参照视频说明文'],
-      ['Lanndo版\n音楽　Lanndo / ぬゆり\nギター　和田たけあき(くらげP)\nマスタリング 中村リョーマ', 'Lanndo 版\n音乐　Lanndo / ぬゆり\n吉他　和田たけあき(くらげP)\n母带处理 中村リョーマ'],
-      ['須田景凪 2nd Full Album\n観覧車作成 magma\nイラスト アボガド6\nデザイナー 吉良進太郎', '须田景凪 第二张完整专辑\n摩天轮制作 magma\n插画 アボガド６\n设计师 吉良进太郎'],
-      ['Music/バルーン 有機酸\nArtWork/アボガド6 東洋医学\n\nクロスフェード編集/東洋医学', '音乐 / 须田景凪 有机酸\n艺术设计 / アボガド６ 东洋医学\n\n唱见莲编辑 / 东洋医学'],
-      ['須田景凪 1st Full Album\nイラストを担当\n\nアートディレクター・クロスフェード\n吉良進太郎', '须田景凪 第一张完整专辑\n负责插画\n\n艺术总监・Crossfade\n吉良进太郎'],
-      ['Music / 須田景凪\nIllustration & Animation / アボガド６\nDirector / Ippei Morimoto', '音乐 / 须田景凪\n插画 & 动画 / アボガド６\n导演 / Ippei Morimoto'],
-      ['初音ミク × ソニーストア コラボレーションモデル\nメインイラストと各商品のイラストデザイン', '初音未来 × Sony Store 合作款\n主视觉图及各商品插画设计'],
-      ['music / バルーン\nvocal / v flower\nplayed / ヒトリエ\nmovie / アボガド６', '音乐 / 须田景凪\n演唱 / v flower\n演奏 / Hitorie\n影像 / アボガド６'],
-      ['歌 旭音エマ\nほんのちょっとだけCAコールに参加してる人 v-flower、重音テトSV', '演唱 旭音エマ\n参与CA呼叫的少许人 v-flower、重音Teto SV'],
+      [
+        `オリジナル自主制作アニメ
+BGM：フリー音楽素材 Senses Circuit　http://www.senses-circuit.com/`,
+        `原创自主制作动画
+背景音乐：免费音乐素材 Senses Circuit　http://www.senses-circuit.com/`,
+      ],
+      [
+        `作詞・作曲　ゆずひこ
+歌　ichigo(岸田教団&THE明星ロケッツ)
+映像　しきみ　アボガド6`,
+        `作词・作曲　ゆずひこ
+演唱　ichigo ( 岸田教団&THE明星ロケッツ )
+影像　しきみ　アボガド６`,
+      ],
+      [
+        `作詞作曲　ぬゆり
+歌　Flower・結月ゆかり
+ギター　和田たけあき
+マスタリング 中村リョーマ`,
+        `作词作曲　Lanndo
+演唱　Flower・結月ゆかり
+吉他　和田たけあき
+母带处理 中村リョーマ`,
+      ],
+      [
+        `Music：Keina Suda
+Director : Avogado6
+Shooting Director：UDO
+詳細クレジットは動画説明文参照`,
+        `音乐：Keina Suda
+导演 : アボガド６
+摄影导演：UDO
+详细制作人员请参照视频说明文`,
+      ],
+      [
+        `Lanndo版
+音楽　Lanndo / ぬゆり
+ギター　和田たけあき(くらげP)
+マスタリング 中村リョーマ`,
+        `Lanndo 版
+音乐　Lanndo / ぬゆり
+吉他　和田たけあき(くらげP)
+母带处理 中村リョーマ`,
+      ],
+      [
+        `須田景凪 2nd Full Album
+観覧車作成 magma
+イラスト アボガド6
+デザイナー 吉良進太郎`,
+        `须田景凪 第二张完整专辑
+摩天轮制作 magma
+插画 アボガド６
+设计师 吉良进太郎`,
+      ],
+      [
+        `Music/バルーン 有機酸
+ArtWork/アボガド6 東洋医学
+クロスフェード編集/東洋医学`,
+        `音乐 / 须田景凪 有机酸
+艺术设计 / アボガド６ 东洋医学
+唱见莲编辑 / 东洋医学`,
+      ],
+      [
+        `須田景凪 1st Full Album
+イラストを担当
+アートディレクター・クロスフェード
+吉良進太郎`,
+        `须田景凪 第一张完整专辑
+负责插画
+艺术总监・Crossfade
+吉良进太郎`,
+      ],
+      [
+        `Music / 須田景凪
+Illustration & Animation / アボガド６
+Director / Ippei Morimoto`,
+        `音乐 / 须田景凪
+插画 & 动画 / アボガド６
+导演 / Ippei Morimoto`,
+      ],
+      [
+        `初音ミク × ソニーストア コラボレーションモデル
+メインイラストと各商品のイラストデザイン`,
+        `初音未来 × Sony Store 合作款
+主视觉图及各商品插画设计`,
+      ],
+      [
+        `music / バルーン
+vocal / v flower
+played / ヒトリエ
+movie / アボガド６`,
+        `音乐 / 须田景凪
+演唱 / v flower
+演奏 / Hitorie
+影像 / アボガド６`,
+      ],
+      [
+        `歌 旭音エマ
+ほんのちょっとだけCAコールに参加してる人 v-flower、重音テトSV`,
+        `演唱 旭音エマ
+参与CA呼叫的少许人 v-flower、重音Teto SV`,
+      ],
       ['その際もコンテンツツリーの親作品登録と、元作品をアボガド6が', '届时也请进行内容树的亲作品登录，并为明确原作由アボガド６（avogado6）'],
-      ['読み上げと歌 / 足立レイ(UTAU、レプリボイス)\nハカセの鼻歌 / 伊織弓鶴', '朗读与演唱 / 足立零(UTAU、Replivoice)\n博士的哼唱 / 伊织弓鹤'],
+      [
+        `読み上げと歌 / 足立レイ(UTAU、レプリボイス)
+ハカセの鼻歌 / 伊織弓鶴`,
+        `朗读与演唱 / 足立零(UTAU、Replivoice)
+博士的哼唱 / 伊织弓鹤`,
+      ],
       ['元映像を加工せずサイズを調整・配置、その他部分にキャラクターを置き', '未对原始影像进行加工，仅调整尺寸和位置，并在其他部分放置角色'],
-      ['Music / 須田景凪\nDirector / 森本一平\nIllustration&Animation / アボガド６', '音乐 / 须田景凪\n导演 / 森本一平\n插画&动画 / アボガド６'],
-      ['\n情報用Twitterアカウントと​中国アカウントは運営を関係者に任せています。', '\n【信息分享】Twitter 账号和中国账号均由相关人员运营。'],
-      ['曲：Van de Shop\n映像：アボガド6\n詳細クレジットは動画説明文参照', '作曲：Van de Shop\n影像：アボガド６\n详细制作人员请参照视频说明文'],
-      ['映像と音楽 / アボガド6\n歌 / 旭音エマ\nspecial thanks / バルーン', '影像与音乐 / アボガド６\n演唱 / 旭音エマ\n特别感谢 / 须田景凪'],
-      ['作詞・作曲　さくらば\n歌　初音ミク\n映像　グレ椅子　アボガド6', '作词・作曲　さくらば\n演唱　初音未来\n影像　グレ椅子　アボガド６'],
-      ['Music / 須田景凪\nDirector / アボガド6\nShooting Director / 森本一平', '音乐 / 须田景凪\n导演 / アボガド６\n摄影导演 / 森本一平'],
+      [
+        `Music / 須田景凪
+Director / 森本一平
+Illustration&Animation / アボガド６`,
+        `音乐 / 须田景凪
+导演 / 森本一平
+插画&动画 / アボガド６`,
+      ],
+      [
+        `
+情報用Twitterアカウントと​中国アカウントは運営を関係者に任せています。`,
+        `
+【信息分享】Twitter 账号和中国账号均由相关人员运营。`,
+      ],
+      [
+        `曲：Van de Shop
+映像：アボガド6
+詳細クレジットは動画説明文参照`,
+        `作曲：Van de Shop
+影像：アボガド６
+详细制作人员请参照视频说明文`,
+      ],
+      [
+        `映像と音楽 / アボガド6
+歌 / 旭音エマ
+special thanks / バルーン`,
+        `影像与音乐 / アボガド６
+演唱 / 旭音エマ
+特别感谢 / 须田景凪`,
+      ],
+      [
+        `作詞・作曲　さくらば
+歌　初音ミク
+映像　グレ椅子　アボガド6`,
+        `作词・作曲　さくらば
+演唱　初音未来
+影像　グレ椅子　アボガド６`,
+      ],
+      [
+        `Music / 須田景凪
+Director / アボガド6
+Shooting Director / 森本一平`,
+        `音乐 / 须田景凪
+导演 / アボガド６
+摄影导演 / 森本一平`,
+      ],
       ['使用に関してご不明な点がありましたら下記連絡先までご連絡ください。', '关于使用如有任何疑问，请通过以下联系方式与我们联系。'],
       ['Twitterやyoutubeなど、ニコニコ動画外で映像を使用する場合、', '在 Twitter 或 YouTube 等 NicoNico 动画以外的平台使用视频时，'],
       ['ライブなど金銭が発生する場での使用は必ず事前にご連絡下さい。', '在直播等会产生金钱收益的场合使用时，请务必事先与我们联系。'],
-      ['BYEE the ROUND\nコーディネーター　ゼブラ\n映像　ななよ　アボガド6', 'BYEE the ROUND\n协调员　ゼブラ\n影像　ななよ　アボガド６'],
-      ['作詞・編曲　コウ\n作曲　rins\n歌　初音ミク\n\n※修正のため削除', '作词・编曲　コウ\n作曲　rins\n演唱　初音未来\n\n※因修正而删除'],
+      [
+        `BYEE the ROUND
+コーディネーター　ゼブラ
+映像　ななよ　アボガド6`,
+        `BYEE the ROUND
+协调员　ゼブラ
+影像　ななよ　アボガド６`,
+      ],
+      [
+        `作詞・編曲　コウ
+作曲　rins
+歌　初音ミク
+※修正のため削除`,
+        `作词・编曲　コウ
+作曲　rins
+演唱　初音未来
+※因修正而删除`,
+      ],
       ['うっかりがないよう、ショッピングガイドをよく読んでお買い求めください。', '请仔细阅读购物指南，避免疏忽大意，再进行购买。'],
-      ['・読み上げ\n伊織弓鶴、足立レイ(レプリボイス)\n・制作\nアボガド6', '・朗读\n伊织弓鹤、足立零 (Replivoice)\n・制作\nアボガド６'],
+      [
+        `・読み上げ
+伊織弓鶴、足立レイ(レプリボイス)
+・制作
+アボガド6`,
+        `・朗读
+伊织弓鹤、足立零 (Replivoice)
+・制作
+アボガド６`,
+      ],
       ['なお、ニコニコ動画のクリエイター奨励プログラムにおいてのみ、', '另外，仅限于在 NicoNico 动画的“ 创作者奖励计划 ”中，'],
-      ['バルーン ミニアルバム\nクロスフェード\n\n当アルバムのアートワークも担当', '须田景凪 迷你专辑\n唱见莲\n\n负责本专辑的艺术设计'],
+      [
+        `バルーン ミニアルバム
+クロスフェード
+当アルバムのアートワークも担当`,
+        `须田景凪 迷你专辑
+唱见莲
+负责本专辑的艺术设计`,
+      ],
       ['​動画サイト側の切り抜き機能を使用したSNSへの共有については', '视频网站自带的剪辑功能来分享至社交网络（SNS）的情况，'],
-      ['バルーン 2nd album\nクロスフェード\n\n当アルバムのアートワークも担当', '须田景凪 2nd 专辑\n唱见莲\n\n负责本专辑的艺术设计'],
+      [
+        `バルーン 2nd album
+クロスフェード
+当アルバムのアートワークも担当`,
+        `须田景凪 2nd 专辑
+唱见莲
+负责本专辑的艺术设计`,
+      ],
       ['禁止例2：アボガド6のイラストに、自分の詩などの言葉をのせて', '禁止示例 2：在 Avogado6 的插画上添加自己的诗歌等文字'],
-      ['天月-あまつき-\n舞台「幻の城〜戦国の美しき狂気〜」テーマソング', '天月-あまつき-\n舞台「幻之城〜战国之美狂〜」主题曲'],
-      ['須田景凪 1stAlbum\nクロスフェード\n\n当アルバムのアートワークも担当', '须田景凪 1st 专辑\n唱见莲\n\n负责本专辑的艺术设计'],
-      ['立椅子かんな\n1st Full Album\n\nアートワークと\nXFD制作を担当', '立椅子かんな\n第一张完整专辑\n\n负责艺术设计和\nXFD 制作'],
+      [
+        `天月-あまつき-
+舞台「幻の城〜戦国の美しき狂気〜」テーマソング`,
+        `天月-あまつき-
+舞台「幻之城〜战国之美狂〜」主题曲`,
+      ],
+      [
+        `須田景凪 1stAlbum
+クロスフェード
+当アルバムのアートワークも担当`,
+        `须田景凪 1st 专辑
+唱见莲
+负责本专辑的艺术设计`,
+      ],
+      [
+        `立椅子かんな
+1st Full Album
+アートワークと
+XFD制作を担当`,
+        `立椅子かんな
+第一张完整专辑
+负责艺术设计和
+XFD 制作`,
+      ],
       ['ただし、ニコニコ動画のビデオクリップ機能などの', '但是，对于使用 NicoNico 动画的视频剪辑（ビデオクリップ）功能等'],
       ['ただし、ミラー動画などの自身の創造性が主体でない作品では、', '但是，对于镜像搬运视频等非自身创造性为主的作品，'],
       ['曲・映像・カロガド中の人・原音設定・調声 / アボガド6', '作曲・影像・カロガド本人・原音设定・调声 / アボガド６'],
-      ['須田景凪 1stEP\nクロスフェード\n\n当アルバムのアートワークも担当', '须田景凪 1st EP\n唱见莲\n\n负责本专辑的艺术设计'],
+      [
+        `須田景凪 1stEP
+クロスフェード
+当アルバムのアートワークも担当`,
+        `须田景凪 1st EP
+唱见莲
+负责本专辑的艺术设计`,
+      ],
       ['歌ってみた・カバー動画などで、元の映像・サムネイル等を', '在“试唱”或翻唱视频等内容中，将原始影像、缩略图等'],
       ['禁止例1：自分で作った楽曲にアボガド6のイラストを付けた', '禁止示例 1：为自己创作的乐曲配上 Avogado6 的插画'],
       ['音源の使用については各制作者様のガイドラインに従ってください', '关于音源的使用，请遵循各原创作者的使用指南'],
-      ['バルーン2nd album\n「Corridor」のグッズ\nデザインを担当', 'Balloon 第2张专辑\n「Corridor」的周边商品\n负责设计'],
+      [
+        `バルーン2nd album
+「Corridor」のグッズ
+デザインを担当`,
+        `Balloon 第2张专辑
+「Corridor」的周边商品
+负责设计`,
+      ],
       ['​　　　　(+ニコニコ動画の場合コンテンツツリーの', '​　　　　(＋在 NicoNico 动画的情况下，请进行内容树的'],
-      ['music / バルーン\nplayed / ヒトリエ\nmovie / アボガド６', '音乐 / 须田景凪\n演奏 / Hitorie\n影像 / アボガド６'],
-      ['須田景凪 2nd EP\nクロスフェード\n\n当EPのアートワークも担当', '须田景凪 2nd EP\n唱见莲\n\n负责本 EP 的艺术设计'],
+      [
+        `music / バルーン
+played / ヒトリエ
+movie / アボガド６`,
+        `音乐 / 须田景凪
+演奏 / Hitorie
+影像 / アボガド６`,
+      ],
+      [
+        `須田景凪 2nd EP
+クロスフェード
+当EPのアートワークも担当`,
+        `须田景凪 2nd EP
+唱见莲
+负责本 EP 的艺术设计`,
+      ],
       ['UTAUなど配布素材についてはこちら​(外部サイトに飛びます)', '关于发布的 UTAU 素材请访问此链接（外部网站）'],
       ['ニコニコ動画のクリエイター奨励プログラムにおいてのみ、', '仅限于在 NicoNico 动画的“创作者奖励计划”中，'],
       ['「アボガド6のイラスト」として無断転載されていたことが', '被当作“ Avogado6 的插画”未经授权转载的情况，'],
-      ['読み上げ / \n足立レイ(レプリボイス、一部UTAU)\n伊織弓鶴', '朗读 / \n足立零 (Replivoice、部分UTAU)\n伊织弓鹤'],
+      [
+        `読み上げ / 
+足立レイ(レプリボイス、一部UTAU)
+伊織弓鶴`,
+        `朗读 / 
+足立零 (Replivoice、部分UTAU)
+伊织弓鹤`,
+      ],
       ['　いかなる場合でも事前にご連絡くださるようお願いいたします。', '无论何种情况，都请务必事先与我们联系。'],
       ['尚、上記規約に違反して作品を使用している場面を発見した際、', '此外，若发现违反上述条款使用作品的情况，'],
       ['TwitterやLINE、他インターネット上のすべての媒体において', '在 Twitter 、 LINE 以及其他所有网络平台上'],
       ['無断でトレースをし、オリジナルMVとして発表している例が', '未经授权进行描摹并作为原创 MV 发布的案例'],
       ['作者名・作品URLの記載なく、使用することを禁じます。', '禁止在未注明作者名及作品 URL 的情况下使用。'],
       ['ただし、精巧に元作品を再現した二次創作イラストが、', '但是，由于曾发生过精确再现原作的二次创作插画'],
-      ['「みんなのうた」\n2020年6-7月新曲\n音楽 須田景凪', '「大家的歌」\n2020 年 6 - 7 月新曲\n音乐 须田景凪'],
-      ['作詞・作曲　コウ(Diarays)\n歌　初音ミク　GUMI', '作词・作曲　コウ ( Diarays )\n演唱　初音未来　GUMI'],
+      [
+        `「みんなのうた」
+2020年6-7月新曲
+音楽 須田景凪`,
+        `「大家的歌」
+2020 年 6 - 7 月新曲
+音乐 须田景凪`,
+      ],
+      [
+        `作詞・作曲　コウ(Diarays)
+歌　初音ミク　GUMI`,
+        `作词・作曲　コウ ( Diarays )
+演唱　初音未来　GUMI`,
+      ],
       ['バルーンさん、有機酸さんの書き下ろし楽曲を含む、', '收录了包含 balloon 、有机酸新创作乐曲在内的，'],
-      ['Vocal  ナナヲアカリ\nLyrics &amp; Music  バルーン', '演唱  七音阿卡莉\n作词 &amp; 作曲  须田景凪'],
+      [
+        `Vocal  ナナヲアカリ
+Lyrics &amp; Music  バルーン`,
+        `演唱  七音阿卡莉
+作词 &amp; 作曲  须田景凪`,
+      ],
       ['その際はコンテンツツリーの親作品登録は必ずしてください。', '届时请务必进行内容树的亲作品登录。'],
       ['※尚、商用や企業が関わるものでの模倣・トレースは', '※此外，涉及商业或企业用途的模仿、描摹，'],
       ['非営利かつ個人的な利用の場合、複製・保存等は', '在非盈利且个人使用的情况下，复制、保存等行为'],
-      ['作詞・作曲　\nkoushirou（卑屈P）\n歌　鏡音リン', '作词・作曲　\nkoushirou（卑屈P）\n演唱　镜音铃'],
-      ['イラストカードブック\nKADOKAWA\n2019年9月26日発売', '插画卡册\nKADOKAWA\n2019 年 9 月 26 日发售'],
+      [
+        `作詞・作曲　
+koushirou（卑屈P）
+歌　鏡音リン`,
+        `作词・作曲　
+koushirou（卑屈P）
+演唱　镜音铃`,
+      ],
+      [
+        `イラストカードブック
+KADOKAWA
+2019年9月26日発売`,
+        `插画卡册
+KADOKAWA
+2019 年 9 月 26 日发售`,
+      ],
       ['個人的に、自分の作品が素材扱いされるのは', '就我个人而言，不希望自己的作品被当作素材对待，'],
       ['削除申請や使用料の請求をする場合がございます。', '我们可能会提出删除申请或要求支付使用费。'],
-      ['Scenarioart\nMINI ALBUM\n「- DRAMATICS -」より', 'Scenarioart\n迷你专辑\n出自「- DRAMATICS -」'],
+      [
+        `Scenarioart
+MINI ALBUM
+「- DRAMATICS -」より`,
+        `Scenarioart
+迷你专辑
+出自「- DRAMATICS -」`,
+      ],
       ['また、アボガド6が映像を担当している楽曲MVの', '此外，对于 Avogado6 负责影像制作的乐曲 MV，'],
-      ['曲　バルーン、ぬゆり\n歌 v_flower、歌愛ユキ', '作曲 须田景凪、Lanndo\n演唱 v_flower、歌爱雪'],
-      ['\nまた、アボガド6が制作したと分かる様、', '\n此外，Avogado6 制作的作品均已在内容树中注册，'],
+      [
+        `曲　バルーン、ぬゆり
+歌 v_flower、歌愛ユキ`,
+        `作曲 须田景凪、Lanndo
+演唱 v_flower、歌爱雪`,
+      ],
+      [
+        `
+また、アボガド6が制作したと分かる様、`,
+        `
+此外，Avogado6 制作的作品均已在内容树中注册，`,
+      ],
       ['　作品であっても、「オリジナルMV」など誤解を招く文言を', '作品，也严禁使用“原创 MV ”等'],
       ['2017年発表の中から比較的最近のものを中心に', '以 2017 年发表的作品中相对较新的作品为中心'],
       ['利用規約に沿ってトレース・模倣を行い作成した', '即使是遵循使用条款进行描摹、模仿所创作的'],
       ['利用規約は予告なく変更される場合があります。', '使用条款可能会在不另行通知的情况下变更。'],
-      ['ササノマリイ\n\nアートワーク 牧野惇\n\n編集を担当', 'ササノマリイ\n\n艺术设计 牧野惇\n\n负责编辑'],
+      [
+        `ササノマリイ
+アートワーク 牧野惇
+編集を担当`,
+        `ササノマリイ
+艺术设计 牧野惇
+负责编辑`,
+      ],
       ['​また、使用作品のURLも同様に記載してください。', '此外，也请同样记载所使用作品的 URL 。'],
       ['動画説明欄や投稿文に作者名を記載してください。', '请在视频简介或帖子正文中记载作者名。'],
-      ['曲　バルーン\n映像 アボガド6\n歌 初音ミク', '作曲 须田景凪\n影像 アボガド６\n演唱 初音未来'],
+      [
+        `曲　バルーン
+映像 アボガド6
+歌 初音ミク`,
+        `作曲 须田景凪
+影像 アボガド６
+演唱 初音未来`,
+      ],
       ['他、収益が生じる場での使用は固く禁じます。', '在其他产生收益的场合使用，均被严格禁止。'],
-      ['作詞/作曲　Eve\n歌　初音ミク\n編曲　ラムネ', '作词/作曲　Eve\n演唱　初音未来\n编曲　ラムネ'],
+      [
+        `作詞/作曲　Eve
+歌　初音ミク
+編曲　ラムネ`,
+        `作词/作曲　Eve
+演唱　初音未来
+编曲　ラムネ`,
+      ],
       ['作者名を動画説明欄や投稿文に記載してください。', '请在视频简介或帖子正文中记载作者名。'],
       ['ニコニコ動画内で映像を使用する場合、', '在 NicoNico 视频内使用视频时，请遵守以下规定，'],
-      ['\nなにもわからない なにもできない なにもない', '\n什么都不知道什么都不会做什么都没有了'],
-      ['歌　天月-あまつき-\n作詞・作曲　まふまふ', '演唱　天月-あまつき-\n作词・作曲　まふまふ'],
-      ['漫画作品集\nKADOKAWA\n2020年1月30日発売', '漫画作品集\nKADOKAWA\n 2020 年 1 月 30 日发售'],
-      ['漫画作品集\nKADOKAWA\n2021年9月30日発売', '漫画作品集\nKADOKAWA\n2021 年 9 月 30 日发售'],
+      [
+        `
+なにもわからない なにもできない なにもない`,
+        `
+什么都不知道什么都不会做什么都没有了`,
+      ],
+      [
+        `歌　天月-あまつき-
+作詞・作曲　まふまふ`,
+        `演唱　天月-あまつき-
+作词・作曲　まふまふ`,
+      ],
+      [
+        `漫画作品集
+KADOKAWA
+2020年1月30日発売`,
+        `漫画作品集
+KADOKAWA
+ 2020 年 1 月 30 日发售`,
+      ],
+      [
+        `漫画作品集
+KADOKAWA
+2021年9月30日発売`,
+        `漫画作品集
+KADOKAWA
+2021 年 9 月 30 日发售`,
+      ],
       ['映像、イラスト、漫画などすべての作品において、', '对于影像、插画、漫画等所有作品，'],
-      ['チームカミウタ\n映像\npopman3580　アボガド6', '神歌团队\n影像\npopman3580　アボガド６'],
+      [
+        `チームカミウタ
+映像
+popman3580　アボガド6`,
+        `神歌团队
+影像
+popman3580　アボガド６`,
+      ],
       ['　　　　  加工しSNSなどに投稿する​。', '         并加工后发布到社交网络等平台。'],
       ['当ページに記載されている内容が最新のものであり、', '本页面记载的内容为最新版本，'],
-      ['画集\nKADOKAWAより\n2025年8月21日出版', '画集\nKADOKAWA 出版\n2025 年 8 月 21 日出版'],
+      [
+        `画集
+KADOKAWAより
+2025年8月21日出版`,
+        `画集
+KADOKAWA 出版
+2025 年 8 月 21 日出版`,
+      ],
       ['画集「Random Trip 彷徨」発売のお知らせ ≫', '画集「Random Trip 彷徨」发售通知 ≫'],
       ['特に、アイコンなどで創作物を利用する際、', '特别是，在使用作品作为头像等用途时，'],
       ['クレジット等を記載していただけると嬉しく思います。', '并注明出处，我将不胜感激。'],
-      ['\nアボガド6が制作したと分かる様、', '\n为明确作品由アボガド６（Avogado6）所制作，'],
-      ['PVつけてみた(二次創作)\n原曲　日向電工', '尝试制作 PV（二次创作）\n原曲　日向电工'],
+      [
+        `
+アボガド6が制作したと分かる様、`,
+        `
+为明确作品由アボガド６（Avogado6）所制作，`,
+      ],
+      [
+        `PVつけてみた(二次創作)
+原曲　日向電工`,
+        `尝试制作 PV（二次创作）
+原曲　日向电工`,
+      ],
       ['並びに楽曲内で有料効果音を使用しているため、', '并且由于乐曲中使用了付费音效，'],
       ['初音ミク × ソニーストア コラボレーションモデル', '初音未来 × Sony Store 合作款'],
       ['過去作品すべてにも、この規約が適応されます。', '此条款也适用于所有过去的作品。'],
       ['アボガド6が管理しているアカウントは上記のみです。', 'Avogado6 仅管理以上账号。'],
       ['歌詞配置や色彩・演出などの編集を行い、', '对歌词布局、色彩、特效等进行编辑，'],
       ['ニコニコ動画外で楽曲を使用する場合、', ' NicoNico 动画以外的平台使用乐曲时，'],
-      ['曲　バルーン\nspecial thanks / v_flower', '作曲 须田景凪\n特别鸣谢 / v_flower'],
+      [
+        `曲　バルーン
+special thanks / v_flower`,
+        `作曲 须田景凪
+特别鸣谢 / v_flower`,
+      ],
       ['​使用する場合はアボガド6が制作したと', '使用时，为明确是由 Avogado6 所制作'],
       ['違反者にとってなにかしらの不利益が生じても', '或给违规者带来任何不利影响，'],
       ['尚、作者名・作品URLの記載があっても', '此外，即使注明了作者名和作品 URL，'],
       ['　記載をして発表することは固く禁じます。', '可能引起误解的词语进行发布。'],
       ['私事ですが、グッズ販売をいたします。', '通知私事，我将开始销售周边商品。'],
-      ['作詞・作曲　バルーン\n歌　v-flower', '作词・作曲　须田景凪\n演唱　v-flower'],
+      [
+        `作詞・作曲　バルーン
+歌　v-flower`,
+        `作词・作曲　须田景凪
+演唱　v-flower`,
+      ],
       ['　　　　  映像を動画サイトに投稿する', '         并将影像投稿至视频网站'],
-      ['画集\nKADOKAWA\n2019年1月31日発売', '画集\nKADOKAWA\n2019 年 1 月 31 日发售'],
-      ['画集\nKADOKAWA\n2020年1月30日発売', '画集\nKADOKAWA\n2020 年 1 月 30 日发售'],
-      ['画集\nKADOKAWA\n2022年8月24日発売', '画集\nKADOKAWA\n2022 年 8 月 24 日发售'],
+      [
+        `画集
+KADOKAWA
+2019年1月31日発売`,
+        `画集
+KADOKAWA
+2019 年 1 月 31 日发售`,
+      ],
+      [
+        `画集
+KADOKAWA
+2020年1月30日発売`,
+        `画集
+KADOKAWA
+2020 年 1 月 30 日发售`,
+      ],
+      [
+        `画集
+KADOKAWA
+2022年8月24日発売`,
+        `画集
+KADOKAWA
+2022 年 8 月 24 日发售`,
+      ],
       ['並びに、加工・改変はお止め下さい。', '并且，禁止对作品进行加工与修改。'],
       ['動画説明欄に作者名を記載してください。', '请在视频描述中包含作者姓名。'],
       ['利用者は規約に沿って利用していたとしても、', '即使用户是按照规定使用，'],
       ['それによって違反コンテンツが削除されたり、', '由此导致违规内容被删除，'],
       ['ニコニコ動画内で楽曲を使用する場合、', '在 NicoNico 动画内使用乐曲时，'],
-      ['画集\nKADOKAWA\n2018年3月1日発売', '画集\nKADOKAWA\n2018 年 3 月 1 日发售'],
+      [
+        `画集
+KADOKAWA
+2018年3月1日発売`,
+        `画集
+KADOKAWA
+2018 年 3 月 1 日发售`,
+      ],
       ['その作品のURLも同様に記載してください。', '也请同样注明该作品的 URL。'],
       ['バルーン、ナナヲアカリ、Diarays、', 'balloon 、七音阿卡莉、Diarays 、'],
       ['また、アボガド6作品全般において、', '此外，对于 Avogado6 的所有作品，'],
-      ['画集\nKADOKAWA\n2021年4月1日発売', '画集\nKADOKAWA\n2021 年4 月 1 日发售'],
+      [
+        `画集
+KADOKAWA
+2021年4月1日発売`,
+        `画集
+KADOKAWA
+2021 年4 月 1 日发售`,
+      ],
       ['制作したと分かる様、作者名を記載してください', '所制作，记载作者名。'],
-      ['Diarays\n歌　初音ミク\n\n※再投稿', 'Diarays\n演唱　初音未来\n\n※重新上传'],
+      [
+        `Diarays
+歌　初音ミク
+※再投稿`,
+        `Diarays
+演唱　初音未来
+※重新上传`,
+      ],
       ['instagramやTumblr、youtube、', '在 Instagram 、 Tumblr 、 YouTube 、'],
       ['VillageVanguard&nbsp;オンラインショップ', 'Village Vanguard 在线商店'],
       ['プロフィール欄などの分かりやすい場所に', '在个人简介等易于查看的位置'],
-      ['\nインタビュー対談のようなものを収録。', '进行的访谈对话形式的内容。'],
+      [
+        `
+インタビュー対談のようなものを収録。`,
+        '进行的访谈对话形式的内容。',
+      ],
       ['2023-2024年発表作品を中心に', '以 2023 年至 2024 年发表的作品为中心'],
       ['2017年6月22日 KADOKAWAより出版', '2017 年 6 月 22 日 KADOKAWA 出版'],
       ['2018年8月30日 KADOKAWAより出版', '2018 年 8 月 30 日 KADOKAWA 出版'],
       ['2020年11月2日 KADOKAWAより出版', '2020 年 11 月 2 日 KADOKAWA 出版'],
       ['2021年9月30日 KADOKAWAより出版', '2021 年 9 月 30 日 KADOKAWA 出版'],
-      ['歌　そらる\n作詞・作曲　みきとP', '演唱　そらる\n作词・作曲　みきとP'],
-      ['画集\nKADOKAWA\n2023年8月31日発売', '画集\nKADOKAWA\n2023年8月31日发售'],
+      [
+        `歌　そらる
+作詞・作曲　みきとP`,
+        `演唱　そらる
+作词・作曲　みきとP`,
+      ],
+      [
+        `画集
+KADOKAWA
+2023年8月31日発売`,
+        `画集
+KADOKAWA
+2023年8月31日发售`,
+      ],
       ['楽曲を素材化し使用することを禁じます。', '禁止将乐曲作为素材使用。'],
       ['下記メールアドレスまで​ご連絡下さい。', '请通过以下邮箱联系我们。'],
       ['お力添え本当に有難うございます。 ', '真的非常感谢各位的鼎力协助。 '],
       ['または手書き動画などの二次創作作品で', '或手书视频等二次创作作品，'],
       ['並びに、アボガド6作品を利用して', '并且，请勿使用 Avogado6 的作品'],
       ['・二次創作及び、トレース・模倣について', '・二次创作及描摹、模仿'],
-      ['作詞・作曲　すこっぷ\n歌　GUMI', '作词・作曲　すこっぷ\n演唱　GUMI'],
+      [
+        `作詞・作曲　すこっぷ
+歌　GUMI`,
+        `作词・作曲　すこっぷ
+演唱　GUMI`,
+      ],
       ['あったため、イラスト・映像問わず、', '因此，无论是插画还是影像，'],
       ['その他画像投稿サイトへの転載などの', '或其他图片分享网站上转载等'],
       ['なりすましや故意的な類似名のアカウントに', '请谨防假冒及高仿账号'],
@@ -6719,12 +7373,22 @@
       ['後追い自殺に定評のあるみっちゃん', '在追随自杀方面有口碑的小咪'],
       ['快く思わないため、下記例を参考にして', '因此，若能参考以下示例'],
       ['紹介や引用の範囲を超えた使用や、', '超出介绍或引用范围的使用，'],
-      ['作詞・作曲　マェロP\n歌　GUMI', '作词・作曲　マェロP\n演唱　GUMI'],
+      [
+        `作詞・作曲　マェロP
+歌　GUMI`,
+        `作词・作曲　マェロP
+演唱　GUMI`,
+      ],
       ['パブロフの猫とシュレディンガーの犬', '巴甫洛夫的猫与薛定谔的狗'],
       ['パメラ／バルーン(self cover)', '帕梅拉 ／ Balloon (本家翻唱)'],
       ['また、どのイラストを使用したか', '此外，为明确使用了哪一张插画'],
       ['​　　　　作詞作曲　バルーン', '​​　　　　作词作曲　balloon'],
-      ['\n初の試みで、担当編集さんとの', '\n首次尝试收录了与负责编辑，'],
+      [
+        `
+初の試みで、担当編集さんとの`,
+        `
+首次尝试收录了与负责编辑，`,
+      ],
       ['ご自由に制作、公開しても大丈夫です。', '可以自由创作和发布。'],
       ['ノマド／バルーン(self cover)', '流浪者 ／ Balloon (本家翻唱)'],
       ['(アイコン、ヘッダー、紹介など)', '（头像、背景图、介绍等）'],
@@ -6734,14 +7398,29 @@
       ['(たまにアカウントがロックされます)', '(偶尔账户会被锁定)'],
       ['≪ 画集「感情」発売のお知らせ', '≪ 画集「感情」发售通知'],
       ['日々の絵を290作品ほど収録。', '收录 290 幅日常绘画作品。'],
-      ['作詞・作曲　ロレロ\n歌　IA', '作词・作曲　ロレロ\n演唱　IA'],
+      [
+        `作詞・作曲　ロレロ
+歌　IA`,
+        `作词・作曲　ロレロ
+演唱　IA`,
+      ],
       ['映像　バルーン　アボガド6', '影像　须田景凪　アボガド６'],
       ['トレース・模倣のクレジット例：', '描摹/模仿的署名示例：'],
       ['へる／v-flowerとUTAUたち', 'ヘル ／ v-flower 与 UTAU 们'],
-      ['\n第四話 空っぽのやつでいっぱい', '\n第四话 满是空虚之物'],
+      [
+        `
+第四話 空っぽのやつでいっぱい`,
+        `
+第四话 满是空虚之物`,
+      ],
       ['　　　　原作 シャルル／flower', '原作 シャルル／flower'],
       ['次創作(ファンアート)についても', '次创作（粉丝艺术）也'],
-      ['曲　MI8k\n歌　闇音レンリ', '乐曲　MI8k\n演唱　闇音レンリ'],
+      [
+        `曲　MI8k
+歌　闇音レンリ`,
+        `乐曲　MI8k
+演唱　闇音レンリ`,
+      ],
       ['クレジットは任意で構いません。', '署名与否可自行决定。'],
       ['ご自由にしていただいて構いません。', '您可以自由进行。'],
       ['コンテンツツリーの登録をして下さい。', '请注册内容树。'],
@@ -6751,29 +7430,59 @@
       ['2020年発表作品を中心に', '以 2020 年发表的作品为中心'],
       ['2021年発表作品を中心に', '以 2021 年发表的作品为中心'],
       ['2022年発表作品を中心に', '以 2022 年发表的作品为中心'],
-      ['曲　バルーン\n歌　flower', '作曲 须田景凪\n演唱 flower'],
+      [
+        `曲　バルーン
+歌　flower`,
+        `作曲 须田景凪
+演唱 flower`,
+      ],
       ['日々の絵を213作品収録。', '收录 213 幅日常绘画作品。'],
       ['日々の絵を230作品収録。', '收录 230 幅日常绘画作品。'],
       ['日々の絵を収録。192P。', '收录每日绘画作品，192 页。'],
-      ['イラストカードブック\nKADOKAWA', '插画卡片书\nKADOKAWA'],
+      [
+        `イラストカードブック
+KADOKAWA`,
+        `插画卡片书
+KADOKAWA`,
+      ],
       ['グッズ販売のお知らせ #6 ≫', '周边商品销售通知 #6 ≫'],
       ['コンテなどのおまけつき。', '附有分镜画稿等特典内容。'],
       ['トレースや明らかな模倣を行って', '通过描摹或明显模仿'],
       ['about/contact | アボガド6', '关于/联系 | アボガド６'],
-      ['映像作品\n楽曲　バルーン', '影像作品\n乐曲　须田景凪'],
+      [
+        `映像作品
+楽曲　バルーン`,
+        `影像作品
+乐曲　须田景凪`,
+      ],
       ['映像を使用して作成した作品、', '影像所创作的作品，'],
       ['元映像を想起させる内容で、', '让人联想到原始影像，'],
       ['制作し公開しないでください。', '并发布另一部作品。'],
       ['Twitterやyoutubeなど、', '在 Twitter 或 YouTube 等'],
-      ['コラボＭＶ\n音楽　はらゆう', '合作MV\n音乐　はらゆう'],
+      [
+        `コラボＭＶ
+音楽　はらゆう`,
+        `合作MV
+音乐　はらゆう`,
+      ],
       ['　　　　原作映像　アボガド6', '原作影像　Avogado6'],
-      ['自主制作DVD\nクロスフェード', '自主制作 DVD\n唱见莲'],
+      [
+        `自主制作DVD
+クロスフェード`,
+        `自主制作 DVD
+唱见莲`,
+      ],
       ['アグリースワン(ボカロ版)', '丑小鸭 ( Vocaloid 版)'],
       ['画集「感情」発売のお知らせ', '画集「感情」已发布'],
       ['楽曲を使用して作成した作品', '使用乐曲创作的作品'],
       ['無断でのグッズ化、', '以及未经许可制作周边商品、'],
       ['に作者名を記載してください。', '中请记载作者名。'],
-      ['みやけ(MI8k)\n歌　GUMI', 'みやけ(MI8k)\n演唱　GUMI'],
+      [
+        `みやけ(MI8k)
+歌　GUMI`,
+        `みやけ(MI8k)
+演唱　GUMI`,
+      ],
       ['やさしさいっぱいの土の上で', '在满是温柔的土地上'],
       ['利用者は周りの人を傷つけたり', '使用者伤害他人'],
       ['模倣元の作品名と、', '请注明被模仿的原作名称，'],
@@ -6782,18 +7491,38 @@
       ['キャラクターやアイテムだけを', '仅将角色或物品'],
       ['グッズ販売のお知らせ #6', '周边商品销售通知 #6'],
       ['利用規約 | アボガド6', '使用条款 | アボガド６'],
-      ['\n生きてくれてありがとう', '\n谢谢你让我活下来'],
+      [
+        `
+生きてくれてありがとう`,
+        `
+谢谢你让我活下来`,
+      ],
       ['「おもかげ」慧眼のご案内', '「面影」慧眼指南'],
       ['不愉快にさせる言動は', '或发表令人不快的言论'],
       ['収益を得ることを禁じます。', '禁止获取收益。'],
       ['作者名を記載してください。', '请注明作者名。'],
       ['・映像のトレース・模倣', '影像的描摹与模仿'],
       ['4　死んだ魚の眼を瞑る ', '4　闭上死鱼的眼 '],
-      ['短編漫画集\nKADOKAWA', '短篇漫画集\nKADOKAWA'],
+      [
+        `短編漫画集
+KADOKAWA`,
+        `短篇漫画集
+KADOKAWA`,
+      ],
       ['一切の責任を負いません。', '我们概不负责。'],
       ['メインコンテンツにスキップ', '跳过主要内容'],
-      ['\n第二話 不死身の国', '\n第二话 不死身之国'],
-      ['\n誰かを愛してみたかった', '\n想试试爱别人'],
+      [
+        `
+第二話 不死身の国`,
+        `
+第二话 不死身之国`,
+      ],
+      [
+        `
+誰かを愛してみたかった`,
+        `
+想试试爱别人`,
+      ],
       ['第一話 ロボットの国', '第一话 机器人之国'],
       ['絶対にしないで下さい。', '是绝对禁止的。'],
       ['刹那の渦／flower', '刹那的漩涡 ／ flower'],
@@ -6805,9 +7534,24 @@
       ['アメデオ旅行記  上', '阿米迪奥旅行记 上'],
       ['アメデオ旅行記  下', '阿米迪奥旅行记 下'],
       ['ダーリン／須田景凪', 'Darling／须田景凪'],
-      ['\n145作品収録。', '\n共收录 145 个作品。'],
-      ['\n神様が落ちてきた日', '\n神降临的那一天'],
-      ['短編漫画\nKADOKAWA', '短篇漫画\nKADOKAWA'],
+      [
+        `
+145作品収録。`,
+        `
+共收录 145 个作品。`,
+      ],
+      [
+        `
+神様が落ちてきた日`,
+        `
+神降临的那一天`,
+      ],
+      [
+        `短編漫画
+KADOKAWA`,
+        `短篇漫画
+KADOKAWA`,
+      ],
       ['歌ってみた動画などの', '使用试唱视频等'],
       ['空っぽのやつでいっぱい', '满是空虚之物'],
       ['日々の絵を収録。', '收录每日绘画作品。'],
@@ -6820,13 +7564,48 @@
       ['やぶれかぶれおどれ', '破罐子破摔地跳舞'],
       ['home | アボガド6', '首页 | アボガド６'],
       ['shop | アボガド6', '周边 | アボガド６'],
-      ['\n第二話 道徳の国', '\n第二话 道德之国'],
-      ['\n第三話 大人の国', '\n第三话 大人之国'],
-      ['\n第三話 静寂の国', '\n第三话 寂静之国'],
-      ['\n第四話 安全の国', '\n第四话 安全之国'],
-      ['\n第四話 未来の国', '\n第四话 未来之国'],
-      ['\n第五話 自然の国', '\n第五话 自然之国'],
-      ['\n君の名前でいっぱい', '\n满是你的名字'],
+      [
+        `
+第二話 道徳の国`,
+        `
+第二话 道德之国`,
+      ],
+      [
+        `
+第三話 大人の国`,
+        `
+第三话 大人之国`,
+      ],
+      [
+        `
+第三話 静寂の国`,
+        `
+第三话 寂静之国`,
+      ],
+      [
+        `
+第四話 安全の国`,
+        `
+第四话 安全之国`,
+      ],
+      [
+        `
+第四話 未来の国`,
+        `
+第四话 未来之国`,
+      ],
+      [
+        `
+第五話 自然の国`,
+        `
+第五话 自然之国`,
+      ],
+      [
+        `
+君の名前でいっぱい`,
+        `
+满是你的名字`,
+      ],
       ['・二次創作及び、', '・关于二次创作，'],
       ['1　のけものばけもの ', '1　异类怪物 '],
       ['2　事象と空想　 ', '2　事象与空想　 '],
@@ -6836,8 +7615,18 @@
       ['Harima〆、有機酸', 'Harima〆、有机酸'],
       ['パメラ／flower', '帕梅拉 ／ flower'],
       ['2016年12月制作', '2016 年 12 月制作'],
-      ['\n僕は幸せな夢を見る', '\n我梦见幸福'],
-      ['\nあなたの影を追う', '\n追寻你的影子'],
+      [
+        `
+僕は幸せな夢を見る`,
+        `
+我梦见幸福`,
+      ],
+      [
+        `
+あなたの影を追う`,
+        `
+追寻你的影子`,
+      ],
       ['多数見受けられます。', '时有发生。'],
       ['足立レイ生産工場', '足立零生产工厂'],
       ['​アメデオ旅行記', '阿米迪奥旅行记'],
@@ -6846,10 +7635,30 @@
       ['・イラスト、漫画 ', '・插画与漫画'],
       ['KADOKAWAより出版', 'KADOKAWA 出版'],
       ['アボガド6が', '原作者是 Avogado6 '],
-      ['\n第六話 夜の国', '\n第六话 夜之国'],
-      ['\n第三話 無人島', '\n第三话 无人岛'],
-      ['\n第五話 石の国', '\n第五话 石之国'],
-      ['\n命を削る仕事', '\n削减生命的工作'],
+      [
+        `
+第六話 夜の国`,
+        `
+第六话 夜之国`,
+      ],
+      [
+        `
+第三話 無人島`,
+        `
+第三话 无人岛`,
+      ],
+      [
+        `
+第五話 石の国`,
+        `
+第五话 石之国`,
+      ],
+      [
+        `
+命を削る仕事`,
+        `
+削减生命的工作`,
+      ],
       ['歌 / 旭音エマ', '演唱 / 旭音エマ'],
       ['何かありましたら', '如有任何事宜'],
       ['死んだ魚の眼を瞑る', '闭上死鱼眼'],
@@ -6869,7 +7678,12 @@
       ['制作した作品を', '所创作的作品'],
       ['ご留意ください。', '敬请留意。'],
       ['曲　バルーン', '作曲 须田景凪'],
-      ['\n第二話 浄化', '\n第二话 净化'],
+      [
+        `
+第二話 浄化`,
+        `
+第二话 净化`,
+      ],
       ['【ボカロ用】', '【歌姬使用】'],
       ['6　青に踊る ', '6　与青共舞 '],
       ['担当している旨を', '这一信息'],
@@ -6882,7 +7696,12 @@
       ['メロンブックス', 'Melonbooks'],
       ['ワンダーボックス', '奇迹盒子'],
       ['5　シャルル ', '5　Charles '],
-      ['\n春よ来い', '\n春天啊快来吧'],
+      [
+        `
+春よ来い`,
+        `
+春天啊快来吧`,
+      ],
       ['【情報用】', '【信息分享】'],
       ['第一話 死別', '第一话 死别'],
       ['幸せをあなたに', '愿你幸福'],
@@ -6891,10 +7710,30 @@
       ['その制作を', '以及该作品的'],
       ['もぬけのからだ', '蜕皮之躯'],
       ['​A5サイズ。', 'A5 尺寸。'],
-      ['\n0℃の魔法', '\n0℃的魔法'],
-      ['\n第七話 死', '\n第七话 死'],
-      ['\n第五話 花', '\n第五话 花'],
-      ['\nタオルケット', '\n毛巾被'],
+      [
+        `
+0℃の魔法`,
+        `
+0℃的魔法`,
+      ],
+      [
+        `
+第七話 死`,
+        `
+第七话 死`,
+      ],
+      [
+        `
+第五話 花`,
+        `
+第五话 花`,
+      ],
+      [
+        `
+タオルケット`,
+        `
+毛巾被`,
+      ],
       ['動画説明欄', '视频简介栏'],
       ['花瓶に触れた', '触碰花瓶'],
       ['悋気な惑星', '吃醋的行星'],
@@ -6905,9 +7744,24 @@
       ['ケッペキショウ', '洁癖症'],
       ['​ご注意ください。', '。'],
       ['だいふく星人', '大福星人'],
-      ['\n2月22日', '\n2 月 22 日'],
-      ['\n青写真', '\n蓝色的照片'],
-      ['\n子供の国', '\n孩童之国'],
+      [
+        `
+2月22日`,
+        `
+2 月 22 日`,
+      ],
+      [
+        `
+青写真`,
+        `
+蓝色的照片`,
+      ],
+      [
+        `
+子供の国`,
+        `
+孩童之国`,
+      ],
       ['命ばっかり', '只为生命'],
       ['置き換えて', '进行替换'],
       ['サクリファイス', '牺牲'],
@@ -6916,9 +7770,24 @@
       ['模倣例1', '模仿示例 1'],
       ['模倣例2', '模仿示例 2'],
       ['アニメイト', 'Animate'],
-      ['\n命拾い', '\n九死一生'],
-      ['\nしーちゃん', '\n小希'],
-      ['\nプロポーズ', '\n结婚'],
+      [
+        `
+命拾い`,
+        `
+九死一生`,
+      ],
+      [
+        `
+しーちゃん`,
+        `
+小希`,
+      ],
+      [
+        `
+プロポーズ`,
+        `
+结婚`,
+      ],
       ['【目次】', '【目录】'],
       ['別の作品を', '来创作'],
       ['朝を呑む', '吞下早晨'],
@@ -6933,8 +7802,18 @@
       ['レインコート', '雨衣'],
       ['エイプリル', 'APRIL'],
       ['シャルル', 'Charles'],
-      ['\n正夢', '\n美梦成真'],
-      ['\nマザー', '\nMother'],
+      [
+        `
+正夢`,
+        `
+美梦成真`,
+      ],
+      [
+        `
+マザー`,
+        `
+Mother`,
+      ],
       ['・映像 ', '・影像 '],
       ['≪ back', '≪ 返回'],
       ['■ back', '■ 返回'],
@@ -6957,7 +7836,12 @@
       ['Amazon', '亚马逊'],
       ['また、', '此外，'],
       ['ミザン', 'Miseen'],
-      ['\n独身', '\n单身'],
+      [
+        `
+独身`,
+        `
+单身`,
+      ],
       ['​剥製', '剥制'],
       ['登録)', '登录)'],
       ['​果実', '果实'],
@@ -6977,8 +7861,11 @@
     ],
   };
   var wplaceLiveZhCn = {
+    description: '此翻译配置适用于 wplace.live 网站的本地化。',
+    testUrl: 'https://wplace.live/',
+    createdAt: '2025-10-06',
     language: 'zh-cn',
-    enabled: true,
+    enabled: !0,
     styles: [],
     blockedElements: [],
     extendedElements: [],
@@ -7008,13 +7895,30 @@
       [/^\s*Level\s+(\d+)\s*$/i, '等级 $1'],
     ],
     textRules: [
-      ["In these cases, the cardholder must contact the financial institution directly to take\n			appropriate actions, such as blocking the card, disputing charges, and requesting a reversal,\n			according to the bank or card operator's rules.", '在这些情况下，持卡人必须直接联系金融机构采取适当措施，例如根据银行或发卡机构的规定挂失卡片、对收费提出异议以及申请退单。'],
+      [
+        `In these cases, the cardholder must contact the financial institution directly to take
+			appropriate actions, such as blocking the card, disputing charges, and requesting a reversal,
+			according to the bank or card operator's rules.`,
+        '在这些情况下，持卡人必须直接联系金融机构采取适当措施，例如根据银行或发卡机构的规定挂失卡片、对收费提出异议以及申请退单。',
+      ],
       ['Display your country’s flag next to your username. Plus, when painting in regions where you own the corresponding flag, you recover 10% of the charges spent.', '在您的用户名旁边显示您国家的旗帜。此外，在您拥有相应旗帜的地区进行绘制时，您将恢复 10% 的已用储量。'],
       ["When painting, click on the button on the top right corner of the screen. This will lock the screen but it'll also enable painting by moving your finger over the map.", '绘制时，请点击屏幕右上角的按钮。这将锁定屏幕，但您可以通过在地图上移动手指来进行绘制。'],
-      ['Disputes over purchases made by unauthorized users, when it is not possible to prove a\n					system failure.', '未经授权的用户进行的购买产生争议，且无法证明是系统故障所致。'],
-      ["Refunds will only be considered in situations where a technical failure of the platform's\n			system is proven.", '只有在证明平台系统存在技术故障的情况下，才会考虑退款。'],
+      [
+        `Disputes over purchases made by unauthorized users, when it is not possible to prove a
+					system failure.`,
+        '未经授权的用户进行的购买产生争议，且无法证明是系统故障所致。',
+      ],
+      [
+        `Refunds will only be considered in situations where a technical failure of the platform's
+			system is proven.`,
+        '只有在证明平台系统存在技术故障的情况下，才会考虑退款。',
+      ],
       ['🚫 No inappropriate content (+18, hate speech, inappropriate links, highly suggestive material, ...)', '🚫 禁止不当内容（ +18 、仇恨言论、不当链接、强暗示性内容等）'],
-      ['You are unable to use the service due to technical issues with Wplace lasting more than 24\n			hours.', '由于 Wplace 的技术问题导致您超过 24 小时无法使用服务。'],
+      [
+        `You are unable to use the service due to technical issues with Wplace lasting more than 24
+			hours.`,
+        '由于 Wplace 的技术问题导致您超过 24 小时无法使用服务。',
+      ],
       [' This will permanently delete your account and all associated data. This action cannot be undone.', '这将永久删除您的账户和所有关联数据。此操作无法撤销'],
       ['The refund will be processed using the same payment method and will occur within 7 to 30 days.', '退款将通过原支付方式处理，并将在 7 到 30 天内完成。'],
       ['😈 Do not paint over other artworks using random colors or patterns just to mess things up', '😈 不要使用随机颜色或图案涂抹其他艺术作品，蓄意破坏'],
@@ -7057,7 +7961,11 @@
       ['You need to zoom in to select a pixel', '您需要放大才能选择像素'],
       ['Add a new 16x16 profile picture', '添加一个新的 16x16 个人头像'],
       ['and move your cursor over the map.', '并在地图上移动您的光标。'],
-      [' ©\n						OpenMapTiles Data from ', '© OpenMapTiles 数据来源'],
+      [
+        ` ©
+						OpenMapTiles Data from `,
+        '© OpenMapTiles 数据来源',
+      ],
       ['Falkland Islands (Malvinas)', '福克兰群岛（马尔维纳斯群岛）'],
       ['By continuing, you agree to our ', '通过继续，您同意我们的'],
       ['Unauthorized use by third parties;', '第三方未经授权使用；'],
@@ -7073,7 +7981,11 @@
       ['Preferably, use a 16x16 image', '建议使用 16x16 图像'],
       ['🤖 Use of bots is not allowed', '🤖 禁止使用机器人'],
       [' Select the headquarters location', '选择总部位置'],
-      ['(Reason: Botting)', '\n(原因: 机器人/外挂/自动化)'],
+      [
+        '(Reason: Botting)',
+        `
+(原因: 机器人/外挂/自动化)`,
+      ],
       ['British Indian Ocean Territory', '英属印度洋领地'],
       ['Saint Martin (French part)', '圣马丁（法属部分）'],
       ['Alliance name already taken', '联盟名称已被占用'],
@@ -7550,8 +8462,11 @@
     ],
   };
   var huggingfaceCoZhCn = {
+    description: '此翻译配置适用于 huggingface.co 网站的本地化。',
+    testUrl: 'https://huggingface.co/',
+    createdAt: '2025-10-13',
     language: 'zh-cn',
-    enabled: true,
+    enabled: !0,
     styles: [],
     blockedElements: [],
     extendedElements: [],
@@ -7596,15 +8511,31 @@
       ['Access tokens programmatically authenticate your identity to the Hugging Face Hub, allowing applications to perform specific actions specified by the scope of permissions (read, write, or admin) granted', '访问令牌以编程方式对您的身份进行认证，允许应用程序执行由授予的权限范围（读、写或管理）指定的具体行动。'],
       ['Disclaimer: AI is an area of active research with known problems such as biased generation and misinformation. Do not use this application for high-stakes decisions or advice.', '免责声明：人工智能是一个活跃的研究领域，存在一些已知问题，如偏差生成和错误信息。请勿将此应用程序用于高风险决策或建议。'],
       ['Delete your HF account permanently, this action is irreversible. All your repositories (models, datasets, & Spaces) will be deleted.', '永久删除您的 HF 账户，此操作不可逆。您的所有资源库（模型、数据集和 Spaces）都将被删除。'],
-      ['Give your team the most advanced platform to build AI with enterprise-grade security, access controls and\n			dedicated support.		', '为您的团队提供最先进的平台，以企业级的安全性、访问控制和专属支持来构建人工智能。'],
+      [
+        `Give your team the most advanced platform to build AI with enterprise-grade security, access controls and
+			dedicated support.		`,
+        '为您的团队提供最先进的平台，以企业级的安全性、访问控制和专属支持来构建人工智能。',
+      ],
       ['We will use this email to communicate with you. This is also the email to use to authenticate on hf.co.', '我们将使用此电子邮件与您联系。这也是在 hf.co 上进行身份验证时使用的电子邮件。'],
       ['The platform where the machine learning community collaborates on models, datasets, and applications.', '机器学习社区协作开发模型、数据集和应用的平台'],
       ['Your conversations will be shared with model authors unless you disable it from your settings.', '除非你在设置中禁用，否则你的对话将与模型作者共享。'],
-      ['Give your personal account or your organization the most advanced platform to build AI.\n				', '为个人账户或组织提供最先进的平台，以构建 AI'],
-      ['Building something cool as a side project? We also offer community GPU grants.\n			', '正在搞个酷炫的副业项目？我们还提供社区 GPU 资助计划'],
+      [
+        `Give your personal account or your organization the most advanced platform to build AI.
+				`,
+        '为个人账户或组织提供最先进的平台，以构建 AI',
+      ],
+      [
+        `Building something cool as a side project? We also offer community GPU grants.
+			`,
+        '正在搞个酷炫的副业项目？我们还提供社区 GPU 资助计划',
+      ],
       ['Link additional emails to your account to join your organizations easily and', '将其他的电子邮件链接到你的账户，以便轻松地加入你的组织和'],
       ["We index all model cards, dataset cards, and Spaces' app.py files.", '我们的搜索范围涵盖所有模型卡片、数据集卡片和 Spaces 的 app.py 文件'],
-      [' Use your organization email to easily find and join your company/team\n						org.', ' 使用您的组织邮箱轻松查找并加入您的公司 / 团队组织'],
+      [
+        ` Use your organization email to easily find and join your company/team
+						org.`,
+        ' 使用您的组织邮箱轻松查找并加入您的公司 / 团队组织',
+      ],
       ['Host and collaborate on unlimited public models, datasets and applications.', '托管无限的公共模型、数据集和应用程序并进行协作'],
       ['Choose on which organizations/users to get notified on new discussions and PRs', '选择哪些组织/用户获得新的讨论和公告的通知'],
       ["Making the community's best AI chat models available to everyone.", '让每个人都能使用社区中最好的人工智能聊天模型。'],
@@ -7661,12 +8592,20 @@
       ['running apps, trending first', '运行应用程序，趋势先行'],
       ['Boost your personal HF experience', '提升个人 HF 体验'],
       ['Scale with dedicated hardware', '使用专用硬件进行扩展'],
-      ['Username or Email address\n			', '用户名或电子邮件地址'],
+      [
+        `Username or Email address
+			`,
+        '用户名或电子邮件地址',
+      ],
       ['Starting at $20/user/month', '每位用户每月 20 美元起'],
       ['With the HF Open source stack.', '借助 HF 开源技术栈'],
       ['Search anything on the Hub', '在 Hub 上搜索任何内容'],
       ['Accelerate your ML roadmap', '加快你的 ML 路线图'],
-      ['Already have an account?\n					', '已经有账号了？'],
+      [
+        `Already have an account?
+					`,
+        '已经有账号了？',
+      ],
       ['Ask for provider support', '请求推理提供程序支持'],
       ['Sign in withHugging Face', '用 Hugging Face 登录'],
       ['Unconditional Image Generation', '无条件图像生成'],
@@ -7674,7 +8613,11 @@
       ['SSO is available for ', '单点登录（SSO）可用于 '],
       ['Collections trending this week', '本周热门合集'],
       ['New features and announcements', '新功能和公告'],
-      ['per user per month\n										', '每个用户每月'],
+      [
+        `per user per month
+										`,
+        '每个用户每月',
+      ],
       ['Automatic Speech Recognition', '自动语音识别'],
       ['Deploy models in minutes', '几分钟内部署模型'],
       ['The Home of Machine Learning', '机器学习之家'],
@@ -7690,7 +8633,11 @@
       ['Open LLM Leaderboard', '开放式 LLM 排行榜'],
       ['Text Generation Inference', '文本生成推理'],
       ['Visual Question Answering', '视觉问题解答'],
-      ["Don't have an account?\n			", '没有账号？'],
+      [
+        `Don't have an account?
+			`,
+        '没有账号？',
+      ],
       ['Filter Libraries by name', '按名称筛选库'],
       ['Participating and mentions', '参与和提及'],
       ['Table Question Answering', '表格问题解答'],
@@ -7698,7 +8645,11 @@
       ['Build ML collaboratively', '协同建立 ML'],
       ['Confirm your new password', '确认新密码'],
       ['Forgot your password?', '您忘记了密码？'],
-      ['\n				AI & ML interests', 'AI & ML 兴趣'],
+      [
+        `
+				AI & ML interests`,
+        'AI & ML 兴趣',
+      ],
       ['Accelerate your ML', '加速您的机器学习'],
       ['Build your portfolio', '建立你的作品集'],
       ['Downloads last month', '上个月的下载量'],
@@ -7720,21 +8671,42 @@
       ['mithril-security', 'Mithril-security'],
       ['Tabular Classification', '表格式分类'],
       ['Zero-Shot Classification', '零点分类'],
-      ['\n				Expert Support\n			', '专业支持'],
+      [
+        `
+				Expert Support
+			`,
+        '专业支持',
+      ],
       ['Additional emails', '额外的电子邮件'],
       ['Delete your account', '删除您的帐户'],
-      ['Email Address\n					', '电子邮件地址'],
+      [
+        `Email Address
+					`,
+        '电子邮件地址',
+      ],
       ['No application file', '没有应用文件'],
       ['Confirm new password', '确认新密码'],
-      ['Privacy\n        Policy', '隐私政策'],
+      [
+        `Privacy
+        Policy`,
+        '隐私政策',
+      ],
       ['TCO Calculator', '总拥有成本计算器'],
       ['Delete my account', '删除我的账户'],
       ['Inference Providers', '推理提供商'],
       ['Sentence Similarity', '句子相似性'],
       ['Team & Enterprise', '团队与企业版'],
       ['Updated a model', '更新了一个模型'],
-      ['\n				Apply filters', '应用筛选器'],
-      ['\n				Recent Activity', '最近活动'],
+      [
+        `
+				Apply filters`,
+        '应用筛选器',
+      ],
+      [
+        `
+				Recent Activity`,
+        '最近活动',
+      ],
       ['Assist in a task', '协助完成任务'],
       ['Audio Classification', '音频分类'],
       ['Dismiss this message', '不再提醒'],
@@ -7774,7 +8746,11 @@
       ['Image-to-Image', '图像到图像'],
       ['Object Detection', '物体检测'],
       ['or update your', '或更新您的'],
-      ['per month\n										', '每月'],
+      [
+        `per month
+										`,
+        '每月',
+      ],
       ['Priority Support', '优先支持'],
       ['Profile Settings', '简介设置'],
       ['Recently updated', '最近更新'],
@@ -7783,11 +8759,19 @@
       ['Text-to-Speech', '文本到语音'],
       ['Twitter username', '推特账户'],
       ['Watch settings ', '观察设置 '],
-      ['\n			Trending on', '热门话题'],
+      [
+        `
+			Trending on`,
+        '热门话题',
+      ],
       ['Getting started', '开始使用'],
       ['Image-to-Text', '图像到文本'],
       ['Multilinguality', '多语言性'],
-      ['Team members\n		', '团队成员'],
+      [
+        `Team members
+		`,
+        '团队成员',
+      ],
       ['Text Generation', '文本生成'],
       ['Text-to-Image', '文本到图像'],
       ['Text-to-Video', '文本到视频'],
@@ -7824,10 +8808,28 @@
       ['Safetensors', '安全张量'],
       ['Subscribe for', '订阅以'],
       ['Tensor type', '张量类型'],
-      ['\n					Articles', '文章'],
-      ['\n			Viewer\n			', '查看'],
-      ['\n		Sort: \n		', '排序：'],
-      [' accounts.\n			', '账户'],
+      [
+        `
+					Articles`,
+        '文章',
+      ],
+      [
+        `
+			Viewer
+			`,
+        '查看',
+      ],
+      [
+        `
+		Sort: 
+		`,
+        '排序：',
+      ],
+      [
+        ` accounts.
+			`,
+        '账户',
+      ],
       ['(optional)', '（可选）'],
       ['Audit Logs', '审计日志'],
       ['Conversational', '对话'],
@@ -7851,8 +8853,16 @@
       ['repositories ', '仓库'],
       ['Solutions', '解决方案'],
       ['Summarization', '总结'],
-      ['this week\n			', '本周'],
-      ['\n	Verified', '已验证'],
+      [
+        `this week
+			`,
+        '本周',
+      ],
+      [
+        `
+	Verified`,
+        '已验证',
+      ],
       ['All docs', '所有文档'],
       ['arxiv:', 'arXiv 论文'],
       ['Enterprise', '企业版'],
@@ -7870,7 +8880,11 @@
       ['New Space', '新空间'],
       ['Privacy', '隐私保护'],
       ['Translation', '翻译'],
-      ['\n			Reset ', '重置'],
+      [
+        `
+			Reset `,
+        '重置',
+      ],
       [' filters', '筛选器'],
       ['Classrooms', '教室'],
       ['Create New', '新建'],
@@ -7971,88 +8985,57 @@
       ['or', '或'],
     ],
   };
-  var masterTranslationMap = {
-    'jules.google.com#zh-cn': julesGoogleComZhCn,
-    'aistudio.google.com#zh-cn': aistudioGoogleComZhCn,
-    'claude.ai#zh-cn': claudeAiZhCn,
-    'platform.claude.com#zh-cn': platformClaudeComZhCn,
-    'status.claude.com#zh-cn': statusClaudeComZhCn,
-    'jules.google.com#zh-hk': julesGoogleComZhHk,
-    'aistudio.google.com#zh-hk': aistudioGoogleComZhHk,
-    'claude.ai#zh-hk': claudeAiZhHk,
-    'aistudio.google.com#zh-tw': aistudioGoogleComZhTw,
-    'claude.ai#zh-tw': claudeAiZhTw,
-    'gemini.google.com#zh-cn': geminiGoogleComZhCn,
-    'www.avogado6.com#zh-cn': wwwAvogado6ComZhCn,
-    'wplace.live#zh-cn': wplaceLiveZhCn,
-    'huggingface.co#zh-cn': huggingfaceCoZhCn,
-  };
+  var masterTranslationMap = { 'jules.google.com#zh-cn': julesGoogleComZhCn, 'aistudio.google.com#zh-cn': aistudioGoogleComZhCn, 'claude.ai#zh-cn': claudeAiZhCn, 'platform.claude.com#zh-cn': platformClaudeComZhCn, 'status.claude.com#zh-cn': statusClaudeComZhCn, 'jules.google.com#zh-hk': julesGoogleComZhHk, 'aistudio.google.com#zh-hk': aistudioGoogleComZhHk, 'claude.ai#zh-hk': claudeAiZhHk, 'aistudio.google.com#zh-tw': aistudioGoogleComZhTw, 'claude.ai#zh-tw': claudeAiZhTw, 'gemini.google.com#zh-cn': geminiGoogleComZhCn, 'www.avogado6.com#zh-cn': wwwAvogado6ComZhCn, 'wplace.live#zh-cn': wplaceLiveZhCn, 'huggingface.co#zh-cn': huggingfaceCoZhCn };
   var SUPPORTED_LANGUAGES = [
-    { code: 'zh-cn', name: '简体中文-大陆', flag: '🇨🇳' },
-    { code: 'zh-hk', name: '繁體中文-香港', flag: '🇭🇰' },
-    { code: 'zh-tw', name: '繁體中文-台湾', flag: '🇹🇼' },
-  ];
-  var SUPPORTED_LANGUAGE_CODES = SUPPORTED_LANGUAGES.map((lang) => lang.code);
-  var LOG_KEY = 'web_translate_debug_mode';
-  var isDebugMode = GM_getValue(LOG_KEY, false);
+      { code: 'zh-cn', name: '简体中文-大陆', flag: '🇨🇳' },
+      { code: 'zh-hk', name: '繁體中文-香港', flag: '🇭🇰' },
+      { code: 'zh-tw', name: '繁體中文-台湾', flag: '🇹🇼' },
+    ],
+    SUPPORTED_LANGUAGE_CODES = SUPPORTED_LANGUAGES.map((lang) => lang.code);
+  var LOG_KEY = 'web_translate_debug_mode',
+    isDebugMode = GM_getValue(LOG_KEY, !1);
   function updateDebugState(newMode) {
     isDebugMode = newMode;
   }
   function log(...args) {
-    if (isDebugMode) {
-      console.log('[汉化脚本]', ...args);
-    }
+    isDebugMode && console.log('[汉化脚本]', ...args);
   }
   function debug(...args) {
-    if (isDebugMode) {
-      console.debug('[汉化脚本-DEBUG]', ...args);
-    }
+    isDebugMode && console.debug('[汉化脚本-DEBUG]', ...args);
   }
   function perf(operation, duration, ...args) {
-    if (isDebugMode) {
-      if (duration > 5) {
-        console.log(`[汉化脚本-PERF] ${operation} 耗时: ${duration.toFixed(2)}ms`, ...args);
-      }
-    }
+    isDebugMode && duration > 5 && console.log(`[汉化脚本-PERF] ${operation} 耗时: ${duration.toFixed(2)}ms`, ...args);
   }
   function translateLog(type, original, translated, element = null) {
-    if (isDebugMode) {
-      if (original !== translated) {
-        const elementInfo = element ? ` 元素: ${element.tagName.toLowerCase()}${element.id ? '#' + element.id : ''}${element.className ? '.' + element.className.replace(/\s+/g, '.') : ''}` : '';
-        console.log(`[汉化脚本-TRANSLATE] ${type}:${elementInfo}
+    if (isDebugMode && original !== translated) {
+      let elementInfo = element ? ` 元素: ${element.tagName.toLowerCase()}${element.id ? '#' + element.id : ''}${element.className ? '.' + element.className.replace(/\s+/g, '.') : ''}` : '';
+      console.log(`[汉化脚本-TRANSLATE] ${type}:${elementInfo}
   原文: "${original}"
   译文: "${translated}"`);
-      }
     }
   }
-  var MENU_COMMAND_ID = 'toggle_debug_log_command';
-  var OVERRIDE_LANG_KEY = 'web-translate-language-override';
+  var MENU_COMMAND_ID = 'toggle_debug_log_command',
+    OVERRIDE_LANG_KEY = 'web-translate-language-override';
   function setOverrideLanguage(langCode) {
-    GM_setValue(OVERRIDE_LANG_KEY, langCode);
-    location.reload();
+    (GM_setValue(OVERRIDE_LANG_KEY, langCode), location.reload());
   }
   function clearOverrideLanguage() {
-    GM_setValue(OVERRIDE_LANG_KEY, '');
-    location.reload();
+    (GM_setValue(OVERRIDE_LANG_KEY, ''), location.reload());
   }
   function toggleDebugMode() {
-    const newMode = !isDebugMode;
-    GM_setValue(LOG_KEY, newMode);
-    updateDebugState(newMode);
-    location.reload();
+    let newMode = !isDebugMode;
+    (GM_setValue(LOG_KEY, newMode), updateDebugState(newMode), location.reload());
   }
   function registerMenuCommands() {
-    const debugStatus = isDebugMode ? '开启' : '关闭';
-    GM_registerMenuCommand(`切换调试日志 (当前: ${debugStatus})`, toggleDebugMode, { id: MENU_COMMAND_ID });
-    if (isDebugMode) {
-      const currentOverride = GM_getValue(OVERRIDE_LANG_KEY, '');
-      GM_registerMenuCommand('--- 语言调试菜单 ---', () => {});
-      SUPPORTED_LANGUAGES.forEach((lang) => {
-        const isCurrent = currentOverride === lang.code;
-        const menuText = `${isCurrent ? '✅' : '➡️'} 强制语言: ${lang.name}`;
-        GM_registerMenuCommand(menuText, () => setOverrideLanguage(lang.code));
-      });
-      GM_registerMenuCommand('🔄 清除语言强制 (恢复默认)', clearOverrideLanguage);
+    let debugStatus = isDebugMode ? '开启' : '关闭';
+    if ((GM_registerMenuCommand(`切换调试日志 (当前: ${debugStatus})`, toggleDebugMode, { id: MENU_COMMAND_ID }), isDebugMode)) {
+      let currentOverride = GM_getValue(OVERRIDE_LANG_KEY, '');
+      (GM_registerMenuCommand('--- 语言调试菜单 ---', () => {}),
+        SUPPORTED_LANGUAGES.forEach((lang) => {
+          let menuText = `${currentOverride === lang.code ? '✅' : '➡️'} 强制语言: ${lang.name}`;
+          GM_registerMenuCommand(menuText, () => setOverrideLanguage(lang.code));
+        }),
+        GM_registerMenuCommand('🔄 清除语言强制 (恢复默认)', clearOverrideLanguage));
     }
   }
   function initializeMenu() {
@@ -8060,13 +9043,12 @@
   }
   var STYLE_ID = 'anti-flicker-style';
   function injectAntiFlickerStyle() {
-    if (!document.documentElement) {
-      return;
-    }
+    if (!document.documentElement) return;
     document.documentElement.classList.add('translation-in-progress');
-    const antiFlickerStyle = document.createElement('style');
-    antiFlickerStyle.id = STYLE_ID;
-    const styleContent = `
+    let antiFlickerStyle = document.createElement('style');
+    ((antiFlickerStyle.id = STYLE_ID),
+      antiFlickerStyle.appendChild(
+        document.createTextNode(`
         /* 当 <html> 标签有 'translation-in-progress' 类时，隐藏 <body> */
         html.translation-in-progress body {
             visibility: hidden !important;
@@ -8092,136 +9074,93 @@
             visibility: visible !important;
             opacity: 1 !important;
         }
-    `;
-    antiFlickerStyle.appendChild(document.createTextNode(styleContent));
-    const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
+    `),
+      ));
+    let head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
     head.insertBefore(antiFlickerStyle, head.firstChild);
   }
   function removeAntiFlickerStyle() {
-    if (!document.documentElement) {
-      return;
-    }
-    document.documentElement.classList.remove('translation-in-progress');
-    document.documentElement.classList.add('translation-complete');
-    setTimeout(() => {
-      const styleElement = document.getElementById(STYLE_ID);
-      if (styleElement && styleElement.parentNode) {
-        styleElement.parentNode.removeChild(styleElement);
-      }
-    }, 100);
+    document.documentElement &&
+      (document.documentElement.classList.remove('translation-in-progress'),
+      document.documentElement.classList.add('translation-complete'),
+      setTimeout(() => {
+        let styleElement = document.getElementById(STYLE_ID);
+        styleElement && styleElement.parentNode && styleElement.parentNode.removeChild(styleElement);
+      }, 100));
   }
-  var BLOCKS_ALL_TRANSLATION = new Set(['script', 'style', 'pre', 'code', 'svg']);
-  var BLOCKS_CONTENT_ONLY = new Set([]);
-  var ALL_UNTRANSLATABLE_TAGS = new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
-  var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
-  var BLOCKED_CSS_CLASSES = new Set(['notranslate', 'kbd']);
+  var BLOCKS_ALL_TRANSLATION = new Set(['script', 'style', 'pre', 'code', 'svg']),
+    BLOCKS_CONTENT_ONLY = new Set([]),
+    ALL_UNTRANSLATABLE_TAGS = new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]),
+    attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'],
+    BLOCKED_CSS_CLASSES = new Set(['notranslate', 'kbd']);
   function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = []) {
-    const textTranslationMap = new Map();
-    if (Array.isArray(textRules)) {
-      for (const rule of textRules) {
-        if (Array.isArray(rule) && rule.length === 2 && typeof rule[0] === 'string' && typeof rule[1] === 'string') {
-          textTranslationMap.set(rule[0].trim(), rule[1]);
-        }
-      }
-    }
-    let regexRules = regexArr;
-    let translationCache = new Map();
-    let translatedElements = new WeakSet();
-    const blockedElements = new Set([...ALL_UNTRANSLATABLE_TAGS]);
-    const blockedElementSelectors = blockedSelectors || [];
-    const whitelist = new Set([...attributesToTranslate, ...customAttributes]);
-    for (const attr of blockedAttributes) {
-      whitelist.delete(attr);
-    }
-    const finalAttributesToTranslate = whitelist;
+    let textTranslationMap = new Map();
+    if (Array.isArray(textRules)) for (let rule of textRules) Array.isArray(rule) && rule.length === 2 && typeof rule[0] == 'string' && typeof rule[1] == 'string' && textTranslationMap.set(rule[0].trim(), rule[1]);
+    let regexRules = regexArr,
+      translationCache = new Map(),
+      translatedElements = new WeakSet(),
+      blockedElements = new Set([...ALL_UNTRANSLATABLE_TAGS]),
+      blockedElementSelectors = blockedSelectors || [],
+      whitelist = new Set([...attributesToTranslate, ...customAttributes]);
+    for (let attr of blockedAttributes) whitelist.delete(attr);
+    let finalAttributesToTranslate = whitelist;
     function isInsideExtendedElement(element) {
-      if (!element || extendedSelectors.length === 0) return false;
-      for (const selector of extendedSelectors) {
-        if (element.closest(selector)) {
-          return true;
-        }
-      }
-      return false;
+      if (!element || extendedSelectors.length === 0) return !1;
+      for (let selector of extendedSelectors) if (element.closest(selector)) return !0;
+      return !1;
     }
     function isElementBlocked(element) {
-      if (element.isContentEditable) return true;
-      const tagName = element.tagName?.toLowerCase();
-      if (blockedElements.has(tagName)) return true;
+      if (element.isContentEditable) return !0;
+      let tagName = element.tagName?.toLowerCase();
+      if (blockedElements.has(tagName)) return !0;
       if (element.classList) {
-        for (const className of element.classList) {
-          if (BLOCKED_CSS_CLASSES.has(className)) return true;
-        }
+        for (let className of element.classList) if (BLOCKED_CSS_CLASSES.has(className)) return !0;
       }
-      for (const selector of blockedElementSelectors) {
-        if (element.matches?.(selector)) return true;
-      }
-      return false;
+      for (let selector of blockedElementSelectors) if (element.matches?.(selector)) return !0;
+      return !1;
     }
     function isInsideBlockedElement(element) {
       let current = element;
-      while (current) {
-        if (isElementBlocked(current)) {
-          return true;
-        }
-        const root = current.getRootNode();
-        if (root instanceof ShadowRoot) {
-          current = root.host;
-        } else {
-          current = current.parentElement;
-        }
+      for (; current; ) {
+        if (isElementBlocked(current)) return !0;
+        let root = current.getRootNode();
+        root instanceof ShadowRoot ? (current = root.host) : (current = current.parentElement);
       }
-      return false;
+      return !1;
     }
     function translateText(text) {
-      if (!text || typeof text !== 'string') return text;
-      const originalText = text;
-      if (translationCache.has(originalText)) {
-        return translationCache.get(originalText);
-      }
-      const trimmedText = text.trim();
+      if (!text || typeof text != 'string') return text;
+      let originalText = text;
+      if (translationCache.has(originalText)) return translationCache.get(originalText);
+      let trimmedText = text.trim();
       if (trimmedText === '') return text;
-      let translatedText = text;
-      let hasChanged = false;
-      const mapTranslation = textTranslationMap.get(trimmedText);
+      let translatedText = text,
+        hasChanged = !1,
+        mapTranslation = textTranslationMap.get(trimmedText);
       if (mapTranslation) {
-        const leadingSpace = originalText.match(/^\s*/)[0] || '';
-        const trailingSpace = originalText.match(/\s*$/)[0] || '';
-        translatedText = leadingSpace + mapTranslation + trailingSpace;
-        hasChanged = true;
-        translateLog('文本映射', trimmedText, mapTranslation);
-      } else {
-        for (const [match, replacement] of regexRules) {
-          const newText = translatedText.replace(match, replacement);
-          if (newText !== translatedText) {
-            translatedText = newText;
-            hasChanged = true;
-            translateLog('正则表达式', originalText, translatedText);
-          }
+        let leadingSpace = originalText.match(/^\s*/)[0] || '',
+          trailingSpace = originalText.match(/\s*$/)[0] || '';
+        ((translatedText = leadingSpace + mapTranslation + trailingSpace), (hasChanged = !0), translateLog('文本映射', trimmedText, mapTranslation));
+      } else
+        for (let [match, replacement] of regexRules) {
+          let newText = translatedText.replace(match, replacement);
+          newText !== translatedText && ((translatedText = newText), (hasChanged = !0), translateLog('正则表达式', originalText, translatedText));
         }
-      }
-      if (hasChanged) {
-        translationCache.set(originalText, translatedText);
-      }
-      return translatedText;
+      return (hasChanged && translationCache.set(originalText, translatedText), translatedText);
     }
     function translateElementContent(element) {
-      if (!element || isInsideBlockedElement(element)) return false;
-      if (element.childElementCount > 0) return false;
-      if (element.querySelector(Array.from(blockedElements).join(','))) return false;
-      const fullText = element.textContent?.trim();
-      if (!fullText) return false;
-      const translation = textTranslationMap.get(fullText);
-      if (!translation) return false;
-      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-      const textNodes = [];
-      while (walker.nextNode()) textNodes.push(walker.currentNode);
-      if (textNodes.length === 0) return false;
+      if (!element || isInsideBlockedElement(element) || element.childElementCount > 0 || element.querySelector(Array.from(blockedElements).join(','))) return !1;
+      let fullText = element.textContent?.trim();
+      if (!fullText) return !1;
+      let translation = textTranslationMap.get(fullText);
+      if (!translation) return !1;
+      let walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT),
+        textNodes = [];
+      for (; walker.nextNode(); ) textNodes.push(walker.currentNode);
+      if (textNodes.length === 0) return !1;
       textNodes[0].nodeValue = translation;
-      for (let i = 1; i < textNodes.length; i++) {
-        textNodes[i].nodeValue = '';
-      }
-      log('整段翻译:', `"${fullText}"`, '->', `"${translation}"`);
-      return true;
+      for (let i = 1; i < textNodes.length; i++) textNodes[i].nodeValue = '';
+      return (log('整段翻译:', `"${fullText}"`, '->', `"${translation}"`), !0);
     }
     function translateElement(element) {
       if (!element || translatedElements.has(element) || !(element instanceof Element || element instanceof ShadowRoot)) return;
@@ -8229,88 +9168,55 @@
         translatedElements.add(element);
         return;
       }
-      const tagName = element.tagName?.toLowerCase();
-      const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
-      if (!isContentBlocked) {
+      let tagName = element.tagName?.toLowerCase();
+      if (!BLOCKS_CONTENT_ONLY.has(tagName)) {
         if (translateElementContent(element)) {
           translatedElements.add(element);
           return;
         }
-        const walker = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
-          acceptNode: function (node) {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              if (isElementBlocked(node)) {
-                return NodeFilter.FILTER_REJECT;
-              }
-              return NodeFilter.FILTER_SKIP;
-            }
-            if (node.nodeType === Node.TEXT_NODE) {
-              if (!node.nodeValue?.trim()) {
-                return NodeFilter.FILTER_REJECT;
-              }
-              return NodeFilter.FILTER_ACCEPT;
-            }
-            return NodeFilter.FILTER_SKIP;
-          },
-        });
-        const nodesToTranslate = [];
-        while (walker.nextNode()) {
-          if (walker.currentNode.nodeType === Node.TEXT_NODE) {
-            nodesToTranslate.push(walker.currentNode);
-          }
-        }
-        if (nodesToTranslate.length > 0) {
+        let walker = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
+            acceptNode: function (node) {
+              return node.nodeType === Node.ELEMENT_NODE ? (isElementBlocked(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_SKIP) : node.nodeType === Node.TEXT_NODE ? (node.nodeValue?.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT) : NodeFilter.FILTER_SKIP;
+            },
+          }),
+          nodesToTranslate = [];
+        for (; walker.nextNode(); ) walker.currentNode.nodeType === Node.TEXT_NODE && nodesToTranslate.push(walker.currentNode);
+        nodesToTranslate.length > 0 &&
           nodesToTranslate.forEach((textNode) => {
-            const originalText = textNode.nodeValue;
-            const translatedText = translateText(originalText);
-            if (originalText !== translatedText) {
-              textNode.nodeValue = translatedText;
-            }
+            let originalText = textNode.nodeValue,
+              translatedText = translateText(originalText);
+            originalText !== translatedText && (textNode.nodeValue = translatedText);
           });
-        }
       }
-      const elementsToProcess = element instanceof ShadowRoot ? Array.from(element.querySelectorAll('*')) : [element, ...Array.from(element.querySelectorAll('*'))];
-      elementsToProcess.forEach((el) => {
-        if (isInsideBlockedElement(el) || !el.hasAttributes()) return;
-        for (const attr of el.attributes) {
-          const attrName = attr.name;
-          const originalValue = attr.value;
-          if (!originalValue || !originalValue.trim()) continue;
-          if (blockedAttributes.includes(attrName)) {
-            continue;
-          }
-          if (finalAttributesToTranslate.has(attrName)) {
-            const translatedValue = translateText(originalValue);
-            if (originalValue !== translatedValue) {
-              el.setAttribute(attrName, translatedValue);
-              translateLog(`白名单属性[${attrName}]`, originalValue, translatedValue);
-            }
-          } else if (isInsideExtendedElement(el)) {
-            const trimmedValue = originalValue.trim();
-            if (textTranslationMap.has(trimmedValue)) {
-              const translated = textTranslationMap.get(trimmedValue);
-              const leadingSpace = originalValue.match(/^\s*/)[0] || '';
-              const trailingSpace = originalValue.match(/\s*$/)[0] || '';
-              const translatedValue = leadingSpace + translated + trailingSpace;
-              if (originalValue !== translatedValue) {
-                el.setAttribute(attrName, translatedValue);
-                translateLog(`扩展区属性[${attrName}]`, originalValue, translatedValue);
+      ((element instanceof ShadowRoot ? Array.from(element.querySelectorAll('*')) : [element, ...Array.from(element.querySelectorAll('*'))]).forEach((el) => {
+        if (!(isInsideBlockedElement(el) || !el.hasAttributes()))
+          for (let attr of el.attributes) {
+            let attrName = attr.name,
+              originalValue = attr.value;
+            if (!(!originalValue || !originalValue.trim()) && !blockedAttributes.includes(attrName)) {
+              if (finalAttributesToTranslate.has(attrName)) {
+                let translatedValue = translateText(originalValue);
+                originalValue !== translatedValue && (el.setAttribute(attrName, translatedValue), translateLog(`白名单属性[${attrName}]`, originalValue, translatedValue));
+              } else if (isInsideExtendedElement(el)) {
+                let trimmedValue = originalValue.trim();
+                if (textTranslationMap.has(trimmedValue)) {
+                  let translated = textTranslationMap.get(trimmedValue),
+                    leadingSpace = originalValue.match(/^\s*/)[0] || '',
+                    trailingSpace = originalValue.match(/\s*$/)[0] || '',
+                    translatedValue = leadingSpace + translated + trailingSpace;
+                  originalValue !== translatedValue && (el.setAttribute(attrName, translatedValue), translateLog(`扩展区属性[${attrName}]`, originalValue, translatedValue));
+                }
               }
             }
           }
-        }
-      });
-      if (element.shadowRoot) {
-        translateElement(element.shadowRoot);
-      }
-      translatedElements.add(element);
+      }),
+        element.shadowRoot && translateElement(element.shadowRoot),
+        translatedElements.add(element));
     }
     return {
       translate: translateElement,
       resetState: () => {
-        translationCache.clear();
-        translatedElements = new WeakSet();
-        log('翻译器状态已重置');
+        (translationCache.clear(), (translatedElements = new WeakSet()), log('翻译器状态已重置'));
       },
       deleteElement: (element) => {
         translatedElements.delete(element);
@@ -8318,355 +9224,248 @@
     };
   }
   function initializeObservers(translator, extendedElements = [], customAttributes = [], blockedAttributes = []) {
-    let translationTimer;
-    let pendingNodes = new Set();
-    let lastModelInfo = '';
+    let translationTimer,
+      pendingNodes = new Set(),
+      lastModelInfo = '';
     function detectModelChange() {
-      const modelElements = document.querySelectorAll('.model-name, .model-info, [class*="model"]');
-      const currentModelInfo = Array.from(modelElements)
-        .map((el) => el.textContent?.trim())
-        .join('|');
-      if (currentModelInfo && currentModelInfo !== lastModelInfo) {
-        lastModelInfo = currentModelInfo;
-        log('检测到模型切换:', currentModelInfo);
-        translator.resetState();
-        setTimeout(() => {
-          if (document.body) {
-            translator.translate(document.body);
-          }
-        }, 100);
-        return true;
-      }
-      return false;
+      let modelElements = document.querySelectorAll('.model-name, .model-info, [class*="model"]'),
+        currentModelInfo = Array.from(modelElements)
+          .map((el) => el.textContent?.trim())
+          .join('|');
+      return currentModelInfo && currentModelInfo !== lastModelInfo
+        ? ((lastModelInfo = currentModelInfo),
+          log('检测到模型切换:', currentModelInfo),
+          translator.resetState(),
+          setTimeout(() => {
+            document.body && translator.translate(document.body);
+          }, 100),
+          !0)
+        : !1;
     }
     function scheduleTranslation() {
-      clearTimeout(translationTimer);
-      translationTimer = setTimeout(() => {
-        const hasModelChange = detectModelChange();
-        if (pendingNodes.size > 0) {
-          const nodesToProcess = Array.from(pendingNodes);
-          pendingNodes.clear();
-          if (nodesToProcess.length > 5) {
-            debug(`处理 ${nodesToProcess.length} 个待翻译节点`);
-          }
-          const startTime = performance.now();
-          nodesToProcess.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              translator.translate(node);
-            } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
-              translator.translate(node.parentElement);
-            }
-          });
-          const duration = performance.now() - startTime;
-          perf('批量翻译', duration, `${nodesToProcess.length} 个节点`);
-        }
-        if (hasModelChange && pendingNodes.size === 0) {
-          if (document.body) {
-            translator.translate(document.body);
-          }
-        }
-      }, 0);
-    }
-    const mainObserver = new MutationObserver((mutations) => {
-      const dirtyRoots = new Set();
-      for (const mutation of mutations) {
-        let target = null;
-        if (mutation.type === 'childList') {
-          target = mutation.target;
-        } else if (mutation.type === 'attributes') {
-          target = mutation.target;
-        } else if (mutation.type === 'characterData') {
-          target = mutation.target.parentElement;
-        }
-        if (target instanceof Element) dirtyRoots.add(target);
-      }
-      if (dirtyRoots.size > 0) {
-        for (const root of dirtyRoots) {
-          translator.deleteElement(root);
-          const descendants = root.getElementsByTagName('*');
-          for (let i = 0; i < descendants.length; i++) {
-            translator.deleteElement(descendants[i]);
-          }
-          pendingNodes.add(root);
-        }
-        scheduleTranslation();
-      }
-    });
-    let currentUrl = window.location.href;
-    const pageObserver = new MutationObserver(() => {
-      if (window.location.href !== currentUrl) {
-        currentUrl = window.location.href;
-        log('检测到页面导航，将重新翻译:', currentUrl);
-        translator.resetState();
-        lastModelInfo = '';
-        setTimeout(() => {
-          log('开始重新翻译新页面内容...');
-          if (document.body) translator.translate(document.body);
-        }, 300);
-      }
-    });
-    const modelChangeObserver = new MutationObserver((mutations) => {
-      let shouldCheckModel = false;
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              const element = node;
-              if (element.classList?.contains('mat-mdc-dialog-component-host') || element.querySelector?.('.model-name, .model-info') || element.classList?.contains('model-name') || element.classList?.contains('model-info')) {
-                shouldCheckModel = true;
-              }
-            }
-          });
-        }
-        if (mutation.type === 'characterData') {
-          const parent = mutation.target.parentElement;
-          if (parent) {
-            if (parent.classList?.contains('model-name') || parent.classList?.contains('model-info') || parent.querySelector?.('.model-name, .model-info')) {
-              shouldCheckModel = true;
-            }
-          }
-        }
-      });
-      if (shouldCheckModel) {
-        setTimeout(() => detectModelChange(), 0);
-      }
-    });
-    const whitelist = new Set([...attributesToTranslate, ...customAttributes]);
-    for (const attr of blockedAttributes) {
-      whitelist.delete(attr);
-    }
-    const finalAttributeFilter = [...whitelist];
-    mainObserver.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: finalAttributeFilter,
-      characterData: true,
-    });
-    pageObserver.observe(document.body, { childList: true, subtree: true });
-    modelChangeObserver.observe(document.body, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-    });
-    const titleObserver = new MutationObserver(() => {
-      const titleElement2 = document.querySelector('title');
-      if (titleElement2) {
-        translator.deleteElement(titleElement2);
-        translator.translate(titleElement2);
-        debug('页面标题已重新翻译');
-      }
-    });
-    const titleElement = document.querySelector('title');
-    if (titleElement) {
-      titleObserver.observe(titleElement, {
-        childList: true,
-        subtree: true,
-      });
-    }
-    window.forceRetranslate = function () {
-      log('强制重新翻译已触发。');
-      translator.resetState();
-      lastModelInfo = '';
-      if (document.body) {
-        translator.translate(document.body);
-      }
-    };
-    if (extendedElements.length > 0) {
-      const extendedContentObserver = new MutationObserver((mutations) => {
-        const dirtyRoots = new Set();
-        for (const mutation of mutations) {
-          if (mutation.type === 'characterData') {
-            const target = mutation.target.parentElement;
-            if (target instanceof Element) dirtyRoots.add(target);
-          }
-        }
-        if (dirtyRoots.size > 0) {
-          for (const root of dirtyRoots) {
-            translator.deleteElement(root);
-            pendingNodes.add(root);
-          }
-          scheduleTranslation();
-        }
-      });
-      const extendedAttributeObserver = new MutationObserver((mutations) => {
-        const dirtyRoots = new Set();
-        for (const mutation of mutations) {
-          if (mutation.type === 'attributes') {
-            const target = mutation.target;
-            if (target instanceof Element) dirtyRoots.add(target);
-          }
-        }
-        if (dirtyRoots.size > 0) {
-          for (const root of dirtyRoots) {
-            translator.deleteElement(root);
-            pendingNodes.add(root);
-          }
-          scheduleTranslation();
-        }
-      });
-      log(`正在为 ${extendedElements.length} 个选择器初始化扩展元素监控。`);
-      const processExtendedElements = (elements) => {
-        if (elements.length === 0) return;
-        elements.forEach((element) => {
-          translator.deleteElement(element);
-          const descendants = element.getElementsByTagName('*');
-          for (let i = 0; i < descendants.length; i++) {
-            translator.deleteElement(descendants[i]);
-          }
-          pendingNodes.add(element);
-        });
-        scheduleTranslation();
-      };
-      extendedElements.forEach((selector) => {
-        try {
-          const elements = document.querySelectorAll(selector);
-          if (elements.length > 0) {
-            const elementsArray = Array.from(elements);
-            debug(`为选择器 "${selector}" 找到 ${elementsArray.length} 个已存在的扩展元素`);
-            processExtendedElements(elementsArray);
-            elementsArray.forEach((el) => {
-              extendedContentObserver.observe(el, { characterData: true, subtree: true });
-              extendedAttributeObserver.observe(el, { attributes: true, subtree: true });
+      (clearTimeout(translationTimer),
+        (translationTimer = setTimeout(() => {
+          let hasModelChange = detectModelChange();
+          if (pendingNodes.size > 0) {
+            let nodesToProcess = Array.from(pendingNodes);
+            (pendingNodes.clear(), nodesToProcess.length > 5 && debug(`处理 ${nodesToProcess.length} 个待翻译节点`));
+            let startTime = performance.now();
+            nodesToProcess.forEach((node) => {
+              node.nodeType === Node.ELEMENT_NODE ? translator.translate(node) : node.nodeType === Node.TEXT_NODE && node.parentElement && translator.translate(node.parentElement);
             });
+            let duration = performance.now() - startTime;
+            perf('批量翻译', duration, `${nodesToProcess.length} 个节点`);
+          }
+          hasModelChange && pendingNodes.size === 0 && document.body && translator.translate(document.body);
+        }, 0)));
+    }
+    let mainObserver = new MutationObserver((mutations) => {
+        let dirtyRoots = new Set();
+        for (let mutation of mutations) {
+          let target = null;
+          (mutation.type === 'childList' || mutation.type === 'attributes' ? (target = mutation.target) : mutation.type === 'characterData' && (target = mutation.target.parentElement), target instanceof Element && dirtyRoots.add(target));
+        }
+        if (dirtyRoots.size > 0) {
+          for (let root of dirtyRoots) {
+            translator.deleteElement(root);
+            let descendants = root.getElementsByTagName('*');
+            for (let i = 0; i < descendants.length; i++) translator.deleteElement(descendants[i]);
+            pendingNodes.add(root);
+          }
+          scheduleTranslation();
+        }
+      }),
+      currentUrl = window.location.href,
+      pageObserver = new MutationObserver(() => {
+        window.location.href !== currentUrl &&
+          ((currentUrl = window.location.href),
+          log('检测到页面导航，将重新翻译:', currentUrl),
+          translator.resetState(),
+          (lastModelInfo = ''),
+          setTimeout(() => {
+            (log('开始重新翻译新页面内容...'), document.body && translator.translate(document.body));
+          }, 300));
+      }),
+      modelChangeObserver = new MutationObserver((mutations) => {
+        let shouldCheckModel = !1;
+        (mutations.forEach((mutation) => {
+          if (
+            (mutation.type === 'childList' &&
+              mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                  let element = node;
+                  (element.classList?.contains('mat-mdc-dialog-component-host') || element.querySelector?.('.model-name, .model-info') || element.classList?.contains('model-name') || element.classList?.contains('model-info')) && (shouldCheckModel = !0);
+                }
+              }),
+            mutation.type === 'characterData')
+          ) {
+            let parent = mutation.target.parentElement;
+            parent && (parent.classList?.contains('model-name') || parent.classList?.contains('model-info') || parent.querySelector?.('.model-name, .model-info')) && (shouldCheckModel = !0);
+          }
+        }),
+          shouldCheckModel && setTimeout(() => detectModelChange(), 0));
+      }),
+      whitelist = new Set([...attributesToTranslate, ...customAttributes]);
+    for (let attr of blockedAttributes) whitelist.delete(attr);
+    let finalAttributeFilter = [...whitelist];
+    (mainObserver.observe(document.body, { childList: !0, subtree: !0, attributes: !0, attributeFilter: finalAttributeFilter, characterData: !0 }), pageObserver.observe(document.body, { childList: !0, subtree: !0 }), modelChangeObserver.observe(document.body, { childList: !0, subtree: !0, characterData: !0 }));
+    let titleObserver = new MutationObserver(() => {
+        let titleElement2 = document.querySelector('title');
+        titleElement2 && (translator.deleteElement(titleElement2), translator.translate(titleElement2), debug('页面标题已重新翻译'));
+      }),
+      titleElement = document.querySelector('title');
+    if (
+      (titleElement && titleObserver.observe(titleElement, { childList: !0, subtree: !0 }),
+      (window.forceRetranslate = function () {
+        (log('强制重新翻译已触发。'), translator.resetState(), (lastModelInfo = ''), document.body && translator.translate(document.body));
+      }),
+      extendedElements.length > 0)
+    ) {
+      let extendedContentObserver = new MutationObserver((mutations) => {
+          let dirtyRoots = new Set();
+          for (let mutation of mutations)
+            if (mutation.type === 'characterData') {
+              let target = mutation.target.parentElement;
+              target instanceof Element && dirtyRoots.add(target);
+            }
+          if (dirtyRoots.size > 0) {
+            for (let root of dirtyRoots) (translator.deleteElement(root), pendingNodes.add(root));
+            scheduleTranslation();
+          }
+        }),
+        extendedAttributeObserver = new MutationObserver((mutations) => {
+          let dirtyRoots = new Set();
+          for (let mutation of mutations)
+            if (mutation.type === 'attributes') {
+              let target = mutation.target;
+              target instanceof Element && dirtyRoots.add(target);
+            }
+          if (dirtyRoots.size > 0) {
+            for (let root of dirtyRoots) (translator.deleteElement(root), pendingNodes.add(root));
+            scheduleTranslation();
+          }
+        });
+      log(`正在为 ${extendedElements.length} 个选择器初始化扩展元素监控。`);
+      let processExtendedElements = (elements) => {
+        elements.length !== 0 &&
+          (elements.forEach((element) => {
+            translator.deleteElement(element);
+            let descendants = element.getElementsByTagName('*');
+            for (let i = 0; i < descendants.length; i++) translator.deleteElement(descendants[i]);
+            pendingNodes.add(element);
+          }),
+          scheduleTranslation());
+      };
+      (extendedElements.forEach((selector) => {
+        try {
+          let elements = document.querySelectorAll(selector);
+          if (elements.length > 0) {
+            let elementsArray = Array.from(elements);
+            (debug(`为选择器 "${selector}" 找到 ${elementsArray.length} 个已存在的扩展元素`),
+              processExtendedElements(elementsArray),
+              elementsArray.forEach((el) => {
+                (extendedContentObserver.observe(el, { characterData: !0, subtree: !0 }), extendedAttributeObserver.observe(el, { attributes: !0, subtree: !0 }));
+              }));
           }
         } catch (e) {
           console.error(`extendedElements 中的选择器无效: "${selector}"`, e);
         }
-      });
-      const additionObserver = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-          if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-            for (const addedNode of mutation.addedNodes) {
-              if (addedNode.nodeType === Node.ELEMENT_NODE) {
-                extendedElements.forEach((selector) => {
-                  const matchedElements = [];
-                  if (addedNode.matches(selector)) matchedElements.push(addedNode);
-                  addedNode.querySelectorAll(selector).forEach((el) => matchedElements.push(el));
-                  if (matchedElements.length > 0) {
-                    debug(`为选择器 "${selector}" 找到动态添加的扩展元素:`, matchedElements);
-                    processExtendedElements(matchedElements);
-                    matchedElements.forEach((el) => {
-                      extendedContentObserver.observe(el, { characterData: true, subtree: true });
-                      extendedAttributeObserver.observe(el, { attributes: true, subtree: true });
-                    });
-                  }
-                });
-              }
-            }
-          }
-        }
-      });
-      additionObserver.observe(document.documentElement, {
-        childList: true,
-        subtree: true,
-      });
-      log('扩展元素观察器已激活。');
+      }),
+        new MutationObserver((mutations) => {
+          for (let mutation of mutations)
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0)
+              for (let addedNode of mutation.addedNodes)
+                addedNode.nodeType === Node.ELEMENT_NODE &&
+                  extendedElements.forEach((selector) => {
+                    let matchedElements = [];
+                    (addedNode.matches(selector) && matchedElements.push(addedNode),
+                      addedNode.querySelectorAll(selector).forEach((el) => matchedElements.push(el)),
+                      matchedElements.length > 0 &&
+                        (debug(`为选择器 "${selector}" 找到动态添加的扩展元素:`, matchedElements),
+                        processExtendedElements(matchedElements),
+                        matchedElements.forEach((el) => {
+                          (extendedContentObserver.observe(el, { characterData: !0, subtree: !0 }), extendedAttributeObserver.observe(el, { attributes: !0, subtree: !0 }));
+                        })));
+                  });
+        }).observe(document.documentElement, { childList: !0, subtree: !0 }),
+        log('扩展元素观察器已激活。'));
     }
     log('监听器初始化完成。');
   }
   function initializeTranslation(siteDictionary, createTranslator2, removeAntiFlickerStyle2, initializeObservers2, log2) {
-    const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
-    log2(`开始初始化翻译流程，使用语言: ${language || 'unknown'}`);
-    if (textRules && textRules.length > 0) {
-      log2(`加载了 ${textRules.length} 条文本翻译规则`);
-    }
-    if (cssRules.length > 0) {
-      const customStyleElement = document.createElement('style');
-      customStyleElement.id = 'web-translate-custom-styles';
-      customStyleElement.appendChild(document.createTextNode(cssRules.join('\n')));
-      const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
-      head.appendChild(customStyleElement);
-      log2(`注入了 ${cssRules.length} 条自定义CSS样式`);
+    let { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    if ((log2(`开始初始化翻译流程，使用语言: ${language || 'unknown'}`), textRules && textRules.length > 0 && log2(`加载了 ${textRules.length} 条文本翻译规则`), cssRules.length > 0)) {
+      let customStyleElement = document.createElement('style');
+      ((customStyleElement.id = 'web-translate-custom-styles'),
+        customStyleElement.appendChild(
+          document.createTextNode(
+            cssRules.join(`
+`),
+          ),
+        ),
+        (document.head || document.getElementsByTagName('head')[0] || document.documentElement).appendChild(customStyleElement),
+        log2(`注入了 ${cssRules.length} 条自定义CSS样式`));
     }
     if (jsRules.length > 0) {
-      const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
-      let executedScripts = 0;
-      for (const scriptText of jsRules) {
-        if (typeof scriptText === 'string' && scriptText.trim()) {
-          const scriptElement = document.createElement('script');
-          scriptElement.type = 'text/javascript';
-          scriptElement.appendChild(document.createTextNode(scriptText));
-          head.appendChild(scriptElement);
-          executedScripts++;
+      let head = document.head || document.getElementsByTagName('head')[0] || document.documentElement,
+        executedScripts = 0;
+      for (let scriptText of jsRules)
+        if (typeof scriptText == 'string' && scriptText.trim()) {
+          let scriptElement = document.createElement('script');
+          ((scriptElement.type = 'text/javascript'), scriptElement.appendChild(document.createTextNode(scriptText)), head.appendChild(scriptElement), executedScripts++);
         }
-      }
-      if (executedScripts > 0) {
-        log2(`执行了 ${executedScripts} 条自定义JS脚本`);
-      }
+      executedScripts > 0 && log2(`执行了 ${executedScripts} 条自定义JS脚本`);
     }
-    const translator = createTranslator2(textRules, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes);
+    let translator = createTranslator2(textRules, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes);
     function startTranslation() {
-      if (document.body) {
-        initializeFullTranslation();
-      } else {
-        new MutationObserver((_mutations, obs) => {
-          if (document.body) {
-            obs.disconnect();
-            initializeFullTranslation();
-          }
-        }).observe(document.documentElement, { childList: true });
-      }
+      document.body
+        ? initializeFullTranslation()
+        : new MutationObserver((_mutations, obs) => {
+            document.body && (obs.disconnect(), initializeFullTranslation());
+          }).observe(document.documentElement, { childList: !0 });
     }
     function initializeFullTranslation() {
       log2('开始执行初次全文翻译...');
-      const startTime = performance.now();
+      let startTime = performance.now();
       translator.translate(document.body);
-      const titleElement = document.querySelector('title');
-      if (titleElement) {
-        translator.translate(titleElement);
-      }
-      const duration = performance.now() - startTime;
-      log2(`初次翻译完成。使用语言: ${language || 'unknown'}, 耗时: ${duration.toFixed(2)}ms`);
-      removeAntiFlickerStyle2();
-      initializeObservers2(translator, extendedElements, customAttributes, blockedAttributes);
+      let titleElement = document.querySelector('title');
+      titleElement && translator.translate(titleElement);
+      let duration = performance.now() - startTime;
+      (log2(`初次翻译完成。使用语言: ${language || 'unknown'}, 耗时: ${duration.toFixed(2)}ms`), removeAntiFlickerStyle2(), initializeObservers2(translator, extendedElements, customAttributes, blockedAttributes));
     }
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', startTranslation);
-    } else {
-      startTranslation();
-    }
+    document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', startTranslation) : startTranslation();
   }
   (function (translations) {
     'use strict';
-    initializeMenu();
-    injectAntiFlickerStyle();
+    (initializeMenu(), injectAntiFlickerStyle());
     function getUserLanguage() {
-      const overrideLang = GM_getValue('web-translate-language-override', '');
-      if (overrideLang && SUPPORTED_LANGUAGE_CODES.includes(overrideLang)) {
-        return overrideLang;
-      }
-      const storedLang = localStorage.getItem('web-translate-language');
-      if (storedLang && SUPPORTED_LANGUAGE_CODES.includes(storedLang)) {
-        return storedLang;
-      }
-      const browserLang = navigator.language || navigator.userLanguage;
+      let overrideLang = GM_getValue('web-translate-language-override', '');
+      if (overrideLang && SUPPORTED_LANGUAGE_CODES.includes(overrideLang)) return overrideLang;
+      let storedLang = localStorage.getItem('web-translate-language');
+      if (storedLang && SUPPORTED_LANGUAGE_CODES.includes(storedLang)) return storedLang;
+      let browserLang = navigator.language || navigator.userLanguage;
       if (browserLang) {
-        const exactMatch = SUPPORTED_LANGUAGE_CODES.find((code) => browserLang.toLowerCase() === code.toLowerCase());
+        let exactMatch = SUPPORTED_LANGUAGE_CODES.find((code) => browserLang.toLowerCase() === code.toLowerCase());
         if (exactMatch) return exactMatch;
-        const partialMatch = SUPPORTED_LANGUAGE_CODES.find((code) => browserLang.toLowerCase().startsWith(code.toLowerCase()));
+        let partialMatch = SUPPORTED_LANGUAGE_CODES.find((code) => browserLang.toLowerCase().startsWith(code.toLowerCase()));
         if (partialMatch) return partialMatch;
         if (browserLang.toLowerCase().startsWith('zh')) {
-          const chineseVariant = SUPPORTED_LANGUAGE_CODES.find((code) => code.toLowerCase().startsWith('zh'));
+          let chineseVariant = SUPPORTED_LANGUAGE_CODES.find((code) => code.toLowerCase().startsWith('zh'));
           if (chineseVariant) return chineseVariant;
         }
       }
       return SUPPORTED_LANGUAGE_CODES[0] || 'zh-cn';
     }
     function selectTranslationForSite(hostname) {
-      const userLang = getUserLanguage();
-      const langSpecificKey = `${hostname}#${userLang}`;
-      if (translations[langSpecificKey]) {
-        return translations[langSpecificKey];
-      }
-      return void 0;
+      let userLang = getUserLanguage(),
+        langSpecificKey = `${hostname}#${userLang}`;
+      if (translations[langSpecificKey]) return translations[langSpecificKey];
     }
-    const siteDictionary = selectTranslationForSite(window.location.hostname);
+    let siteDictionary = selectTranslationForSite(window.location.hostname);
     if (!siteDictionary || !siteDictionary.enabled) {
       removeAntiFlickerStyle();
       return;
     }
-    log(`开始为网站 ${window.location.hostname} 初始化翻译，使用语言: ${siteDictionary.language}`);
-    initializeTranslation(siteDictionary, createTranslator, removeAntiFlickerStyle, initializeObservers, log);
+    (log(`开始为网站 ${window.location.hostname} 初始化翻译，使用语言: ${siteDictionary.language}`), initializeTranslation(siteDictionary, createTranslator, removeAntiFlickerStyle, initializeObservers, log));
   })(masterTranslationMap);
 })();
