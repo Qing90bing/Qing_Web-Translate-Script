@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.80-2025-11-29-offline
+// @version      1.0.85-2025-11-29-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -5027,7 +5027,8 @@
       ['Download Claude for Windows', '下载 Windows 版 Claude'],
       ['What ', '有哪些'],
       ['personal preferences', '个人偏好'],
-      [' should Claude consider in responses?', '是 Claude 在回复时需要考虑的'],
+      [' should Claude consider in responses?', '是 Claude 在回复时需要考虑的？'],
+      ['Chat deleted', '聊天已删除'],
       ['Response completions', '回复完成通知'],
       ['Get notified when Claude has finished a response. Most useful for long-running tasks like tool calls and Research.', '当 Claude 完成回复时接收通知，这对工具调用和研究等耗时任务非常有用'],
       ['How does usage work? When you sign in to Claude Code using your subscription, your subscription usage limits are shared with Claude Code.', '用量如何计算？当你使用订阅账号登录 Claude Code 时，将与 Claude Code 共享你的订阅用量额度'],
@@ -8275,6 +8276,32 @@
       ['Object Detection', '物体检测'],
       ['or update your', '或更新您的'],
       ['per month\n										', '每月'],
+      ['Access 45,000+ models from leading AI providers through a single, unified API with no service fees.\n					', '通过单一统一的 API 访问来自领先 AI 提供商的 45,000+ 个模型，且无服务费'],
+      ['Explore Models\n						', '探索模型'],
+      ['Deploy', '部署'],
+      ['Use this model', '使用此模型'],
+      ['Your sentence here...', '在此输入句子...'],
+      ['\n				Compare providers', '对比提供商'],
+      ['Image-Text-to-Text', '图像文本转文本'],
+      ['Video-Text-to-Text', '视频文本转文本'],
+      ['Visual Document Retrieval', '视觉文档检索'],
+      ['Any-to-Any', '任意模态转换'],
+      ['Image-to-Video', '图像生成视频'],
+      ['Mask Generation', '掩模生成'],
+      ['Zero-Shot Object Detection', '零样本目标检测'],
+      ['Text-to-3D', '文本生成 3D'],
+      ['Image Feature Extraction', '图像特征提取'],
+      ['Image-to-3D', '图像生成 3D'],
+      ['Table to Text', '表格转文本'],
+      ['Multiple Choice', '多项选择'],
+      ['Text Retrieval', '文本检索'],
+      ['Text Ranking', '文本排序'],
+      ['Text-to-Audio', '文本生成音频'],
+      ['Voice Activity Detection', '语音活动检测'],
+      ['Tabular to Text', '表格转文本'],
+      ['Time Series Forecasting', '时间序列预测'],
+      ['Reinforcement Learning', '强化学习'],
+      ['Graph Machine Learning', '图机器学习'],
       ['Priority Support', '优先支持'],
       ['Profile Settings', '简介设置'],
       ['Recently updated', '最近更新'],
