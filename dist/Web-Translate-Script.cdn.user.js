@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.85-2025-11-29-cdn
+// @version      1.0.90-2025-11-29-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -350,7 +350,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Generate a high school revision guide on quantum computing', '生成一份关于量子计算的高中复习指南'],
         ['Steer a continuous stream of music with text prompts', '通过文本提示词，实时控制生成的连续音乐流'],
         ['Throttling issues with Gemini 2.0 Flash have been resolved.', 'Gemini 2.0 Flash 的限流问题已解决'],
-        ['You can change the display name and description of your app.', '您可以更改应用的显示名称和描述。'],
+        ['You can change the display name and description of your app.', '您可以更改应用的显示名称和描述'],
         ['You do not need to set an API key to use the free tier.', '您无需设置 API 密钥即可使用免费套餐。'],
         ['“Draw an intricate, picturesque pencil sketch of Du...”', '“画一幅精美、风景如画的铅笔素描”'],
         ['Create a live agent using bidirectional streaming', '使用双向流式传输技术，创建一个实时对话助手'],
@@ -1161,6 +1161,32 @@ const EMBEDDED_TRANSLATIONS = {
         ['Set the temperature of a room using function calls', '使用函数调用设置房间温度'],
         ['React example', 'React 示例'],
         ['Sharing prompt...', '正在分享提示词...'],
+        ['Gaming', '游戏'],
+        ['Text rendering', '文本渲染'],
+        ['Product generator', '产品生成器'],
+        ['Tool calling', '工具调用'],
+        [' Fullscreen ', '全屏'],
+        [' AI Features ', 'AI 功能'],
+        ['Annotate app', '注释应用'],
+        ['Save to GitHub', '保存到 GitHub'],
+        ['Switch to API Key for your app', '切换到你的应用 API 密钥'],
+        [' Add annotations to visually iterate on your app ', '添加注释以可视化迭代你的应用'],
+        [" Draw and write directly on your app's preview to instantly communicate your vision to Gemini. Highlight components, sketch new ideas, or add precise feedback right where it matters. Simply pass your visual prompts to Gemini, and watch your app update live. ", '直接在应用预览上绘制和写入，立即将你的愿景传达给 Gemini。突出显示组件、草图新想法或添加精确的反馈。只需将你的视觉提示传递给 Gemini，即可实时查看应用更新'],
+        ['Add comment', '添加注释'],
+        ['Add arrow', '添加箭头'],
+        ['Add rectangle', '添加矩形'],
+        ['Add text', '添加文本'],
+        ['Start sketching', '开始绘制'],
+        ['Select color', '选择颜色'],
+        ['No changes to undo', '没有可撤销的更改'],
+        ['No changes to clear', '没有可清除的更改'],
+        [' Add to chat ', '添加到聊天'],
+        ['No changes to add to chat', '没有可添加到聊天的更改'],
+        ['Leave fullscreen', '退出全屏'],
+        ['Collapse all folders', '折叠所有文件夹'],
+        ['Make a new copy', '创建新副本'],
+        ['In order to use GitHub for this app, we need you to create your own copy first. Click "Save" below to get started.', '为了使用 GitHub 保存此应用，我们需要你先创建一个副本。点击下方的“保存”按钮开始'],
+        ['Default to fullscreen', '默认全屏显示'],
         ['Skip to main content', '跳转到主要内容'],
         ['Soft, Higher pitch', '柔和的，较高音调'],
         ['Try an example app', '尝试一个示例应用'],
