@@ -462,6 +462,7 @@ export const platformClaudeComZhCn = {
     ["Upload from device", "从设备上传"],
     ["View rate limits", "查看速率限制"],
     ["Blocked domains", "被阻止的域名"],
+    ["Claude Console", "Claude 控制台"],
     ["Create API key", "创建 API 密钥"],
     ["Description of tool", "工具描述"],
     ["Domain restrictions", "域名限制"],

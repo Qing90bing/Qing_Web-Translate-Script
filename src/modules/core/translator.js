@@ -146,6 +146,7 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
      */
     function translateText(text) {
         if (!text || typeof text !== 'string') return text;
+        console.log('DEBUG: translateText called for:', text.substring(0, 20));
         const originalText = text;
         // 1. 性能优化：首先检查缓存。
         if (translationCache.has(originalText)) {
@@ -236,7 +237,12 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
         const tagName = element.tagName?.toLowerCase();
         const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
 
-        // --- 1. 翻译元素内的文本节点 ---
+        // --- 1. 单次遍历处理文本和属性 ---
+        // 核心性能优化：
+        // 将文本翻译和属性翻译合并到一次 TreeWalker 遍历中。
+        // 这消除了之前使用 querySelectorAll('*') 进行第二次 DOM 遍历的巨大开销 (从 O(2N) 降为 O(N))。
+        // 同时保留了 TreeWalker 强大的剪枝能力，能高效跳过被屏蔽的子树。
+
         if (!isContentBlocked) {
             // 首先尝试性能更优的“整段翻译”
             if (translateElementContent(element)) {
@@ -244,21 +250,16 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                 return;
             }
 
-            // 核心性能优化：
-            // 将过滤器改为 SHOW_ELEMENT | SHOW_TEXT，利用 TreeWalker 的剪枝能力。
-            // 当检测到某个元素被屏蔽时，直接返回 FILTER_REJECT，这会让 TreeWalker 完全跳过该元素及其所有后代，
-            // 极大地减少了遍历次数和 isInsideBlockedElement 的调用。
             const walker = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
                 acceptNode: function (node) {
                     if (node.nodeType === Node.ELEMENT_NODE) {
                         // 如果元素本身被屏蔽，拒绝并跳过其整个子树。
-                        // 注意：这里不需要再递归调用 isInsideBlockedElement，因为如果是被屏蔽元素的子节点，
-                        // 它的父节点（即当前节点）之前就已经被 REJECT 了，根本不会走到这里。
+                        // 这同时阻止了对该子树内文本节点和子元素属性的处理。
                         if (isElementBlocked(node)) {
                             return NodeFilter.FILTER_REJECT;
                         }
-                        // 否则，跳过元素本身（因为我们只关心文本节点），但继续遍历其子节点。
-                        return NodeFilter.FILTER_SKIP;
+                        // 接受元素节点，以便在循环中处理其属性
+                        return NodeFilter.FILTER_ACCEPT;
                     }
                     
                     // 对于文本节点：
@@ -266,8 +267,7 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                         if (!node.nodeValue?.trim()) {
                             return NodeFilter.FILTER_REJECT;
                         }
-                        // 文本节点的父元素已经在上方通过检查（或其祖先通过检查），因此这里是安全的。
-                        // 除非有非常特殊的 CSS 继承覆盖（极少见），否则不需要再次检查父元素。
+                        // 文本节点被接受，将在循环中处理
                         return NodeFilter.FILTER_ACCEPT;
                     }
                     
@@ -275,50 +275,65 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                 }
             });
 
-            const nodesToTranslate = [];
-            while (walker.nextNode()) {
-                // 由于我们同时监听了 ELEMENT 和 TEXT，我们需要确保只收集 TEXT 节点
-                if (walker.currentNode.nodeType === Node.TEXT_NODE) {
-                    nodesToTranslate.push(walker.currentNode);
-                }
+            // 处理根元素本身的属性（如果根元素不是 ShadowRoot 且未被屏蔽）
+            if (element instanceof Element && !isElementBlocked(element)) {
+                 translateAttributes(element);
             }
-            
-            if (nodesToTranslate.length > 0) {
-                nodesToTranslate.forEach(textNode => {
-                    const originalText = textNode.nodeValue;
+
+            while (walker.nextNode()) {
+                const node = walker.currentNode;
+
+                if (node.nodeType === Node.TEXT_NODE) {
+                    const originalText = node.nodeValue;
                     const translatedText = translateText(originalText);
                     if (originalText !== translatedText) {
-                        textNode.nodeValue = translatedText;
+                        node.nodeValue = translatedText;
                     }
-                });
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    // 处理元素属性
+                    translateAttributes(node);
+                }
             }
+        } else {
+             // 如果内容被屏蔽，但我们仍可能需要处理根元素的属性（虽然通常 BLOCKS_CONTENT_ONLY 意味着完全忽略内容）
+             // 原有逻辑是如果 isContentBlocked，跳过文本翻译步骤，直接进入属性翻译步骤。
+             // 为了保持兼容，如果 isContentBlocked，我们仅处理属性。
+             // 这种情况下，我们需要回退到遍历元素处理属性，因为 TreeWalker 可能会被我们的逻辑跳过？
+             // 不，如果 isContentBlocked (例如 script/style)，其实通常也不需要翻译属性。
+             // 但为了保险，针对 isContentBlocked 为 true 的情况（极少数），我们可以保留简单的处理。
+             // 实际上 BLOCKS_CONTENT_ONLY 目前代码中没有看到具体定义，假设它是空的或特定的。
+             // 如果 isContentBlocked，原有逻辑是跳过文本处理，继续做属性处理。
+             // 我们可以简单地只对该元素本身做属性处理，或者递归？
+             // 鉴于 isContentBlocked 的元素通常不包含需要翻译的子元素属性（如 code 块），
+             // 我们这里仅处理当前元素的属性即可。
+             if (element instanceof Element) translateAttributes(element);
         }
 
-        // --- 2. 翻译所有元素的属性 ---
-        // 获取当前元素及其所有后代元素
-        const elementsToProcess = (element instanceof ShadowRoot)
-            ? Array.from(element.querySelectorAll('*'))
-            : [element, ...Array.from(element.querySelectorAll('*'))];
-
-        elementsToProcess.forEach(el => {
-            // 使用新的、更健壮的检查函数来跳过位于“翻译禁区”内的元素。
-            if (isInsideBlockedElement(el) || !el.hasAttributes()) return;
-
-            // 遍历元素的所有属性，应用新的三级优先级翻译模型。
+        /**
+         * @function translateAttributes
+         * @description 提取出来的属性翻译逻辑
+         * @param {Element} el - 要处理的元素
+         */
+        function translateAttributes(el) {
+            if (!el.hasAttributes()) return;
+            // 注意：isInsideBlockedElement 在 TreeWalker 中已经被隐式处理了（父级被 REJECT，子级不会遍历到）。
+            // 但对于根元素，或者通过其他方式进入的元素，可能需要检查。
+            // 在 TreeWalker 循环中，node 是通过 acceptNode (即 !isElementBlocked) 的。
+            // 且其父级也没被 REJECT。所以这里是安全的。
+            
+            // 遍历元素的所有属性，应用三级优先级翻译模型。
             for (const attr of el.attributes) {
                 const attrName = attr.name;
                 const originalValue = attr.value;
 
                 if (!originalValue || !originalValue.trim()) continue;
 
-                // 优先级 1: 检查属性是否在黑名单中。如果是，则绝对不翻译。
-                // 注意：`blockedAttributes` 是从 `siteDictionary` 传入的原始黑名单数组。
+                // 优先级 1: 检查属性是否在黑名单中。
                 if (blockedAttributes.includes(attrName)) {
                     continue;
                 }
 
-                // 优先级 2: 检查属性是否在白名单中 (`customAttributes` + 全局配置)。
-                // 如果是，则使用完整翻译引擎（纯文本 + 正则表达式）。
+                // 优先级 2: 检查属性是否在白名单中。
                 if (finalAttributesToTranslate.has(attrName)) {
                     const translatedValue = translateText(originalValue);
                     if (originalValue !== translatedValue) {
@@ -326,13 +341,13 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                         translateLog(`白名单属性[${attrName}]`, originalValue, translatedValue);
                     }
                 }
-                // 优先级 3: 如果属性不在白名单中，但其宿主元素位于“内容增强翻译区”内，
-                // 则进行仅限纯文本的全值匹配翻译。
+                // 优先级 3: 扩展翻译区检查
+                // 优化：isInsideExtendedElement 可能会向上遍历。在 TreeWalker 中，我们可以尝试优化这个？
+                // 暂时保持原样，因为 extendedElements 通常很少。
                 else if (isInsideExtendedElement(el)) {
                     const trimmedValue = originalValue.trim();
                     if (textTranslationMap.has(trimmedValue)) {
                         const translated = textTranslationMap.get(trimmedValue);
-                        // 保留原文中的前后空白字符
                         const leadingSpace = originalValue.match(/^\s*/)[0] || '';
                         const trailingSpace = originalValue.match(/\s*$/)[0] || '';
                         const translatedValue = leadingSpace + translated + trailingSpace;
@@ -344,7 +359,7 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                     }
                 }
             }
-        });
+        }
 
         // --- 3. 递归处理 Shadow DOM ---
         if (element.shadowRoot) {

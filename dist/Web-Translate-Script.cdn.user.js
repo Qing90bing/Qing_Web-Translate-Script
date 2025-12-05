@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.95-2025-12-04-cdn
+// @version      1.0.95-2025-12-05-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -760,6 +760,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Search Google Cloud projects', '搜索 Google Cloud 项目'],
         ['Total API Requests per minute', '每分钟总 API 请求次数'],
         [' Immersive Games & 3D Worlds ', '沉浸式游戏与 3D 视界'],
+        [' Nano Banana Pro outage. ', 'Nano Banana Pro 服务中断'],
         ['10 RPM 1500 req/day', '每分钟 10 次请求，每天 1500 次'],
         ['15 RPM 1500 req/day', '每分钟 15 次请求，每天 1500 次'],
         ['30 RPM 1500 req/day', '每分钟 30 次请求，每天 1500 次'],
@@ -785,6 +786,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['15 RPM 500 req/day', '每分钟 15 次请求，每天 500 次'],
         ['An internal error has occurred.', '系统发生内部错误'],
         ['Edit app name and description', '编辑应用名称和描述'],
+        ['Failed to load history list', '加载历史记录列表失败'],
         ['Gemini API Usage & Billing', 'Gemini API 用量和结算'],
         ['Generate images with Imagen', '使用 Imagen 生成图片'],
         ['No changes to add to chat', '没有可添加到聊天的更改'],
@@ -2159,6 +2161,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     }
     function translateText(text) {
       if (!text || typeof text !== 'string') return text;
+      console.log('DEBUG: translateText called for:', text.substring(0, 20));
       const originalText = text;
       if (translationCache.has(originalText)) {
         return translationCache.get(originalText);
@@ -2227,7 +2230,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
               if (isElementBlocked(node)) {
                 return NodeFilter.FILTER_REJECT;
               }
-              return NodeFilter.FILTER_SKIP;
+              return NodeFilter.FILTER_ACCEPT;
             }
             if (node.nodeType === Node.TEXT_NODE) {
               if (!node.nodeValue?.trim()) {
@@ -2238,25 +2241,26 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
             return NodeFilter.FILTER_SKIP;
           },
         });
-        const nodesToTranslate = [];
-        while (walker.nextNode()) {
-          if (walker.currentNode.nodeType === Node.TEXT_NODE) {
-            nodesToTranslate.push(walker.currentNode);
-          }
+        if (element instanceof Element && !isElementBlocked(element)) {
+          translateAttributes(element);
         }
-        if (nodesToTranslate.length > 0) {
-          nodesToTranslate.forEach((textNode) => {
-            const originalText = textNode.nodeValue;
+        while (walker.nextNode()) {
+          const node = walker.currentNode;
+          if (node.nodeType === Node.TEXT_NODE) {
+            const originalText = node.nodeValue;
             const translatedText = translateText(originalText);
             if (originalText !== translatedText) {
-              textNode.nodeValue = translatedText;
+              node.nodeValue = translatedText;
             }
-          });
+          } else if (node.nodeType === Node.ELEMENT_NODE) {
+            translateAttributes(node);
+          }
         }
+      } else {
+        if (element instanceof Element) translateAttributes(element);
       }
-      const elementsToProcess = element instanceof ShadowRoot ? Array.from(element.querySelectorAll('*')) : [element, ...Array.from(element.querySelectorAll('*'))];
-      elementsToProcess.forEach((el) => {
-        if (isInsideBlockedElement(el) || !el.hasAttributes()) return;
+      function translateAttributes(el) {
+        if (!el.hasAttributes()) return;
         for (const attr of el.attributes) {
           const attrName = attr.name;
           const originalValue = attr.value;
@@ -2284,7 +2288,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
             }
           }
         }
-      });
+      }
       if (element.shadowRoot) {
         translateElement(element.shadowRoot);
       }
@@ -2371,10 +2375,6 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       if (dirtyRoots.size > 0) {
         for (const root of dirtyRoots) {
           translator.deleteElement(root);
-          const descendants = root.getElementsByTagName('*');
-          for (let i = 0; i < descendants.length; i++) {
-            translator.deleteElement(descendants[i]);
-          }
           pendingNodes.add(root);
         }
         scheduleTranslation();
@@ -2505,10 +2505,6 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         if (elements.length === 0) return;
         elements.forEach((element) => {
           translator.deleteElement(element);
-          const descendants = element.getElementsByTagName('*');
-          for (let i = 0; i < descendants.length; i++) {
-            translator.deleteElement(descendants[i]);
-          }
           pendingNodes.add(element);
         });
         scheduleTranslation();

@@ -124,13 +124,10 @@ export function initializeObservers(translator, extendedElements = [], customAtt
         
         if (dirtyRoots.size > 0) {
             for (const root of dirtyRoots) {
-                // **关键步骤**: 在重新翻译前，必须先清除该节点及其所有后代的缓存。
-                // 否则，如果一个已翻译的节点内部发生变化，旧的翻译文本（缓存）可能会被错误地保留。
+                // **关键步骤**: 在重新翻译前，必须先清除该节点缓存。
+                // 优化：不再遍历所有后代清除缓存，而是依赖 translator.translate() 内部逻辑
+                // 来正确处理未被阻断的子节点。这消除了 O(N^2) 的性能瓶颈。
                 translator.deleteElement(root);
-                const descendants = root.getElementsByTagName('*');
-                for (let i = 0; i < descendants.length; i++) {
-                    translator.deleteElement(descendants[i]);
-                }
                 // 将“脏”节点加入待处理队列
                 pendingNodes.add(root);
             }
@@ -296,10 +293,6 @@ export function initializeObservers(translator, extendedElements = [], customAtt
 
             elements.forEach(element => {
                 translator.deleteElement(element);
-                const descendants = element.getElementsByTagName('*');
-                for (let i = 0; i < descendants.length; i++) {
-                    translator.deleteElement(descendants[i]);
-                }
                 pendingNodes.add(element);
             });
             scheduleTranslation();
