@@ -16,6 +16,7 @@ import { wwwAvogado6ComZhCn } from './zh-cn/www.avogado6.com.js';
 import { wplaceLiveZhCn } from './zh-cn/wplace.live.js';
 import { huggingfaceCoZhCn } from './zh-cn/huggingface.co.js';
 import { lmarenaAiZhCn } from './zh-cn/lmarena.ai.js';
+import { modrinthComZhCn } from './zh-cn/modrinth.com.js';
 // 导出主翻译映射
 export const masterTranslationMap = {
   "jules.google.com#zh-cn": julesGoogleComZhCn,
@@ -35,4 +36,5 @@ export const masterTranslationMap = {
   "wplace.live#zh-cn": wplaceLiveZhCn,
   "huggingface.co#zh-cn": huggingfaceCoZhCn,
   "lmarena.ai#zh-cn": lmarenaAiZhCn,
+  "modrinth.com#zh-cn": modrinthComZhCn,
 };
