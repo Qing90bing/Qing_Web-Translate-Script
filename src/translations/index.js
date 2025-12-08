@@ -17,6 +17,8 @@ import { wplaceLiveZhCn } from './zh-cn/wplace.live.js';
 import { huggingfaceCoZhCn } from './zh-cn/huggingface.co.js';
 import { lmarenaAiZhCn } from './zh-cn/lmarena.ai.js';
 import { modrinthComZhCn } from './zh-cn/modrinth.com.js';
+import { statusModrinthComZhCn } from './zh-cn/status.modrinth.com.js';
+import { statusHuggingfaceCoZhCn } from './zh-cn/status.huggingface.co.js';
 // 导出主翻译映射
 export const masterTranslationMap = {
   "jules.google.com#zh-cn": julesGoogleComZhCn,
@@ -37,4 +39,6 @@ export const masterTranslationMap = {
   "huggingface.co#zh-cn": huggingfaceCoZhCn,
   "lmarena.ai#zh-cn": lmarenaAiZhCn,
   "modrinth.com#zh-cn": modrinthComZhCn,
+  "status.modrinth.com#zh-cn": statusModrinthComZhCn,
+  "status.huggingface.co#zh-cn": statusHuggingfaceCoZhCn,
 };

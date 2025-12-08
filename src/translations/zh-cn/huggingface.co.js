@@ -1471,6 +1471,7 @@ export const huggingfaceCoZhCn = {
     ["Image Generation", "图像生成"],
     ["Image-to-Image", "图像转图像"],
     ["In this post", "在这篇帖子中"],
+    ["Invalid password", "无效密码"],
     ["Last Request", "最后一次请求"],
     ["Machine Learning", "机器学习"],
     ["Models breakdown", "模型细分"],
