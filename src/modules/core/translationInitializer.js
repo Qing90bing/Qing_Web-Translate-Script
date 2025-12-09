@@ -36,8 +36,8 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
     // 从站点词典中解构出所有规则，并为可能不存在的规则提供默认空数组。
     const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
     
-    log(`开始初始化翻译流程，使用语言: ${language || 'unknown'}`);
-
+    log(`开始初始化翻译流程，使用语言: ${language ?? 'unknown'}`);
+    
     // --- 步骤 1: 预处理翻译规则 ---
     // (逻辑已移动至 translator.js 内部，以增强封装性)
     if (textRules && textRules.length > 0) {
@@ -106,12 +106,12 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
      * @function initializeFullTranslation
      * @description 执行完整的首次翻译流程，并启动后续的动态监听。
      */
-    function initializeFullTranslation() {
+    async function initializeFullTranslation() {
         log('开始执行初次全文翻译...');
         const startTime = performance.now();
         
-        // 1. 执行首次全文翻译
-        translator.translate(document.body);
+        // 1. 执行首次全文翻译，分片翻译DOM节点
+        await translator.translate(document.body);
 
         // 翻译页面标题
         const titleElement = document.querySelector('title');
@@ -127,7 +127,7 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
         removeAntiFlickerStyle();
 
         // 3. 启动所有用于处理动态内容变化的 `MutationObserver`。
-        initializeObservers(translator, extendedElements, customAttributes, blockedAttributes);
+        initializeObservers(translator, extendedElements, customAttributes, blockedAttributes, document.querySelector('title'));
     }
 
     // 根据页面的加载状态，智能地选择启动翻译的时机。

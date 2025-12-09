@@ -146,7 +146,6 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
      */
     function translateText(text) {
         if (!text || typeof text !== 'string') return text;
-        console.log('DEBUG: translateText called for:', text.substring(0, 20));
         const originalText = text;
         // 1. 性能优化：首先检查缓存。
         if (translationCache.has(originalText)) {
