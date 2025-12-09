@@ -22,6 +22,7 @@
 // @match        *://modrinth.com/*
 // @match        *://status.modrinth.com/*
 // @match        *://status.huggingface.co/*
+// @match        *://opal.google/*
 // @run-at       document-start
 // @grant        GM_getValue
 // @grant        GM_setValue

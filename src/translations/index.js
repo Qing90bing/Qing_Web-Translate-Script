@@ -19,6 +19,7 @@ import { lmarenaAiZhCn } from './zh-cn/lmarena.ai.js';
 import { modrinthComZhCn } from './zh-cn/modrinth.com.js';
 import { statusModrinthComZhCn } from './zh-cn/status.modrinth.com.js';
 import { statusHuggingfaceCoZhCn } from './zh-cn/status.huggingface.co.js';
+import { opalGoogleZhCn } from './zh-cn/opal.google.js';
 // 导出主翻译映射
 export const masterTranslationMap = {
   "jules.google.com#zh-cn": julesGoogleComZhCn,
@@ -41,4 +42,5 @@ export const masterTranslationMap = {
   "modrinth.com#zh-cn": modrinthComZhCn,
   "status.modrinth.com#zh-cn": statusModrinthComZhCn,
   "status.huggingface.co#zh-cn": statusHuggingfaceCoZhCn,
+  "opal.google#zh-cn": opalGoogleZhCn,
 };
