@@ -476,6 +476,7 @@ export const lmarenaAiZhCn = {
     ["Diagram", "图表"],
     ["English", "英语"],
     ["FAQ", "常见问题"],
+    ["Older", "之前的"],
     ["Or hit ", "或按"],
     ["Overall", "综合"],
     ["Preview", "预览"],

@@ -106,35 +106,71 @@ export function initializeObservers(translator, extendedElements = [], customAtt
 
     // --- MutationObserver 实例定义 ---
 
-    // 1. 主内容变化监听器：负责处理绝大部分的 DOM 变动。
-    const mainObserver = new MutationObserver((mutations) => {
+    // (漏洞修复)
+    // 为确保能够监听到 Shadow DOM 内部的动态变化，我们需要一个统一的处理器
+    // 来处理来自任何 MutationObserver (无论是主观察器还是附加到 Shadow DOM 上的观察器) 的事件。
+    const mutationHandler = (mutations) => {
         const dirtyRoots = new Set();
-        
         for (const mutation of mutations) {
             let target = null;
             if (mutation.type === 'childList') {
+                // 处理新增的节点，检查其中是否包含需要我们进一步监听的 Shadow DOM
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        // 检查节点本身是否是 Shadow DOM 的宿主
+                        if (node.shadowRoot) {
+                            observeRoot(node.shadowRoot); // 动态附加监听器
+                        }
+                        // 检查节点的后代是否包含 Shadow DOM
+                        node.querySelectorAll('*').forEach(child => {
+                            if (child.shadowRoot) {
+                                observeRoot(child.shadowRoot); // 动态附加监听器
+                            }
+                        });
+                    }
+                });
                 target = mutation.target;
             } else if (mutation.type === 'attributes') {
                 target = mutation.target;
             } else if (mutation.type === 'characterData') {
                 target = mutation.target.parentElement;
             }
-            if (target instanceof Element) dirtyRoots.add(target);
+
+            if (target instanceof Element || target instanceof ShadowRoot) {
+                dirtyRoots.add(target);
+            }
         }
-        
+
         if (dirtyRoots.size > 0) {
             for (const root of dirtyRoots) {
-                // **关键步骤**: 在重新翻译前，必须先清除该节点缓存。
-                // 优化：不再遍历所有后代清除缓存，而是依赖 translator.translate() 内部逻辑
-                // 来正确处理未被阻断的子节点。这消除了 O(N^2) 的性能瓶颈。
                 translator.deleteElement(root);
-                // 将“脏”节点加入待处理队列
                 pendingNodes.add(root);
             }
-            // 调度一次批量翻译
             scheduleTranslation();
         }
-    });
+    };
+
+    // 1. 主内容变化监听器：使用统一的处理器。
+    const mainObserver = new MutationObserver(mutationHandler);
+
+    // 使用一个 Set 来跟踪已经附加了观察器的 ShadowRoot，防止重复操作。
+    const observedShadowRoots = new WeakSet();
+
+    /**
+     * @function observeRoot
+     * @description (新增) 动态地为一个根节点（document.body 或 shadowRoot）附加 MutationObserver。
+     * @param {Node} root - 要监听的根节点。
+     */
+    function observeRoot(root) {
+        if (!root || observedShadowRoots.has(root)) {
+            return;
+        }
+
+        debug('正在动态监听新的根节点:', root);
+        const observer = new MutationObserver(mutationHandler);
+        observer.observe(root, observerConfig);
+        observedShadowRoots.add(root);
+    }
 
     // 2. SPA 页面导航监听器：专门用于检测 URL 变化。
     let currentUrl = window.location.href;
@@ -198,14 +234,25 @@ export function initializeObservers(translator, extendedElements = [], customAtt
     // 3. 将最终的 Set 转换为数组。
     const finalAttributeFilter = [...whitelist];
 
-    mainObserver.observe(document.body, {
-        childList: true, // 监听子节点的添加或删除
-        subtree: true,   // 监听以 document.body 为根的所有后代节点
-        attributes: true, // 监听属性变化
-        attributeFilter: finalAttributeFilter, // 只关心白名单中的属性
-        characterData: true // 监听文本节点的内容变化
-    });
+    // (漏洞修复) 定义一个可复用的、标准的观察器配置对象。
+    const observerConfig = {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: finalAttributeFilter,
+        characterData: true
+    };
     
+    // 启动主观察器来监听 document.body
+    observeRoot(document.body);
+    
+    // (漏洞修复) 在脚本初始化时，主动查找并监听页面上所有已存在的 Shadow DOM。
+    document.querySelectorAll('*').forEach(el => {
+        if (el.shadowRoot) {
+            observeRoot(el.shadowRoot);
+        }
+    });
+
     pageObserver.observe(document.body, { childList: true, subtree: true });
 
     modelChangeObserver.observe(document.body, {

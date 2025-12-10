@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.105-2025-12-09-offline
+// @version      1.0.105-2025-12-10-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -34,7 +34,6 @@
 // @supportURL   https://github.com/Qing90bing/Qing_Web-Translate-Script/issues
 // @connect      cdn.jsdelivr.net
 // @connect      raw.githubusercontent.com
-// @noframes
 // ==/UserScript==
 
 (() => {
@@ -260,6 +259,7 @@
       [' Jules is out of beta! ', 'Jules 已结束测试版'],
       ['Jules is planning...', 'Jules 正在制定计划...'],
       ['Find an environment variable', '查找环境变量'],
+      ['General Settings - Jules', '一般设置 - Jules'],
       ['Max file count reached', '已达到最大文件数量'],
       ['Plan: Jules in Pro', '订阅计划：Jules 专业版'],
       ['Search for repo or tasks', '搜索代码库或任务'],
@@ -362,6 +362,7 @@
       [' Export settings ', '导出设置'],
       [' Upload directory', '上传目录'],
       ['Approve plan?', '批准此计划？'],
+      ['Build verified.', '已验证构建'],
       ['Copy task URL', '复制任务链接'],
       ['Detach repo', '不选择代码仓库'],
       ['Download zip', '下载 ZIP 文件'],
@@ -11008,6 +11009,7 @@
       ['Diagram', '图表'],
       ['English', '英语'],
       ['FAQ', '常见问题'],
+      ['Older', '之前的'],
       ['Or hit ', '或按'],
       ['Overall', '综合'],
       ['Preview', '预览'],
@@ -11874,6 +11876,7 @@
       ['Darden Restaurants', 'Darden 餐厅'],
       ['Data and Statistics', '数据和统计'],
       ['Download the beta', '下载 Beta 版'],
+      ['Downloads by region', '按区域下载'],
       ['Edit gallery item', '编辑画廊项目'],
       ['Enter postal code', '输入邮政编码'],
       ['Enter state/province', '输入州/省'],
@@ -12525,6 +12528,7 @@
       [' project', '个项目'],
       [' Servers', '服务器'],
       [' Transfer ', '转移'],
+      [' yesterday', '昨天'],
       ['/ yearly', '/ 每年'],
       ['Anguilla', '安圭拉'],
       ['Appearance', '外观'],
@@ -13603,6 +13607,9 @@
             }
           } else if (node.nodeType === Node.ELEMENT_NODE) {
             translateAttributes(node);
+            if (node.shadowRoot) {
+              translateElement(node.shadowRoot);
+            }
           }
         }
       } else {
@@ -13705,18 +13712,32 @@
         }
       }, 0);
     }
-    const mainObserver = new MutationObserver((mutations) => {
+    const mutationHandler = (mutations) => {
       const dirtyRoots = new Set();
       for (const mutation of mutations) {
         let target = null;
         if (mutation.type === 'childList') {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              if (node.shadowRoot) {
+                observeRoot(node.shadowRoot);
+              }
+              node.querySelectorAll('*').forEach((child) => {
+                if (child.shadowRoot) {
+                  observeRoot(child.shadowRoot);
+                }
+              });
+            }
+          });
           target = mutation.target;
         } else if (mutation.type === 'attributes') {
           target = mutation.target;
         } else if (mutation.type === 'characterData') {
           target = mutation.target.parentElement;
         }
-        if (target instanceof Element) dirtyRoots.add(target);
+        if (target instanceof Element || target instanceof ShadowRoot) {
+          dirtyRoots.add(target);
+        }
       }
       if (dirtyRoots.size > 0) {
         for (const root of dirtyRoots) {
@@ -13725,7 +13746,18 @@
         }
         scheduleTranslation();
       }
-    });
+    };
+    const mainObserver = new MutationObserver(mutationHandler);
+    const observedShadowRoots = new WeakSet();
+    function observeRoot(root) {
+      if (!root || observedShadowRoots.has(root)) {
+        return;
+      }
+      debug('正在动态监听新的根节点:', root);
+      const observer = new MutationObserver(mutationHandler);
+      observer.observe(root, observerConfig);
+      observedShadowRoots.add(root);
+    }
     let currentUrl = window.location.href;
     const pageObserver = new MutationObserver(() => {
       if (window.location.href !== currentUrl) {
@@ -13770,12 +13802,18 @@
       whitelist.delete(attr);
     }
     const finalAttributeFilter = [...whitelist];
-    mainObserver.observe(document.body, {
+    const observerConfig = {
       childList: true,
       subtree: true,
       attributes: true,
       attributeFilter: finalAttributeFilter,
       characterData: true,
+    };
+    observeRoot(document.body);
+    document.querySelectorAll('*').forEach((el) => {
+      if (el.shadowRoot) {
+        observeRoot(el.shadowRoot);
+      }
     });
     pageObserver.observe(document.body, { childList: true, subtree: true });
     modelChangeObserver.observe(document.body, {

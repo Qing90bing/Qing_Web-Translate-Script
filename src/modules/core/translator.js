@@ -291,6 +291,11 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                 } else if (node.nodeType === Node.ELEMENT_NODE) {
                     // 处理元素属性
                     translateAttributes(node);
+                    // (漏洞修复) 在遍历过程中，实时检查并递归进入 Shadow DOM。
+                    // 这是支持嵌套 Web Components 的关键。
+                    if (node.shadowRoot) {
+                        translateElement(node.shadowRoot);
+                    }
                 }
             }
         } else {
@@ -361,6 +366,9 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
         }
 
         // --- 3. 递归处理 Shadow DOM ---
+        // (漏洞修复)
+        // 原始的递归调用已被移入 TreeWalker 循环中，以确保能处理嵌套的 Shadow DOM。
+        // 但我们仍需处理根元素本身就带有 Shadow DOM 的情况 (例如，当 translateElement 的输入是 custom element 时)。
         if (element.shadowRoot) {
             translateElement(element.shadowRoot);
         }

@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.95-2025-12-09-cdn
+// @version      1.0.95-2025-12-10-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -26,7 +26,6 @@
 // @supportURL   https://github.com/Qing90bing/Qing_Web-Translate-Script/issues
 // @connect      cdn.jsdelivr.net
 // @connect      raw.githubusercontent.com
-// @noframes
 // ==/UserScript==
 
 const EMBEDDED_TRANSLATIONS = {
@@ -2253,6 +2252,9 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
             }
           } else if (node.nodeType === Node.ELEMENT_NODE) {
             translateAttributes(node);
+            if (node.shadowRoot) {
+              translateElement(node.shadowRoot);
+            }
           }
         }
       } else {
@@ -2358,18 +2360,32 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         }
       }, 0);
     }
-    const mainObserver = new MutationObserver((mutations) => {
+    const mutationHandler = (mutations) => {
       const dirtyRoots = /* @__PURE__ */ new Set();
       for (const mutation of mutations) {
         let target = null;
         if (mutation.type === 'childList') {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              if (node.shadowRoot) {
+                observeRoot(node.shadowRoot);
+              }
+              node.querySelectorAll('*').forEach((child) => {
+                if (child.shadowRoot) {
+                  observeRoot(child.shadowRoot);
+                }
+              });
+            }
+          });
           target = mutation.target;
         } else if (mutation.type === 'attributes') {
           target = mutation.target;
         } else if (mutation.type === 'characterData') {
           target = mutation.target.parentElement;
         }
-        if (target instanceof Element) dirtyRoots.add(target);
+        if (target instanceof Element || target instanceof ShadowRoot) {
+          dirtyRoots.add(target);
+        }
       }
       if (dirtyRoots.size > 0) {
         for (const root of dirtyRoots) {
@@ -2378,7 +2394,18 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         }
         scheduleTranslation();
       }
-    });
+    };
+    const mainObserver = new MutationObserver(mutationHandler);
+    const observedShadowRoots = /* @__PURE__ */ new WeakSet();
+    function observeRoot(root) {
+      if (!root || observedShadowRoots.has(root)) {
+        return;
+      }
+      debug('正在动态监听新的根节点:', root);
+      const observer = new MutationObserver(mutationHandler);
+      observer.observe(root, observerConfig);
+      observedShadowRoots.add(root);
+    }
     let currentUrl = window.location.href;
     const pageObserver = new MutationObserver(() => {
       if (window.location.href !== currentUrl) {
@@ -2423,17 +2450,18 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       whitelist.delete(attr);
     }
     const finalAttributeFilter = [...whitelist];
-    mainObserver.observe(document.body, {
+    const observerConfig = {
       childList: true,
-      // 监听子节点的添加或删除
       subtree: true,
-      // 监听以 document.body 为根的所有后代节点
       attributes: true,
-      // 监听属性变化
       attributeFilter: finalAttributeFilter,
-      // 只关心白名单中的属性
       characterData: true,
-      // 监听文本节点的内容变化
+    };
+    observeRoot(document.body);
+    document.querySelectorAll('*').forEach((el) => {
+      if (el.shadowRoot) {
+        observeRoot(el.shadowRoot);
+      }
     });
     pageObserver.observe(document.body, { childList: true, subtree: true });
     modelChangeObserver.observe(document.body, {
