@@ -175,6 +175,7 @@ export const statusClaudeComZhCn = {
     ["Here's where to find", "在此处查找"],
     ["Subscribe via RSS", "通过 RSS 订阅"],
     ["Subscribe via SMS", "通过短信订阅"],
+    ["Claude Status", "Claude 服务状态"],
     ["Congo, Dem Rep", "刚果民主共和国"],
     ["Degraded Performance", "性能下降"],
     ["Email address:", "电子邮件地址："],

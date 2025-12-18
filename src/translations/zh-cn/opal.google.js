@@ -5,7 +5,7 @@ export const opalGoogleZhCn = {
   description: '此翻译配置适用于 opal.google 网站的本地化。',
 
   // 测试链接：用于开发者测试网站显示效果的URL
-  testUrl: '',
+  testUrl: 'https://opal.google/landing/',
 
   // 创建日期：此翻译配置的创建日期
   createdAt: '2025-12-09',
@@ -105,7 +105,7 @@ export const opalGoogleZhCn = {
     ["Learning with YouTube", "使用 YouTube 学习"],
     ["Opal [Experiment]", "Opal [实验性应用]"],
     ["Google Labs Logo", "Google Labs 标志"],
-    ["\n        Try now\n      ", "立即试用"],
+    ["\n        Try now\n      ", "立即试用"],
     ["Business Profiler", "商业概况分析器"],
     ["Blog Post Writer", "博客文章撰写器"],
     ["Generated Playlist", "生成播放列表"],

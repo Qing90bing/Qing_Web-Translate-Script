@@ -35,9 +35,7 @@ export const statusModrinthComZhCn = {
   // 扩展翻译元素选择器
   // 用于翻译那些默认情况下未被翻译的元素
   extendedElements: [
-    // 在这里添加CSS选择器，例如：
-    // '#dynamic-content',
-    // '.custom-widget'
+    'main'
   ],
 
   // 自定义属性白名单 

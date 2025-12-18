@@ -70,6 +70,7 @@ export const wplaceLiveZhCn = {
   // 使用 $1, $2, ... 来引用正则表达式中的捕获组
   // 示例: [/^Hello (\w+)/, '您好 $1']
   regexRules: [
+    [/\s*You\s+gain\s+([\d,]+)\s+droplets?\s+per\s+pixel\s+painted\s+and\s+([\d,]+)\s+droplets?\s+per\s+niveau\s*/i, "每绘制一个像素获得 $1 个水滴，每升一级获得 $2 个水滴"],
     [/^\s*You can paint more than\s+(\d+)\s+pixels?\s*$/i, "您可以绘制超过 $1 个像素"],
     [/^\s*Pixel\s*:\s*([\d,]+),\s*([\d,]+)\s*$/i, "像素坐标：$1, $2"],
     [/^\s*\+(\d+)\s+max\.\s*charge\/level\s*$/i, "+$1 每级最大充能"],

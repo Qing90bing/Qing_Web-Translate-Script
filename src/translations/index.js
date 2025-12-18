@@ -20,6 +20,8 @@ import { modrinthComZhCn } from './zh-cn/modrinth.com.js';
 import { statusModrinthComZhCn } from './zh-cn/status.modrinth.com.js';
 import { statusHuggingfaceCoZhCn } from './zh-cn/status.huggingface.co.js';
 import { opalGoogleZhCn } from './zh-cn/opal.google.js';
+import { wwwCurseforgeComZhCn } from './zh-cn/www.curseforge.com.js';
+import { ssoCurseforgeComZhCn } from './zh-cn/sso.curseforge.com.js';
 // 导出主翻译映射
 export const masterTranslationMap = {
   "jules.google.com#zh-cn": julesGoogleComZhCn,
@@ -43,4 +45,6 @@ export const masterTranslationMap = {
   "status.modrinth.com#zh-cn": statusModrinthComZhCn,
   "status.huggingface.co#zh-cn": statusHuggingfaceCoZhCn,
   "opal.google#zh-cn": opalGoogleZhCn,
+  "www.curseforge.com#zh-cn": wwwCurseforgeComZhCn,
+  "sso.curseforge.com#zh-cn": ssoCurseforgeComZhCn,
 };
