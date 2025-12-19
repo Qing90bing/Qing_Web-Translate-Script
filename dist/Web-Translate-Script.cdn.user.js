@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.95-2025-12-18-cdn
+// @version      1.0.95-2025-12-19-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -2251,7 +2251,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
   var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate', 'kbd']);
 
   // src/modules/core/translator.js
-  function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = []) {
+  function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = [], pseudoRules = []) {
     const textTranslationMap = /* @__PURE__ */ new Map();
     if (Array.isArray(textRules)) {
       for (const rule of textRules) {
@@ -2359,6 +2359,30 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       log('整段翻译:', `"${fullText}"`, '->', `"${translation}"`);
       return true;
     }
+    function translatePseudoElements(element) {
+      if (!element || !element.tagName) return;
+      const handleType = (type) => {
+        try {
+          const pseudoStyle = window.getComputedStyle(element, `::${type}`);
+          const content = pseudoStyle.getPropertyValue('content');
+          if (content && content !== 'none' && content !== 'normal') {
+            const cleanContent = content.replace(/^['"]|['"]$/g, '');
+            if (cleanContent.trim()) {
+              const translated = translateText(cleanContent);
+              if (translated !== cleanContent) {
+                const attrName = `data-wts-${type}`;
+                if (element.getAttribute(attrName) !== translated) {
+                  element.setAttribute(attrName, translated);
+                  translateLog(`通用伪元素[::${type}]`, cleanContent, translated);
+                }
+              }
+            }
+          }
+        } catch (e) {}
+      };
+      handleType('before');
+      handleType('after');
+    }
     function translateElement(element) {
       if (!element || translatedElements.has(element) || !(element instanceof Element || element instanceof ShadowRoot)) return;
       if (isInsideBlockedElement(element)) {
@@ -2369,6 +2393,14 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
       if (!isContentBlocked) {
         if (translateElementContent(element)) {
+          if (element instanceof Element && pseudoRules.length > 0) {
+            for (const rule of pseudoRules) {
+              if (element.matches(rule.selector)) {
+                translatePseudoElements(element);
+                break;
+              }
+            }
+          }
           translatedElements.add(element);
           return;
         }
@@ -2391,6 +2423,14 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         });
         if (element instanceof Element && !isElementBlocked(element)) {
           translateAttributes(element);
+          if (pseudoRules.length > 0) {
+            for (const rule of pseudoRules) {
+              if (element.matches(rule.selector)) {
+                translatePseudoElements(element);
+                break;
+              }
+            }
+          }
         }
         while (walker.nextNode()) {
           const node = walker.currentNode;
@@ -2402,6 +2442,14 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
             }
           } else if (node.nodeType === Node.ELEMENT_NODE) {
             translateAttributes(node);
+            if (pseudoRules.length > 0) {
+              for (const rule of pseudoRules) {
+                if (node.matches(rule.selector)) {
+                  translatePseudoElements(node);
+                  break;
+                }
+              }
+            }
             if (node.shadowRoot) {
               translateElement(node.shadowRoot);
             }
@@ -2456,6 +2504,8 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       deleteElement: (element) => {
         translatedElements.delete(element);
       },
+      translatePseudoElements,
+      // 暴露给外部使用
     };
   }
 
@@ -2736,18 +2786,33 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
 
   // src/modules/core/translationInitializer.js
   function initializeTranslation(siteDictionary, createTranslator2, removeAntiFlickerStyle2, initializeObservers2, log2) {
-    const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [], pseudoElements = [] } = siteDictionary;
     log2(`开始初始化翻译流程，使用语言: ${language ?? 'unknown'}`);
     if (textRules && textRules.length > 0) {
       log2(`加载了 ${textRules.length} 条文本翻译规则`);
     }
-    if (cssRules.length > 0) {
+    const parsedPseudoRules = [];
+    if (pseudoElements && pseudoElements.length > 0) {
+      for (const selector of pseudoElements) {
+        const match = selector.match(/^(.*)(:{1,2})(before|after)$/);
+        if (match) {
+          const baseSelector = match[1].trim();
+          const type = match[3];
+          if (baseSelector) {
+            parsedPseudoRules.push({ selector: baseSelector, type });
+          }
+        }
+      }
+    }
+    const universalPseudoCss = ['[data-wts-before]::before { content: attr(data-wts-before) !important; }', '[data-wts-after]::after { content: attr(data-wts-after) !important; }'];
+    const allCssRules = [...cssRules, ...universalPseudoCss];
+    if (allCssRules.length > 0) {
       const customStyleElement = document.createElement('style');
       customStyleElement.id = 'web-translate-custom-styles';
-      customStyleElement.appendChild(document.createTextNode(cssRules.join('\n')));
+      customStyleElement.appendChild(document.createTextNode(allCssRules.join('\n')));
       const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
       head.appendChild(customStyleElement);
-      log2(`注入了 ${cssRules.length} 条自定义CSS样式`);
+      log2(`注入了 ${allCssRules.length} 条CSS样式 (含通用伪元素支持)`);
     }
     if (jsRules.length > 0) {
       const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
@@ -2765,7 +2830,27 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         log2(`执行了 ${executedScripts} 条自定义JS脚本`);
       }
     }
-    const translator = createTranslator2(textRules, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes);
+    const translator = createTranslator2(textRules, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes, parsedPseudoRules);
+    document.addEventListener(
+      'mouseover',
+      (event) => {
+        const target = event.target;
+        if (target instanceof Element) {
+          setTimeout(() => {
+            translator.translatePseudoElements(target);
+            let parent = target.parentElement;
+            let depth = 0;
+            while (parent && depth < 2) {
+              translator.translatePseudoElements(parent);
+              parent = parent.parentElement;
+              depth++;
+            }
+          }, 50);
+        }
+      },
+      { passive: true },
+    );
+    log2('已激活通用伪元素自动翻译监听器');
     function startTranslation() {
       if (document.body) {
         initializeFullTranslation();

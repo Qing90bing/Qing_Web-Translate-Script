@@ -26,9 +26,13 @@ import { log, debug, translateLog, perf } from '../utils/logger.js';
  * @param {Map<string, string>} textMap - 纯文本翻译规则的 Map 对象，键为原文，值为译文。
  * @param {Array<[RegExp, string]>} regexArr - 正则表达式翻译规则的数组。
  * @param {string[]} [blockedSelectors=[]] - 针对当前网站的、额外的禁止翻译的 CSS 选择器数组。
- * @returns {{translate: Function, resetState: Function, deleteElement: Function}} - 返回一个包含翻译 API 的对象。
+ * @param {string[]} [extendedSelectors=[]] - 内容增强翻译区选择器。
+ * @param {string[]} [customAttributes=[]] - 属性白名单。
+ * @param {string[]} [blockedAttributes=[]] - 属性黑名单。
+ * @param {Array<{selector: string, type: string}>} [pseudoRules=[]] - 伪元素翻译规则列表 (可选，现已支持通用自动翻译)。
+ * @returns {{translate: Function, resetState: Function, deleteElement: Function, translatePseudoElements: Function}} - 返回一个包含翻译 API 的对象。
  */
-export function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = []) {
+export function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = [], pseudoRules = []) {
     // --- 模块内部状态 ---
     // 通过闭包来管理每个翻译器实例的状态，确保实例之间互不干扰。
 
@@ -220,6 +224,68 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
     }
 
     /**
+     * @function translatePseudoElements
+     * @description 通用的伪元素翻译函数。
+     *              检查该元素的 ::before 和 ::after 伪元素内容，
+     *              如果有内容且能被翻译，则设置对应的 data-wts-* 属性。
+     * @param {Element} element - 要处理的 DOM 元素。
+     */
+    function translatePseudoElements(element) {
+        if (!element || !element.tagName) return;
+
+        // 辅助函数：处理单个伪类型
+        const handleType = (type) => {
+             // 检查是否手动配置了伪元素规则 (虽然现在是通用的，但保留对旧配置的兼容或特定优化)
+             // 实际上通用方案不需要检查 pseudoRules，但如果用户只想翻译特定元素，
+             // 我们这里采用“默认全检查”的策略，因为性能主要由调用方 (mouseover/TreeWalker) 控制。
+             // 如果在 TreeWalker 中调用，会非常频繁，所以 getComputedStyle 的开销需要注意。
+             // 优化：TreeWalker 中可能只对 pseudoRules 中定义的元素调用？
+             // 不，现在要求是“通用”。
+             // 为了避免遍历时的性能灾难，我们在 translateElement (主遍历) 中
+             // 应该只对 pseudoRules 里的调用 (如果存在)。
+             // 而 mouseover 事件触发的调用是针对特定元素的，可以做全检查。
+             // 
+             // 等等，如果现在是 zero-config，那 TreeWalker 里怎么知道该检查谁？
+             // 如果对页面上每个元素都做 getComputedStyle，性能会爆炸。
+             // 因此：**通用方案主要依赖 mouseover (交互式)**。
+             // 对于静态显示的伪元素 (非 hover)，如果用户没有配置，我们很难低成本地自动发现。
+             // 所以：
+             // 1. 如果有 pseudoRules，translateElement 会处理它们 (静态显示)。
+             // 2. 无论有没有 pseudoRules，mouseover 都会尝试翻译鼠标下的元素 (动态/交互显示)。
+             
+             try {
+                const pseudoStyle = window.getComputedStyle(element, `::${type}`);
+                const content = pseudoStyle.getPropertyValue('content');
+                
+                // content 通常返回带引号的字符串，如 '"text"' 或 'none'
+                if (content && content !== 'none' && content !== 'normal') {
+                    // 移除首尾的引号 (支持单引号或双引号)
+                    const cleanContent = content.replace(/^['"]|['"]$/g, '');
+                    
+                    if (cleanContent.trim()) {
+                        const translated = translateText(cleanContent);
+                        // 关键：只有当**确实发生了翻译**时，才设置 data 属性。
+                        // 这防止了将图标代码或无意义文本错误地“翻译”并回写，
+                        // 同时也避免了对未匹配翻译规则的元素产生视觉副作用。
+                        if (translated !== cleanContent) {
+                            const attrName = `data-wts-${type}`;
+                            if (element.getAttribute(attrName) !== translated) {
+                                element.setAttribute(attrName, translated);
+                                translateLog(`通用伪元素[::${type}]`, cleanContent, translated);
+                            }
+                        }
+                    }
+                }
+             } catch (e) {
+                // 忽略错误
+             }
+        };
+
+        handleType('before');
+        handleType('after');
+    }
+
+    /**
      * @function translateElement
      * @description 核心翻译函数，递归地翻译一个元素及其所有后代。
      * @param {Element | ShadowRoot} element - 要翻译的根元素或 ShadowRoot。
@@ -245,6 +311,18 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
         if (!isContentBlocked) {
             // 首先尝试性能更优的“整段翻译”
             if (translateElementContent(element)) {
+                // 即使整段翻译成功，我们仍需检查伪元素
+                // (仅对配置中明确指定的，以避免性能损耗)
+                if (element instanceof Element && pseudoRules.length > 0) {
+                     // 旧逻辑：检查是否匹配配置
+                     for(const rule of pseudoRules) {
+                        if(element.matches(rule.selector)) {
+                            // 这里可以调用通用翻译函数，因为它现在是安全的
+                            translatePseudoElements(element); 
+                            break; 
+                        }
+                     }
+                }
                 translatedElements.add(element);
                 return;
             }
@@ -274,9 +352,18 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                 }
             });
 
-            // 处理根元素本身的属性（如果根元素不是 ShadowRoot 且未被屏蔽）
+            // 处理根元素本身的属性和伪元素（如果根元素不是 ShadowRoot 且未被屏蔽）
             if (element instanceof Element && !isElementBlocked(element)) {
                  translateAttributes(element);
+                 // 仅当存在显式配置时，在遍历阶段处理伪元素
+                 if (pseudoRules.length > 0) {
+                     for(const rule of pseudoRules) {
+                        if(element.matches(rule.selector)) {
+                            translatePseudoElements(element);
+                            break;
+                        }
+                     }
+                 }
             }
 
             while (walker.nextNode()) {
@@ -291,6 +378,18 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                 } else if (node.nodeType === Node.ELEMENT_NODE) {
                     // 处理元素属性
                     translateAttributes(node);
+                    
+                    // 仅当存在显式配置时，在遍历阶段处理伪元素
+                    // 注意：通用自动翻译主要依赖 mouseover，因为在此处对所有元素做 computedStyle 太慢
+                    if (pseudoRules.length > 0) {
+                        for(const rule of pseudoRules) {
+                            if(node.matches(rule.selector)) {
+                                translatePseudoElements(node);
+                                break;
+                            }
+                        }
+                    }
+                    
                     // (漏洞修复) 在遍历过程中，实时检查并递归进入 Shadow DOM。
                     // 这是支持嵌套 Web Components 的关键。
                     if (node.shadowRoot) {
@@ -389,5 +488,6 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
         deleteElement: (element) => {
             translatedElements.delete(element);
         },
+        translatePseudoElements // 暴露给外部使用
     };
 }

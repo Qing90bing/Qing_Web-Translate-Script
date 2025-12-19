@@ -27,6 +27,7 @@
  *   @property {string[]} [extendedElements] - **内容增强翻译区**：CSS选择器数组，匹配的元素内部，所有属性值都将经过“仅纯文本”的翻译。
  *   @property {string[]} [customAttributes] - **属性白名单**：属性名数组，这些属性将在整个网站范围内被完整翻译（支持文本和正则）。
  *   @property {string[]} [blockedAttributes] - **属性黑名单**：属性名数组，这些属性绝不会被翻译，优先级最高。
+ *   @property {string[]} [pseudoElements] - **伪元素翻译配置** (可选)：CSS选择器数组。**注意：现在已支持自动翻译，此配置主要用于特定覆盖或兼容旧版**。
  * @param {Function} createTranslator - 用于创建翻译器实例的工厂函数。
  * @param {Function} removeAntiFlickerStyle - 用于移除“防闪烁”样式的函数。
  * @param {Function} initializeObservers - 用于初始化 `MutationObserver` 的函数。
@@ -34,7 +35,7 @@
  */
 export function initializeTranslation(siteDictionary, createTranslator, removeAntiFlickerStyle, initializeObservers, log) {
     // 从站点词典中解构出所有规则，并为可能不存在的规则提供默认空数组。
-    const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [], pseudoElements = [] } = siteDictionary;
     
     log(`开始初始化翻译流程，使用语言: ${language ?? 'unknown'}`);
     
@@ -44,17 +45,41 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
         log(`加载了 ${textRules.length} 条文本翻译规则`);
     }
 
+    // --- 步骤 1.5: 预处理伪元素翻译规则 (如果有手动配置) ---
+    const parsedPseudoRules = [];
+    
+    if (pseudoElements && pseudoElements.length > 0) {
+        for (const selector of pseudoElements) {
+            const match = selector.match(/^(.*)(:{1,2})(before|after)$/);
+            if (match) {
+                const baseSelector = match[1].trim();
+                const type = match[3];
+                if (baseSelector) {
+                    parsedPseudoRules.push({ selector: baseSelector, type: type });
+                }
+            }
+        }
+    }
+
     // --- 步骤 2: 注入自定义资源 ---
-    // 注入自定义 CSS 样式
-    if (cssRules.length > 0) {
+    
+    // 生成通用伪元素翻译支持 CSS
+    // 只要元素具有 data-wts-before/after 属性，就覆盖其 content
+    const universalPseudoCss = [
+        '[data-wts-before]::before { content: attr(data-wts-before) !important; }',
+        '[data-wts-after]::after { content: attr(data-wts-after) !important; }'
+    ];
+
+    const allCssRules = [...cssRules, ...universalPseudoCss];
+
+    // 注入 CSS 样式
+    if (allCssRules.length > 0) {
         const customStyleElement = document.createElement('style');
         customStyleElement.id = 'web-translate-custom-styles';
-        // 使用 `appendChild(document.createTextNode(...))` 的方式来设置样式内容，
-        // 这是一种更安全、更能兼容严格内容安全策略 (CSP) 和 Trusted Types 的方法。
-        customStyleElement.appendChild(document.createTextNode(cssRules.join('\n')));
+        customStyleElement.appendChild(document.createTextNode(allCssRules.join('\n')));
         const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
         head.appendChild(customStyleElement);
-        log(`注入了 ${cssRules.length} 条自定义CSS样式`);
+        log(`注入了 ${allCssRules.length} 条CSS样式 (含通用伪元素支持)`);
     }
 
     // 注入并执行自定义 JS 脚本
@@ -65,7 +90,6 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
             if (typeof scriptText === 'string' && scriptText.trim()) {
                 const scriptElement = document.createElement('script');
                 scriptElement.type = 'text/javascript';
-                // 同样使用 `appendChild` 来安全地注入脚本内容。
                 scriptElement.appendChild(document.createTextNode(scriptText));
                 head.appendChild(scriptElement);
                 executedScripts++;
@@ -77,9 +101,37 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
     }
 
     // --- 步骤 3: 创建翻译器实例 ---
-    // 将处理好的规则传递给翻译器工厂函数，创建一个包含特定网站翻译逻辑的翻译器实例。
-    // 此处将 extendedElements, customAttributes, 和 blockedAttributes 作为参数传入。
-    const translator = createTranslator(textRules, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes);
+    const translator = createTranslator(textRules, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes, parsedPseudoRules);
+
+    // --- 步骤 3.5: 设置全局通用事件监听以处理动态伪元素 ---
+    // 这是一个零配置的通用方案。
+    // 我们监听所有 mouseover 事件，并在短暂延迟后检查触发元素及其父级。
+    // 如果发现它们有包含文本的伪元素 (::before/::after)，则尝试翻译。
+    
+    document.addEventListener('mouseover', (event) => {
+        const target = event.target;
+        if (target instanceof Element) {
+            // 使用 setTimeout 延迟执行，确保 :hover 样式已生效
+            setTimeout(() => {
+                // 检查 target 本身
+                translator.translatePseudoElements(target);
+
+                // 也检查父元素，因为有时 hover 效果是在父元素上触发子元素的，
+                // 或者用户 hover 的是子元素但伪元素在父元素上。
+                // 向上查找几层是比较安全的做法。
+                let parent = target.parentElement;
+                let depth = 0;
+                while (parent && depth < 2) { // 检查向上两级
+                    translator.translatePseudoElements(parent);
+                    parent = parent.parentElement;
+                    depth++;
+                }
+            }, 50);
+        }
+    }, { passive: true });
+    
+    log('已激活通用伪元素自动翻译监听器');
+
 
     // --- 步骤 4: 协调并启动翻译流程 ---
 

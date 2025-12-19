@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.105-2025-12-18-offline
+// @version      1.0.105-2025-12-19-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -223,6 +223,7 @@
       ["Create tasks for Jules to work on when you're not there!", '创建任务，让 Jules 在您不在时处理'],
       ['Render is a third-party service with a separate ', 'Render 是一个单独的第三方服务，拥有独立的'],
       ['submitted will include your conversation and related code', '提交内容将包括您的对话和相关代码'],
+      ['This document contains many ambiguous unicode characters', '此文档包含许多模糊的 Unicode 字符'],
       ['Failed to update proactivity settings. Please try again.', '更新主动建议设置失败，请稍后重试'],
       ['You have unsaved changes. Are you sure you want to leave?', '您有未保存的变更,确定要离开吗？'],
       [' Jules can test web-apps and show you the results ', 'Jules 可以测试 Web 应用并向您展示结果'],
@@ -299,6 +300,7 @@
       [' Scheduled task created successfully! ', '计划任务已成功创建！'],
       ['🦜 Celebrating talk like a pirate day', '🦜 庆祝国际海盗语言日'],
       ['Automated fixes for Render deployments', '自动修复 Render 部署'],
+      ['Create a reproduction test case:', '创建一个可重复测试的案例：'],
       ['Environment variables saved successfully.', '环境变量保存成功'],
       ['Get started with some example prompts', '开始使用一些示例提示'],
       [' Increasing the VM Size to 20GB ', '将虚拟机大小增加到 20GB'],
@@ -315,6 +317,7 @@
       ['Step 1 and 2 are already completed.', '步骤 1 和 2 已完成'],
       ['Ask Jules to work on a task', '让 Jules 开始处理一项任务'],
       ['Continuously improve your codebase', '持续改进您的代码库'],
+      ['Large files are not shown by default', '默认不显示大文件'],
       ['Proceeding to frontend verification.', '正在进行前端验证'],
       ['Publish branch and generate PR', '发布分支并创建合并请求'],
       ['Running environment setup script', '正在运行环境配置脚本'],
@@ -330,6 +333,7 @@
       ['Paste your Render API key', '粘贴您的 Render API 密钥'],
       [' Added Bun runtime support ', '添加了 Bun 运行时支持'],
       [' For your protection, we ', ' 为了保护您的账户，我们'],
+      ['Verification with Playwright', '使用 Playwright 验证'],
       [' Introducing Gemini 3 Pro ', '隆重推出 Gemini 3 Pro'],
       [' Start from scratch—instantly ', '从零开始 — 即刻'],
       ["Arr matey! We're celebrating ", '啊嗬！我们正在庆祝'],
@@ -345,6 +349,7 @@
       [' Jules in the command line ', '命令行中的 Jules'],
       ['Basic model for all users', '所有用户的基础模型'],
       ['Completed pre-commit steps.', '已完成预提交步骤'],
+      ['Disable Ambiguous Highlight', '禁用模糊突出显示'],
       ['environment setup documentation', '环境配置文档'],
       ['Search for repo or sessions', '搜索代码库或会话'],
       ['Task unarchived successfully.', '任务已取消归档'],
@@ -354,6 +359,7 @@
       ['All plan steps completed', '所有计划步骤已完成'],
       ['Commit and push the changes.', '提交并推送更改'],
       ['Complete pre commit steps:', '完成预提交步骤：'],
+      ['Complete pre-commit steps:', '完成预提交步骤：'],
       ['Running code review ...', '正在进行代码审查...'],
       [' Jules gains memory! ', 'Jules 获得了记忆功能'],
       [' Jules is out of beta! ', 'Jules 已结束测试版'],
@@ -520,10 +526,12 @@
       ['Submit the change', '提交更改'],
       ['Task is resumed', '任务已恢复'],
       ['Verify Changes:', '验证更改：'],
+      ['Verify the fix:', '验证修复：'],
       [' Critic Agent ', '评论智能体'],
       [' Model settings ', '模型设置'],
       [' Resume session ', '恢复会话'],
       ['Add API Key', '添加 API 密钥'],
+      ['Apply the fix:', '应用修复：'],
       ['Configure repo', '配置存储库'],
       ['Delete memory?', '删除记忆？'],
       ['Dismiss snackbar', '关闭提示'],
@@ -576,6 +584,7 @@
       ['Publishing', '正在发布...'],
       ['Searching for', '正在搜索'],
       [' Add Memory ', '添加记忆'],
+      ['Close Banner', '关闭横幅'],
       ['Deleting...', '删除中...'],
       ['How it works', '工作原理'],
       ['Memory deleted', '已删除'],
@@ -584,6 +593,7 @@
       ['Publish code', '发布代码'],
       ['Saving...', '正在保存...'],
       [' In progress ', '进行中'],
+      [' Load file ', '加载文件'],
       [' View task ', '查看任务'],
       ['Create plan', '创建计划'],
       ['Learn more.', '了解更多'],
@@ -14924,7 +14934,7 @@
   var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
   var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate', 'kbd']);
   // src/modules/core/translator.js
-  function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = []) {
+  function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = [], pseudoRules = []) {
     const textTranslationMap = /* @__PURE__ */ new Map();
     if (Array.isArray(textRules)) {
       for (const rule of textRules) {
@@ -15032,6 +15042,30 @@
       log('整段翻译:', `"${fullText}"`, '->', `"${translation}"`);
       return true;
     }
+    function translatePseudoElements(element) {
+      if (!element || !element.tagName) return;
+      const handleType = (type) => {
+        try {
+          const pseudoStyle = window.getComputedStyle(element, `::${type}`);
+          const content = pseudoStyle.getPropertyValue('content');
+          if (content && content !== 'none' && content !== 'normal') {
+            const cleanContent = content.replace(/^['"]|['"]$/g, '');
+            if (cleanContent.trim()) {
+              const translated = translateText(cleanContent);
+              if (translated !== cleanContent) {
+                const attrName = `data-wts-${type}`;
+                if (element.getAttribute(attrName) !== translated) {
+                  element.setAttribute(attrName, translated);
+                  translateLog(`通用伪元素[::${type}]`, cleanContent, translated);
+                }
+              }
+            }
+          }
+        } catch (e) {}
+      };
+      handleType('before');
+      handleType('after');
+    }
     function translateElement(element) {
       if (!element || translatedElements.has(element) || !(element instanceof Element || element instanceof ShadowRoot)) return;
       if (isInsideBlockedElement(element)) {
@@ -15042,6 +15076,14 @@
       const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
       if (!isContentBlocked) {
         if (translateElementContent(element)) {
+          if (element instanceof Element && pseudoRules.length > 0) {
+            for (const rule of pseudoRules) {
+              if (element.matches(rule.selector)) {
+                translatePseudoElements(element);
+                break;
+              }
+            }
+          }
           translatedElements.add(element);
           return;
         }
@@ -15064,6 +15106,14 @@
         });
         if (element instanceof Element && !isElementBlocked(element)) {
           translateAttributes(element);
+          if (pseudoRules.length > 0) {
+            for (const rule of pseudoRules) {
+              if (element.matches(rule.selector)) {
+                translatePseudoElements(element);
+                break;
+              }
+            }
+          }
         }
         while (walker.nextNode()) {
           const node = walker.currentNode;
@@ -15075,6 +15125,14 @@
             }
           } else if (node.nodeType === Node.ELEMENT_NODE) {
             translateAttributes(node);
+            if (pseudoRules.length > 0) {
+              for (const rule of pseudoRules) {
+                if (node.matches(rule.selector)) {
+                  translatePseudoElements(node);
+                  break;
+                }
+              }
+            }
             if (node.shadowRoot) {
               translateElement(node.shadowRoot);
             }
@@ -15129,6 +15187,8 @@
       deleteElement: (element) => {
         translatedElements.delete(element);
       },
+      translatePseudoElements,
+      // 暴露给外部使用
     };
   }
   // src/modules/core/observers.js
@@ -15183,7 +15243,7 @@
       }, 0);
     }
     const mutationHandler = (mutations) => {
-      const dirtyRoots = /* @__PURE__ */ new Set();
+      const dirtyRoots = new Set();
       for (const mutation of mutations) {
         let target = null;
         if (mutation.type === 'childList') {
@@ -15218,7 +15278,7 @@
       }
     };
     const mainObserver = new MutationObserver(mutationHandler);
-    const observedShadowRoots = /* @__PURE__ */ new WeakSet();
+    const observedShadowRoots = new WeakSet();
     function observeRoot(root) {
       if (!root || observedShadowRoots.has(root)) {
         return;
@@ -15267,7 +15327,7 @@
         setTimeout(() => detectModelChange(), 0);
       }
     });
-    const whitelist = /* @__PURE__ */ new Set([...attributesToTranslate, ...customAttributes]);
+    const whitelist = new Set([...attributesToTranslate, ...customAttributes]);
     for (const attr of blockedAttributes) {
       whitelist.delete(attr);
     }
@@ -15303,9 +15363,7 @@
     if (titleElement) {
       titleObserver.observe(titleElement, {
         childList: true,
-        // 监视文本节点的添加/删除
         subtree: true,
-        // 必须监视子树以捕获文本节点的变化
       });
     }
     window.forceRetranslate = function () {
@@ -15318,7 +15376,7 @@
     };
     if (extendedElements.length > 0) {
       const extendedContentObserver = new MutationObserver((mutations) => {
-        const dirtyRoots = /* @__PURE__ */ new Set();
+        const dirtyRoots = new Set();
         for (const mutation of mutations) {
           if (mutation.type === 'characterData') {
             const target = mutation.target.parentElement;
@@ -15334,7 +15392,7 @@
         }
       });
       const extendedAttributeObserver = new MutationObserver((mutations) => {
-        const dirtyRoots = /* @__PURE__ */ new Set();
+        const dirtyRoots = new Set();
         for (const mutation of mutations) {
           if (mutation.type === 'attributes') {
             const target = mutation.target;
@@ -15405,20 +15463,34 @@
     }
     log('监听器初始化完成。');
   }
-  // src/modules/core/translationInitializer.js
   function initializeTranslation(siteDictionary, createTranslator2, removeAntiFlickerStyle2, initializeObservers2, log2) {
-    const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [] } = siteDictionary;
+    const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [], pseudoElements = [] } = siteDictionary;
     log2(`开始初始化翻译流程，使用语言: ${language ?? 'unknown'}`);
     if (textRules && textRules.length > 0) {
       log2(`加载了 ${textRules.length} 条文本翻译规则`);
     }
-    if (cssRules.length > 0) {
+    const parsedPseudoRules = [];
+    if (pseudoElements && pseudoElements.length > 0) {
+      for (const selector of pseudoElements) {
+        const match = selector.match(/^(.*)(:{1,2})(before|after)$/);
+        if (match) {
+          const baseSelector = match[1].trim();
+          const type = match[3];
+          if (baseSelector) {
+            parsedPseudoRules.push({ selector: baseSelector, type });
+          }
+        }
+      }
+    }
+    const universalPseudoCss = ['[data-wts-before]::before { content: attr(data-wts-before) !important; }', '[data-wts-after]::after { content: attr(data-wts-after) !important; }'];
+    const allCssRules = [...cssRules, ...universalPseudoCss];
+    if (allCssRules.length > 0) {
       const customStyleElement = document.createElement('style');
       customStyleElement.id = 'web-translate-custom-styles';
-      customStyleElement.appendChild(document.createTextNode(cssRules.join('\n')));
+      customStyleElement.appendChild(document.createTextNode(allCssRules.join('\n')));
       const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
       head.appendChild(customStyleElement);
-      log2(`注入了 ${cssRules.length} 条自定义CSS样式`);
+      log2(`注入了 ${allCssRules.length} 条CSS样式 (含通用伪元素支持)`);
     }
     if (jsRules.length > 0) {
       const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
@@ -15436,7 +15508,27 @@
         log2(`执行了 ${executedScripts} 条自定义JS脚本`);
       }
     }
-    const translator = createTranslator2(textRules, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes);
+    const translator = createTranslator2(textRules, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes, parsedPseudoRules);
+    document.addEventListener(
+      'mouseover',
+      (event) => {
+        const target = event.target;
+        if (target instanceof Element) {
+          setTimeout(() => {
+            translator.translatePseudoElements(target);
+            let parent = target.parentElement;
+            let depth = 0;
+            while (parent && depth < 2) {
+              translator.translatePseudoElements(parent);
+              parent = parent.parentElement;
+              depth++;
+            }
+          }, 50);
+        }
+      },
+      { passive: true },
+    );
+    log2('已激活通用伪元素自动翻译监听器');
     function startTranslation() {
       if (document.body) {
         initializeFullTranslation();
@@ -15468,7 +15560,6 @@
       startTranslation();
     }
   }
-  // src/main.js
   (function (translations) {
     'use strict';
     initializeMenu();
