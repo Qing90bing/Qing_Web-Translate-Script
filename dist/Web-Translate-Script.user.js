@@ -11616,6 +11616,10 @@
       [/\s*Jul(?:y)?\s+(\d{1,2}),\s*(\d{4})\s+at\s+(\d{1,2}:\d{2})\s*PM\s*/i, '$2 年 7 月 $1 日 下午 $3'],
       [/\s*Jun(?:e)?\s+(\d{1,2}),\s*(\d{4})\s+at\s+(\d{1,2}:\d{2})\s*AM\s*/i, '$2 年 6 月 $1 日 上午 $3'],
       [/\s*Jun(?:e)?\s+(\d{1,2}),\s*(\d{4})\s+at\s+(\d{1,2}:\d{2})\s*PM\s*/i, '$2 年 6 月 $1 日 下午 $3'],
+      [/\s*ModrinthApiError:\s+\[DELETE\]\s+\"(.+?)\":\s*/i, 'Modrinth API 错误：[删除] 请求于 “$1”：'],
+      [/\s*ModrinthApiError:\s+\[PATCH\]\s+\"(.+?)\":\s*/i, 'Modrinth API 错误：[修改] 请求于 “$1”：'],
+      [/\s*ModrinthApiError:\s+\[POST\]\s+\"(.+?)\":\s*/i, 'Modrinth API 错误：[提交] 请求于 “$1”：'],
+      [/\s*ModrinthApiError:\s+\[GET\]\s+\"(.+?)\":\s*/i, 'Modrinth API 错误：[获取] 请求于 “$1”：'],
       [/\s*May\s+(\d{1,2}),\s*(\d{4})\s+at\s+(\d{1,2}:\d{2})\s*AM\s*/i, '$2 年 5 月 $1 日 上午 $3'],
       [/\s*May\s+(\d{1,2}),\s*(\d{4})\s+at\s+(\d{1,2}:\d{2})\s*PM\s*/i, '$2 年 5 月 $1 日 下午 $3'],
       [/\s*or\s+save\s+(\d+)%\s+with\s+(?:annual|yearly)\s+billing!?\s*/i, '或按年付费可省 $1%！'],
@@ -11653,6 +11657,7 @@
       [/\s*Last\s+accessed\s+(\d+)\s+minutes?\s+ago\s*/i, '$1 分钟前访问'],
       [/\s*Nov(?:ember)?\s+(\d{1,2}),\s*(\d{4})\s*/i, '$2 年 11 月 $1 日'],
       [/\s*Sep(?:tember)?\s+(\d{1,2}),\s*(\d{4})\s*/i, '$2 年 9 月 $1 日'],
+      [/\s*Version\s+([\w\.\+\-]+)\s+is\s+embedded\s*/i, '版本 $1 已嵌入'],
       [/\s*Feb(?:ruary)?\s+(\d{1,2}),\s*(\d{4})\s*/i, '$2 年 2 月 $1 日'],
       [/\s*Last\s+accessed\s+(\d+)\s+months?\s+ago\s*/i, '$1 个月前访问'],
       [/\s*Oct(?:ober)?\s+(\d{1,2}),\s*(\d{4})\s*/i, '$2 年 10 月 $1 日'],
@@ -11748,6 +11753,10 @@
       [/\s*(\d+)\s+emails?\s*/i, '$1 封邮件'],
       [/\s*SAVE\s+(\d+)%\s*/, '立省 $1%！'],
     ],
+    // 纯文本翻译规则
+    // 规则会完全匹配整个文本
+    // 格式: ['原始文本', '翻译后的文本']
+    // 示例: ['Login', '登录']
     textRules: [
       [" Modrinth's team of content moderators work hard to review all submitted projects. Typically, you can expect a new project to be reviewed within 24 to 48 hours. Please keep in mind that larger projects, especially modpacks, may require more time to review. Certain holidays or events may also lead to delays depending on moderator availability. Modrinth's moderators will leave a message below if they have any questions or concerns for you. ", 'Modrinth 的内容管理员团队会努力审核所有提交的项目。通常，新项目预计在 24 到 48 小时内完成审核。请注意，较大的项目，尤其是整合包，可能需要更多时间。某些假期或活动也可能因管理员的可用性而导致延迟。如果 Modrinth 管理员对您有任何疑问或顾虑，他们会在此下方留言'],
       [' When your server is under heavy load, we temporarily give it access to additional CPU threads to help mitigate lag spikes and instability. This helps prevent the TPS from going below 20, ensuring the smoothest experience possible. Since those extra CPU threads are only shortly available during high load periods, they might not show up in Spark reports or other profiling tools. ', '当您的服务器负载过高时，我们会暂时为其提供额外的 CPU 线程，以帮助缓解延迟峰值和不稳定性。这有助于防止 TPS（每秒刻数）低于 20，确保最流畅的体验。由于这些额外的 CPU 线程仅在高峰负载期间短暂可用，它们可能不会显示在 Spark 报告或其他性能分析工具中'],
@@ -11766,6 +11775,7 @@
       [' Any links you specify below will be overwritten on each of the selected projects. Any you leave blank will be ignored. You can clear a link from all selected projects using the trash can button. ', '您在下面指定的任何链接都将被所选项目覆盖，您留空的链接将被忽略，您可以使用垃圾桶按钮清除所有选定项目的链接'],
       [' Public and archived projects are visible in search. Unlisted projects are published, but not visible in search or on user profiles. Private projects are only accessible by members of the project. ', '公开和已归档的项目在搜索中可见。未列出的项目已发布，但在搜索或用户资料上不可见。私人项目仅项目成员可访问'],
       [' When you authorize an application with your Modrinth account, you grant it access to your account. You can manage and review access to your account here at any time. ', '当您授权某个应用程序使用您的 Modrinth 账户时，即表示您授予其访问您账户的权限。您可以随时在此处管理和查看账户访问权限'],
+      ["Hello, we are Modrinth – an open source mods hosting platform. Sounds dry, doesn't it? So let me tell you our story – and I promise, it won't be boring!", '你好，我们是 Modrinth —— 一个开源的模组托管平台。听起来很枯燥，对吧？那么让我来告诉你我们的故事 —— 我保证，这绝不会无聊！'],
       [' and the moderators have requested you make changes before it can be approved. Read the messages from the moderators below and address their comments before resubmitting. ', '和审核团队请求您在批准之前进行更改。请阅读审核团队下方的消息并在重新提交前解决他们的评论'],
       ["\n				If you're not sure how to resolve this issue, try closing this window and signing in again.\n				If the problem persists after three attempts, please visit\n				", '如果您不确定如何解决此问题，请尝试关闭此窗口并重新登录。如果尝试三次后问题仍然存在，请访问'],
       [' Modrinth Hosting servers can run any version of Minecraft: Java Edition going all the way back to version 1.2.5, including snapshot versions. ', 'Modrinth Hosting 服务器可以运行任何版本的 Minecraft: Java 版，一直追溯到 1.2.5 版本，包括快照版本'],
@@ -11775,6 +11785,7 @@
       [" Your project has been withheld by Modrinth's staff. In most cases, you can resubmit for review after addressing the staff's message. ", '您的项目已被 Modrinth 的工作人员撤回。在大多数情况下，您可以在解决工作人员的消息后重新提交审核'],
       [' Once you delete your account, there is no going back. Deleting your account will remove all attached data, excluding projects, from our servers. ', '一旦您删除账户，将无法撤销。删除账户将从我们的服务器中移除所有关联数据，项目除外'],
       ['If you proceed, all versions and any attached data will be removed from our servers. This may break other projects, so be careful.', '如果继续，所有版本和任何附加数据都将从我们的服务器中删除。这可能会破坏其他项目，因此请谨慎操作'],
+      ['ModrinthServerError: [invalid_input] Error with multipart data: No plugin.yml or paper-plugin.yml present for plugin file.', 'Modrinth 服务器错误：[ invalid_input ]多部分数据错误：插件文件中没有 plugin.yml 或 paper-plugin.yml'],
       [' Modrinth Hosting servers are powered by AMD Ryzen 7900 and 7950X3D equivalent CPUs at 5+ GHz, paired with DDR5 memory. ', 'Modrinth Hosting 服务器由等效于 5+ GHz 的 AMD Ryzen 7900 和 7950X3D CPU 提供支持，并搭配 DDR5 内存'],
       [' This project is not managed by an organization. If you are the member of any organizations, you can transfer management to one of them. ', '此项目不是由组织管理的。如果您是任何组织的成员，可以将其管理权转移给其中一个组织'],
       ["Invalid input: Email is already registered on Modrinth! Try 'Forgot password' in incognito to access and delete your other account.", '无效输入：邮箱已在 Modrinth 注册！请在隐身模式下尝试“忘记密码”以访问并删除其他账户'],
@@ -11801,6 +11812,7 @@
       [' Request a copy of all your personal data you have uploaded to Modrinth. This may take several minutes to complete. ', '请求您已上传到 Modrinth 的所有个人数据的副本。这可能需要几分钟才能完成'],
       [' Storage and shared CPU count are currently not configurable independently, and are based on the amount of RAM you select. ', '存储和共享 CPU 核数目前无法独立配置，它们取决于您选择的内存大小'],
       [' for assistance. The debug\n				information below may help you or our support team diagnose and fix the problem.\n			', '寻求帮助。下方的调试信息可能有助于您或我们的支持团队诊断和修复问题'],
+      ['Changing the modded Minecraft landscape with the new Modrinth App, alongside several other major features.', '通过全新的 Modrinth App 以及其他几项重大功能，改变 Minecraft 模组界的格局。'],
       [' A featured gallery image shows up in search and your project card. Only one gallery image can be featured. ', '精选画廊图片会显示在搜索结果和您的项目卡片中。只能将一张画廊图片设为精选'],
       [" Applications can be used to authenticate Modrinth's users with your products. For more information, see ", '应用程序可用于通过您的产品验证 Modrinth 用户的身份。欲了解更多信息，请参阅'],
       [' Our most intelligent model built for speed, combining frontier intelligence with superior search and grounding. ', '我们最智能的模型，专为速度而设计，结合了前沿智能、卓越的搜索和基础'],
@@ -11808,42 +11820,56 @@
       [" The web location of the full license text. If you don't provide a link, the license text will be displayed instead. ", '完整许可证文本的网页位置。如果您不提供链接，将显示许可证文本'],
       [' Accurate tagging is important to help people find your modpack. Make sure to select all tags that apply. ', '准确的标签非常重要，有助于人们找到您的整合包。请确保选择所有适用的标签'],
       ['Include links and images if possible and relevant. Empty or insufficient reports will be closed and ignored.', '如果可能且相关，请包含链接和图片。空白或信息不足的举报将被关闭并忽略'],
+      ['ModrinthServerError: [invalid_input] Error with multipart data: File extension is invalid for input file', 'Modrinth 服务器错误：[无效输入] 多部分数据错误：输入文件的文件扩展名无效'],
       ['You will be the owner of this organization, but you can invite other members and transfer ownership at any time.', '您将成为此组织的所有者，但您可以随时邀请其他成员加入并转移所有权'],
       [` Projects must not use Minecraft's branding or include "Minecraft" as a significant part of the name. `, '项目不得使用 Minecraft 的品牌标志或在名称中包含“Minecraft”作为主要部分'],
       [' Two-factor authentication keeps your account secure by requiring access to a second device in order to sign in. ', '双重身份验证要求访问第二个设备才能登录，从而保护您的账户安全'],
       ['From magical biomes to cursed dungeons, you can be sure to find content to bring your gameplay to the next level.', '从魔法生物群系到诅咒地牢，你能找到让游戏体验更上一层楼的内容'],
       [' Your project is only viewable by members of the project. It must be reviewed by moderators in order to be published. ', '您的项目目前仅项目成员可见。必须经过管理员审核才能发布'],
+      ["Software licenses; the nitty-gritty legal aspect of software development. They're more important than you think.", '软件许可证：软件开发中琐碎的法律层面。它们比你想象的更重要。'],
       [' Deleting your organization will transfer all of its projects to the organization owner. This action cannot be undone. ', '删除组织将永久删除该组织的所有项目，此操作无法撤销'],
       [' The web location of the full license text. You have to provide a link since this is a custom license. ', '完整许可证文本的网页位置。由于这是自定义许可证，您必须提供一个链接'],
+      ["After over a year of development, we're happy to announce that modpack support is now in alpha testing.", '经过一年多的开发，我们很高兴地宣布整合包支持现已开启 Alpha 测试。'],
+      ['Continuing to improve the user interface after a great first week since Modrinth launched out of beta.', '在 Modrinth 结束 Beta 测试后的首个出色的一周后，继续改进用户界面。'],
       [' and some of the most popular launchers like ATLauncher, MultiMC, and Prism Launcher.', '以及一些最受欢迎的启动器，如 ATLauncher、MultiMC 和 Prism Launcher 来使用 Modrinth'],
       ['Build, share, and play modpacks with any of the thousands of mods and modpacks hosted here on Modrinth.', '利用 Modrinth 上托管的数千个模组和整合包，构建、分享和游玩整合包'],
       [' Accurate tagging is important to help people find your project. Make sure to select all tags that apply. ', '准确的标签可以帮助人们找到您的项目。请确保选择所有适用的标签'],
       ["Modrinth's open-source API lets launchers add deep integration with Modrinth. You can use Modrinth through ", 'Modrinth 的开源 API 允许启动器深度集成 Modrinth。您可以通过'],
+      ['After six months of work, Modrinth enters Beta, helping modders host their mods with ease!', '经过六个月的努力，Modrinth 进入 Beta 阶段，帮助模组作者轻松托管他们的模组！'],
       ['Integrate with your build tools through Minotaur for automatic uploads right when you release a new version', '通过 Minotaur 集成您的构建工具，在新版本发布时即可自动上传'],
+      ["We've overhauled the environment metadata on Modrinth, and all creators must verify their settings.", '我们彻底修改了 Modrinth 上的环境元数据，所有创作者必须验证其设置。'],
       [' Adding a unique, relevant, and engaging icon makes your project identifiable and helps it stand out. ', '添加一个独特、相关且吸引人的图标，使您的项目易于识别并脱颖而出'],
       [' The description must clearly and honestly describe the purpose and function of the project. See section 2.1 of the ', '描述必须清晰、诚实地说明项目的目的和功能。请参阅'],
       ['NOT AN OFFICIAL MINECRAFT SERVICE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.', '非 MINECRAFT 官方服务，未获 MOJANG 或 MICROSOFT 批准，亦与它们没有任何关联'],
       [' Add your own domain to your server, reserve up to 15 ports for mods that require them, and more. ', '为您的服务器添加自己的域名，为需要端口的模组预留最多 15 个端口等'],
       [' Modrinth Hosting seamlessly integrates the mod and modpack installation process into your server. ', 'Modrinth Hosting 将模组和整合包的安装过程无缝集成到您的服务器中'],
+      [' You can optionally add supplementary files such as source code, documentation, or required resource packs. ', '您可以选择添加补充文件，例如源代码、文档或必需的资源包'],
       [' Your server, mods, players, and more are all on Modrinth. No need to switch between platforms. ', '您的服务器、模组、玩家等信息都在 Modrinth 上。无需在不同平台间切换'],
       ["Modrinth's lightning-fast search and powerful filters let you find what you want as you type.", 'Modrinth 闪电般的快速搜索和强大的筛选器，让您在输入时就能找到所需内容'],
+      ['Customize your look, save your favorite skins, and swap them out in a flash, all within Modrinth App.', '在 Modrinth App 中即可自定义外观、保存喜爱的皮肤并快速更换。'],
+      ['Supplementary files are for supporting resources like source code, not for alternative versions or variants.', '补充文件用于支持资源，如源代码，而不是替代版本或变体'],
       ["Enter your email below and we'll send a recovery link to allow you to recover your account.", '在下方输入您的邮箱，我们将发送一个恢复链接，以允许您恢复您的账号'],
+      ['(April Fools 2023) Powering up your experience: Modrinth Technologies™️ beta launch!', '（2023 愚人节）增强您的体验：Modrinth Technologies™️ Beta 版发布！'],
       ['Modrinth Hosting is a new way to play modded Minecraft with your friends.', 'Modrinth Hosting 是一种新的方式，让您的朋友们可以在 Modrinth 上玩 Minecraft 模组'],
       [" User email is already registered on Modrinth. Try 'Forgot password' to access your account.", '用户邮箱已在 Modrinth 注册，请尝试“忘记密码”来访问您的账户'],
       ['Modrinth App performs better than many of the leading mod managers, using just 150mb of RAM!', 'Modrinth 应用的性能优于许多主流模组管理器，仅占用 150MB 内存'],
       [" Repeated submissions without addressing the moderators' comments may result in an account suspension. ", '重复提交而不解决审核团队的评论可能会导致账户暂停'],
+      ['Introducing the Creator Monetization Program allowing creators to earn revenue from their projects.', '推出创作者变现计划，允许创作者从其项目中获得收入。'],
       ['Server-side only: All functionality is done server-side and is compatible with vanilla clients.', '仅服务端：所有功能都在服务器端完成，并与原版客户端兼容'],
       ['Examples include malicious, spam, offensive, deceptive, misleading, and illegal content.', '示例包括恶意软件、垃圾信息、攻击性、欺诈性、误导性和非法内容'],
       [" Enter the Modrinth username of the person you'd like to invite to be a member of this organization. ", '输入您想要邀请成为此组织成员的 Modrinth 用户名'],
       ['Client-side only: All functionality is done client-side and is compatible with vanilla servers.', '仅客户端：所有功能都在客户端完成，并与原版服务器兼容'],
       ['Discover, play, and share Minecraft content through our open-source platform built for the community.', '社区开源平台，探索、游玩、分享 Minecraft 内容'],
       ['Singleplayer only: Only functions in Singleplayer or when not connected to a Multiplayer server.', '仅单人模式：仅在单人模式或未连接到多人服务器时运行'],
+      ['A small update with a big impact: plugins and resource packs are now available on Modrinth!', '一个影响深远的小更新：插件和资源包现已登录 Modrinth！'],
       ['Client and server: Has some functionality on both the client and server, even if only partially.', '客户端和服务端：在客户端和服务器上都具有部分功能'],
       [" Enter the Modrinth username of the person you'd like to invite to be a member of this project. ", '输入您想要邀请成为此项目成员的 Modrinth 用户名'],
       ['A business entity refers to a registered organization such as a corporation, partnership, or LLC.', '业务实体是指注册的组织，如公司、合作或 LLC'],
       ["The project may have been taken down by Modrinth's moderation team for violating our ", '项目可能已被 Modrinth 管理团队下架，因为它违反了我们的'],
       [' Select the tags that correctly apply to your project to help the right users find it. ', '选择正确应用于您项目的标签，以帮助合适的用户找到它'],
+      ["Marking two years of Modrinth and discussing our New Year's Resolutions for 2023.", '纪念 Modrinth 成立两周年，并讨论我们 2023 年的新年愿望。'],
       ['Give an online home to your creations and reach a massive audience of dedicated players.', '为您的作品提供一个线上家园，并触达海量忠实玩家。'],
+      ['The history of Modrinth as we know it from December 2020 to December 2022.', '我们所熟知的 Modrinth 历史：从 2020 年 12 月到 2022 年 12 月。'],
       ["The project's owner may have changed the URL, made the project private, or deleted it.", '项目所有者可能已更改 URL、将项目设为私有或将其删除'],
       ['Your project is missing environment metadata, please select the appropriate option below.', '您的项目缺少环境元数据，请在下方选择合适的选项'],
       ['Revenue stays in processing until the end of the month, then becomes available 60 days later.', '收入在月底处理完成后，60 天后才会变为可用'],
@@ -11852,11 +11878,17 @@
       ['Get the best modding experience possible with constant updates from the Modrinth team', '通过 Modrinth 团队的不断更新，获得最佳的模组体验'],
       [" Access your server's files directly with SFTP built into Modrinth Hosting. ", '通过 Modrinth Hosting 内置的 SFTP 直接访问您的服务器文件'],
       [' Review and address all concerns from the moderation team before resubmitting. ', '在重新提交之前，请审核并解决审核团队的所有关注事项'],
+      ["Welcome to the new era of Modrinth. We can't wait to hear your feedback.", '欢迎来到 Modrinth 的新时代。我们迫不及待想听到您的反馈。'],
       ['Error while validating input: Field username failed validation with error: length', '验证输入时出错：用户名字段验证失败，错误：长度'],
+      ['Introducing Modrinth+, a refreshed site look, and a new advertising system!', '介绍 Modrinth+、焕然一新的网站外观以及新的广告系统！'],
       ['Our desktop app is available across all platforms, choose your desired version.', '我们的桌面应用适用于所有平台，请选择您需要的版本'],
+      ['Experimenting with a different ad providers to find one which one works for us.', '尝试不同的广告提供商，寻找最适合我们的那一个。'],
       ['Get paid ad revenue from your project pages and withdraw your funds at any time', '从您的项目页面获取广告收入，并随时提取您的资金'],
+      ['In partnership with Medal.tv, get a 5-day free trial for Modrinth Servers', '与 Medal.tv 合作，获取 Modrinth Servers 5 天免费试用'],
+      [' Managing project versions has moved! You can now add and edit versions in the ', '项目版本已迁移！如需要添加和编辑项目版本请在'],
       [' Search, manage, edit, and upload files directly to your server with ease. ', '轻松地直接搜索、管理、编辑和上传文件到您的服务器'],
       ['. This will not delete your projects. Deleting your account cannot be reversed.', '，这不会删除您的项目，删除您的账户无法撤销。'],
+      ['Addressing recent growth and growing pains that have been affecting creators.', '应对近期影响创作者的增长压力及随之而来的挑战。'],
       ['Error while validating input: Field slug failed validation with error: length', '验证输入时出错：字段 slug 验证失败，错误：长度'],
       ["Modrinth's launcher is fully open source. You can view the source code on our ", 'Modrinth 的启动器是完全开源的。您可以在我们的'],
       ["PATs can be used to access Modrinth's API. For more information, see ", 'PAT 可用于访问 Modrinth 的 API。欲了解更多信息，请参阅'],
@@ -11864,24 +11896,36 @@
       [" A description that clearly describes the project's purpose and function is required. ", '需要一个清晰描述项目目的和功能的描述'],
       [' A place for users to report bugs, issues, and concerns about your project. ', '用户可以报告有关您项目的错误、问题和疑虑的地方'],
       [' The featured gallery image is often how your project makes its first impression. ', '精选图库图片通常是您的项目给人的第一印象'],
+      [' The primary file is the default file a user downloads when installing the project. ', '主要文件是用户安装项目时下载的默认文件'],
       [', running on custom-built software to ensure your server performs smoothly. ', '，并在自定义软件上运行，确保您的服务器流畅运行'],
+      ['A Pride Month Success: Over $8,400 Raised for The Trevor Project!', '骄傲月大成功：为 The Trevor Project 筹款超过 8,400 美元！'],
+      ['Version creation is now dramatically more intelligent and easier for creators.', '版本创建现在对创作者来说更加智能、更加便捷。'],
       ['Your new collection will be created as a public collection with no projects.', '您的新合集将作为公开合集创建，且不包含任何项目'],
       ['All functionality is done server-side and is compatible with vanilla clients.', '所有功能都在服务器端完成，并与原版客户端兼容'],
+      ['Keeping LGBTQIA+ content visible despite demands from Russia.', '尽管面临来自俄罗斯的要求，仍坚持保留 LGBTQIA+ 内容的可见性。'],
       ['A place for users to report bugs, issues, and concerns about your project.', '用户可以报告有关您项目的错误、问题和疑虑的地方'],
       ['Error with multipart data: Field slug failed validation with error: length', '多部分数据错误：字段 slug 验证失败，错误：长度'],
+      ['Modrinth Servers is now fully operated in-house by the Modrinth Team.', 'Modrinth Servers 现已由 Modrinth 团队完全自主运营。'],
       [' Where are Modrinth Hosting servers located? Can I choose a region? ', 'Modrinth Hosting 服务器位于何处？我可以选择区域吗？'],
       ['All functionality is done client-side and is compatible with vanilla servers.', '所有功能都在客户端完成，并与原版服务器兼容'],
       [' Describe the image completely as you would to someone who could not see the image. ', '描述图片完全，就像无法看到图片一样'],
       [' Available in North America, Europe, and Southeast Asia for wide coverage. ', '在北美、欧洲和东南亚提供服务，覆盖范围广泛'],
+      ['Host your own server with Modrinth Servers — now in beta', '使用 Modrinth Servers 托管您的服务器 —— 现已开启 Beta 测试'],
+      [' Managing gallery has moved! You can now add and edit gallery images in the ', '画廊已迁移！如需要添加和编辑画廊图像请在'],
       [' Modrinth Hosting comes with powerful tools to manage your server. ', 'Modrinth Hosting 配备了强大的工具来管理您的服务器'],
+      ['Announcing an update to our monetization program, creator split, and more!', '宣布更新我们的变现计划、创作者分成等内容！'],
+      ['A rate limiting issue caused inflated download counts in certain countries.', '频率限制问题导致某些国家的下载计数虚高。'],
+      ['Fast, simple, reliable servers directly integrated into Modrinth.', '快速、简单且可靠的服务器，直接集成于 Modrinth 中。'],
       ['Only functions in Singleplayer or when not connected to a Multiplayer server.', '仅在单人模式或未连接到多人服务器时运行'],
       [' Select all categories that reflect the themes or function of your modpack. ', '选择所有反映您的整合包主题或功能的分类'],
       ['All of your past charges to your Modrinth account will be listed here:', '这里显示了您在 Modrinth 账户中过去的所有费用'],
       ['Your profile information is publicly viewable on Modrinth and through the ', '您的个人资料信息可在 Modrinth 上以及通过'],
       [" You don't have any projects yet. Click the green button above to begin. ", '您还没有任何项目，单击上面的绿色按钮开始'],
+      ['Reflecting on our Pride Month fundraiser campaign for LGBTQ+ youth.', '回顾我们为 LGBTQ+ 青少年发起的骄傲月筹款活动。'],
       [' Limited-time offer. No credit card required. Available for US servers. ', '限时优惠，无需信用卡，仅适用于美国服务器'],
       [' Final price and currency will be based on your selected payment method. ', '最终价格和货币将取决于您选择的付款方式'],
       ['Get notified every time your favorite projects update and stay in the loop.', '随时了解您最喜爱项目的更新，保持同步'],
+      ['You can try to drag files or folder or click this area to select it', '您可以尝试拖动文件或文件夹或点击此区域选择它'],
       [' At least one version is required for a project to be submitted for review. ', '项目必须至少有一个版本才能提交审核'],
       ['A unique case-insensitive name to identify your profile.', '一个独一无二、不区分大小写的名称，用于识别您的个人资料'],
       [' Reach out to the Modrinth team for help with your server at any time. ', '随时联系 Modrinth 团队以获取服务器帮助'],
@@ -11893,13 +11937,17 @@
       [" I confirm that I have properly addressed the moderators' comments. ", '我确认我已经正确地回应了审核团队的评论'],
       [' If the QR code does not scan, you can manually enter the secret: ', '如果二维码无法扫描，您可以手动输入密钥：'],
       ['Get detailed reports on page views, download counts, and revenue', '获取关于页面浏览量、下载量和收入的详细报告'],
+      ['CurseForge CDN links requested to be removed by the end of the month', 'CurseForge CDN 链接被要求在月底前移除'],
       ['Meta Quest Digital Gift Card - For Apps, Games, Experiences', 'Meta Quest 数字礼品卡 - 适用于应用、游戏、体验'],
       ['This will remove this collection forever. This action cannot be undone.', '这将永久删除此合集，此操作无法撤销'],
       [' Every server comes with 15 backups stored securely off-site. ', '每台服务器都包含 15 个安全存储在异地的备份'],
+      [' The version number differentiates this specific version from others. ', '本号将该特定版本与其他版本区分开来'],
       [' Your version must have the supported Minecraft versions selected. ', '您的版本必须选择支持的 Minecraft 版本'],
       [' 50% of your subscription goes directly to Modrinth creators. ', '您订阅费的 50% 直接分配给 Modrinth 创作者'],
       [' A page containing information, documentation, and help for the project. ', '包含项目信息、文档和帮助的页面'],
       [' Add an additional layer of security to your account during login. ', '在登录期间为您的账户添加额外的安全层'],
+      ['Our latest Modrinth Servers datacenter is in Singapore.', '我们最新的 Modrinth Servers 数据中心位于新加坡。'],
+      ['Releasing many new features and improvements, including a redesign!', '发布多项新功能和改进，包括重新设计！'],
       ['You can edit multiple projects at once by selecting them below.', '您可以通过选择下面的项目一次编辑多个项目'],
       [' If your review has taken more than 48 hours, check our ', '如果您的项目审核耗时超过 48 小时，请查看我们的'],
       ['Select your preferred color theme for Modrinth on this device.', '选择您在此设备上 Modrinth 的首选颜色主题'],
@@ -11907,15 +11955,20 @@
       ['A page containing information, documentation, and help for the project.', '包含项目信息、文档和帮助的页面'],
       ['You must complete the required steps in the publishing checklist!', '您必须完成发布检查清单中的必填步骤！'],
       ["Let us know where you'd like to see Modrinth Hosting next!", '让我们知道您想在 Modrinth 托管下看到什么！'],
+      ['Malware Discovery Disclosure: "Windows Borderless" mod', '恶意软件发现披露：“Windows Borderless”模组'],
       ['This will remove this version forever (like really forever).', '这将永久删除此版本（就像真的永久一样）'],
       [' Make sure you have addressed the comments from the moderation team. ', '确保您已解决审核团队的评论，'],
+      ['December may be over, but we’re not done giving gifts.', '十二月或许已经结束，但我们的礼物还未送完。'],
       [' The title of the role that this member plays for this project. ', '此成员在该项目中所扮演角色的名称'],
       [' What kind of CPUs do Modrinth Hosting servers run on? ', 'Modrinth Hosting 服务器使用的是哪种 CPU？'],
+      ['Correcting Inflated Download Counts due to Rate Limiting Issue', '纠正因频率限制问题导致的下载量虚高'],
       ['Invite your teammates and manage roles and permissions with ease', '轻松邀请您的队友并管理角色和权限'],
       ['This will remove this token forever (like really forever).', '这将永久删除此令牌（就像真的永久一样）'],
       [' Ad-free browsing on modrinth.com and Modrinth App ', '在 modrinth.com 和 Modrinth App 上无广告浏览'],
+      ['Creator Update: Analytics, Organizations, Collections, and more', '创作者更新：分析、组织、收藏夹等'],
       [' Do Modrinth Hosting servers have DDoS protection? ', 'Modrinth Hosting 服务器是否具有 DDoS 保护？'],
       ['Aligns the filters sidebar to the right of the search results.', '将筛选侧边栏对齐到搜索结果的右侧'],
+      ['Plugins and Resource Packs now have a home on Modrinth', '插件和资源包现在在 Modrinth 有了自己的家'],
       [' A powerful console, server properties manager, and more ', '强大的控制台、服务器属性管理器等功能'],
       ["Auto-generated collection of all the projects you're following.", '您关注的所有项目的自动生成合集'],
       [' A page/repository containing the source code for your project ', '包含您项目源代码的页面/存储库'],
@@ -11924,6 +11977,7 @@
       ['A short description to tell everyone a little bit about you.', '一段简短的描述，向大家介绍一下您'],
       ['Ideal for 15–25 players, modpacks, or heavy modding.', '理想用于 15-25 名玩家、整合包或重度模组'],
       ['Withdraw from your available balance to any payout method.', '从您的可用余额中提现到任何提款方式'],
+      [' [TimeoutError]: The operation was aborted due to timeout', '[超时错误]：该操作由于超时而被中止'],
       [" How users are and aren't allowed to use your project. ", '用户被允许和不被允许如何使用您的项目'],
       [' Never see an advertisement again on the Modrinth app. ', '在 Modrinth App 上永远不会再看到广告'],
       [' Select at least one category in order to feature a category. ', '至少选择一个分类才能精选分类'],
@@ -11931,24 +11985,28 @@
       ['Optional on both, works the same if installed on either side', '两侧可选，安装在任一侧效果相同'],
       [' Add donation links for users to support you directly. ', '添加捐赠链接，让用户可以直接支持您'],
       [' Select the license your modpack is distributed under. ', '选择您的整合包在分发时使用的许可证'],
+      ['New withdraw options and a redesigned revenue dashboard', '新的提现选项及重新设计的收入仪表板'],
       ['Save content you love and receive updates with one click.', '保存您喜爱的内容，并一键接收更新'],
       [' Pick a customized plan with just the specs you need. ', '选择一个只包含您所需规格的定制方案'],
       [' Host your next server with Modrinth Hosting ', '使用 Modrinth Hosting 托管您的下一台服务器'],
       [' What Minecraft versions and loaders can be used? ', '可以使用哪些 Minecraft 版本和加载器？'],
       ['If you need help with your account, get support on the ', '如果您需要账户方面的帮助，请通过'],
       ['immediately delete all of your user data and follows', '立即删除您的所有用户数据和关注列表'],
+      ['This week in Modrinth development: Filters and Fixes', '本周 Modrinth 开发进展：筛选与修复'],
       ["Which of Modrinth's rules is this project violating?", '此项目违反了 Modrinth 的哪些规则？'],
       ["Which of Modrinth's rules is this version violating?", '此版本违反了 Modrinth 的哪些规则？'],
       ['You cannot leave the project if you are the owner!', '如果您是项目所有者，则不能退出项目！'],
       [' Click to choose an image or drag one onto this page ', '点击选择图片或将图片拖放到此页面'],
       ['Some payout methods are not available in certain regions.', '某些支付方式在特定地区不可用'],
       ['This will delete this organization forever (like ', '这会永久删除该组织，此操作无法撤销 ('],
+      ['Quintupling Creator Revenue and Becoming Sustainable', '创作者收入翻五倍，实现可持续发展'],
       [' Click to choose a file or drag one onto this page ', '点击选择文件或将文件拖放到此页面'],
       ["Which of Modrinth's rules is this user violating?", '此用户违反了 Modrinth 的哪条规则？'],
       [' All prices are listed in United States Dollars (USD). ', '所有价格均以美元（USD）列出'],
       [' Please upload a version first in order to select tags! ', '请先上传版本，才能选择标签'],
       [' Set a permanent password to login to your account. ', '设置一个永久密码以登录您的账户'],
       ['No elements found. Consider changing the search query.', '未找到元素，考虑更改搜索查询'],
+      ['Primary file cannot be changed after version is uploaded', '上传版本后无法更改主要文件'],
       ['The visibility of your project after it has been approved.', '项目获得批准后的可见状态'],
       [' Select the license your project is distributed under. ', '选择您的项目所依据的许可证'],
       [' This page shows you the analytics for your project, ', '此页面显示您项目的分析数据，'],
@@ -11957,9 +12015,12 @@
       ["Michael J. Fox Foundation for Parkinson's Research", '迈克尔·J·福克斯帕金森研究基金会'],
       ['Optional on both, works best when installed on both sides', '两侧可选，最好安装在两侧'],
       ['Please provide additional context about your report', '请提供关于您举报的更多背景信息'],
+      ['Select one or more loaders this version supports.', '选择此版本支持的一个或多个加载器'],
       [' Select the environments your modpack functions on. ', '选择您的整合包可以运行的环境'],
       ['Authentication error: Invalid Authentication Credentials', '认证错误：无效的认证凭据'],
       ["By creating an account, you agree to Modrinth's ", '通过创建账号，您同意 Modrinth 的'],
+      ['The version has been successfully added to your project.', '版本已成功添加到您的项目'],
+      ['The version has been successfully saved to your project.', '版本已成功保存到您的项目'],
       [' Drag and drop to upload or click to select file ', '将文件拖放到此处或点击选择文件'],
       [" Your project does not currently meet Modrinth's ", '您的项目目前不符合 Modrinth 的'],
       ['Confirm I have addressed the messages from the moderators', '确认已解决管理员的消息'],
@@ -11970,9 +12031,12 @@
       ['South Georgia and the South Sandwich Islands (GS)', '南乔治亚岛和南桑威奇群岛 (GS)'],
       ['Are you sure you want to delete this gallery image?', '您确定要删除此画廊图片吗？'],
       ['Invalid input: Expire date must be in the future!', '无效输入：过期日期必须在未来'],
+      ['Creators can now make money on Modrinth!', '创作者现在可以在 Modrinth 上赚钱了！'],
       ['GNU Affero General Public License v3.0 only', '仅 GNU Affero 通用公共许可证 v3.0'],
       ['National Association For The Advancement of Colored People', '全国有色人种协进会'],
+      ['Our fundraiser and the future of Modrinth!', '我们的筹款活动与 Modrinth 的未来！'],
       ['BSD 3-Clause "New" or "Revised" License', 'BSD 3 条款“新版”或“修订版”许可证'],
+      ['Modrinth Modpacks: Now in alpha testing', 'Modrinth 整合包：现已开启 Alpha 测试'],
       ['Your account information is not displayed publicly.', '您的账户信息不会公开显示'],
       [' and click the green bubble to contact support. ', '并点击绿色气泡联系客服支持'],
       ['An error has occurred during the authentication process.', '认证过程中发生错误'],
@@ -11985,6 +12049,7 @@
       [" Find a modpack. Now it's a server. ", '找到一个整合包，它现在就是一台服务器'],
       [" This organization doesn't have any projects yet. ", '该组织还没有任何项目，'],
       ['. They can be created and revoked at any time.', '。您可以随时创建和撤销它们'],
+      ['Learn about this major update to Modrinth.', '了解 Modrinth 的这一重大更新。'],
       ['Your payouts and withdrawals will appear here.', '您的付款和提现将显示在此处'],
       [' An invitation link to your Discord server. ', '您的 Discord 服务器邀请链接'],
       [' How fast are Modrinth Hosting servers? ', 'Modrinth Hosting 服务器有多快？'],
@@ -11996,6 +12061,8 @@
       [' Enter a valid link to a YouTube video. ', '输入有效的 YouTube 视频链接...'],
       ['Are you a withdrawing as an individual or business? ', '您是个人还是企业？'],
       ['Are you sure you want to delete this collection?', '您确定要删除此合集吗？'],
+      ['Creators: Verify Your Environment Metadata', '创作者：请验证您的环境元数据'],
+      ['Enter version number, e.g. 1.2.3-alpha.1', '输入版本号，例如 1.2.3-alpha.1'],
       ['Great for 6–15 players and multiple mods.', '适用于 6-15 名玩家和多个模组'],
       ['NAACP Legal Defense and Education Fund', '有色人种协进会法律辩护和教育基金'],
       ['PUBG New State - 3600NC + 250 Bonus', 'PUBG New State - 3600 NC + 250 奖励'],
@@ -12016,13 +12083,18 @@
       ['Are you sure you want to delete this project?', '您确定要删除此项目吗？'],
       ['Are you sure you want to delete this version?', '您确定要删除此版本吗？'],
       ['Black Emotional and Mental Health Collection', '黑人情感与心理健康联盟'],
+      ['Search by name, slug, or paste ID...', '按名称、slug 或粘贴 ID 搜索...'],
+      ['Skins — Now in Modrinth App!', '皮肤功能 —— 现已登录 Modrinth App！'],
       [' the password used to login to your account. ', '用于登录您账户的密码'],
       [' You have not authorized any applications. ', '您尚未授权任何应用程序'],
       ['Are you sure you want to delete this token?', '您确定要删除此令牌吗？'],
       ['National Alliance on Mental Illness (NAMI)', '全国精神疾病联盟 (NAMI)'],
+      ['Now showing on Modrinth: A new look!', 'Modrinth 现已呈现：全新外观！'],
       ['The Linux versions of Modrinth App are ', 'Modrinth 应用的 Linux 版本'],
+      ['A Sustainable Path Forward for Modrinth', 'Modrinth 的可持续发展之路'],
       ['Become a subscriber to Modrinth Plus!', '成为 Modrinth Plus 订阅者！'],
       ['GNU Affero General Public License v3', 'GNU Affero 通用公共许可证 v3'],
+      ['Our capital return and what’s next.', '我们的资本回报及下一步计划。'],
       ['Support Modrinth and creators directly', '直接支持 Modrinth 和创作者'],
       ['Your version must have a version number.', '您的版本必须有一个版本号'],
       [' License does not have a SPDX identifier ', '许可证没有 SPDX 标识符'],
@@ -12036,6 +12108,7 @@
       [', or any other 2FA app to begin. ', '，或其他任意 2FA 应用即可开始'],
       ['...and much more coming soon™!', '......更多精彩功能即将 Soon™！'],
       ['Download Modrinth App for Windows', '下载 Windows 版 Modrinth 应用'],
+      ['Hold shift and click to select range.', '按住 Shift 并点击选择范围'],
       ['Mobile Legends Global 11 Diamonds', 'Mobile Legends Global 11 钻石'],
       ['Saint Vincent and the Grenadines (VC)', '圣文森特和格林纳丁斯 (VC)'],
       ['Susan G. Komen Breast Cancer Foundation', '苏珊·G·科曼乳腺癌基金会'],
@@ -12051,16 +12124,21 @@
       ['Your application icon has been updated.', '您的应用程序图标已更新'],
       ['Dystonia Medical Research Foundation', '肌张力障碍医学研究基金会'],
       ["Lao People's Democratic Republic (LA)", '老挝人民民主共和国 (LA)'],
+      ['Modrinth Servers Launches in Asia', 'Modrinth Servers 在亚洲上线'],
       ['What you get with Modrinth Plus!', 'Modrinth Plus 为您带来什么！'],
       [' Comes with all the features you need. ', '包含您需要的所有功能'],
       [' to be reviewed again by the moderators. ', '将再次由管理员审核'],
       ['A moderator has sent you a message!', '管理员已发送您一条消息！'],
+      ['A New Chapter for Modrinth Servers', 'Modrinth Servers 的新篇章'],
       ['BSD 2-Clause "Simplified" License', 'BSD 2 条款“简化版”许可证'],
       ['CC Zero (Public Domain equivalent)', 'CC Zero（相当于公共领域）'],
       ['Change the venmo username to save.', '更改要保存的 Venmo 用户名'],
       ["Enter the application's description...", '输入应用程序的描述...'],
       ['GNU Lesser General Public License v3', 'GNU 宽通用公共许可证 v3'],
+      ["Modrinth's Carbon Ads experiment", 'Modrinth 的 Carbon Ads 实验'],
+      ['Two years of Modrinth: a retrospective', 'Modrinth 两周年：回顾'],
       [' How do CPU burst threads work? ', 'CPU 突发线程是如何工作的？'],
+      ['Introducing Modrinth App Beta', '介绍 Modrinth App Beta 测试版'],
       ['Modrinth+ badge on your profile', '个人资料上的 Modrinth+ 徽章'],
       ['PlayStation™Store (Dual Brand)', 'PlayStation™Store (双品牌)'],
       ['Please enter your password to proceed.', '请输入您的密码以继续'],
@@ -12071,13 +12149,17 @@
       ['Support creators and go ad-free', '支持创作者并享受无广告体验'],
       ['You can report bugs to their ', '您可以将错误报告提交到他们的'],
       ["You don't have any unread notifications.", '您没有未读通知 :)'],
+      ['Create your first project version.', '创建您的第一个项目版本'],
+      ['Drag and drop files or click to browse', '拖动文件或点击浏览'],
       ['National Organization for Rare Disorders', '全国罕见疾病组织'],
       ['No results found for your query!', '未找到符合您查询的结果！'],
       ['Personal access tokens - Modrinth', '个人访问令牌 - Modrinth'],
       ['Subscribe to the Modrinth newsletter', '订阅 Modrinth 新闻稿'],
       ['Trinity Educational Community Center', '三位一体教育社区中心'],
       [' Not accessible with a direct link ', '无法通过直接链接访问'],
+      ["Accelerating Modrinth's Development", '加速 Modrinth 的开发'],
       ['Asian Americans Advancing Justice', '亚裔美国人促进正义协会'],
+      ["Beginner's Guide to Licensing your Mods", '模组许可新手指南'],
       ["St. Jude Children's Research Hospital", '圣犹大儿童研究医院'],
       [' What currency are the prices in? ', '价格以什么货币计价？'],
       ['Alo Moves - 1 Month Subscription', 'Alo Moves - 1 个月订阅'],
@@ -12094,25 +12176,33 @@
       ['Search resource packs - Modrinth', '搜索资源包 - Modrinth'],
       ['Suboptions of Client and server', '客户端和服务端的子选项'],
       ['Subscribe to updates about Modrinth', '订阅 Modrinth 更新'],
+      ['Welcome to Modrinth Beta', '欢迎来到 Modrinth Beta 测试版'],
       [' Why Modrinth Hosting? ', '为什么选择 Modrinth Hosting？'],
       ['Discover over 75,000 creations', '探索超过 75,000 个作品'],
       ["Enter the application's name...", '输入应用程序的名称...'],
+      ['Threat Analysis and Plan of Action', '威胁分析与行动计划'],
       ['United States Minor Outlying Islands', '美国本土外小岛屿'],
       ["You don't have any active reports.", '您没有任何活动报告'],
       ['All Rights Reserved/No License', '保留所有权利/无许可证'],
+      ['Modpack versions cannot be edited', '整合包版本无法编辑'],
       ['See Terms of Use in Description', '在描述中查看服务条款'],
       ['Share your content with the world', '与世界分享您的内容'],
       ["You don't have any servers yet!", '您还没有任何服务器！'],
       ['Your organization has been deleted.', '您的组织已被删除'],
+      [' No description provided. Visit ', '没有提供描述，访问'],
       [' Resubmit for review with reply ', '重新提交审核并回复'],
+      ['Creator Updates, July 2025', '创作者更新，2025 年 7 月'],
+      ['Get a Free Modrinth Server', '获取免费 Modrinth 服务器'],
       ['GNU General Public License v2', 'GNU 通用公共许可证 v2'],
       ['GNU General Public License v3', 'GNU 通用公共许可证 v3'],
       ['Profile settings - Modrinth', '个人资料设置 - Modrinth'],
       ['the requested route does not exist', '请求的路由不存在'],
       [' Accessible with a direct link ', '可通过直接链接访问'],
       [' Install with Modrinth App ', '使用 Modrinth 应用安装'],
+      [' No images in gallery. Visit ', '画廊中没有图像，访问'],
       [' support article on review times ', '审核时间支持文章'],
       ['Academy Sports & Outdoors US', 'Academy 体育与户外 US'],
+      ['Changes to Modrinth Modpacks', 'Modrinth 整合包的变更'],
       ['If approved by the moderators:', '如果获得管理员批准:'],
       ['Manage authentication providers', '管理身份验证提供商'],
       ["Ruth's Chris Steak House US", "Ruth's Chris 牛排屋 US"],
@@ -12141,6 +12231,7 @@
       ['Account settings - Modrinth', '账户设置 - Modrinth'],
       ['Display settings - Modrinth', '显示设置 - Modrinth'],
       ['Enter your email address...', '输入您的邮箱地址...'],
+      ["Modrinth's Anniversary Update", 'Modrinth 周年更新'],
       ['Suboptions of Client-side only', '仅客户端的子选项'],
       ['Suboptions of Server-side only', '仅服务端的子选项'],
       ['Your collections - Modrinth', '您的合集 - Modrinth'],
@@ -12186,6 +12277,7 @@
       ['Minecraft: Java Edition', 'Minecraft : Java 版'],
       ['Play where your mods are', '在模组所在之处游玩'],
       ['Secure payment input frame', '安全付款输入框架'],
+      ['Streamlined Version Creation', '流程化版本创建'],
       ['Terms of Use - Modrinth', '使用条款 - Modrinth'],
       ['The Oceanaire Restaurant', 'The Oceanaire 餐厅'],
       ['The place for Minecraft ', 'Minecraft 内容平台'],
@@ -12247,6 +12339,7 @@
       ["Morton's The Steakhouse", "Morton's 牛排屋"],
       ['Northern Mariana Islands', '北马里亚纳群岛'],
       ['Search game versions...', '搜索游戏版本...'],
+      ['Standing By Our Values', '坚守我们的价值观'],
       ['Svalbard and Jan Mayen', '斯瓦尔巴和扬马延'],
       ['The Skin Cancer Foundation', '皮肤癌基金会'],
       ['Toggle filter for alpha', '筛选 Alpha 测试'],
@@ -12260,6 +12353,7 @@
       ['Insert YouTube video', '插入 YouTube 视频'],
       ['LatinoJustice PRLDEF', '拉丁裔正义 PRLDEF'],
       ['Prepaid Physical Visa', '预付实体 Visa 卡'],
+      ['Project version created', '项目版本已创建'],
       ['Sao Tome and Principe', '圣多美和普林西比'],
       ['Search resource packs...', '搜索资源包...'],
       ['This form is not for:', '此表单不适用于：'],
@@ -12283,6 +12377,7 @@
       ['Violation of Modrinth ', '违反 Modrinth '],
       ['Visit moderation thread ', '访问审核流程'],
       [' A project you follow, ', '您关注的项目'],
+      [' add your description. ', '添加项目描述'],
       [' Will be visible in search ', '搜索可见'],
       ['Adding a payment method', '添加付款方式'],
       ['American Cancer Society', '美国癌症协会'],
@@ -12300,6 +12395,7 @@
       ['Loading analytics...', '加载分析数据...'],
       ['Misuse of custom URL', '自定义 URL 滥用'],
       ['Modrinth Changelog', 'Modrinth 更新日志'],
+      ['Project version saved', '项目版本已保存'],
       ['Saint Kitts and Nevis', '圣基茨和尼维斯'],
       ['Select a payment method', '选择付款方式'],
       ['Servers - Modrinth', '服务器 - Modrinth'],
@@ -12310,6 +12406,7 @@
       ['Visit general settings ', '访问常规设置'],
       [' Allow later editions ', '允许后续版本'],
       [' Delete this application', '删除此应用'],
+      [' Minecraft versions ', 'Minecraft 版本'],
       [' Testing connection... ', '测试连接...'],
       ['Apartment, suite, etc.', '公寓、套房等'],
       ['Bank Transfer (USD)', '银行转账 (美元)'],
@@ -12331,6 +12428,7 @@
       ['Slug is already taken!', '已经被占用！'],
       ['Upload additional file', '上传附加文件'],
       ['Visit moderation page ', '访问审核页面'],
+      ['What is Modrinth?', '什么是 Modrinth？'],
       [' Client and server ', '客户端和服务端'],
       [' Make an organization! ', '创建组织！'],
       [' Resubmit for review ', '重新提交审核'],
@@ -12341,6 +12439,7 @@
       ['Help when you need it', '随时提供帮助'],
       ['Modrinth information', 'Modrinth 信息'],
       ['More Download Options', '更多下载选项'],
+      ['More Ways to Withdraw', '更多提现方式'],
       ['Rewards Program Terms', '奖励计划条款'],
       ['Search data packs...', '搜索数据包...'],
       ['Sign In - Modrinth', '登录 - Modrinth'],
@@ -12377,6 +12476,7 @@
       ['Outback Steakhouse', 'Outback 牛排屋'],
       ['Project list layouts', '项目列表布局'],
       ['Publishing checklist', '发布检查清单'],
+      ['Replace primary file', '替换主要文件'],
       ['Rewards Program Info', '奖励计划信息'],
       ['Share on Mastodon', '分享到 Mastodon'],
       ['Supported environments', '支持的环境'],
@@ -12388,8 +12488,11 @@
       [' Add gallery image ', '添加画廊图片'],
       [' Add payment method', '添加付款方式'],
       [' Open in new tab ', '在新标签页打开'],
+      [' Set game versions ', '设置游戏版本'],
       [' Transfer management ', '转移管理权'],
+      ['Added via overrides', '通过覆盖添加'],
       ['Brunei Darussalam', '文莱达鲁萨兰国'],
+      ['Change primary file', '更改主要文件'],
       ['Discord invite ', 'Discord 邀请链接'],
       ['Enter business name', '输入企业名称'],
       ['Enter description...', '输入描述...'],
@@ -12400,6 +12503,7 @@
       ['Modrinth home page', 'Modrinth 首页'],
       ['Monetization weight', '收入分成权重'],
       ['No collections found.', '未找到合集'],
+      ['No versions created', '暂无版本创建'],
       ['Profile information', '个人资料信息'],
       ['Region not listed? ', '地区未列出？'],
       ['Reset your password', '重置您的密码'],
@@ -12412,11 +12516,14 @@
       [' Filter results... ', '筛选结果...'],
       [' View past charges', '查看历史账单'],
       ['Account and security', '账户与安全'],
+      ['Added dependencies', '已添加依赖项'],
       ['American Red Cross', '美国红十字会'],
       ['Carnival Cruise Line', '嘉年华邮轮'],
       ['Choose loaders...', '选择加载器...'],
       ['Confirm new password', '确认新密码'],
+      ['Detected loaders', '检测到的加载器'],
       ['Donate on Ko-fi', '在 Ko-fi 上捐赠'],
+      ['Enter subtitle...', '输入副标题...'],
       ['French Polynesia', '法属波利尼西亚'],
       ['Grameen Foundation', '格拉明基金会'],
       ['March of Dimes', '新生儿缺陷基金会'],
@@ -12427,13 +12534,16 @@
       ['Share this article', '分享这篇文章'],
       ['Unlike any launcher ', '与众不同的'],
       ['User profile pages', '用户资料页面'],
+      [' Added loaders ', '已添加的加载器'],
       [' Create organization ', '创建组织'],
       [' Delete organization ', '删除组织'],
+      [' Edit dependencies ', '编辑依赖项'],
       [' Generate export ', '生成导出文件'],
       [' Unfeature image ', '取消精选图片'],
       [' Unfollow project', '取消关注项目'],
       [' Upload a version', '上传一个版本'],
       [" You're submitting ", '您正在提交'],
+      ['Add game versions', '添加游戏版本'],
       ['Choose versions...', '选择版本...'],
       ['Community Moderator', '社区审核员'],
       ['Copy to clipboard', '复制到剪贴板'],
@@ -12441,6 +12551,7 @@
       ['Darden Restaurants', 'Darden 餐厅'],
       ['Data and Statistics', '数据和统计'],
       ['Description Clarity', '描述清晰度'],
+      ['Detected versions', '检测到的版本'],
       ['Download the beta', '下载 Beta 版'],
       ['Downloads by region', '按区域下载'],
       ['Edit gallery item', '编辑画廊项目'],
@@ -12455,12 +12566,15 @@
       ['Resource Packs page', '资源包页面'],
       ['Reuploaded work', '重新上传的作品'],
       ['Show all versions', '显示所有版本'],
+      [' Added versions ', '已添加的版本'],
       [' Delete this token', '删除此令牌'],
+      [' Edit changelog ', '编辑变更日志'],
       [' Leave organization ', '退出组织'],
       [' Manage providers ', '管理提供商'],
       [' Mark as read ', '标记消息为已读'],
       [' No results found ', '未找到结果'],
       [' Select environments', '选择环境'],
+      [' Version subtitle ', '版本副标题'],
       [' Visible on profile ', '资料可见'],
       [', billed quarterly', '，按季计费'],
       ['Back to versions', '返回版本列表'],
@@ -12490,6 +12604,7 @@
       ['Sync with system', '同步系统设置'],
       ['The Trevor Project', '特雷弗项目'],
       ['Updated last month', '上个月更新'],
+      [' Add changelog ', '添加变更日志'],
       [' Expand the summary', '扩展摘要'],
       [' Feature image ', '设为精选图片'],
       [' licensing guide ', '许可证指南'],
@@ -12503,6 +12618,7 @@
       ['Debug information:', '调试信息:'],
       ['Delete organization', '删除组织'],
       ['DMCA takedowns', 'DMCA 删除请求'],
+      ['Edit dependencies', '编辑依赖项'],
       ['Enter bank name', '输入银行名称'],
       ['Equatorial Guinea', '赤道几内亚'],
       ['Followed projects', '关注的项目'],
@@ -12521,6 +12637,7 @@
       ['Share via email', '通过邮件分享'],
       ['Singleplayer only', '仅单人模式'],
       ['Submitted yesterday', '昨天提交'],
+      ['Supplementary files', '补充文件'],
       ['VALORANT', 'VALORANT (无畏契约)'],
       ['Website integration', '网站集成'],
       ['Write collections', '写入收藏夹'],
@@ -12532,6 +12649,7 @@
       [' Clean up the name', '清理名称'],
       [' Create collection', '创建合集'],
       [' Go to dashboard', '前往仪表板'],
+      [' Set dependencies ', '设置依赖'],
       [' Submit for review', '提交审核'],
       [' View all news', '查看所有新闻'],
       ['Activity monitor', '活动监视器'],
@@ -12539,6 +12657,7 @@
       ['AGPL-3.0-only', '仅限 AGPL-3.0'],
       ['Clean Water Fund', '清洁水基金'],
       ['Creating a project', '创建项目'],
+      ['Edit changelog', '编辑变更日志'],
       ['Enter code...', '输入验证码...'],
       ['Falkland Islands', '福克兰群岛'],
       ['Forgot password?', '忘记密码？'],
@@ -12547,6 +12666,7 @@
       ['Limburg, Germany', '林堡，德国'],
       ['Marshall Islands', '马绍尔群岛'],
       ['Modrinth Logo', 'Modrinth 标志'],
+      ['Modrinth News', 'Modrinth 新闻'],
       ['North Carolina', '北卡罗来纳州'],
       ['PayPal account ', 'PayPal 账户'],
       ['Performance impact', '性能影响'],
@@ -12570,6 +12690,7 @@
       ['Southwest Airlines', '西南航空'],
       ['Syrian Arab Republic', '叙利亚'],
       ['Tides Foundation', '潮汐基金会'],
+      [' Add environment ', '添加环境'],
       [' Change password ', '修改密码'],
       [' Client Secret ', '客户端密钥'],
       [' Create a project', '创建项目'],
@@ -12587,6 +12708,7 @@
       [' Your collections', '您的合集'],
       [' Your project, ', '您的项目，'],
       ['512x or higher', '512x 或更高'],
+      ['Add changelog', '添加变更日志'],
       ['An error occurred', '发生错误'],
       ['API documentation', 'API 文档'],
       ['Authorized apps', '已授权应用'],
@@ -12621,14 +12743,17 @@
       ['West Virginia', '西弗吉尼亚州'],
       ['Write payouts', '写入付款记录'],
       ['Your applications', '您的应用'],
+      [' Create version ', '创建版本'],
       [' Delete account ', '删除账户'],
       [' Delete project ', '删除项目'],
       [' Host a server', '建立服务器'],
       [' Manage projects', '管理项目'],
       [' Review feedback', '审核反馈'],
       [' Select platform', '选择平台'],
+      [' upload images. ', '上传图像'],
       [' URL. ', 'URL 共享您的服务器'],
       ['Account security', '账户安全'],
+      ['Add dependencies', '添加依赖'],
       ['Add dependency', '添加依赖项'],
       ['American Samoa', '美属萨摩亚'],
       ['Backups included', '包含备份'],
@@ -12653,6 +12778,8 @@
       ['Pennsylvania', '宾夕法尼亚州'],
       ['Previous 30 days', '一个月前'],
       ['Previous two years', '两年前'],
+      ['project settings', '项目设置'],
+      ['Project Settings', '项目设置'],
       ['Publication date', '发布日期'],
       ['Read payouts', '读取付款记录'],
       ['Share modpacks', '分享整合包'],
@@ -12664,13 +12791,17 @@
       ['World Generation', '世界生成'],
       ['Worldgen Dev', '世界生成开发'],
       [' Create project', '创建项目'],
+      [' Create version', '创建版本'],
+      [' Edit versions ', '编辑版本'],
       [' Game versions ', '游戏版本'],
       [' Leave project ', '退出项目'],
       [' New collection', '新建合集'],
       [' Remove project', '删除项目'],
       [' Save password ', '保存密码'],
+      [' Set loaders ', '设置加载器'],
       [' View source ', '查看源代码'],
       ['Account owner', '账户持有人'],
+      ['Add environment', '添加环境'],
       ['Change password', '修改密码'],
       ['Create account ', '创建账号'],
       ['Create projects', '创建项目'],
@@ -12699,12 +12830,14 @@
       ['Remove password', '删除密码'],
       ['Rewards Program', '奖励计划'],
       ['Routing number ', '路由号码'],
+      ['Search versions', '搜索版本'],
       ['Security Notice', '安全声明'],
       ['Team Management', '团队管理'],
       ['Toggle features', '开关功能'],
       ['Total downloads', '总下载量'],
       ['Total followers', '总关注者'],
       ['Type here...', '在此输入...'],
+      ['Unknown Project', '未知项目'],
       ['Upload an image', '上传图片'],
       ['Venmo handle ', 'Venmo 账号'],
       ['zlib License', 'zlib 许可证'],
@@ -12713,10 +12846,14 @@
       [' Available now', '立即可用'],
       [' Change email ', '更改邮箱'],
       [' Discover mods', '探索模组'],
+      [' Edit details ', '编辑细节'],
+      [' Edit gallery ', '编辑画廊'],
+      [' Edit project ', '编辑项目'],
       [' Featured tags', '精选标签'],
       [' Most popular ', '最受欢迎'],
       [' Submit report', '提交举报'],
       [' Upload image ', '上传图片'],
+      [' Version type ', '版本类型'],
       [' View history ', '查看历史'],
       ['Active reports', '活动报告'],
       ['Best Buy USA', '百思买 USA'],
@@ -12732,6 +12869,7 @@
       ['Delete project', '删除项目'],
       ['Delete reports', '删除报告'],
       ['Donation links', '捐赠链接'],
+      ['Edit loaders', '编辑加载器'],
       ['Enter first name', '输入名'],
       ['External links', '外部链接'],
       ['For Creators', '创作者专区'],
@@ -12758,6 +12896,7 @@
       ['Saudi Arabia', '沙特阿拉伯'],
       ['Search results', '搜索结果'],
       ['Security fixes', '安全修复'],
+      ['Select project', '选择项目'],
       ['Semi-realistic', '半写实风'],
       ['Sint Maarten', '荷属圣马丁'],
       ['South Dakota', '南达科他州'],
@@ -12768,6 +12907,7 @@
       ['Western Sahara', '西撒哈拉'],
       ['Write projects', '写入项目'],
       ['Write versions', '写入版本'],
+      [' Add details ', '添加详情'],
       [' Create a PAT', '创建 PAT'],
       [' Get started ', '立即开始'],
       [' Loading... ', '加载中...'],
@@ -12781,6 +12921,7 @@
       [' Singleplayer', '单人玩家'],
       [' Upload icon ', '上传图标'],
       ['Account type ', '账户类型'],
+      ['Add loaders', '添加加载器'],
       ['Åland Islands', '奥兰群岛'],
       ['Bulleted list', '无序列表'],
       ['Connecticut', '康涅狄格州'],
@@ -12840,6 +12981,7 @@
       ['Custom URL', '自定义 URL'],
       ['CVS Pharmacy', 'CVS 药房'],
       ['Date updated', '更新日期'],
+      ['Edit version', '编辑版本'],
       ['Enter amount', '输入金额'],
       ['Freelancer', '自由职业者'],
       ['Function Dev', '功能开发'],
@@ -12864,6 +13006,7 @@
       ['Past charges', '过去费用'],
       ['Path Tracing', '路径追踪'],
       ['Plugins page', '插件页面'],
+      ['Primary file', '主要文件'],
       ['Process name', '进程名称'],
       ['Read reports', '读取报告'],
       ['Read threads', '读取帖子'],
@@ -12893,6 +13036,7 @@
       [' Under review', '审核中'],
       ['/ quarterly', '/ 每季度'],
       ['Account number ', '账号'],
+      ['Add details', '添加详情'],
       ['Address line ', '地址行'],
       ['Bouvet Island', '布韦岛'],
       ['Bug reports', 'Bug 报告'],
@@ -12927,6 +13071,7 @@
       ['Team Lead', '团队负责人'],
       ['Team Leader', '团队领导'],
       ['Toggle menu', '切换菜单'],
+      ['Upload file', '上传文件'],
       ['Verify code', '验证代码'],
       ['Western Europe ', '西欧'],
       ['Wisconsin', '威斯康星州'],
@@ -12940,6 +13085,7 @@
       ['Colorado', '科罗拉多州'],
       ['create one', '创建一个'],
       ['Dependencies', '依赖项'],
+      ['Edit files', '编辑文件'],
       ['Enter city', '输入城市'],
       ['Ethiopia', '埃塞俄比亚'],
       ['Guadeloupe', '瓜德罗普'],
@@ -12952,7 +13098,9 @@
       ['New Jersey', '新泽西州'],
       ['New password', '新密码'],
       ['Old password', '旧密码'],
+      ['Optional RP', '可选 RP'],
       ['Performant', '性能强劲'],
+      ['Required RP', '必需 RP'],
       ['Saint Martin', '圣马丁'],
       ['San Marino', '圣马力诺'],
       ['Share on X', '分享到 X'],
@@ -12968,6 +13116,7 @@
       [' Published ', '已发布'],
       [' See all ', '查看所有'],
       [' Sign out', '退出登录'],
+      ['Add files', '添加文件'],
       ['Afghanistan', '阿富汗'],
       ['Alabama', '阿拉巴马州'],
       ['Albania', '阿尔巴尼亚'],
@@ -12976,6 +13125,7 @@
       ['Australia', '澳大利亚'],
       ['Burger King', '汉堡王'],
       ['Changelog', '更新日志'],
+      ['Clear all', '清除所有'],
       ['Contributor', '贡献者'],
       ['Country ', '国家/地区'],
       ['data packs ', '数据包'],
@@ -13006,6 +13156,7 @@
       ['Red Lobster', '红龙虾'],
       ['Resolutions', '分辨率'],
       ['Show more', '显示更多'],
+      ['Sources JAR', '源 JAR'],
       ['South Sudan', '南苏丹'],
       ['Sri Lanka', '斯里兰卡'],
       ['Subscriptions', '订阅'],
@@ -13072,6 +13223,7 @@
       [' Withheld', '已撤回'],
       ['/ monthly', '/ 每月'],
       ['add one', '添加一个'],
+      ['alpha', 'Alpha 测试'],
       ['Argentina', '阿根廷'],
       ['Armenia', '亚美尼亚'],
       ['Belarus', '白俄罗斯'],
@@ -13083,6 +13235,7 @@
       ['Croatia', '克罗地亚'],
       ['Dashboard', '仪表板'],
       ['Description', '描述'],
+      ['Dev JAR', '开发 JAR'],
       ['Developer', '开发者'],
       ['Downloads', '下载量'],
       ['Ecuador', '厄瓜多尔'],
@@ -13151,6 +13304,7 @@
       ['Designer', '设计师'],
       ['Djibouti', '吉布提'],
       ["Domino's", '达美乐'],
+      ['embedded', '已嵌入'],
       ['Guernsey', '根西岛'],
       ['Hawaii', '夏威夷州'],
       ['Holy See', '梵蒂冈'],
@@ -13186,6 +13340,7 @@
       ['Thread', '审核流程'],
       ['Unlisted', '未列出'],
       ['Username', '用户名'],
+      [' Dismiss ', '关闭'],
       [' messages', '消息'],
       [' Payment ', '付款'],
       [' Preview ', '预览'],
@@ -13234,6 +13389,7 @@
       ['Réunion', '留尼汪'],
       ['selection', '选择'],
       ['Sephora', '丝芙兰'],
+      ['Signature', '签名'],
       ['Somalia', '索马里'],
       ['Sponsor', '赞助者'],
       ['This week', '本周'],
@@ -13359,11 +13515,13 @@
       ['Nepal', '尼泊尔'],
       ['Niger', '尼日尔'],
       ['Owner', '所有者'],
+      ['packs', '资源包'],
       ['Plugins', '插件'],
       ['Privacy', '隐私'],
       ['Private', '私有'],
       ['Project', '项目'],
       ['Qatar', '卡塔尔'],
+      ['release', '发布'],
       ['Release', '发布'],
       ['Reports', '报告'],
       ['Revenue', '收入'],
@@ -13469,6 +13627,7 @@
       ['Video', '视频'],
       ['Views', '查看'],
       ['Yemen', '也门'],
+      [' now', '现在'],
       ['Beta', '测试'],
       ['Bold', '加粗'],
       ['Chad', '乍得'],
@@ -13504,6 +13663,7 @@
       ['User', '用户'],
       ['View', '视图'],
       [' and ', '和'],
+      ['all', '所有'],
       ['All', '所有'],
       ['App', '应用'],
       ['Fan', '粉丝'],
@@ -13517,15 +13677,59 @@
       ['s', ' '],
     ],
   };
+  // src/translations/zh-cn/status.modrinth.com.js
   var statusModrinthComZhCn = {
+    // 描述：此翻译配置的描述信息
+    // 测试链接：用于开发者测试网站显示效果的URL
+    // 创建日期：此翻译配置的创建日期
+    // 语言：此翻译配置适用的语言
     language: 'zh-cn',
+    // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文), zh-hk(中文香港)
+    // 启用状态：控制此翻译配置是否启用
     enabled: true,
-    styles: [],
-    blockedElements: [],
+    // 样式 (CSS)
+    // 支持编写多个CSS规则
+    styles: [
+      // 在这里添加styles代码，例如：
+      // "body { background-color: #f0f0f0; }",
+      // "h1 { color: #333; }"
+      // ".rule3 { margin: 10px; }"
+    ],
+    // 禁止翻译的元素选择器
+    blockedElements: [
+      // 在这里添加CSS选择器，例如：
+      // '.notranslate',
+      // '#header .logo'
+    ],
+    // 扩展翻译元素选择器
+    // 用于翻译那些默认情况下未被翻译的元素
     extendedElements: ['main'],
-    customAttributes: [],
-    blockedAttributes: [],
-    jsRules: [],
+    // 自定义属性白名单
+    // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
+    // 示例: 'data-tip', 'data-title'
+    customAttributes: [
+      // 在这里添加自定义属性
+    ],
+    // 自定义属性黑名单
+    // 在此数组中添加的任何 HTML 属性名，都将强制不被翻译。
+    // 此列表的优先级高于白名单，可用于覆盖默认翻译行为。
+    // 示例: 'title'
+    blockedAttributes: [
+      // 在这里添加要阻止翻译的属性
+    ],
+    // 注入脚本 (JavaScript)
+    // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
+    jsRules: [
+      // 在这里添加JavaScript代码，例如：
+      // "console.log('第一条规则');",
+      // "alert('第二条规则');",
+      // "document.title = '修改后的标题';"
+    ],
+    // 正则表达式翻译规则
+    // 规则会自动应用于匹配的文本
+    // 格式: [/原始文本正则表达式/i, '翻译后的文本']
+    // 使用 $1, $2, ... 来引用正则表达式中的捕获组
+    // 示例: [/^Hello (\w+)/, '您好 $1']
     regexRules: [
       [/\s*Dec(?:ember)?\s+(\d{1,2})\s+at\s+(\d{1,2}:\d{2})am\s*([A-Z]{2,4})\s*/i, '12 月 $1 日 $3 上午 $2'],
       [/\s*Dec(?:ember)?\s+(\d{1,2})\s+at\s+(\d{1,2}:\d{2})pm\s*([A-Z]{2,4})\s*/i, '12 月 $1 日 $3 下午 $2'],
@@ -13611,6 +13815,10 @@
       [/\s*([\d\.]+)\s*ms\b\s*/i, '$1 毫秒'],
       [/\s*([\d\.]+)\s*s\b\s*/i, '$1 秒'],
     ],
+    // 纯文本翻译规则
+    // 规则会完全匹配整个文本
+    // 格式: ['原始文本', '翻译后的文本']
+    // 示例: ['Login', '登录']
     textRules: [
       ['We’re switching to a new cluster for our API for better performance and reliability.', '我们正在为我们的 API 切换到新的集群，以获得更好的性能和可靠性。'],
       ['API, Version API, and 1 other service are down', 'API、版本 API 和 1 个其他服务均中断'],
@@ -13663,15 +13871,63 @@
       ['Today', '今天'],
     ],
   };
+  // src/translations/zh-cn/status.huggingface.co.js
   var statusHuggingfaceCoZhCn = {
+    // 描述：此翻译配置的描述信息
+    // 测试链接：用于开发者测试网站显示效果的URL
+    // 创建日期：此翻译配置的创建日期
+    // 语言：此翻译配置适用的语言
     language: 'zh-cn',
+    // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文), zh-hk(中文香港)
+    // 启用状态：控制此翻译配置是否启用
     enabled: true,
-    styles: [],
-    blockedElements: [],
-    extendedElements: [],
-    customAttributes: [],
-    blockedAttributes: [],
-    jsRules: [],
+    // 样式 (CSS)
+    // 支持编写多个CSS规则
+    styles: [
+      // 在这里添加styles代码，例如：
+      // "body { background-color: #f0f0f0; }",
+      // "h1 { color: #333; }"
+      // ".rule3 { margin: 10px; }"
+    ],
+    // 禁止翻译的元素选择器
+    blockedElements: [
+      // 在这里添加CSS选择器，例如：
+      // '.notranslate',
+      // '#header .logo'
+    ],
+    // 扩展翻译元素选择器
+    // 用于翻译那些默认情况下未被翻译的元素
+    extendedElements: [
+      // 在这里添加CSS选择器，例如：
+      // '#dynamic-content',
+      // '.custom-widget'
+    ],
+    // 自定义属性白名单
+    // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
+    // 示例: 'data-tip', 'data-title'
+    customAttributes: [
+      // 在这里添加自定义属性
+    ],
+    // 自定义属性黑名单
+    // 在此数组中添加的任何 HTML 属性名，都将强制不被翻译。
+    // 此列表的优先级高于白名单，可用于覆盖默认翻译行为。
+    // 示例: 'title'
+    blockedAttributes: [
+      // 在这里添加要阻止翻译的属性
+    ],
+    // 注入脚本 (JavaScript)
+    // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
+    jsRules: [
+      // 在这里添加JavaScript代码，例如：
+      // "console.log('第一条规则');",
+      // "alert('第二条规则');",
+      // "document.title = '修改后的标题';"
+    ],
+    // 正则表达式翻译规则
+    // 规则会自动应用于匹配的文本
+    // 格式: [/原始文本正则表达式/i, '翻译后的文本']
+    // 使用 $1, $2, ... 来引用正则表达式中的捕获组
+    // 示例: [/^Hello (\w+)/, '您好 $1']
     regexRules: [
       [/\s*Last\s+updated\s+on\s+Dec(?:ember)?\s+(\d{1,2})\s+at\s+(\d{1,2}:\d{2})am\s*([A-Z]{2,4})\s*/i, '最后更新于 12 月 $1 日 $3 上午 $2'],
       [/\s*Last\s+updated\s+on\s+Dec(?:ember)?\s+(\d{1,2})\s+at\s+(\d{1,2}:\d{2})pm\s*([A-Z]{2,4})\s*/i, '最后更新于 12 月 $1 日 $3 下午 $2'],
@@ -13781,6 +14037,10 @@
       [/\s*([\d\.]+)\s*ms\b\s*/i, '$1 毫秒'],
       [/\s*([\d\.]+)\s*s\b\s*/i, '$1 秒'],
     ],
+    // 纯文本翻译规则
+    // 规则会完全匹配整个文本
+    // 格式: ['原始文本', '翻译后的文本']
+    // 示例: ['Login', '登录']
     textRules: [
       ['Get a request to your URL whenever Hugging Face creates, updates or resolves an incident.', '每当 Hugging Face 创建、更新或解决事件时，都通过请求您的 URL 通知您'],
       ['Get e-mail notifications whenever Hugging Face creates, updates or resolves an incident.', '每当 Hugging Face 创建、更新或解决事件时，都通过电子邮件通知您'],
@@ -13855,16 +14115,68 @@
       ['\nRSS\n', 'RSS'],
     ],
   };
+  // src/translations/zh-cn/opal.google.js
   var opalGoogleZhCn = {
+    // 描述：此翻译配置的描述信息
+    // 测试链接：用于开发者测试网站显示效果的URL
+    // 创建日期：此翻译配置的创建日期
+    // 语言：此翻译配置适用的语言
     language: 'zh-cn',
+    // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文), zh-hk(中文香港)
+    // 启用状态：控制此翻译配置是否启用
     enabled: true,
-    styles: [],
-    blockedElements: [],
-    extendedElements: [],
-    customAttributes: [],
-    blockedAttributes: [],
-    jsRules: [],
+    // 样式 (CSS)
+    // 支持编写多个CSS规则
+    styles: [
+      // 在这里添加styles代码，例如：
+      // "body { background-color: #f0f0f0; }",
+      // "h1 { color: #333; }"
+      // ".rule3 { margin: 10px; }"
+    ],
+    // 禁止翻译的元素选择器
+    blockedElements: [
+      // 在这里添加CSS选择器，例如：
+      // '.notranslate',
+      // '#header .logo'
+    ],
+    // 扩展翻译元素选择器
+    // 用于翻译那些默认情况下未被翻译的元素
+    extendedElements: [
+      // 在这里添加CSS选择器，例如：
+      // '#dynamic-content',
+      // '.custom-widget'
+    ],
+    // 自定义属性白名单
+    // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
+    // 示例: 'data-tip', 'data-title'
+    customAttributes: [
+      // 在这里添加自定义属性
+    ],
+    // 自定义属性黑名单
+    // 在此数组中添加的任何 HTML 属性名，都将强制不被翻译。
+    // 此列表的优先级高于白名单，可用于覆盖默认翻译行为。
+    // 示例: 'title'
+    blockedAttributes: [
+      // 在这里添加要阻止翻译的属性
+    ],
+    // 注入脚本 (JavaScript)
+    // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
+    jsRules: [
+      // 在这里添加JavaScript代码，例如：
+      // "console.log('第一条规则');",
+      // "alert('第二条规则');",
+      // "document.title = '修改后的标题';"
+    ],
+    // 正则表达式翻译规则
+    // 规则会自动应用于匹配的文本
+    // 格式: [/原始文本正则表达式/i, '翻译后的文本']
+    // 使用 $1, $2, ... 来引用正则表达式中的捕获组
+    // 示例: [/^Hello (\w+)/, '您好 $1']
     regexRules: [],
+    // 纯文本翻译规则
+    // 规则会完全匹配整个文本
+    // 格式: ['原始文本', '翻译后的文本']
+    // 示例: ['Login', '登录']
     textRules: [
       ['\n            Mini-apps anyone can build. Sign in to view or make your own.\n          ', '任何人都可以构建的迷你应用 登录以查看或创建您自己的应用'],
       ['\n              Edit and refine your app’s logic with a node-based workflow.\n            ', '使用基于节点的流程编辑和优化您的应用逻辑'],
@@ -13924,15 +14236,59 @@
       ['Help', '帮助'],
     ],
   };
+  // src/translations/zh-cn/www.curseforge.com.js
   var wwwCurseforgeComZhCn = {
+    // 描述：此翻译配置的描述信息
+    // 测试链接：用于开发者测试网站显示效果的URL
+    // 创建日期：此翻译配置的创建日期
+    // 语言：此翻译配置适用的语言
     language: 'zh-cn',
+    // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文), zh-hk(中文香港)
+    // 启用状态：控制此翻译配置是否启用
     enabled: true,
-    styles: [],
+    // 样式 (CSS)
+    // 支持编写多个CSS规则
+    styles: [
+      // 在这里添加styles代码，例如：
+      // "body { background-color: #f0f0f0; }",
+      // "h1 { color: #333; }"
+      // ".rule3 { margin: 10px; }"
+    ],
+    // 禁止翻译的元素选择器
     blockedElements: ['.project-description', '.notranslate'],
-    extendedElements: [],
-    customAttributes: [],
-    blockedAttributes: [],
-    jsRules: [],
+    // 扩展翻译元素选择器
+    // 用于翻译那些默认情况下未被翻译的元素
+    extendedElements: [
+      // 在这里添加CSS选择器，例如：
+      // '#dynamic-content',
+      // '.custom-widget'
+    ],
+    // 自定义属性白名单
+    // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
+    // 示例: 'data-tip', 'data-title'
+    customAttributes: [
+      // 在这里添加自定义属性
+    ],
+    // 自定义属性黑名单
+    // 在此数组中添加的任何 HTML 属性名，都将强制不被翻译。
+    // 此列表的优先级高于白名单，可用于覆盖默认翻译行为。
+    // 示例: 'title'
+    blockedAttributes: [
+      // 在这里添加要阻止翻译的属性
+    ],
+    // 注入脚本 (JavaScript)
+    // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
+    jsRules: [
+      // 在这里添加JavaScript代码，例如：
+      // "console.log('第一条规则');",
+      // "alert('第二条规则');",
+      // "document.title = '修改后的标题';"
+    ],
+    // 正则表达式翻译规则
+    // 规则会自动应用于匹配的文本
+    // 格式: [/原始文本正则表达式/i, '翻译后的文本']
+    // 使用 $1, $2, ... 来引用正则表达式中的捕获组
+    // 示例: [/^Hello (\w+)/, '您好 $1']
     regexRules: [
       [/\s*(.+?)'s\s+Profile\s+-\s+Member\s+List\s+-\s+CurseForge\s*/i, '$1 的个人主页 - 成员列表 - CurseForge'],
       [/\s*Become\s+Premium\s+from\s+([\$\d\.]+)\/month\s*/i, '开通高级版，每月 $1 起'],
@@ -14516,6 +14872,7 @@
       ['Subscription', '订阅'],
       ['Terraria', '泰拉瑞亚'],
       ['The Sims', '模拟人生'],
+      ['Unfollow', '取消关注'],
       ['Uploaded', '上传时间'],
       ['Vanilla+', '原版增强'],
       ['View all', '查看所有'],
@@ -14622,6 +14979,7 @@
       ['Vanilla', '原版'],
       ['/Year', '/每年'],
       ['Addons', '插件'],
+      ['Author', '作者'],
       ['Avowed', '宣誓'],
       ['Browse', '浏览'],
       ['Cancel', '取消'],
@@ -14884,21 +15242,15 @@
     const antiFlickerStyle = document.createElement('style');
     antiFlickerStyle.id = STYLE_ID;
     const styleContent = `
-        /* 当 <html> 标签有 'translation-in-progress' 类时，隐藏 <body> */
         html.translation-in-progress body {
             visibility: hidden !important;
             opacity: 0 !important;
         }
-        /* 当翻译完成后，此类被添加，使 <body> 平滑地淡入显示 */
         html.translation-complete body {
             visibility: visible !important;
             opacity: 1 !important;
             transition: opacity 0.1s ease-in !important;
         }
-        /*
-         * 一个重要的例外：即使在隐藏 body 时，也要保持常见的加载指示器 (spinner/loader) 可见。
-         * 这可以避免让用户误以为页面卡死或未加载，提升了等待期间的体验。
-         */
         html.translation-in-progress [class*="load"],
         html.translation-in-progress [class*="spin"],
         html.translation-in-progress [id*="load"],
@@ -15243,7 +15595,7 @@
       }, 0);
     }
     const mutationHandler = (mutations) => {
-      const dirtyRoots = new Set();
+      const dirtyRoots = /* @__PURE__ */ new Set();
       for (const mutation of mutations) {
         let target = null;
         if (mutation.type === 'childList') {
@@ -15278,7 +15630,7 @@
       }
     };
     const mainObserver = new MutationObserver(mutationHandler);
-    const observedShadowRoots = new WeakSet();
+    const observedShadowRoots = /* @__PURE__ */ new WeakSet();
     function observeRoot(root) {
       if (!root || observedShadowRoots.has(root)) {
         return;
@@ -15327,7 +15679,7 @@
         setTimeout(() => detectModelChange(), 0);
       }
     });
-    const whitelist = new Set([...attributesToTranslate, ...customAttributes]);
+    const whitelist = /* @__PURE__ */ new Set([...attributesToTranslate, ...customAttributes]);
     for (const attr of blockedAttributes) {
       whitelist.delete(attr);
     }
@@ -15363,7 +15715,9 @@
     if (titleElement) {
       titleObserver.observe(titleElement, {
         childList: true,
+        // 监视文本节点的添加/删除
         subtree: true,
+        // 必须监视子树以捕获文本节点的变化
       });
     }
     window.forceRetranslate = function () {
@@ -15376,7 +15730,7 @@
     };
     if (extendedElements.length > 0) {
       const extendedContentObserver = new MutationObserver((mutations) => {
-        const dirtyRoots = new Set();
+        const dirtyRoots = /* @__PURE__ */ new Set();
         for (const mutation of mutations) {
           if (mutation.type === 'characterData') {
             const target = mutation.target.parentElement;
@@ -15392,7 +15746,7 @@
         }
       });
       const extendedAttributeObserver = new MutationObserver((mutations) => {
-        const dirtyRoots = new Set();
+        const dirtyRoots = /* @__PURE__ */ new Set();
         for (const mutation of mutations) {
           if (mutation.type === 'attributes') {
             const target = mutation.target;
@@ -15463,6 +15817,7 @@
     }
     log('监听器初始化完成。');
   }
+  // src/modules/core/translationInitializer.js
   function initializeTranslation(siteDictionary, createTranslator2, removeAntiFlickerStyle2, initializeObservers2, log2) {
     const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [], pseudoElements = [] } = siteDictionary;
     log2(`开始初始化翻译流程，使用语言: ${language ?? 'unknown'}`);
@@ -15560,6 +15915,7 @@
       startTranslation();
     }
   }
+  // src/main.js
   (function (translations) {
     'use strict';
     initializeMenu();
