@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.95-2025-12-19-cdn
+// @version      1.0.95-2025-12-20-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -2814,7 +2814,14 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         }
       }
     }
-    const universalPseudoCss = ['[data-wts-before]::before { content: attr(data-wts-before) !important; }', '[data-wts-after]::after { content: attr(data-wts-after) !important; }'];
+    const universalPseudoCss = [
+      '[data-wts-before]::before { content: attr(data-wts-before) !important; }',
+      '[data-wts-after]::after { content: attr(data-wts-after) !important; }',
+      '@keyframes wts-pseudo-start { from { opacity: 0.99; } to { opacity: 1; } }',
+      // 应用于所有伪元素。如果网站定义了自己的 animation，根据 CSS 优先级(Cascade)，
+      // 网站的规则(通常带有类名)会覆盖这里(仅标签名)，从而避免冲突。
+      '*::before, *::after { animation-duration: 0.001s; animation-name: wts-pseudo-start; }',
+    ];
     const allCssRules = [...cssRules, ...universalPseudoCss];
     if (allCssRules.length > 0) {
       const customStyleElement = document.createElement('style');
@@ -2822,7 +2829,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       customStyleElement.appendChild(document.createTextNode(allCssRules.join('\n')));
       const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
       head.appendChild(customStyleElement);
-      log2(`注入了 ${allCssRules.length} 条CSS样式 (含通用伪元素支持)`);
+      log2(`注入了 ${allCssRules.length} 条CSS样式 (含通用伪元素支持 & 动画检测)`);
     }
     if (jsRules.length > 0) {
       const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
@@ -2842,6 +2849,18 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     }
     const translator = createTranslator2(textRules, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes, parsedPseudoRules);
     document.addEventListener(
+      'animationstart',
+      (event) => {
+        if (event.animationName === 'wts-pseudo-start') {
+          const target = event.target;
+          if (target instanceof Element) {
+            translator.translatePseudoElements(target);
+          }
+        }
+      },
+      { passive: true },
+    );
+    document.addEventListener(
       'mouseover',
       (event) => {
         const target = event.target;
@@ -2860,7 +2879,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       },
       { passive: true },
     );
-    log2('已激活通用伪元素自动翻译监听器');
+    log2('已激活通用伪元素自动翻译监听器 (Animation + Mouseover)');
     function startTranslation() {
       if (document.body) {
         initializeFullTranslation();
