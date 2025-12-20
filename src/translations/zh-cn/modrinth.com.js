@@ -1090,6 +1090,7 @@ export const modrinthComZhCn = {
     [" Expand the summary", "扩展摘要"],
     [" Feature image ", "设为精选图片"],
     [" licensing guide ", "许可证指南"],
+    [" Received last week", "上周收到"],
     [" Select a license", "选择许可证"],
     [" Visible in search ", "搜索可见"],
     ["400 Bad Request", "400 错误请求"],

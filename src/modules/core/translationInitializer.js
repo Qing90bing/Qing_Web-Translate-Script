@@ -64,10 +64,16 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
     // --- 步骤 2: 注入自定义资源 ---
     
     // 生成通用伪元素翻译支持 CSS
-    // 只要元素具有 data-wts-before/after 属性，就覆盖其 content
+    // 1. data-wts-* 属性支持：只要元素具有此属性，就覆盖其伪元素 content
+    // 2. 动画检测支持：通过 animationstart 事件检测伪元素渲染 (零配置)
+    //    注意：我们使用极低持续时间(0.001s)和低优先级选择器，以尽量不干扰网站原有动画。
     const universalPseudoCss = [
         '[data-wts-before]::before { content: attr(data-wts-before) !important; }',
-        '[data-wts-after]::after { content: attr(data-wts-after) !important; }'
+        '[data-wts-after]::after { content: attr(data-wts-after) !important; }',
+        '@keyframes wts-pseudo-start { from { opacity: 0.99; } to { opacity: 1; } }',
+        // 应用于所有伪元素。如果网站定义了自己的 animation，根据 CSS 优先级(Cascade)，
+        // 网站的规则(通常带有类名)会覆盖这里(仅标签名)，从而避免冲突。
+        '*::before, *::after { animation-duration: 0.001s; animation-name: wts-pseudo-start; }'
     ];
 
     const allCssRules = [...cssRules, ...universalPseudoCss];
@@ -79,7 +85,7 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
         customStyleElement.appendChild(document.createTextNode(allCssRules.join('\n')));
         const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
         head.appendChild(customStyleElement);
-        log(`注入了 ${allCssRules.length} 条CSS样式 (含通用伪元素支持)`);
+        log(`注入了 ${allCssRules.length} 条CSS样式 (含通用伪元素支持 & 动画检测)`);
     }
 
     // 注入并执行自定义 JS 脚本
@@ -104,10 +110,27 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
     const translator = createTranslator(textRules, regexRules, blockedElements, extendedElements, customAttributes, blockedAttributes, parsedPseudoRules);
 
     // --- 步骤 3.5: 设置全局通用事件监听以处理动态伪元素 ---
-    // 这是一个零配置的通用方案。
-    // 我们监听所有 mouseover 事件，并在短暂延迟后检查触发元素及其父级。
-    // 如果发现它们有包含文本的伪元素 (::before/::after)，则尝试翻译。
+    // 这是一个零配置的通用方案，包含两层机制：
     
+    // 机制 A: CSS Animation 监听 (主力)
+    // 利用 "animationstart" 事件捕获刚渲染的伪元素。
+    // 这是一个被动、高效且实时的机制。
+    document.addEventListener('animationstart', (event) => {
+        if (event.animationName === 'wts-pseudo-start') {
+            const target = event.target;
+            if (target instanceof Element) {
+                // 捕获到伪元素渲染，立即尝试翻译
+                // 这里的 target 是伪元素的宿主元素
+                translator.translatePseudoElements(target);
+                // 仅在调试模式下记录，避免日志刷屏
+                // log('[WTS] 捕获到动态伪元素:', target.tagName); 
+            }
+        }
+    }, { passive: true });
+
+    // 机制 B: Mouseover 监听 (兜底)
+    // 处理那些因为已有动画导致我们的检测动画被覆盖，或者不支持 animation 事件的情况。
+    // 我们监听所有 mouseover 事件，并在短暂延迟后检查触发元素及其父级。
     document.addEventListener('mouseover', (event) => {
         const target = event.target;
         if (target instanceof Element) {
@@ -130,7 +153,7 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
         }
     }, { passive: true });
     
-    log('已激活通用伪元素自动翻译监听器');
+    log('已激活通用伪元素自动翻译监听器 (Animation + Mouseover)');
 
 
     // --- 步骤 4: 协调并启动翻译流程 ---
