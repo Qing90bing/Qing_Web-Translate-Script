@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.95-2025-12-20-cdn
+// @version      1.0.95-2025-12-21-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -1683,6 +1683,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Clear chat', '清空对话'],
         ['Close chat', '关闭聊天'],
         ['Close file', '关闭文件'],
+        ['Copy app', '复制该 APP'],
         ['Create key', '创建密钥'],
         ['Created on', '创建日期'],
         ['Creativity', '创意工坊'],
@@ -1723,7 +1724,6 @@ const EMBEDDED_TRANSLATIONS = {
         ['Audio Orb', '灵动音球'],
         ['Block few', '屏蔽少量'],
         ['Changelog', '更新日志'],
-        ['Copy app', '复制该APP'],
         ['Copy Code', '复制代码'],
         ['Copy text', '复制文本'],
         ['Documentation', '文档'],
@@ -2146,13 +2146,6 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       console.debug('[汉化脚本-DEBUG]', ...args);
     }
   }
-  function perf(operation, duration, ...args) {
-    if (isDebugMode) {
-      if (duration > 5) {
-        console.log(`[汉化脚本-PERF] ${operation} 耗时: ${duration.toFixed(2)}ms`, ...args);
-      }
-    }
-  }
   function translateLog(type, original, translated, element = null) {
     if (isDebugMode) {
       if (original !== translated) {
@@ -2262,6 +2255,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
 
   // src/modules/core/translator.js
   function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = [], pseudoRules = []) {
+    let shadowRootFoundCallback = null;
     const textTranslationMap = /* @__PURE__ */ new Map();
     if (Array.isArray(textRules)) {
       for (const rule of textRules) {
@@ -2395,6 +2389,9 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     }
     function translateElement(element) {
       if (!element || translatedElements.has(element) || !(element instanceof Element || element instanceof ShadowRoot)) return;
+      if (element instanceof ShadowRoot && shadowRootFoundCallback) {
+        shadowRootFoundCallback(element);
+      }
       if (isInsideBlockedElement(element)) {
         translatedElements.add(element);
         return;
@@ -2461,6 +2458,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
               }
             }
             if (node.shadowRoot) {
+              if (shadowRootFoundCallback) shadowRootFoundCallback(node.shadowRoot);
               translateElement(node.shadowRoot);
             }
           }
@@ -2499,6 +2497,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         }
       }
       if (element.shadowRoot) {
+        if (shadowRootFoundCallback) shadowRootFoundCallback(element.shadowRoot);
         translateElement(element.shadowRoot);
       }
       translatedElements.add(element);
@@ -2516,14 +2515,64 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       },
       translatePseudoElements,
       // 暴露给外部使用
+      // 允许外部注册 Shadow Root 发现回调
+      setShadowRootCallback: (callback) => {
+        shadowRootFoundCallback = callback;
+      },
     };
   }
 
   // src/modules/core/observers.js
   function initializeObservers(translator, extendedElements = [], customAttributes = [], blockedAttributes = []) {
-    let translationTimer;
-    let pendingNodes = /* @__PURE__ */ new Set();
+    const translationQueue = /* @__PURE__ */ new Set();
+    let isScheduled = false;
+    const FRAME_BUDGET = 12;
     let lastModelInfo = '';
+    function processQueue() {
+      const frameStart = performance.now();
+      let tasksProcessed = 0;
+      const hasModelChange = detectModelChange();
+      if (hasModelChange && translationQueue.size === 0) {
+        if (document.body) {
+          translator.translate(document.body);
+        }
+      }
+      const processSet = (queue, processor) => {
+        if (queue.size === 0) return true;
+        const iterator = queue[Symbol.iterator]();
+        let result = iterator.next();
+        while (!result.done) {
+          if (performance.now() - frameStart > FRAME_BUDGET) {
+            return false;
+          }
+          const item = result.value;
+          queue.delete(item);
+          processor(item);
+          result = iterator.next();
+        }
+        return true;
+      };
+      const translationProcessor = (node) => {
+        if (!node.isConnected) return;
+        if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+          translator.translate(node);
+        } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
+          translator.translate(node.parentElement);
+        }
+        tasksProcessed++;
+      };
+      if (!processSet(translationQueue, translationProcessor)) {
+        requestAnimationFrame(processQueue);
+        return;
+      }
+      isScheduled = false;
+    }
+    function scheduleProcessing() {
+      if (!isScheduled) {
+        isScheduled = true;
+        requestAnimationFrame(processQueue);
+      }
+    }
     function detectModelChange() {
       const modelElements = document.querySelectorAll('.model-name, .model-info, [class*="model"]');
       const currentModelInfo = Array.from(modelElements)
@@ -2535,74 +2584,47 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         translator.resetState();
         setTimeout(() => {
           if (document.body) {
-            translator.translate(document.body);
+            translationQueue.add(document.body);
+            scheduleProcessing();
           }
         }, 100);
         return true;
       }
       return false;
     }
-    function scheduleTranslation() {
-      clearTimeout(translationTimer);
-      translationTimer = setTimeout(() => {
-        const hasModelChange = detectModelChange();
-        if (pendingNodes.size > 0) {
-          const nodesToProcess = Array.from(pendingNodes);
-          pendingNodes.clear();
-          if (nodesToProcess.length > 5) {
-            debug(`处理 ${nodesToProcess.length} 个待翻译节点`);
-          }
-          const startTime = performance.now();
-          nodesToProcess.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              translator.translate(node);
-            } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
-              translator.translate(node.parentElement);
-            }
-          });
-          const duration = performance.now() - startTime;
-          perf('批量翻译', duration, `${nodesToProcess.length} 个节点`);
-        }
-        if (hasModelChange && pendingNodes.size === 0) {
-          if (document.body) {
-            translator.translate(document.body);
-          }
-        }
-      }, 0);
-    }
     const mutationHandler = (mutations) => {
-      const dirtyRoots = /* @__PURE__ */ new Set();
+      let hasUpdates = false;
       for (const mutation of mutations) {
-        let target = null;
         if (mutation.type === 'childList') {
           mutation.addedNodes.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
-              if (node.shadowRoot) {
-                observeRoot(node.shadowRoot);
+              translationQueue.add(node);
+              translator.deleteElement(node);
+              hasUpdates = true;
+            } else if (node.nodeType === Node.TEXT_NODE) {
+              if (node.parentElement) {
+                translationQueue.add(node.parentElement);
+                translator.deleteElement(node.parentElement);
+                hasUpdates = true;
               }
-              node.querySelectorAll('*').forEach((child) => {
-                if (child.shadowRoot) {
-                  observeRoot(child.shadowRoot);
-                }
-              });
             }
           });
-          target = mutation.target;
         } else if (mutation.type === 'attributes') {
-          target = mutation.target;
+          const target = mutation.target;
+          translationQueue.add(target);
+          translator.deleteElement(target);
+          hasUpdates = true;
         } else if (mutation.type === 'characterData') {
-          target = mutation.target.parentElement;
-        }
-        if (target instanceof Element || target instanceof ShadowRoot) {
-          dirtyRoots.add(target);
+          const target = mutation.target.parentElement;
+          if (target) {
+            translationQueue.add(target);
+            translator.deleteElement(target);
+            hasUpdates = true;
+          }
         }
       }
-      if (dirtyRoots.size > 0) {
-        for (const root of dirtyRoots) {
-          translator.deleteElement(root);
-          pendingNodes.add(root);
-        }
-        scheduleTranslation();
+      if (hasUpdates) {
+        scheduleProcessing();
       }
     };
     const mainObserver = new MutationObserver(mutationHandler);
@@ -2611,7 +2633,6 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       if (!root || observedShadowRoots.has(root)) {
         return;
       }
-      debug('正在动态监听新的根节点:', root);
       const observer = new MutationObserver(mutationHandler);
       observer.observe(root, observerConfig);
       observedShadowRoots.add(root);
@@ -2625,7 +2646,10 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         lastModelInfo = '';
         setTimeout(() => {
           log('开始重新翻译新页面内容...');
-          if (document.body) translator.translate(document.body);
+          if (document.body) {
+            translationQueue.add(document.body);
+            scheduleProcessing();
+          }
         }, 300);
       }
     });
@@ -2667,12 +2691,18 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       attributeFilter: finalAttributeFilter,
       characterData: true,
     };
+    if (translator.setShadowRootCallback) {
+      translator.setShadowRootCallback((shadowRoot) => {
+        observeRoot(shadowRoot);
+      });
+    }
     observeRoot(document.body);
-    document.querySelectorAll('*').forEach((el) => {
-      if (el.shadowRoot) {
-        observeRoot(el.shadowRoot);
-      }
+    const initWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
+      acceptNode: (n) => (n.shadowRoot ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP),
     });
+    while (initWalker.nextNode()) {
+      observeRoot(initWalker.currentNode.shadowRoot);
+    }
     pageObserver.observe(document.body, { childList: true, subtree: true });
     modelChangeObserver.observe(document.body, {
       childList: true,
@@ -2691,9 +2721,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     if (titleElement) {
       titleObserver.observe(titleElement, {
         childList: true,
-        // 监视文本节点的添加/删除
         subtree: true,
-        // 必须监视子树以捕获文本节点的变化
       });
     }
     window.forceRetranslate = function () {
@@ -2701,62 +2729,46 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       translator.resetState();
       lastModelInfo = '';
       if (document.body) {
-        translator.translate(document.body);
+        translationQueue.add(document.body);
+        scheduleProcessing();
       }
     };
     if (extendedElements.length > 0) {
-      const extendedContentObserver = new MutationObserver((mutations) => {
-        const dirtyRoots = /* @__PURE__ */ new Set();
+      const extendedMutationHandler = (mutations) => {
+        let hasUpdates = false;
         for (const mutation of mutations) {
+          let target;
           if (mutation.type === 'characterData') {
-            const target = mutation.target.parentElement;
-            if (target instanceof Element) dirtyRoots.add(target);
+            target = mutation.target.parentElement;
+          } else if (mutation.type === 'attributes') {
+            target = mutation.target;
+          }
+          if (target instanceof Element) {
+            translator.deleteElement(target);
+            translationQueue.add(target);
+            hasUpdates = true;
           }
         }
-        if (dirtyRoots.size > 0) {
-          for (const root of dirtyRoots) {
-            translator.deleteElement(root);
-            pendingNodes.add(root);
-          }
-          scheduleTranslation();
-        }
-      });
-      const extendedAttributeObserver = new MutationObserver((mutations) => {
-        const dirtyRoots = /* @__PURE__ */ new Set();
-        for (const mutation of mutations) {
-          if (mutation.type === 'attributes') {
-            const target = mutation.target;
-            if (target instanceof Element) dirtyRoots.add(target);
-          }
-        }
-        if (dirtyRoots.size > 0) {
-          for (const root of dirtyRoots) {
-            translator.deleteElement(root);
-            pendingNodes.add(root);
-          }
-          scheduleTranslation();
-        }
-      });
+        if (hasUpdates) scheduleProcessing();
+      };
+      const extendedContentObserver = new MutationObserver(extendedMutationHandler);
+      const extendedAttributeObserver = new MutationObserver(extendedMutationHandler);
       log(`正在为 ${extendedElements.length} 个选择器初始化扩展元素监控。`);
       const processExtendedElements = (elements) => {
         if (elements.length === 0) return;
         elements.forEach((element) => {
           translator.deleteElement(element);
-          pendingNodes.add(element);
+          translationQueue.add(element);
+          extendedContentObserver.observe(element, { characterData: true, subtree: true });
+          extendedAttributeObserver.observe(element, { attributes: true, subtree: true });
         });
-        scheduleTranslation();
+        scheduleProcessing();
       };
       extendedElements.forEach((selector) => {
         try {
           const elements = document.querySelectorAll(selector);
           if (elements.length > 0) {
-            const elementsArray = Array.from(elements);
-            debug(`为选择器 "${selector}" 找到 ${elementsArray.length} 个已存在的扩展元素`);
-            processExtendedElements(elementsArray);
-            elementsArray.forEach((el) => {
-              extendedContentObserver.observe(el, { characterData: true, subtree: true });
-              extendedAttributeObserver.observe(el, { attributes: true, subtree: true });
-            });
+            processExtendedElements(Array.from(elements));
           }
         } catch (e) {
           console.error(`extendedElements 中的选择器无效: "${selector}"`, e);
@@ -2772,12 +2784,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
                   if (addedNode.matches(selector)) matchedElements.push(addedNode);
                   addedNode.querySelectorAll(selector).forEach((el) => matchedElements.push(el));
                   if (matchedElements.length > 0) {
-                    debug(`为选择器 "${selector}" 找到动态添加的扩展元素:`, matchedElements);
                     processExtendedElements(matchedElements);
-                    matchedElements.forEach((el) => {
-                      extendedContentObserver.observe(el, { characterData: true, subtree: true });
-                      extendedAttributeObserver.observe(el, { attributes: true, subtree: true });
-                    });
                   }
                 });
               }
@@ -2791,7 +2798,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       });
       log('扩展元素观察器已激活。');
     }
-    log('监听器初始化完成。');
+    log('监听器初始化完成 (Time Slicing Enabled)。');
   }
 
   // src/modules/core/translationInitializer.js

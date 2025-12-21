@@ -30,11 +30,14 @@ import { log, debug, translateLog, perf } from '../utils/logger.js';
  * @param {string[]} [customAttributes=[]] - 属性白名单。
  * @param {string[]} [blockedAttributes=[]] - 属性黑名单。
  * @param {Array<{selector: string, type: string}>} [pseudoRules=[]] - 伪元素翻译规则列表 (可选，现已支持通用自动翻译)。
- * @returns {{translate: Function, resetState: Function, deleteElement: Function, translatePseudoElements: Function}} - 返回一个包含翻译 API 的对象。
+ * @returns {{translate: Function, resetState: Function, deleteElement: Function, translatePseudoElements: Function, onShadowRootFound: Function}} - 返回一个包含翻译 API 的对象。
  */
 export function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = [], pseudoRules = []) {
     // --- 模块内部状态 ---
     // 通过闭包来管理每个翻译器实例的状态，确保实例之间互不干扰。
+    
+    // Shadow Root 发现回调 (由 observers.js 注入)
+    let shadowRootFoundCallback = null;
 
     // 预处理翻译规则：将纯文本规则转换为 Map 以实现 O(1) 查找
     const textTranslationMap = new Map();
@@ -293,6 +296,11 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
     function translateElement(element) {
         if (!element || translatedElements.has(element) || !(element instanceof Element || element instanceof ShadowRoot)) return;
 
+        // Hook: 如果当前处理的是 ShadowRoot，触发回调以便观察器可以监听它
+        if (element instanceof ShadowRoot && shadowRootFoundCallback) {
+            shadowRootFoundCallback(element);
+        }
+
         // 使用新的、更健壮的检查来决定是否应完全跳过此元素及其后代。
         if (isInsideBlockedElement(element)) {
             translatedElements.add(element);
@@ -393,6 +401,8 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                     // (漏洞修复) 在遍历过程中，实时检查并递归进入 Shadow DOM。
                     // 这是支持嵌套 Web Components 的关键。
                     if (node.shadowRoot) {
+                        // 发现嵌套 ShadowRoot，触发回调并递归
+                        if (shadowRootFoundCallback) shadowRootFoundCallback(node.shadowRoot);
                         translateElement(node.shadowRoot);
                     }
                 }
@@ -469,6 +479,8 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
         // 原始的递归调用已被移入 TreeWalker 循环中，以确保能处理嵌套的 Shadow DOM。
         // 但我们仍需处理根元素本身就带有 Shadow DOM 的情况 (例如，当 translateElement 的输入是 custom element 时)。
         if (element.shadowRoot) {
+            // 确保根元素的 Shadow DOM 也能被观察到
+            if (shadowRootFoundCallback) shadowRootFoundCallback(element.shadowRoot);
             translateElement(element.shadowRoot);
         }
 
@@ -488,6 +500,10 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
         deleteElement: (element) => {
             translatedElements.delete(element);
         },
-        translatePseudoElements // 暴露给外部使用
+        translatePseudoElements, // 暴露给外部使用
+        // 允许外部注册 Shadow Root 发现回调
+        setShadowRootCallback: (callback) => {
+            shadowRootFoundCallback = callback;
+        }
     };
 }

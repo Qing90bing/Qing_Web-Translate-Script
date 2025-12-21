@@ -10,7 +10,9 @@
  *    - `pageObserver`: 专门用于检测 SPA 中的页面导航（URL 变化）。
  *    - `modelChangeObserver`: 专门用于快速响应 AI 模型切换等特定、高优先级的 UI 变化。
  * 2. **性能优化**:
- *    - **防抖 (Debounce)**: 通过 `scheduleTranslation` 函数，将短时间内发生的大量 DOM 变动合并到一次批量处理中，极大地减少了翻译函数的调用次数，避免性能瓶颈。
+ *    - **时间切片调度 (Time Slicing)**: 废弃了传统的防抖机制，改用基于 `requestAnimationFrame` 的任务队列系统。
+ *      将繁重的翻译任务和 Shadow DOM 检测任务统一在翻译遍历中完成，在每一帧的空闲时间执行，确保主线程永不阻塞，实现 60FPS 流畅滚动。
+ *    - **统一遍历**: 在 `translator.translate` 过程中同时发现并监听 Shadow Root，消除了额外的扫描开销，并解决了任务调度导致的资源竞争问题。
  *    - **缓存清理**: 在重新翻译一个节点之前，会先从缓存中删除该节点及其所有子节点的旧翻译，确保翻译的准确性。
  */
 
@@ -25,12 +27,90 @@ import { attributesToTranslate } from '../../config.js';
 export function initializeObservers(translator, extendedElements = [], customAttributes = [], blockedAttributes = []) {
     // --- 状态与调度器定义 ---
 
-    // 用于防抖的计时器 ID
-    let translationTimer;
-    // 使用 Set 存储待处理的节点，自动去重
-    let pendingNodes = new Set();
+    // 1. 任务队列
+    // 使用 Set 存储待翻译的节点，自动去重。
+    // 注意：不再需要独立的 shadowCheckQueue，因为翻译过程会自动发现并注册 Shadow Root。
+    const translationQueue = new Set();
+    
+    // 2. 调度器状态
+    let isScheduled = false;
+    const FRAME_BUDGET = 12; // 每帧最大执行时间 (ms)，留给浏览器渲染
+    
     // 用于追踪当前 AI 模型的名称，以检测模型切换
     let lastModelInfo = '';
+
+    /**
+     * @function processQueue
+     * @description 核心调度循环。使用时间切片处理队列中的任务。
+     */
+    function processQueue() {
+        const frameStart = performance.now();
+        let tasksProcessed = 0;
+
+        // 1. 优先检测模型切换 (高优先级)
+        const hasModelChange = detectModelChange();
+        if (hasModelChange && translationQueue.size === 0) {
+            if (document.body) {
+                translator.translate(document.body);
+            }
+        }
+
+        // 2. 处理翻译队列
+        // 辅助函数：处理队列直到时间耗尽
+        const processSet = (queue, processor) => {
+            if (queue.size === 0) return true; // 完成
+            
+            const iterator = queue[Symbol.iterator]();
+            let result = iterator.next();
+            
+            while (!result.done) {
+                if (performance.now() - frameStart > FRAME_BUDGET) {
+                    return false; // 未完成，时间耗尽
+                }
+                
+                const item = result.value;
+                queue.delete(item); // 从队列移除
+                processor(item);
+                
+                result = iterator.next();
+            }
+            return true; // 完成
+        };
+
+        const translationProcessor = (node) => {
+            if (!node.isConnected) return;
+            
+            if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+                translator.translate(node);
+            } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
+                translator.translate(node.parentElement);
+            }
+            tasksProcessed++;
+        };
+
+        if (!processSet(translationQueue, translationProcessor)) {
+            // 还有剩余任务，请求下一帧
+            requestAnimationFrame(processQueue);
+            return;
+        }
+
+        // 所有队列已清空
+        isScheduled = false;
+        
+        // 可选：性能打点
+        // if (tasksProcessed > 0) perf('时间切片批处理', performance.now() - frameStart, `${tasksProcessed} 个节点`);
+    }
+
+    /**
+     * @function scheduleProcessing
+     * @description 请求调度处理。
+     */
+    function scheduleProcessing() {
+        if (!isScheduled) {
+            isScheduled = true;
+            requestAnimationFrame(processQueue);
+        }
+    }
 
     /**
      * @function detectModelChange
@@ -48,109 +128,66 @@ export function initializeObservers(translator, extendedElements = [], customAtt
 
             // 重置翻译器状态（清除所有缓存）并重新翻译整个页面。
             translator.resetState();
+            
+            // 模型切换是重大 UI 变更，我们稍微延迟以等待 DOM 稳定，然后强制翻译整个 body
             setTimeout(() => {
                 if (document.body) {
-                    translator.translate(document.body);
+                    translationQueue.add(document.body);
+                    scheduleProcessing();
                 }
-            }, 100); // 延迟以等待 UI 更新完成
+            }, 100); 
 
             return true;
         }
         return false;
     }
 
-    /**
-     * @function scheduleTranslation
-     * @description 调度一次批量翻译。
-     *              这是一个防抖函数，它将短时间内的多次调用合并为一次执行。
-     */
-    function scheduleTranslation() {
-        clearTimeout(translationTimer);
-        // 使用 setTimeout(..., 0) 将任务推迟到当前宏任务队列的末尾，
-        // 允许在执行前收集所有同期的 DOM 变动。
-        translationTimer = setTimeout(() => {
-            // 在处理前，先检查是否有模型切换
-            const hasModelChange = detectModelChange();
-
-            if (pendingNodes.size > 0) {
-                const nodesToProcess = Array.from(pendingNodes);
-                pendingNodes.clear();
-
-                if (nodesToProcess.length > 5) {
-                    debug(`处理 ${nodesToProcess.length} 个待翻译节点`);
-                }
-                
-                const startTime = performance.now();
-                
-                // 批量处理所有待翻译节点
-                nodesToProcess.forEach(node => {
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        translator.translate(node);
-                    } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
-                        translator.translate(node.parentElement);
-                    }
-                });
-                
-                const duration = performance.now() - startTime;
-                perf('批量翻译', duration, `${nodesToProcess.length} 个节点`);
-            }
-
-            // 如果发生了模型切换，但没有其他挂起的节点，确保页面仍然被重新翻译。
-            if (hasModelChange && pendingNodes.size === 0) {
-                if (document.body) {
-                    translator.translate(document.body);
-                }
-            }
-        }, 0);
-    }
-
     // --- MutationObserver 实例定义 ---
 
-    // (漏洞修复)
-    // 为确保能够监听到 Shadow DOM 内部的动态变化，我们需要一个统一的处理器
-    // 来处理来自任何 MutationObserver (无论是主观察器还是附加到 Shadow DOM 上的观察器) 的事件。
     const mutationHandler = (mutations) => {
-        const dirtyRoots = new Set();
+        let hasUpdates = false;
+        
         for (const mutation of mutations) {
-            let target = null;
+            // 1. 处理新增节点
             if (mutation.type === 'childList') {
-                // 处理新增的节点，检查其中是否包含需要我们进一步监听的 Shadow DOM
                 mutation.addedNodes.forEach(node => {
                     if (node.nodeType === Node.ELEMENT_NODE) {
-                        // 检查节点本身是否是 Shadow DOM 的宿主
-                        if (node.shadowRoot) {
-                            observeRoot(node.shadowRoot); // 动态附加监听器
+                        // 仅需加入翻译队列。Shadow Root 发现和监听将由 translator 在遍历过程中自动触发。
+                        translationQueue.add(node);
+                        translator.deleteElement(node); // 确保新节点无缓存
+                        hasUpdates = true;
+                    } else if (node.nodeType === Node.TEXT_NODE) {
+                        // 文本节点变动需要翻译其父元素
+                        if (node.parentElement) {
+                            translationQueue.add(node.parentElement);
+                            translator.deleteElement(node.parentElement);
+                            hasUpdates = true;
                         }
-                        // 检查节点的后代是否包含 Shadow DOM
-                        node.querySelectorAll('*').forEach(child => {
-                            if (child.shadowRoot) {
-                                observeRoot(child.shadowRoot); // 动态附加监听器
-                            }
-                        });
                     }
                 });
-                target = mutation.target;
-            } else if (mutation.type === 'attributes') {
-                target = mutation.target;
-            } else if (mutation.type === 'characterData') {
-                target = mutation.target.parentElement;
-            }
 
-            if (target instanceof Element || target instanceof ShadowRoot) {
-                dirtyRoots.add(target);
+            } else if (mutation.type === 'attributes') {
+                const target = mutation.target;
+                translationQueue.add(target);
+                translator.deleteElement(target);
+                hasUpdates = true;
+
+            } else if (mutation.type === 'characterData') {
+                const target = mutation.target.parentElement;
+                if (target) {
+                    translationQueue.add(target);
+                    translator.deleteElement(target);
+                    hasUpdates = true;
+                }
             }
         }
 
-        if (dirtyRoots.size > 0) {
-            for (const root of dirtyRoots) {
-                translator.deleteElement(root);
-                pendingNodes.add(root);
-            }
-            scheduleTranslation();
+        if (hasUpdates) {
+            scheduleProcessing();
         }
     };
 
-    // 1. 主内容变化监听器：使用统一的处理器。
+    // 1. 主内容变化监听器
     const mainObserver = new MutationObserver(mutationHandler);
 
     // 使用一个 Set 来跟踪已经附加了观察器的 ShadowRoot，防止重复操作。
@@ -166,7 +203,7 @@ export function initializeObservers(translator, extendedElements = [], customAtt
             return;
         }
 
-        debug('正在动态监听新的根节点:', root);
+        // debug('正在动态监听新的根节点:', root); // 减少日志以提升性能
         const observer = new MutationObserver(mutationHandler);
         observer.observe(root, observerConfig);
         observedShadowRoots.add(root);
@@ -183,16 +220,18 @@ export function initializeObservers(translator, extendedElements = [], customAtt
             lastModelInfo = '';
             setTimeout(() => {
                 log('开始重新翻译新页面内容...');
-                if (document.body) translator.translate(document.body);
-            }, 300); // 延迟以等待新页面组件加载完成
+                if (document.body) {
+                    translationQueue.add(document.body);
+                    scheduleProcessing();
+                }
+            }, 300);
         }
     });
 
-    // 3. 模型切换监听器：更精确、更快速地响应模型切换事件。
+    // 3. 模型切换监听器
     const modelChangeObserver = new MutationObserver((mutations) => {
         let shouldCheckModel = false;
         mutations.forEach((mutation) => {
-            // 检查是否有与模型信息相关的节点被添加或修改
             if (mutation.type === 'childList') {
                 mutation.addedNodes.forEach((node) => {
                     if (node.nodeType === Node.ELEMENT_NODE) {
@@ -218,23 +257,18 @@ export function initializeObservers(translator, extendedElements = [], customAtt
             }
         });
         if (shouldCheckModel) {
-            setTimeout(() => detectModelChange(), 0); // 快速响应模型切换
+            setTimeout(() => detectModelChange(), 0); 
         }
     });
 
     // --- 启动所有监听器 ---
 
-    // 为 MutationObserver 创建最终的属性过滤器，确保与 translator.js 的逻辑同步。
-    // 1. 合并标准属性和自定义属性白名单。
     const whitelist = new Set([...attributesToTranslate, ...customAttributes]);
-    // 2. 从白名单中移除所有在黑名单中定义的属性。
     for (const attr of blockedAttributes) {
         whitelist.delete(attr);
     }
-    // 3. 将最终的 Set 转换为数组。
     const finalAttributeFilter = [...whitelist];
 
-    // (漏洞修复) 定义一个可复用的、标准的观察器配置对象。
     const observerConfig = {
         childList: true,
         subtree: true,
@@ -243,15 +277,25 @@ export function initializeObservers(translator, extendedElements = [], customAtt
         characterData: true
     };
     
+    // 关键：注册 Shadow Root 发现回调
+    if (translator.setShadowRootCallback) {
+        translator.setShadowRootCallback((shadowRoot) => {
+            observeRoot(shadowRoot);
+        });
+    }
+
     // 启动主观察器来监听 document.body
     observeRoot(document.body);
     
-    // (漏洞修复) 在脚本初始化时，主动查找并监听页面上所有已存在的 Shadow DOM。
-    document.querySelectorAll('*').forEach(el => {
-        if (el.shadowRoot) {
-            observeRoot(el.shadowRoot);
-        }
+    // 初始化时，使用 TreeWalker 进行一次全量 Shadow DOM 扫描。
+    // 尽管 translator.translate 也会做这个，但 initializeObservers 可能在 initialTranslation 之后很久才初始化，
+    // 或者页面可能有未被翻译的部分。为了安全，保留这个初始化扫描。
+    const initWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
+        acceptNode: (n) => n.shadowRoot ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
     });
+    while (initWalker.nextNode()) {
+        observeRoot(initWalker.currentNode.shadowRoot);
+    }
 
     pageObserver.observe(document.body, { childList: true, subtree: true });
 
@@ -261,111 +305,89 @@ export function initializeObservers(translator, extendedElements = [], customAtt
         characterData: true
     });
 
-    // 4. 页面标题变化监听器：专门用于处理 <title> 标签的动态变化。
+    // 4. 页面标题变化监听器
     const titleObserver = new MutationObserver(() => {
         const titleElement = document.querySelector('title');
         if (titleElement) {
-            // 在重新翻译前，清除该元素的缓存
             translator.deleteElement(titleElement);
-            // 重新翻译
-            translator.translate(titleElement);
+            translator.translate(titleElement); // 标题通常很短，直接同步翻译无妨，且不在 body 内
             debug('页面标题已重新翻译');
         }
     });
 
-    // 启动标题监听器
     const titleElement = document.querySelector('title');
     if (titleElement) {
         titleObserver.observe(titleElement, {
-            childList: true, // 监视文本节点的添加/删除
-            subtree: true // 必须监视子树以捕获文本节点的变化
+            childList: true,
+            subtree: true
         });
     }
 
-    // 在 window 对象上暴露一个强制重翻的函数，便于手动调试。
     window.forceRetranslate = function () {
         log('强制重新翻译已触发。');
         translator.resetState();
         lastModelInfo = '';
         if (document.body) {
-            translator.translate(document.body);
+            translationQueue.add(document.body);
+            scheduleProcessing();
         }
     };
 
-    // 5. 扩展元素监听器：专门处理 extendedElements
+    // 5. 扩展元素监听器
     if (extendedElements.length > 0) {
-        // 5a. 创建一个专用的内容变化监听器，用于监控扩展元素内部的文本变化。
-        const extendedContentObserver = new MutationObserver((mutations) => {
-            const dirtyRoots = new Set();
-            for (const mutation of mutations) {
-                if (mutation.type === 'characterData') {
-                    const target = mutation.target.parentElement;
-                    if (target instanceof Element) dirtyRoots.add(target);
-                }
-            }
-            if (dirtyRoots.size > 0) {
-                for (const root of dirtyRoots) {
-                    translator.deleteElement(root);
-                    pendingNodes.add(root);
-                }
-                scheduleTranslation();
-            }
-        });
+        // 扩展元素的逻辑稍微复杂，为了保持一致性，
+        // 我们也将触发翻译的任务统一扔进 translationQueue。
 
-        // 5b. 创建一个专用的属性变化监听器，用于监控扩展元素内部所有属性的变化。
-        // 这是对主 `mainObserver` 的补充，因为它使用 attributeFilter 忽略了非白名单属性。
-        const extendedAttributeObserver = new MutationObserver((mutations) => {
-            const dirtyRoots = new Set();
+        const extendedMutationHandler = (mutations) => {
+            let hasUpdates = false;
             for (const mutation of mutations) {
-                if (mutation.type === 'attributes') {
-                    const target = mutation.target;
-                    if (target instanceof Element) dirtyRoots.add(target);
+                let target;
+                if (mutation.type === 'characterData') {
+                    target = mutation.target.parentElement;
+                } else if (mutation.type === 'attributes') {
+                    target = mutation.target;
+                }
+                
+                if (target instanceof Element) {
+                    translator.deleteElement(target);
+                    translationQueue.add(target);
+                    hasUpdates = true;
                 }
             }
-            if (dirtyRoots.size > 0) {
-                for (const root of dirtyRoots) {
-                    // 属性变化时，只需将该元素标记为待处理。
-                    // `translator.translate()` 会处理其所有属性。
-                    translator.deleteElement(root);
-                    pendingNodes.add(root);
-                }
-                scheduleTranslation();
-            }
-        });
+            if (hasUpdates) scheduleProcessing();
+        };
+
+        const extendedContentObserver = new MutationObserver(extendedMutationHandler);
+        const extendedAttributeObserver = new MutationObserver(extendedMutationHandler);
 
         log(`正在为 ${extendedElements.length} 个选择器初始化扩展元素监控。`);
 
         const processExtendedElements = (elements) => {
             if (elements.length === 0) return;
-
             elements.forEach(element => {
                 translator.deleteElement(element);
-                pendingNodes.add(element);
+                translationQueue.add(element);
+                
+                // 确保监听
+                extendedContentObserver.observe(element, { characterData: true, subtree: true });
+                extendedAttributeObserver.observe(element, { attributes: true, subtree: true });
             });
-            scheduleTranslation();
+            scheduleProcessing();
         };
 
-        // 步骤 5c: 对页面加载时已存在的扩展元素进行初次翻译，并启动监听。
+        // 初始处理
         extendedElements.forEach(selector => {
             try {
                 const elements = document.querySelectorAll(selector);
                 if (elements.length > 0) {
-                    const elementsArray = Array.from(elements);
-                    debug(`为选择器 "${selector}" 找到 ${elementsArray.length} 个已存在的扩展元素`);
-                    processExtendedElements(elementsArray);
-                    elementsArray.forEach(el => {
-                        // 监听文本内容变化
-                        extendedContentObserver.observe(el, { characterData: true, subtree: true });
-                        // 监听所有属性变化
-                        extendedAttributeObserver.observe(el, { attributes: true, subtree: true });
-                    });
+                    processExtendedElements(Array.from(elements));
                 }
             } catch (e) {
                 console.error(`extendedElements 中的选择器无效: "${selector}"`, e);
             }
         });
 
-        // 步骤 5d: 创建一个观察器，用于监控后续动态添加到DOM中的扩展元素。
+        // 动态添加处理
         const additionObserver = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
                 if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
@@ -377,13 +399,7 @@ export function initializeObservers(translator, extendedElements = [], customAtt
                                 addedNode.querySelectorAll(selector).forEach(el => matchedElements.push(el));
 
                                 if (matchedElements.length > 0) {
-                                    debug(`为选择器 "${selector}" 找到动态添加的扩展元素:`, matchedElements);
                                     processExtendedElements(matchedElements);
-                                    matchedElements.forEach(el => {
-                                        // 为新发现的元素也启动监听
-                                        extendedContentObserver.observe(el, { characterData: true, subtree: true });
-                                        extendedAttributeObserver.observe(el, { attributes: true, subtree: true });
-                                    });
                                 }
                             });
                         }
@@ -392,7 +408,6 @@ export function initializeObservers(translator, extendedElements = [], customAtt
             }
         });
 
-        // 监听整个文档树的变动，以捕获任何位置的元素添加
         additionObserver.observe(document.documentElement, {
             childList: true,
             subtree: true
@@ -401,5 +416,5 @@ export function initializeObservers(translator, extendedElements = [], customAtt
         log('扩展元素观察器已激活。');
     }
 
-    log('监听器初始化完成。');
+    log('监听器初始化完成 (Time Slicing Enabled)。');
 }

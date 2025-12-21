@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.105-2025-12-20-offline
+// @version      1.0.105-2025-12-21-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -379,6 +379,7 @@
       ['Verified the file content.', '已验证文件内容'],
       ['Verify the frontend changes.', '验证前端更改'],
       [' Configure repo access ', '配置代码仓库访问'],
+      ['Build and submit the fix.', '构建并提交修复'],
       ['Complete pre commit steps', '完成预提交步骤'],
       ['Complete pre-commit steps', '完成预提交步骤'],
       ['Delete environment variable', '删除环境变量'],
@@ -549,6 +550,7 @@
       ['Task - Jules', '任务 - Jules'],
       ['Task is paused', '任务已暂停'],
       ['Terms of Service', '服务条款'],
+      ['Verify the Fix:', '验证修复:'],
       [' New session ', ' 新建会话 '],
       [' Plan and go ', '计划并执行'],
       ['Attach repo', '选择代码仓库'],
@@ -2404,6 +2406,7 @@
       ['Clear chat', '清空对话'],
       ['Close chat', '关闭聊天'],
       ['Close file', '关闭文件'],
+      ['Copy app', '复制该 APP'],
       ['Create key', '创建密钥'],
       ['Created on', '创建日期'],
       ['Creativity', '创意工坊'],
@@ -2444,7 +2447,6 @@
       ['Audio Orb', '灵动音球'],
       ['Block few', '屏蔽少量'],
       ['Changelog', '更新日志'],
-      ['Copy app', '复制该APP'],
       ['Copy Code', '复制代码'],
       ['Copy text', '复制文本'],
       ['Documentation', '文档'],
@@ -2708,6 +2710,30 @@
       [/You can still continue previous chats that reference\s+(.+?)\s+content\./i, '您仍可继续之前引用了 $1 内容的对话。'],
       [/Your subscription will expire on\s+(\d{4})\/(\d{1,2})\/(\d{1,2})\./i, '您的订阅将于 $1 年 $2 月 $3 日 到期。'],
       [/Choose\s+(\d+)x\s+or\s+(\d+)x\s+more\s+usage\s+than\s+Pro\*/i, '选择比专业版多 $1 倍或 $2 倍的使用量*'],
+      [/\s*Dec\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+AM\s*/i, '$2 年 12 月 $1 日 上午 $3:$4'],
+      [/\s*Dec\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+PM\s*/i, '$2 年 12 月 $1 日 晚上 $3:$4'],
+      [/\s*Nov\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+AM\s*/i, '$2 年 11 月 $1 日 上午 $3:$4'],
+      [/\s*Nov\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+PM\s*/i, '$2 年 11 月 $1 日 晚上 $3:$4'],
+      [/\s*Oct\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+AM\s*/i, '$2 年 10 月 $1 日 上午 $3:$4'],
+      [/\s*Oct\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+PM\s*/i, '$2 年 10 月 $1 日 晚上 $3:$4'],
+      [/\s*Apr\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+AM\s*/i, '$2 年 4 月 $1 日 上午 $3:$4'],
+      [/\s*Apr\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+PM\s*/i, '$2 年 4 月 $1 日 晚上 $3:$4'],
+      [/\s*Aug\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+AM\s*/i, '$2 年 8 月 $1 日 上午 $3:$4'],
+      [/\s*Aug\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+PM\s*/i, '$2 年 8 月 $1 日 晚上 $3:$4'],
+      [/\s*Feb\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+AM\s*/i, '$2 年 2 月 $1 日 上午 $3:$4'],
+      [/\s*Feb\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+PM\s*/i, '$2 年 2 月 $1 日 晚上 $3:$4'],
+      [/\s*Jan\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+AM\s*/i, '$2 年 1 月 $1 日 上午 $3:$4'],
+      [/\s*Jan\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+PM\s*/i, '$2 年 1 月 $1 日 晚上 $3:$4'],
+      [/\s*Jul\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+AM\s*/i, '$2 年 7 月 $1 日 上午 $3:$4'],
+      [/\s*Jul\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+PM\s*/i, '$2 年 7 月 $1 日 晚上 $3:$4'],
+      [/\s*Jun\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+AM\s*/i, '$2 年 6 月 $1 日 上午 $3:$4'],
+      [/\s*Jun\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+PM\s*/i, '$2 年 6 月 $1 日 晚上 $3:$4'],
+      [/\s*Mar\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+AM\s*/i, '$2 年 3 月 $1 日 上午 $3:$4'],
+      [/\s*Mar\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+PM\s*/i, '$2 年 3 月 $1 日 晚上 $3:$4'],
+      [/\s*May\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+AM\s*/i, '$2 年 5 月 $1 日 上午 $3:$4'],
+      [/\s*May\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+PM\s*/i, '$2 年 5 月 $1 日 晚上 $3:$4'],
+      [/\s*Sep\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+AM\s*/i, '$2 年 9 月 $1 日 上午 $3:$4'],
+      [/\s*Sep\s+(\d{1,2}),\s+(\d{4}),\s+(\d{1,2}):(\d{2})\s+PM\s*/i, '$2 年 9 月 $1 日 晚上 $3:$4'],
       [/^\s*(\d+)\s+chats?\s+matching\s+[“"](.*?)["”]\s*$/i, '找到 $1 个与 “$2” 匹配的对话'],
       [/You have\s+(\d+)\s+previous\s+chats\s+with\s+Claude/i, '您之前与 Claude 有 $1 个对话'],
       [/\s*Are\s+you\s+sure\s+you\s+want\s+to\s+archive\s+(.+)\?\s*/, '你确定要归档 $1 吗？'],
@@ -3357,6 +3383,7 @@
       ['These are good candidates for adding to your Parent Organization.', '这些是添加到您的父组织的良好候选者。'],
       ['Upload must end in .skill or .zip. You can try again.', '上传文件必须以 .skill 或 .zip 结尾。您可以重试。'],
       ['What idea themes consistently appear across all my documents?', '在我的所有文档中，哪些创意主题始终出现？'],
+      ['When this session was last used or had its expiration time updated.', '此会话上次使用或过期时间更新的时间'],
       ['You will no longer be the primary owner after taking this action.', '执行此操作后，您将不再是主要所有者。'],
       ['Break down large tasks and ask clarifying questions when needed.', '分解大型任务并在需要时提出澄清问题。'],
       ['Claude Max or Pro is required to connect to Claude Code', '需要 Claude Max 或 Pro 才能连接到 Claude Code'],
@@ -4750,6 +4777,7 @@
       ['SSO settings updated', 'SSO 设置已更新'],
       ['Start a new conversation', '开始新对话'],
       ['Team plan (Annual)', '团队套餐（年度）'],
+      ['Type / for commands', '输入 / 触发命令'],
       ['Unable to check status', '无法检查状态'],
       ['Use Claude for free', '免费使用 Claude'],
       ['View your connectors', '查看您的连接器'],
@@ -4792,7 +4820,6 @@
       ['Single member console', '单成员控制台'],
       ['Start a new project', '开始一个新项目'],
       ['This link has expired', '此链接已过期'],
-      ['Type / for command', '输入 / 触发命令'],
       ['Type to edit memory', '键入以编辑记忆'],
       ['Updating memory...', '正在更新记忆...'],
       ['What’s on your mind?', '你在想什么？'],
@@ -6021,6 +6048,7 @@
       ['Edit', '编辑'],
       ['Free', '免费'],
       ['here', '此处'],
+      ['Hide', '隐藏'],
       ['Home', '主页'],
       ['Link', '链接'],
       ['Name', '名称'],
@@ -6029,6 +6057,7 @@
       ['Role', '角色'],
       ['Save', '保存'],
       ['Send', '发送'],
+      ['Show', '显示'],
       ['Skip', '跳过'],
       ['Star', '收藏'],
       ['Text', '文本'],
@@ -8235,6 +8264,7 @@
       ['No frame in your profile', '您的个人资料中没有头像框'],
       ['Pixels painted inside the region', '地区内绘制的像素'],
       ['Preferably, use a 16x16 image', '建议使用 16x16 图像'],
+      ['2025 Christmas Event Frame', '2025 圣诞节活动头像框'],
       ["'2025 Christmas profile frame", '2025 年圣诞头像框'],
       ['🤖 Use of bots is not allowed', '🤖 禁止使用机器人'],
       [' Select the headquarters location', '选择总部位置'],
@@ -8264,6 +8294,7 @@
       ['Svalbard and Jan Mayen', '斯瓦尔巴和扬马延'],
       ['Syrian Arab Republic', '阿拉伯叙利亚共和国'],
       ['YouTube video player', 'YouTube 视频播放器'],
+      ['2025 Christmas Frame', '2025 圣诞节头像框'],
       ['No more charges', '没有更多的液滴可以绘制'],
       ['Sao Tome and Principe', '圣多美和普林西比'],
       ['Location unfavorited', '已取消收藏该位置'],
@@ -8304,6 +8335,7 @@
       ['Select the reason:', '请选择原因：'],
       [' 🇧🇷 Português', ' 🇧🇷 葡萄牙语'],
       [' is enabled on ', ' 选项是否已在 '],
+      ['Frame equipped!', '头像框已装备！'],
       ['Inappropriate content', '不当内容'],
       ['Map powered by:', '地图技术支持：'],
       ['My map is lagging', '我的地图卡顿'],
@@ -15273,13 +15305,6 @@
       console.debug('[汉化脚本-DEBUG]', ...args);
     }
   }
-  function perf(operation, duration, ...args) {
-    if (isDebugMode) {
-      if (duration > 5) {
-        console.log(`[汉化脚本-PERF] ${operation} 耗时: ${duration.toFixed(2)}ms`, ...args);
-      }
-    }
-  }
   function translateLog(type, original, translated, element = null) {
     if (isDebugMode) {
       if (original !== translated) {
@@ -15379,6 +15404,7 @@
   var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate', 'kbd']);
   // src/modules/core/translator.js
   function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = [], pseudoRules = []) {
+    let shadowRootFoundCallback = null;
     const textTranslationMap = /* @__PURE__ */ new Map();
     if (Array.isArray(textRules)) {
       for (const rule of textRules) {
@@ -15512,6 +15538,9 @@
     }
     function translateElement(element) {
       if (!element || translatedElements.has(element) || !(element instanceof Element || element instanceof ShadowRoot)) return;
+      if (element instanceof ShadowRoot && shadowRootFoundCallback) {
+        shadowRootFoundCallback(element);
+      }
       if (isInsideBlockedElement(element)) {
         translatedElements.add(element);
         return;
@@ -15578,6 +15607,7 @@
               }
             }
             if (node.shadowRoot) {
+              if (shadowRootFoundCallback) shadowRootFoundCallback(node.shadowRoot);
               translateElement(node.shadowRoot);
             }
           }
@@ -15616,6 +15646,7 @@
         }
       }
       if (element.shadowRoot) {
+        if (shadowRootFoundCallback) shadowRootFoundCallback(element.shadowRoot);
         translateElement(element.shadowRoot);
       }
       translatedElements.add(element);
@@ -15633,13 +15664,63 @@
       },
       translatePseudoElements,
       // 暴露给外部使用
+      // 允许外部注册 Shadow Root 发现回调
+      setShadowRootCallback: (callback) => {
+        shadowRootFoundCallback = callback;
+      },
     };
   }
   // src/modules/core/observers.js
   function initializeObservers(translator, extendedElements = [], customAttributes = [], blockedAttributes = []) {
-    let translationTimer;
-    let pendingNodes = /* @__PURE__ */ new Set();
+    const translationQueue = /* @__PURE__ */ new Set();
+    let isScheduled = false;
+    const FRAME_BUDGET = 12;
     let lastModelInfo = '';
+    function processQueue() {
+      const frameStart = performance.now();
+      let tasksProcessed = 0;
+      const hasModelChange = detectModelChange();
+      if (hasModelChange && translationQueue.size === 0) {
+        if (document.body) {
+          translator.translate(document.body);
+        }
+      }
+      const processSet = (queue, processor) => {
+        if (queue.size === 0) return true;
+        const iterator = queue[Symbol.iterator]();
+        let result = iterator.next();
+        while (!result.done) {
+          if (performance.now() - frameStart > FRAME_BUDGET) {
+            return false;
+          }
+          const item = result.value;
+          queue.delete(item);
+          processor(item);
+          result = iterator.next();
+        }
+        return true;
+      };
+      const translationProcessor = (node) => {
+        if (!node.isConnected) return;
+        if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+          translator.translate(node);
+        } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
+          translator.translate(node.parentElement);
+        }
+        tasksProcessed++;
+      };
+      if (!processSet(translationQueue, translationProcessor)) {
+        requestAnimationFrame(processQueue);
+        return;
+      }
+      isScheduled = false;
+    }
+    function scheduleProcessing() {
+      if (!isScheduled) {
+        isScheduled = true;
+        requestAnimationFrame(processQueue);
+      }
+    }
     function detectModelChange() {
       const modelElements = document.querySelectorAll('.model-name, .model-info, [class*="model"]');
       const currentModelInfo = Array.from(modelElements)
@@ -15651,74 +15732,47 @@
         translator.resetState();
         setTimeout(() => {
           if (document.body) {
-            translator.translate(document.body);
+            translationQueue.add(document.body);
+            scheduleProcessing();
           }
         }, 100);
         return true;
       }
       return false;
     }
-    function scheduleTranslation() {
-      clearTimeout(translationTimer);
-      translationTimer = setTimeout(() => {
-        const hasModelChange = detectModelChange();
-        if (pendingNodes.size > 0) {
-          const nodesToProcess = Array.from(pendingNodes);
-          pendingNodes.clear();
-          if (nodesToProcess.length > 5) {
-            debug(`处理 ${nodesToProcess.length} 个待翻译节点`);
-          }
-          const startTime = performance.now();
-          nodesToProcess.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              translator.translate(node);
-            } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
-              translator.translate(node.parentElement);
-            }
-          });
-          const duration = performance.now() - startTime;
-          perf('批量翻译', duration, `${nodesToProcess.length} 个节点`);
-        }
-        if (hasModelChange && pendingNodes.size === 0) {
-          if (document.body) {
-            translator.translate(document.body);
-          }
-        }
-      }, 0);
-    }
     const mutationHandler = (mutations) => {
-      const dirtyRoots = /* @__PURE__ */ new Set();
+      let hasUpdates = false;
       for (const mutation of mutations) {
-        let target = null;
         if (mutation.type === 'childList') {
           mutation.addedNodes.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
-              if (node.shadowRoot) {
-                observeRoot(node.shadowRoot);
+              translationQueue.add(node);
+              translator.deleteElement(node);
+              hasUpdates = true;
+            } else if (node.nodeType === Node.TEXT_NODE) {
+              if (node.parentElement) {
+                translationQueue.add(node.parentElement);
+                translator.deleteElement(node.parentElement);
+                hasUpdates = true;
               }
-              node.querySelectorAll('*').forEach((child) => {
-                if (child.shadowRoot) {
-                  observeRoot(child.shadowRoot);
-                }
-              });
             }
           });
-          target = mutation.target;
         } else if (mutation.type === 'attributes') {
-          target = mutation.target;
+          const target = mutation.target;
+          translationQueue.add(target);
+          translator.deleteElement(target);
+          hasUpdates = true;
         } else if (mutation.type === 'characterData') {
-          target = mutation.target.parentElement;
-        }
-        if (target instanceof Element || target instanceof ShadowRoot) {
-          dirtyRoots.add(target);
+          const target = mutation.target.parentElement;
+          if (target) {
+            translationQueue.add(target);
+            translator.deleteElement(target);
+            hasUpdates = true;
+          }
         }
       }
-      if (dirtyRoots.size > 0) {
-        for (const root of dirtyRoots) {
-          translator.deleteElement(root);
-          pendingNodes.add(root);
-        }
-        scheduleTranslation();
+      if (hasUpdates) {
+        scheduleProcessing();
       }
     };
     const mainObserver = new MutationObserver(mutationHandler);
@@ -15727,7 +15781,6 @@
       if (!root || observedShadowRoots.has(root)) {
         return;
       }
-      debug('正在动态监听新的根节点:', root);
       const observer = new MutationObserver(mutationHandler);
       observer.observe(root, observerConfig);
       observedShadowRoots.add(root);
@@ -15741,7 +15794,10 @@
         lastModelInfo = '';
         setTimeout(() => {
           log('开始重新翻译新页面内容...');
-          if (document.body) translator.translate(document.body);
+          if (document.body) {
+            translationQueue.add(document.body);
+            scheduleProcessing();
+          }
         }, 300);
       }
     });
@@ -15783,12 +15839,18 @@
       attributeFilter: finalAttributeFilter,
       characterData: true,
     };
+    if (translator.setShadowRootCallback) {
+      translator.setShadowRootCallback((shadowRoot) => {
+        observeRoot(shadowRoot);
+      });
+    }
     observeRoot(document.body);
-    document.querySelectorAll('*').forEach((el) => {
-      if (el.shadowRoot) {
-        observeRoot(el.shadowRoot);
-      }
+    const initWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
+      acceptNode: (n) => (n.shadowRoot ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP),
     });
+    while (initWalker.nextNode()) {
+      observeRoot(initWalker.currentNode.shadowRoot);
+    }
     pageObserver.observe(document.body, { childList: true, subtree: true });
     modelChangeObserver.observe(document.body, {
       childList: true,
@@ -15807,9 +15869,7 @@
     if (titleElement) {
       titleObserver.observe(titleElement, {
         childList: true,
-        // 监视文本节点的添加/删除
         subtree: true,
-        // 必须监视子树以捕获文本节点的变化
       });
     }
     window.forceRetranslate = function () {
@@ -15817,62 +15877,46 @@
       translator.resetState();
       lastModelInfo = '';
       if (document.body) {
-        translator.translate(document.body);
+        translationQueue.add(document.body);
+        scheduleProcessing();
       }
     };
     if (extendedElements.length > 0) {
-      const extendedContentObserver = new MutationObserver((mutations) => {
-        const dirtyRoots = /* @__PURE__ */ new Set();
+      const extendedMutationHandler = (mutations) => {
+        let hasUpdates = false;
         for (const mutation of mutations) {
+          let target;
           if (mutation.type === 'characterData') {
-            const target = mutation.target.parentElement;
-            if (target instanceof Element) dirtyRoots.add(target);
+            target = mutation.target.parentElement;
+          } else if (mutation.type === 'attributes') {
+            target = mutation.target;
+          }
+          if (target instanceof Element) {
+            translator.deleteElement(target);
+            translationQueue.add(target);
+            hasUpdates = true;
           }
         }
-        if (dirtyRoots.size > 0) {
-          for (const root of dirtyRoots) {
-            translator.deleteElement(root);
-            pendingNodes.add(root);
-          }
-          scheduleTranslation();
-        }
-      });
-      const extendedAttributeObserver = new MutationObserver((mutations) => {
-        const dirtyRoots = /* @__PURE__ */ new Set();
-        for (const mutation of mutations) {
-          if (mutation.type === 'attributes') {
-            const target = mutation.target;
-            if (target instanceof Element) dirtyRoots.add(target);
-          }
-        }
-        if (dirtyRoots.size > 0) {
-          for (const root of dirtyRoots) {
-            translator.deleteElement(root);
-            pendingNodes.add(root);
-          }
-          scheduleTranslation();
-        }
-      });
+        if (hasUpdates) scheduleProcessing();
+      };
+      const extendedContentObserver = new MutationObserver(extendedMutationHandler);
+      const extendedAttributeObserver = new MutationObserver(extendedMutationHandler);
       log(`正在为 ${extendedElements.length} 个选择器初始化扩展元素监控。`);
       const processExtendedElements = (elements) => {
         if (elements.length === 0) return;
         elements.forEach((element) => {
           translator.deleteElement(element);
-          pendingNodes.add(element);
+          translationQueue.add(element);
+          extendedContentObserver.observe(element, { characterData: true, subtree: true });
+          extendedAttributeObserver.observe(element, { attributes: true, subtree: true });
         });
-        scheduleTranslation();
+        scheduleProcessing();
       };
       extendedElements.forEach((selector) => {
         try {
           const elements = document.querySelectorAll(selector);
           if (elements.length > 0) {
-            const elementsArray = Array.from(elements);
-            debug(`为选择器 "${selector}" 找到 ${elementsArray.length} 个已存在的扩展元素`);
-            processExtendedElements(elementsArray);
-            elementsArray.forEach((el) => {
-              extendedContentObserver.observe(el, { characterData: true, subtree: true });
-              extendedAttributeObserver.observe(el, { attributes: true, subtree: true });
-            });
+            processExtendedElements(Array.from(elements));
           }
         } catch (e) {
           console.error(`extendedElements 中的选择器无效: "${selector}"`, e);
@@ -15888,12 +15932,7 @@
                   if (addedNode.matches(selector)) matchedElements.push(addedNode);
                   addedNode.querySelectorAll(selector).forEach((el) => matchedElements.push(el));
                   if (matchedElements.length > 0) {
-                    debug(`为选择器 "${selector}" 找到动态添加的扩展元素:`, matchedElements);
                     processExtendedElements(matchedElements);
-                    matchedElements.forEach((el) => {
-                      extendedContentObserver.observe(el, { characterData: true, subtree: true });
-                      extendedAttributeObserver.observe(el, { attributes: true, subtree: true });
-                    });
                   }
                 });
               }
@@ -15907,7 +15946,7 @@
       });
       log('扩展元素观察器已激活。');
     }
-    log('监听器初始化完成。');
+    log('监听器初始化完成 (Time Slicing Enabled)。');
   }
   // src/modules/core/translationInitializer.js
   function initializeTranslation(siteDictionary, createTranslator2, removeAntiFlickerStyle2, initializeObservers2, log2) {
