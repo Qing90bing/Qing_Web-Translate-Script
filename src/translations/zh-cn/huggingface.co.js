@@ -1091,6 +1091,7 @@ export const huggingfaceCoZhCn = {
     ["\n							Linked models\n							", "链接模型"],
     [" and the research community", "和研究社区"],
     [" Do not share your\n					", " 请勿分享您的"],
+    ["Authors are participating", "作者正在参与"],
     ["Complete your profile", "完成您的个人资料"],
     ["Inference Providers doc", "推理提供商文档"],
     ["Local Apps and Hardware", "本地应用和硬件"],

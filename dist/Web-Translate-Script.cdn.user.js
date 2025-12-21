@@ -2552,16 +2552,9 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     const translationQueue = /* @__PURE__ */ new Set();
     let isScheduled = false;
     const FRAME_BUDGET = 12;
-    let lastModelInfo = '';
     function processQueue() {
       const frameStart = performance.now();
       let tasksProcessed = 0;
-      const hasModelChange = detectModelChange();
-      if (hasModelChange && translationQueue.size === 0) {
-        if (document.body) {
-          translator.translate(document.body);
-        }
-      }
       const processSet = (queue, processor) => {
         if (queue.size === 0) return true;
         const iterator = queue[Symbol.iterator]();
@@ -2597,25 +2590,6 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         isScheduled = true;
         requestAnimationFrame(processQueue);
       }
-    }
-    function detectModelChange() {
-      const modelElements = document.querySelectorAll('.model-name, .model-info, [class*="model"]');
-      const currentModelInfo = Array.from(modelElements)
-        .map((el) => el.textContent?.trim())
-        .join('|');
-      if (currentModelInfo && currentModelInfo !== lastModelInfo) {
-        lastModelInfo = currentModelInfo;
-        log('检测到模型切换:', currentModelInfo);
-        translator.resetState();
-        setTimeout(() => {
-          if (document.body) {
-            translationQueue.add(document.body);
-            scheduleProcessing();
-          }
-        }, 100);
-        return true;
-      }
-      return false;
     }
     const mutationHandler = (mutations) => {
       let hasUpdates = false;
@@ -2668,7 +2642,6 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         currentUrl = window.location.href;
         log('检测到页面导航，将重新翻译:', currentUrl);
         translator.resetState();
-        lastModelInfo = '';
         setTimeout(() => {
           log('开始重新翻译新页面内容...');
           if (document.body) {
@@ -2676,32 +2649,6 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
             scheduleProcessing();
           }
         }, 300);
-      }
-    });
-    const modelChangeObserver = new MutationObserver((mutations) => {
-      let shouldCheckModel = false;
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              const element = node;
-              if (element.classList?.contains('mat-mdc-dialog-component-host') || element.querySelector?.('.model-name, .model-info') || element.classList?.contains('model-name') || element.classList?.contains('model-info')) {
-                shouldCheckModel = true;
-              }
-            }
-          });
-        }
-        if (mutation.type === 'characterData') {
-          const parent = mutation.target.parentElement;
-          if (parent) {
-            if (parent.classList?.contains('model-name') || parent.classList?.contains('model-info') || parent.querySelector?.('.model-name, .model-info')) {
-              shouldCheckModel = true;
-            }
-          }
-        }
-      });
-      if (shouldCheckModel) {
-        setTimeout(() => detectModelChange(), 0);
       }
     });
     const whitelist = /* @__PURE__ */ new Set([...attributesToTranslate, ...customAttributes]);
@@ -2779,11 +2726,6 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       observeRoot(initWalker.currentNode.shadowRoot);
     }
     pageObserver.observe(document.body, { childList: true, subtree: true });
-    modelChangeObserver.observe(document.body, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-    });
     let titleObserver = null;
     const handleTitleContentChange = () => {
       const titleElement = document.querySelector('title');
@@ -2829,7 +2771,6 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     window.forceRetranslate = function () {
       log('强制重新翻译已触发。');
       translator.resetState();
-      lastModelInfo = '';
       if (document.body) {
         translationQueue.add(document.body);
         scheduleProcessing();

@@ -8,7 +8,7 @@
  * 1. **多观察者分离关注点**:
  *    - `mainObserver`: 负责绝大多数的 DOM 变动，如节点增删、属性修改和文本内容变化。
  *    - `pageObserver`: 专门用于检测 SPA 中的页面导航（URL 变化）。
- *    - `modelChangeObserver`: 专门用于快速响应 AI 模型切换等特定、高优先级的 UI 变化。
+
  * 2. **性能优化**:
  *    - **时间切片调度 (Time Slicing)**: 废弃了传统的防抖机制，改用基于 `requestAnimationFrame` 的任务队列系统。
  *      将繁重的翻译任务和 Shadow DOM 检测任务统一在翻译遍历中完成，在每一帧的空闲时间执行，确保主线程永不阻塞，实现 60FPS 流畅滚动。
@@ -36,9 +36,6 @@ export function initializeObservers(translator, extendedElements = [], customAtt
     let isScheduled = false;
     const FRAME_BUDGET = 12; // 每帧最大执行时间 (ms)，留给浏览器渲染
 
-    // 用于追踪当前 AI 模型的名称，以检测模型切换
-    let lastModelInfo = '';
-
     /**
      * @function processQueue
      * @description 核心调度循环。使用时间切片处理队列中的任务。
@@ -46,14 +43,6 @@ export function initializeObservers(translator, extendedElements = [], customAtt
     function processQueue() {
         const frameStart = performance.now();
         let tasksProcessed = 0;
-
-        // 1. 优先检测模型切换 (高优先级)
-        const hasModelChange = detectModelChange();
-        if (hasModelChange && translationQueue.size === 0) {
-            if (document.body) {
-                translator.translate(document.body);
-            }
-        }
 
         // 2. 处理翻译队列
         // 辅助函数：处理队列直到时间耗尽
@@ -110,36 +99,6 @@ export function initializeObservers(translator, extendedElements = [], customAtt
             isScheduled = true;
             requestAnimationFrame(processQueue);
         }
-    }
-
-    /**
-     * @function detectModelChange
-     * @description 检测页面中表示 AI 模型信息的元素是否发生变化。
-     *              这对于 AI 对话界面至关重要，因为切换模型通常需要更新整个界面的翻译。
-     * @returns {boolean} 如果检测到模型变化，则返回 true。
-     */
-    function detectModelChange() {
-        const modelElements = document.querySelectorAll('.model-name, .model-info, [class*="model"]');
-        const currentModelInfo = Array.from(modelElements).map(el => el.textContent?.trim()).join('|');
-
-        if (currentModelInfo && currentModelInfo !== lastModelInfo) {
-            lastModelInfo = currentModelInfo;
-            log('检测到模型切换:', currentModelInfo);
-
-            // 重置翻译器状态（清除所有缓存）并重新翻译整个页面。
-            translator.resetState();
-
-            // 模型切换是重大 UI 变更，我们稍微延迟以等待 DOM 稳定，然后强制翻译整个 body
-            setTimeout(() => {
-                if (document.body) {
-                    translationQueue.add(document.body);
-                    scheduleProcessing();
-                }
-            }, 100);
-
-            return true;
-        }
-        return false;
     }
 
     // --- MutationObserver 实例定义 ---
@@ -217,7 +176,6 @@ export function initializeObservers(translator, extendedElements = [], customAtt
             log('检测到页面导航，将重新翻译:', currentUrl);
             // 页面导航是重大变化，需要完全重置状态。
             translator.resetState();
-            lastModelInfo = '';
             setTimeout(() => {
                 log('开始重新翻译新页面内容...');
                 if (document.body) {
@@ -225,39 +183,6 @@ export function initializeObservers(translator, extendedElements = [], customAtt
                     scheduleProcessing();
                 }
             }, 300);
-        }
-    });
-
-    // 3. 模型切换监听器
-    const modelChangeObserver = new MutationObserver((mutations) => {
-        let shouldCheckModel = false;
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'childList') {
-                mutation.addedNodes.forEach((node) => {
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        const element = node;
-                        if (element.classList?.contains('mat-mdc-dialog-component-host') ||
-                            element.querySelector?.('.model-name, .model-info') ||
-                            element.classList?.contains('model-name') ||
-                            element.classList?.contains('model-info')) {
-                            shouldCheckModel = true;
-                        }
-                    }
-                });
-            }
-            if (mutation.type === 'characterData') {
-                const parent = mutation.target.parentElement;
-                if (parent) {
-                    if (parent.classList?.contains('model-name') ||
-                        parent.classList?.contains('model-info') ||
-                        parent.querySelector?.('.model-name, .model-info')) {
-                        shouldCheckModel = true;
-                    }
-                }
-            }
-        });
-        if (shouldCheckModel) {
-            setTimeout(() => detectModelChange(), 0);
         }
     });
 
@@ -378,12 +303,6 @@ export function initializeObservers(translator, extendedElements = [], customAtt
 
     pageObserver.observe(document.body, { childList: true, subtree: true });
 
-    modelChangeObserver.observe(document.body, {
-        childList: true,
-        subtree: true,
-        characterData: true
-    });
-
     // 4. 页面标题变化监听器 (增强版：支持动态替换 title 标签)
     let titleObserver = null;
 
@@ -450,7 +369,6 @@ export function initializeObservers(translator, extendedElements = [], customAtt
     window.forceRetranslate = function () {
         log('强制重新翻译已触发。');
         translator.resetState();
-        lastModelInfo = '';
         if (document.body) {
             translationQueue.add(document.body);
             scheduleProcessing();
