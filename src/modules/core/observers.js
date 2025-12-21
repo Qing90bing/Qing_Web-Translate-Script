@@ -384,22 +384,67 @@ export function initializeObservers(translator, extendedElements = [], customAtt
         characterData: true
     });
 
-    // 4. 页面标题变化监听器
-    const titleObserver = new MutationObserver(() => {
+    // 4. 页面标题变化监听器 (增强版：支持动态替换 title 标签)
+    let titleObserver = null;
+
+    // 标题内容变化的处理器
+    const handleTitleContentChange = () => {
         const titleElement = document.querySelector('title');
         if (titleElement) {
+            // 避免重复翻译导致的循环，先清理缓存
             translator.deleteElement(titleElement);
-            translator.translate(titleElement); // 标题通常很短，直接同步翻译无妨，且不在 body 内
-            debug('页面标题已重新翻译');
+            translator.translate(titleElement);
+            // debug('页面标题内容已更新并重新翻译');
+        }
+    };
+
+    /**
+     * @function attachTitleObserver
+     * @description 将观察器绑定到具体的 title 元素上
+     */
+    const attachTitleObserver = (element) => {
+        if (!element) return;
+
+        // 如果旧的观察器存在，先 disconnect (虽然后面 new 会覆盖引用，但为了保险最好断开)
+        if (titleObserver) {
+            titleObserver.disconnect();
+        }
+
+        titleObserver = new MutationObserver(handleTitleContentChange);
+        titleObserver.observe(element, {
+            childList: true,
+            subtree: true,
+            characterData: true // 有些浏览器直接改 textNode
+        });
+
+        // 立即翻译一次，确保新绑定的 title 初始状态被翻译
+        translator.deleteElement(element);
+        translator.translate(element);
+    };
+
+    // 监听 document.head 以捕获 title 标签本身的替换 (SPA常见行为)
+    const headObserver = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            if (mutation.type === 'childList') {
+                for (const node of mutation.addedNodes) {
+                    if (node.nodeName === 'TITLE') {
+                        // debug('检测到新的 <title> 标签被注入');
+                        attachTitleObserver(node);
+                    }
+                }
+            }
         }
     });
 
-    const titleElement = document.querySelector('title');
-    if (titleElement) {
-        titleObserver.observe(titleElement, {
-            childList: true,
-            subtree: true
-        });
+    const headElement = document.head || document.querySelector('head');
+    if (headElement) {
+        headObserver.observe(headElement, { childList: true });
+    }
+
+    // 初始绑定
+    const currentTitle = document.querySelector('title');
+    if (currentTitle) {
+        attachTitleObserver(currentTitle);
     }
 
     window.forceRetranslate = function () {

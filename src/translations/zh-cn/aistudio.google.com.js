@@ -10,7 +10,7 @@ export const aistudioGoogleComZhCn = {
   // 创建日期：此翻译配置的创建日期
   createdAt: '2025-08-21',
 
-    // 语言：此翻译配置适用的语言
+  // 语言：此翻译配置适用的语言
   language: 'zh-cn',
 
   // 启用状态：控制此翻译配置是否启用
@@ -1266,6 +1266,8 @@ export const aistudioGoogleComZhCn = {
     ["Fast AI responses", "快速 AI 响应"],
     ["Filter by dataset", "按数据集过滤"],
     ["Function declarations", "函数声明"],
+    ["No definition found", "未找到定义"],
+    ["No references found", "未找到引用"],
     ["Open in Drive", "在云端硬盘中打开"],
     ["Optimizes for latency", "优化延迟"],
     ["Recently viewed", "最近查看的应用"],

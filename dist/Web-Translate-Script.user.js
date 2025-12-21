@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.105-2025-12-21-offline
+// @version      1.0.110-2025-12-21-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -462,7 +462,9 @@
       ['Environment variables', '环境变量'],
       ['GitHub permissions', 'GitHub 权限'],
       ['Need inspiration?', '需要灵感吗？'],
+      ['No definition found', '未找到定义'],
       ['No executions yet', '尚无执行记录'],
+      ['No references found', '未找到引用'],
       ['Notification settings', '通知设置'],
       ['Plan approved 🎉', '计划已批准 🎉'],
       ['Pre-commit steps:', '预提交步骤：'],
@@ -508,6 +510,8 @@
       ['Auto-approves in', '自动批准在'],
       ['Delete permanently', '永久删除'],
       ['Email settings', '电子邮件设置'],
+      ['Go to Definition', '跳转到定义'],
+      ['Go to References', '跳转到引用'],
       ['Go to Symbol...', '转到符号...'],
       ['Interactive plan', '交互式计划'],
       ['Key is required.', '键是必需的'],
@@ -558,6 +562,8 @@
       ['Commit changes.', '提交更改'],
       ['Generate PR', '创建合并请求'],
       ['Load balancer', '负载均衡器'],
+      ['Peek Definition', '预览定义'],
+      ['Peek References', '预览引用'],
       ['Recent sessions', '最近会话'],
       ['Stacked diffs', '堆叠式变更'],
       ['Submit the Fix.', '提交修复'],
@@ -736,6 +742,7 @@
       ['Hide', '隐藏'],
       ['More', '更多'],
       ['on the', '在'],
+      ['Peek', '预览'],
       ['Read', '读取'],
       ['Save', '保存'],
       ['send', '发送'],
@@ -1966,6 +1973,8 @@
       ['Fast AI responses', '快速 AI 响应'],
       ['Filter by dataset', '按数据集过滤'],
       ['Function declarations', '函数声明'],
+      ['No definition found', '未找到定义'],
+      ['No references found', '未找到引用'],
       ['Open in Drive', '在云端硬盘中打开'],
       ['Optimizes for latency', '优化延迟'],
       ['Recently viewed', '最近查看的应用'],
@@ -10081,6 +10090,7 @@
       ['Leave Organization', '退出机构组织'],
       ['Model Benchmarking', '模型基准测试'],
       ['Multimodality Expert', '多模态专家'],
+      ['No public activity', '没有公开活动'],
       ['Papua New Guinea', '巴布亚新几内亚'],
       ['Personalized support', '个性化支持'],
       ['posted an update', '发布了一个更新'],
@@ -11383,6 +11393,7 @@
       ['Prompt Freshness and Benchmark', '提示词新鲜度与基准测试'],
       ['Search Arena (NeurIPS 2025)', '搜索竞技场 (NeurIPS 2025)'],
       ['Compare 2 models of your choice', '比较您选择的两个模型'],
+      ['WebDev Leaderboard | LMArena', 'WebDev 排行榜 | LMArena'],
       ['Image Edit Arena | LMArena', '图像编辑竞技场 | LMArena'],
       ['LMSYS-Chat-1M research paper', 'LMSYS-Chat-1M 研究论文'],
       ['Overview Leaderboard | LMArena', '概览排行榜 | LMArena'],
@@ -11405,6 +11416,7 @@
       ['Double-click to zoom back out', '双击以退出放大'],
       ['Powered by Code Arena', '由 Code Arena 提供支持'],
       ['Search Arena | LMArena', '搜索竞技场 | LMArena'],
+      ['Vision Arena | LMArena', '视觉竞技场 | LMArena'],
       [' Continue with Google', '继续使用 Google 登录'],
       ['Markdown Note-Taking App', 'Markdown 笔记应用'],
       ['Protected by Cloudflare', '受 Cloudflare 保护'],
@@ -11414,6 +11426,7 @@
       ['Find the best AI for you', '找到最适合您的AI'],
       ['Fluid Dynamics Simulator', '流体动力学模拟器'],
       ['Search by model name...', '按模型名称搜索...'],
+      ['Text Arena | LMArena', '文本竞技场 | LMArena'],
       ['Send us your feedback', '向我们发送您的反馈'],
       ['Hard Prompts (English)', '困难提示（英文）'],
       ['Mechanical Watch Mechanism', '机械手表机制'],
@@ -14991,6 +15004,7 @@
       ['World Gen', '世界生成'],
       ['Automation', '自动化'],
       ['Data Packs', '数据包'],
+      ['Documenter', '资料员'],
       ['Farming', '农业/种植'],
       ['Font Packs', '字体包'],
       ['Galacticraft', '星系'],
@@ -15915,20 +15929,47 @@
       subtree: true,
       characterData: true,
     });
-    const titleObserver = new MutationObserver(() => {
-      const titleElement2 = document.querySelector('title');
-      if (titleElement2) {
-        translator.deleteElement(titleElement2);
-        translator.translate(titleElement2);
-        debug('页面标题已重新翻译');
+    let titleObserver = null;
+    const handleTitleContentChange = () => {
+      const titleElement = document.querySelector('title');
+      if (titleElement) {
+        translator.deleteElement(titleElement);
+        translator.translate(titleElement);
       }
-    });
-    const titleElement = document.querySelector('title');
-    if (titleElement) {
-      titleObserver.observe(titleElement, {
+    };
+    const attachTitleObserver = (element) => {
+      if (!element) return;
+      if (titleObserver) {
+        titleObserver.disconnect();
+      }
+      titleObserver = new MutationObserver(handleTitleContentChange);
+      titleObserver.observe(element, {
         childList: true,
         subtree: true,
+        characterData: true,
+        // 有些浏览器直接改 textNode
       });
+      translator.deleteElement(element);
+      translator.translate(element);
+    };
+    const headObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'childList') {
+          for (const node of mutation.addedNodes) {
+            if (node.nodeName === 'TITLE') {
+              attachTitleObserver(node);
+            }
+          }
+        }
+      }
+    });
+    const headElement = document.head || document.querySelector('head');
+    if (headElement) {
+      headObserver.observe(headElement, { childList: true });
+    }
+    const currentTitle = document.querySelector('title');
+    if (currentTitle) {
+      attachTitleObserver(currentTitle);
     }
     window.forceRetranslate = function () {
       log('强制重新翻译已触发。');

@@ -1323,6 +1323,7 @@ export const huggingfaceCoZhCn = {
     ["Leave Organization", "退出机构组织"],
     ["Model Benchmarking", "模型基准测试"],
     ["Multimodality Expert", "多模态专家"],
+    ["No public activity", "没有公开活动"],
     ["Papua New Guinea", "巴布亚新几内亚"],
     ["Personalized support", "个性化支持"],
     ["posted an update", "发布了一个更新"],

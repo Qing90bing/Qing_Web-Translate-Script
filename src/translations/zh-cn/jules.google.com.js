@@ -9,7 +9,7 @@ export const julesGoogleComZhCn = {
 
   // 创建日期：此翻译配置的创建日期
   createdAt: '2025-08-21',
-  
+
   // 语言：此翻译配置适用的语言
   language: 'zh-cn',
 
@@ -30,7 +30,7 @@ export const julesGoogleComZhCn = {
     // '#header .logo'
     '.view-lines'
   ],
-  
+
   // 扩展翻译元素选择器
   // 用于翻译那些默认情况下未被翻译的元素
   extendedElements: [
@@ -38,7 +38,7 @@ export const julesGoogleComZhCn = {
     // '#dynamic-content',
     // '.custom-widget'
   ],
-  
+
   // 自定义属性白名单 
   // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
   // 示例: 'data-tip', 'data-title'
@@ -485,7 +485,9 @@ export const julesGoogleComZhCn = {
     ["Environment variables", "环境变量"],
     ["GitHub permissions", "GitHub 权限"],
     ["Need inspiration?", "需要灵感吗？"],
+    ["No definition found", "未找到定义"],
     ["No executions yet", "尚无执行记录"],
+    ["No references found", "未找到引用"],
     ["Notification settings", "通知设置"],
     ["Plan approved 🎉", "计划已批准 🎉"],
     ["Pre-commit steps:", "预提交步骤："],
@@ -531,6 +533,8 @@ export const julesGoogleComZhCn = {
     ["Auto-approves in", "自动批准在"],
     ["Delete permanently", "永久删除"],
     ["Email settings", "电子邮件设置"],
+    ["Go to Definition", "跳转到定义"],
+    ["Go to References", "跳转到引用"],
     ["Go to Symbol...", "转到符号..."],
     ["Interactive plan", "交互式计划"],
     ["Key is required.", "键是必需的"],
@@ -581,6 +585,8 @@ export const julesGoogleComZhCn = {
     ["Commit changes.", "提交更改"],
     ["Generate PR", "创建合并请求"],
     ["Load balancer", "负载均衡器"],
+    ["Peek Definition", "预览定义"],
+    ["Peek References", "预览引用"],
     ["Recent sessions", "最近会话"],
     ["Stacked diffs", "堆叠式变更"],
     ["Submit the Fix.", "提交修复"],
@@ -759,6 +765,7 @@ export const julesGoogleComZhCn = {
     ["Hide", "隐藏"],
     ["More", "更多"],
     ["on the", "在"],
+    ["Peek", "预览"],
     ["Read", "读取"],
     ["Save", "保存"],
     ["send", "发送"],

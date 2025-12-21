@@ -27,7 +27,7 @@ export const wwwCurseforgeComZhCn = {
 
   // 禁止翻译的元素选择器
   blockedElements: [
-    '.project-description','.notranslate'
+    '.project-description', '.notranslate'
   ],
 
   // 扩展翻译元素选择器
@@ -638,6 +638,7 @@ export const wwwCurseforgeComZhCn = {
     ["World Gen", "世界生成"],
     ["Automation", "自动化"],
     ["Data Packs", "数据包"],
+    ["Documenter", "资料员"],
     ["Farming", "农业/种植"],
     ["Font Packs", "字体包"],
     ["Galacticraft", "星系"],

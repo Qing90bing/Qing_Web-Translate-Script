@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.95-2025-12-21-cdn
+// @version      1.0.100-2025-12-21-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -1243,6 +1243,8 @@ const EMBEDDED_TRANSLATIONS = {
         ['Fast AI responses', '快速 AI 响应'],
         ['Filter by dataset', '按数据集过滤'],
         ['Function declarations', '函数声明'],
+        ['No definition found', '未找到定义'],
+        ['No references found', '未找到引用'],
         ['Open in Drive', '在云端硬盘中打开'],
         ['Optimizes for latency', '优化延迟'],
         ['Recently viewed', '最近查看的应用'],
@@ -2759,20 +2761,47 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       subtree: true,
       characterData: true,
     });
-    const titleObserver = new MutationObserver(() => {
-      const titleElement2 = document.querySelector('title');
-      if (titleElement2) {
-        translator.deleteElement(titleElement2);
-        translator.translate(titleElement2);
-        debug('页面标题已重新翻译');
+    let titleObserver = null;
+    const handleTitleContentChange = () => {
+      const titleElement = document.querySelector('title');
+      if (titleElement) {
+        translator.deleteElement(titleElement);
+        translator.translate(titleElement);
       }
-    });
-    const titleElement = document.querySelector('title');
-    if (titleElement) {
-      titleObserver.observe(titleElement, {
+    };
+    const attachTitleObserver = (element) => {
+      if (!element) return;
+      if (titleObserver) {
+        titleObserver.disconnect();
+      }
+      titleObserver = new MutationObserver(handleTitleContentChange);
+      titleObserver.observe(element, {
         childList: true,
         subtree: true,
+        characterData: true,
+        // 有些浏览器直接改 textNode
       });
+      translator.deleteElement(element);
+      translator.translate(element);
+    };
+    const headObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'childList') {
+          for (const node of mutation.addedNodes) {
+            if (node.nodeName === 'TITLE') {
+              attachTitleObserver(node);
+            }
+          }
+        }
+      }
+    });
+    const headElement = document.head || document.querySelector('head');
+    if (headElement) {
+      headObserver.observe(headElement, { childList: true });
+    }
+    const currentTitle = document.querySelector('title');
+    if (currentTitle) {
+      attachTitleObserver(currentTitle);
     }
     window.forceRetranslate = function () {
       log('强制重新翻译已触发。');
