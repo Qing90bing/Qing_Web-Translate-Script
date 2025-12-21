@@ -2194,17 +2194,8 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     registerMenuCommands();
   }
 
-  // src/config.js
-  var BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(['script', 'style', 'pre', 'code', 'svg']);
-  var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set([]);
-  var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
-  var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
-  var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate', 'kbd']);
-  var ANTI_FLICKER_TIMEOUT = 5e3;
-
   // src/modules/ui/anti-flicker.js
   var STYLE_ID = 'anti-flicker-style';
-  var failsafeTimer = null;
   function injectAntiFlickerStyle() {
     if (!document.documentElement) {
       return;
@@ -2219,19 +2210,10 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     antiFlickerStyle.appendChild(document.createTextNode(styleContent));
     const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
     head.insertBefore(antiFlickerStyle, head.firstChild);
-    if (failsafeTimer) clearTimeout(failsafeTimer);
-    failsafeTimer = setTimeout(() => {
-      console.warn('[Qing Web Translate] Anti-Flicker Safety Valve Triggered: Force showing page due to timeout.');
-      removeAntiFlickerStyle();
-    }, ANTI_FLICKER_TIMEOUT);
   }
   function removeAntiFlickerStyle() {
     if (!document.documentElement) {
       return;
-    }
-    if (failsafeTimer) {
-      clearTimeout(failsafeTimer);
-      failsafeTimer = null;
     }
     document.documentElement.classList.remove('translation-in-progress');
     document.documentElement.classList.add('translation-complete');
@@ -2242,6 +2224,13 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       }
     }, 100);
   }
+
+  // src/config.js
+  var BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(['script', 'style', 'pre', 'code', 'svg']);
+  var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set([]);
+  var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
+  var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
+  var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate', 'kbd']);
 
   // src/modules/core/translator.js
   function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = [], pseudoRules = []) {

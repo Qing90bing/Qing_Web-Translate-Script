@@ -11923,6 +11923,7 @@
       ["Hello, we are Modrinth – an open source mods hosting platform. Sounds dry, doesn't it? So let me tell you our story – and I promise, it won't be boring!", '你好，我们是 Modrinth —— 一个开源的模组托管平台。听起来很枯燥，对吧？那么让我来告诉你我们的故事 —— 我保证，这绝不会无聊！'],
       [' and the moderators have requested you make changes before it can be approved. Read the messages from the moderators below and address their comments before resubmitting. ', '和审核团队请求您在批准之前进行更改。请阅读审核团队下方的消息并在重新提交前解决他们的评论'],
       ["\n				If you're not sure how to resolve this issue, try closing this window and signing in again.\n				If the problem persists after three attempts, please visit\n				", '如果您不确定如何解决此问题，请尝试关闭此窗口并重新登录。如果尝试三次后问题仍然存在，请访问'],
+      ['You’re now part of the awesome community of creators & explorers already building, downloading, and staying up-to-date with amazing mods.', '您现在已成为 Modrinth 的一部分，这个社区由创作者和探索者组成，他们正在构建、下载和保持与出色的模组同步。'],
       [' Modrinth Hosting servers can run any version of Minecraft: Java Edition going all the way back to version 1.2.5, including snapshot versions. ', 'Modrinth Hosting 服务器可以运行任何版本的 Minecraft: Java 版，一直追溯到 1.2.5 版本，包括快照版本'],
       ['Modrinth App is a unique, open source launcher that allows you to play your favorite mods, and keep them up to date, all in one neat little package.', 'Modrinth 应用是一款独一无二的开源启动器，让您在一个简洁的程序包中游玩和更新您喜爱的模组'],
       [' The license you selected has an "or later" clause. If you check this box, users may use your project under later editions of the license. ', '您选择的许可证包含 "或后续版本" 条款。如果选中此框，用户可能会在许可证的后续版本下使用您的项目'],
@@ -12133,6 +12134,7 @@
       ['New withdraw options and a redesigned revenue dashboard', '新的提现选项及重新设计的收入仪表板'],
       ['Save content you love and receive updates with one click.', '保存您喜爱的内容，并一键接收更新'],
       [' Pick a customized plan with just the specs you need. ', '选择一个只包含您所需规格的定制方案'],
+      ["By creating an account, you have agreed to Modrinth's ", '通过创建账户，您已同意 Modrinth 的'],
       [' Host your next server with Modrinth Hosting ', '使用 Modrinth Hosting 托管您的下一台服务器'],
       [' What Minecraft versions and loaders can be used? ', '可以使用哪些 Minecraft 版本和加载器？'],
       ['If you need help with your account, get support on the ', '如果您需要账户方面的帮助，请通过'],
@@ -12426,6 +12428,7 @@
       ['Terms of Use - Modrinth', '使用条款 - Modrinth'],
       ['The Oceanaire Restaurant', 'The Oceanaire 餐厅'],
       ['The place for Minecraft ', 'Minecraft 内容平台'],
+      ['This user has no projects!', '此用户没有项目！'],
       ['Turks and Caicos Islands', '特克斯和凯科斯群岛'],
       ['Victoria’s Secret PINK', '维多利亚的秘密 PINK'],
       ['Address line 2 (optional)', '地址行 2（可选）'],
@@ -12473,6 +12476,7 @@
       ['Subscribe to Modrinth+!', '订阅 Modrinth+！'],
       ['Visit description settings ', '访问描述设置'],
       ['Visit environment settings ', '访问环境设置'],
+      ['Welcome to Modrinth!', '欢迎来到 Modrinth！'],
       ['Works in singleplayer too', '单人模式也适用'],
       ["You won't be charged yet.", '您还不会被收费'],
       ['All your favorite mods', '所有您喜爱的模组'],
@@ -15372,16 +15376,8 @@
   function initializeMenu() {
     registerMenuCommands();
   }
-  // src/config.js
-  var BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(['script', 'style', 'pre', 'code', 'svg']);
-  var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set([]);
-  var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
-  var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
-  var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate', 'kbd']);
-  var ANTI_FLICKER_TIMEOUT = 5e3;
   // src/modules/ui/anti-flicker.js
   var STYLE_ID = 'anti-flicker-style';
-  var failsafeTimer = null;
   function injectAntiFlickerStyle() {
     if (!document.documentElement) {
       return;
@@ -15396,19 +15392,10 @@
     antiFlickerStyle.appendChild(document.createTextNode(styleContent));
     const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
     head.insertBefore(antiFlickerStyle, head.firstChild);
-    if (failsafeTimer) clearTimeout(failsafeTimer);
-    failsafeTimer = setTimeout(() => {
-      console.warn('[Qing Web Translate] Anti-Flicker Safety Valve Triggered: Force showing page due to timeout.');
-      removeAntiFlickerStyle();
-    }, ANTI_FLICKER_TIMEOUT);
   }
   function removeAntiFlickerStyle() {
     if (!document.documentElement) {
       return;
-    }
-    if (failsafeTimer) {
-      clearTimeout(failsafeTimer);
-      failsafeTimer = null;
     }
     document.documentElement.classList.remove('translation-in-progress');
     document.documentElement.classList.add('translation-complete');
@@ -15419,6 +15406,12 @@
       }
     }, 100);
   }
+  // src/config.js
+  var BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(['script', 'style', 'pre', 'code', 'svg']);
+  var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set([]);
+  var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
+  var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
+  var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate', 'kbd']);
   // src/modules/core/translator.js
   function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = [], pseudoRules = []) {
     let shadowRootFoundCallback = null;

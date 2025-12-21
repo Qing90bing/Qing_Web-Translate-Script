@@ -14,12 +14,9 @@
  *
  * 这种策略确保了用户看到的始终是翻译完成后的最终内容，从而消除了闪烁现象。
  */
-import { ANTI_FLICKER_TIMEOUT } from '../../config.js';
 
 // 用于标识防闪烁样式标签的唯一 ID，方便后续移除。
 const STYLE_ID = 'anti-flicker-style';
-// 安全阀超时时间 (毫秒)，防止页面因脚本错误而永久白屏
-let failsafeTimer = null;
 
 /**
  * @function injectAntiFlickerStyle
@@ -58,13 +55,6 @@ export function injectAntiFlickerStyle() {
     // 使用 `insertBefore` 将样式插入到 <head> 的最前面，确保它能优先于其他样式被应用。
     head.insertBefore(antiFlickerStyle, head.firstChild);
 
-    // 启动安全阀倒计时
-    // 如果在指定时间内没有移除样式（即翻译未完成），强制移除以恢复页面显示
-    if (failsafeTimer) clearTimeout(failsafeTimer);
-    failsafeTimer = setTimeout(() => {
-        console.warn('[Qing Web Translate] Anti-Flicker Safety Valve Triggered: Force showing page due to timeout.');
-        removeAntiFlickerStyle();
-    }, ANTI_FLICKER_TIMEOUT);
 }
 
 /**
@@ -78,11 +68,6 @@ export function removeAntiFlickerStyle() {
         return;
     }
 
-    // 清除安全阀的一倒计时，因为可以正常移除了
-    if (failsafeTimer) {
-        clearTimeout(failsafeTimer);
-        failsafeTimer = null;
-    }
     // 切换 <html> 上的类名，这将触发 CSS 过渡效果，使页面平滑淡入。
     document.documentElement.classList.remove('translation-in-progress');
     document.documentElement.classList.add('translation-complete');
