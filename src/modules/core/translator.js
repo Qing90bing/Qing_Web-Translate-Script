@@ -17,7 +17,7 @@
  *     - 提供 `deleteElement` 方法，允许外部模块（如 `observers.js`）在 DOM 变动时精确地使单个元素的缓存失效。
  */
 
-import { ALL_UNTRANSLATABLE_TAGS, BLOCKS_CONTENT_ONLY, attributesToTranslate, BLOCKED_CSS_CLASSES } from '../../config.js';
+import { ALL_UNTRANSLATABLE_TAGS, BLOCKS_ALL_TRANSLATION, BLOCKS_CONTENT_ONLY, attributesToTranslate, BLOCKED_CSS_CLASSES } from '../../config.js';
 import { log, debug, translateLog, perf } from '../utils/logger.js';
 
 /**
@@ -35,7 +35,7 @@ import { log, debug, translateLog, perf } from '../utils/logger.js';
 export function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = [], pseudoRules = []) {
     // --- 模块内部状态 ---
     // 通过闭包来管理每个翻译器实例的状态，确保实例之间互不干扰。
-    
+
     // Shadow Root 发现回调 (由 observers.js 注入)
     let shadowRootFoundCallback = null;
 
@@ -52,7 +52,7 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
     let regexRules = regexArr;
     let translationCache = new Map(); // 缓存已翻译的文本片段，避免对相同文本的重复计算。
     let translatedElements = new WeakSet(); // 使用 WeakSet 存储已处理过的元素节点，防止重复翻译，且不会阻止垃圾回收。
-    
+
     // 合并全局配置和网站特定配置，构建最终的禁止翻译元素列表。
     const blockedElements = new Set([...ALL_UNTRANSLATABLE_TAGS]);
     const blockedElementSelectors = blockedSelectors || [];
@@ -88,30 +88,98 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
         return false;
     }
 
+    // --- 3. 位掩码优化 (Bitmask Optimization) ---
+    // 为了极致的运行时性能，我们将标签检查逻辑从 Set 查找 (O(1) ~ O(log N)) 优化为位掩码操作 (O(1), CPU 指令级)。
+    // 虽然 Set 已经很快，但在每帧处理成千上万个 DOM 节点时，节省的每一纳秒都能减少主线程阻塞。
+
+    /**
+     * @constant {number} MASK_NO_TRANSLATE
+     * @description 位掩码：表示该标签完全禁止翻译（包括内容和属性）。
+     * 二进制: 0001 (十进制: 1)
+     */
+    const MASK_NO_TRANSLATE = 1;
+
+    /**
+     * @constant {number} MASK_CONTENT_ONLY
+     * @description 位掩码：表示该标签仅禁止翻译文本内容，但允许翻译属性。
+     * 二进制: 0010 (十进制: 2)
+     */
+    const MASK_CONTENT_ONLY = 2;
+
+    /**
+     * @constant {Object<string, number>} TAG_FLAGS
+     * @description 标签名到位掩码的静态映射表。
+     * 使用对象字面量作为查找表，在这类高频各异的字符串查找中通常比 Map 更快（V8 隐藏类优化）。
+     * 
+     * **动态初始化**:
+     * 为了确保 `config.js` 是唯一的“真理来源 (Single Source of Truth)”，
+     * 我们不再此处硬编码标签，而是从 `config.js` 导入的 Set 中动态构建此表。
+     * 这样，用户只需修改 `config.js`，此处逻辑会自动同步，无需担忧维护问题。
+     */
+    const TAG_FLAGS = {};
+
+    // 1. 注册完全禁止的标签 (Mask: 1)
+    // 为了应对 SVG 或 XHTML 可能返回小写 tagName 的情况，同时注册大写和小写形式。
+    BLOCKS_ALL_TRANSLATION.forEach(tag => {
+        TAG_FLAGS[tag.toUpperCase()] = MASK_NO_TRANSLATE;
+        TAG_FLAGS[tag.toLowerCase()] = MASK_NO_TRANSLATE;
+    });
+
+    // 2. 注册仅禁止内容的标签 (Mask: 2)
+    BLOCKS_CONTENT_ONLY.forEach(tag => {
+        const upperTag = tag.toUpperCase();
+        const lowerTag = tag.toLowerCase();
+
+        // 辅助函数：安全地合并标志位
+        const mergeFlag = (key, mask) => {
+            // 如果该标签已经被标记为 NO_TRANSLATE，则不降级为 CONTENT_ONLY。
+            if ((TAG_FLAGS[key] & MASK_NO_TRANSLATE) !== MASK_NO_TRANSLATE) {
+                TAG_FLAGS[key] = (TAG_FLAGS[key] || 0) | mask;
+            }
+        };
+
+        mergeFlag(upperTag, MASK_CONTENT_ONLY);
+        mergeFlag(lowerTag, MASK_CONTENT_ONLY);
+    });
+
     /**
      * @function isElementBlocked
-     * @description 检查一个元素是否应该被阻止翻译。此函数是“原子”检查，仅检查元素自身，不检查祖先。
+     * @description 检查一个元素是否应该被阻止翻译。
+     * **优化说明**: 使用位掩码 (Bitmask) 替代 `Set.has()`。
+     * 
      * @param {Element} element - 要检查的 DOM 元素。
      * @returns {boolean} 如果元素应被阻止，则返回 true。
      */
     function isElementBlocked(element) {
-        // 优先检查 isContentEditable，因为这是不应翻译的强信号。
+        // 1. 检查 isContentEditable (最昂贵的 DOM 属性访问之一，但必须检查)
+        // 这是一个动态属性，无法缓存到静态表中。
         if (element.isContentEditable) return true;
 
-        const tagName = element.tagName?.toLowerCase();
-        // 检查标签名是否在全局禁止列表中 (如 <style>, <script>)。
-        if (blockedElements.has(tagName)) return true;
+        // 2. 获取标签名
+        const tagName = element.tagName; // tagName 通常是大写的，直接使用避免 toLowerCase() 开销
 
-        // 检查元素是否具有被阻止的 CSS 类名。
-        if (element.classList) {
+        // 3. 位掩码查找
+        // 这一步极快。如果 TAG_FLAGS[tagName] 是 undefined (假值)，则说明该标签不在任何禁止列表中。
+        // 如果是数字 (真值)，我们需要进一步检查它是否包含 MASK_NO_TRANSLATE 位。
+        const flags = TAG_FLAGS[tagName];
+
+        // 使用位与运算 (&) 检查特定位是否被置位。
+        // 逻辑：如果 (flags & MASK_NO_TRANSLATE) 的结果不为 0，说明 MASK_NO_TRANSLATE 位是 1。
+        if (flags & MASK_NO_TRANSLATE) return true;
+
+        // 4. 检查 CSS 类名 (无法避免的 DOMList 遍历，但放在最后做)
+        if (element.classList && element.classList.length > 0) {
+            // 优化：for...of 循环比 forEach 稍微快一点点，且支持 break
             for (const className of element.classList) {
                 if (BLOCKED_CSS_CLASSES.has(className)) return true;
             }
         }
 
-        // 检查元素是否匹配网站特定的禁止选择器。
-        for (const selector of blockedElementSelectors) {
-            if (element.matches?.(selector)) return true;
+        // 5. 检查网站特定的选择器 (最慢的部分)
+        if (blockedElementSelectors.length > 0) {
+            for (const selector of blockedElementSelectors) {
+                if (element.matches(selector)) return true;
+            }
         }
 
         return false;
@@ -119,26 +187,22 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
 
     /**
      * @function isInsideBlockedElement
-     * @description (漏洞修复版) 检查一个元素本身或其任何祖先元素（包括 Shadow DOM 的宿主）是否匹配“翻译禁区”规则。
-     *              这确保了屏蔽规则能正确地“继承”并“跨越” Shadow DOM 边界。
+     * @description (漏洞修复版) 检查一个元素本身或其任何祖先元素是否匹配“翻译禁区”规则。
      * @param {Element} element - 要检查的 DOM 元素。
      * @returns {boolean} 如果元素位于“翻译禁区”内，则返回 true。
      */
     function isInsideBlockedElement(element) {
         let current = element;
-        // 向上遍历DOM树，包括跨越 Shadow DOM 的边界
         while (current) {
-            // 在每个层级上，调用 isElementBlocked 进行“原子”检查
+            // 在每一层调用优化后的 isElementBlocked
             if (isElementBlocked(current)) {
                 return true;
             }
 
             const root = current.getRootNode();
-            // 如果到达了 Shadow Root 的顶层，则跳到其宿主元素 (host) 继续向上遍历
             if (root instanceof ShadowRoot) {
                 current = root.host;
             } else {
-                // 否则，在常规 DOM 中正常向上遍历
                 current = current.parentElement;
             }
         }
@@ -238,33 +302,33 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
 
         // 辅助函数：处理单个伪类型
         const handleType = (type) => {
-             // 检查是否手动配置了伪元素规则 (虽然现在是通用的，但保留对旧配置的兼容或特定优化)
-             // 实际上通用方案不需要检查 pseudoRules，但如果用户只想翻译特定元素，
-             // 我们这里采用“默认全检查”的策略，因为性能主要由调用方 (mouseover/TreeWalker) 控制。
-             // 如果在 TreeWalker 中调用，会非常频繁，所以 getComputedStyle 的开销需要注意。
-             // 优化：TreeWalker 中可能只对 pseudoRules 中定义的元素调用？
-             // 不，现在要求是“通用”。
-             // 为了避免遍历时的性能灾难，我们在 translateElement (主遍历) 中
-             // 应该只对 pseudoRules 里的调用 (如果存在)。
-             // 而 mouseover 事件触发的调用是针对特定元素的，可以做全检查。
-             // 
-             // 等等，如果现在是 zero-config，那 TreeWalker 里怎么知道该检查谁？
-             // 如果对页面上每个元素都做 getComputedStyle，性能会爆炸。
-             // 因此：**通用方案主要依赖 mouseover (交互式)**。
-             // 对于静态显示的伪元素 (非 hover)，如果用户没有配置，我们很难低成本地自动发现。
-             // 所以：
-             // 1. 如果有 pseudoRules，translateElement 会处理它们 (静态显示)。
-             // 2. 无论有没有 pseudoRules，mouseover 都会尝试翻译鼠标下的元素 (动态/交互显示)。
-             
-             try {
+            // 检查是否手动配置了伪元素规则 (虽然现在是通用的，但保留对旧配置的兼容或特定优化)
+            // 实际上通用方案不需要检查 pseudoRules，但如果用户只想翻译特定元素，
+            // 我们这里采用“默认全检查”的策略，因为性能主要由调用方 (mouseover/TreeWalker) 控制。
+            // 如果在 TreeWalker 中调用，会非常频繁，所以 getComputedStyle 的开销需要注意。
+            // 优化：TreeWalker 中可能只对 pseudoRules 中定义的元素调用？
+            // 不，现在要求是“通用”。
+            // 为了避免遍历时的性能灾难，我们在 translateElement (主遍历) 中
+            // 应该只对 pseudoRules 里的调用 (如果存在)。
+            // 而 mouseover 事件触发的调用是针对特定元素的，可以做全检查。
+            // 
+            // 等等，如果现在是 zero-config，那 TreeWalker 里怎么知道该检查谁？
+            // 如果对页面上每个元素都做 getComputedStyle，性能会爆炸。
+            // 因此：**通用方案主要依赖 mouseover (交互式)**。
+            // 对于静态显示的伪元素 (非 hover)，如果用户没有配置，我们很难低成本地自动发现。
+            // 所以：
+            // 1. 如果有 pseudoRules，translateElement 会处理它们 (静态显示)。
+            // 2. 无论有没有 pseudoRules，mouseover 都会尝试翻译鼠标下的元素 (动态/交互显示)。
+
+            try {
                 const pseudoStyle = window.getComputedStyle(element, `::${type}`);
                 const content = pseudoStyle.getPropertyValue('content');
-                
+
                 // content 通常返回带引号的字符串，如 '"text"' 或 'none'
                 if (content && content !== 'none' && content !== 'normal') {
                     // 移除首尾的引号 (支持单引号或双引号)
                     const cleanContent = content.replace(/^['"]|['"]$/g, '');
-                    
+
                     if (cleanContent.trim()) {
                         const translated = translateText(cleanContent);
                         // 关键：只有当**确实发生了翻译**时，才设置 data 属性。
@@ -279,9 +343,9 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                         }
                     }
                 }
-             } catch (e) {
+            } catch (e) {
                 // 忽略错误
-             }
+            }
         };
 
         handleType('before');
@@ -307,8 +371,12 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
             return;
         }
 
-        const tagName = element.tagName?.toLowerCase();
-        const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
+        const tagName = element.tagName; // 优化：直接使用大写 tagName，避免 toLowerCase
+
+        // 位掩码优化：检查是否仅屏蔽内容
+        // 逻辑：如果 (flags & MASK_CONTENT_ONLY) 不为 0，则为真。
+        const flags = TAG_FLAGS[tagName] || 0;
+        const isContentBlocked = (flags & MASK_CONTENT_ONLY) !== 0;
 
         // --- 1. 单次遍历处理文本和属性 ---
         // 核心性能优化：
@@ -322,14 +390,14 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                 // 即使整段翻译成功，我们仍需检查伪元素
                 // (仅对配置中明确指定的，以避免性能损耗)
                 if (element instanceof Element && pseudoRules.length > 0) {
-                     // 旧逻辑：检查是否匹配配置
-                     for(const rule of pseudoRules) {
-                        if(element.matches(rule.selector)) {
+                    // 旧逻辑：检查是否匹配配置
+                    for (const rule of pseudoRules) {
+                        if (element.matches(rule.selector)) {
                             // 这里可以调用通用翻译函数，因为它现在是安全的
-                            translatePseudoElements(element); 
-                            break; 
+                            translatePseudoElements(element);
+                            break;
                         }
-                     }
+                    }
                 }
                 translatedElements.add(element);
                 return;
@@ -346,7 +414,7 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                         // 接受元素节点，以便在循环中处理其属性
                         return NodeFilter.FILTER_ACCEPT;
                     }
-                    
+
                     // 对于文本节点：
                     if (node.nodeType === Node.TEXT_NODE) {
                         if (!node.nodeValue?.trim()) {
@@ -355,23 +423,23 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                         // 文本节点被接受，将在循环中处理
                         return NodeFilter.FILTER_ACCEPT;
                     }
-                    
+
                     return NodeFilter.FILTER_SKIP;
                 }
             });
 
             // 处理根元素本身的属性和伪元素（如果根元素不是 ShadowRoot 且未被屏蔽）
             if (element instanceof Element && !isElementBlocked(element)) {
-                 translateAttributes(element);
-                 // 仅当存在显式配置时，在遍历阶段处理伪元素
-                 if (pseudoRules.length > 0) {
-                     for(const rule of pseudoRules) {
-                        if(element.matches(rule.selector)) {
+                translateAttributes(element);
+                // 仅当存在显式配置时，在遍历阶段处理伪元素
+                if (pseudoRules.length > 0) {
+                    for (const rule of pseudoRules) {
+                        if (element.matches(rule.selector)) {
                             translatePseudoElements(element);
                             break;
                         }
-                     }
-                 }
+                    }
+                }
             }
 
             while (walker.nextNode()) {
@@ -386,18 +454,18 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                 } else if (node.nodeType === Node.ELEMENT_NODE) {
                     // 处理元素属性
                     translateAttributes(node);
-                    
+
                     // 仅当存在显式配置时，在遍历阶段处理伪元素
                     // 注意：通用自动翻译主要依赖 mouseover，因为在此处对所有元素做 computedStyle 太慢
                     if (pseudoRules.length > 0) {
-                        for(const rule of pseudoRules) {
-                            if(node.matches(rule.selector)) {
+                        for (const rule of pseudoRules) {
+                            if (node.matches(rule.selector)) {
                                 translatePseudoElements(node);
                                 break;
                             }
                         }
                     }
-                    
+
                     // (漏洞修复) 在遍历过程中，实时检查并递归进入 Shadow DOM。
                     // 这是支持嵌套 Web Components 的关键。
                     if (node.shadowRoot) {
@@ -408,18 +476,18 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                 }
             }
         } else {
-             // 如果内容被屏蔽，但我们仍可能需要处理根元素的属性（虽然通常 BLOCKS_CONTENT_ONLY 意味着完全忽略内容）
-             // 原有逻辑是如果 isContentBlocked，跳过文本翻译步骤，直接进入属性翻译步骤。
-             // 为了保持兼容，如果 isContentBlocked，我们仅处理属性。
-             // 这种情况下，我们需要回退到遍历元素处理属性，因为 TreeWalker 可能会被我们的逻辑跳过？
-             // 不，如果 isContentBlocked (例如 script/style)，其实通常也不需要翻译属性。
-             // 但为了保险，针对 isContentBlocked 为 true 的情况（极少数），我们可以保留简单的处理。
-             // 实际上 BLOCKS_CONTENT_ONLY 目前代码中没有看到具体定义，假设它是空的或特定的。
-             // 如果 isContentBlocked，原有逻辑是跳过文本处理，继续做属性处理。
-             // 我们可以简单地只对该元素本身做属性处理，或者递归？
-             // 鉴于 isContentBlocked 的元素通常不包含需要翻译的子元素属性（如 code 块），
-             // 我们这里仅处理当前元素的属性即可。
-             if (element instanceof Element) translateAttributes(element);
+            // 如果内容被屏蔽，但我们仍可能需要处理根元素的属性（虽然通常 BLOCKS_CONTENT_ONLY 意味着完全忽略内容）
+            // 原有逻辑是如果 isContentBlocked，跳过文本翻译步骤，直接进入属性翻译步骤。
+            // 为了保持兼容，如果 isContentBlocked，我们仅处理属性。
+            // 这种情况下，我们需要回退到遍历元素处理属性，因为 TreeWalker 可能会被我们的逻辑跳过？
+            // 不，如果 isContentBlocked (例如 script/style)，其实通常也不需要翻译属性。
+            // 但为了保险，针对 isContentBlocked 为 true 的情况（极少数），我们可以保留简单的处理。
+            // 实际上 BLOCKS_CONTENT_ONLY 目前代码中没有看到具体定义，假设它是空的或特定的。
+            // 如果 isContentBlocked，原有逻辑是跳过文本处理，继续做属性处理。
+            // 我们可以简单地只对该元素本身做属性处理，或者递归？
+            // 鉴于 isContentBlocked 的元素通常不包含需要翻译的子元素属性（如 code 块），
+            // 我们这里仅处理当前元素的属性即可。
+            if (element instanceof Element) translateAttributes(element);
         }
 
         /**
@@ -433,7 +501,7 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
             // 但对于根元素，或者通过其他方式进入的元素，可能需要检查。
             // 在 TreeWalker 循环中，node 是通过 acceptNode (即 !isElementBlocked) 的。
             // 且其父级也没被 REJECT。所以这里是安全的。
-            
+
             // 遍历元素的所有属性，应用三级优先级翻译模型。
             for (const attr of el.attributes) {
                 const attrName = attr.name;

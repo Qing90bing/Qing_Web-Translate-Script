@@ -15454,17 +15454,38 @@
       }
       return false;
     }
+    const MASK_NO_TRANSLATE = 1;
+    const MASK_CONTENT_ONLY = 2;
+    const TAG_FLAGS = {};
+    BLOCKS_ALL_TRANSLATION.forEach((tag) => {
+      TAG_FLAGS[tag.toUpperCase()] = MASK_NO_TRANSLATE;
+      TAG_FLAGS[tag.toLowerCase()] = MASK_NO_TRANSLATE;
+    });
+    BLOCKS_CONTENT_ONLY.forEach((tag) => {
+      const upperTag = tag.toUpperCase();
+      const lowerTag = tag.toLowerCase();
+      const mergeFlag = (key, mask) => {
+        if ((TAG_FLAGS[key] & MASK_NO_TRANSLATE) !== MASK_NO_TRANSLATE) {
+          TAG_FLAGS[key] = (TAG_FLAGS[key] || 0) | mask;
+        }
+      };
+      mergeFlag(upperTag, MASK_CONTENT_ONLY);
+      mergeFlag(lowerTag, MASK_CONTENT_ONLY);
+    });
     function isElementBlocked(element) {
       if (element.isContentEditable) return true;
-      const tagName = element.tagName?.toLowerCase();
-      if (blockedElements.has(tagName)) return true;
-      if (element.classList) {
+      const tagName = element.tagName;
+      const flags = TAG_FLAGS[tagName];
+      if (flags & MASK_NO_TRANSLATE) return true;
+      if (element.classList && element.classList.length > 0) {
         for (const className of element.classList) {
           if (BLOCKED_CSS_CLASSES.has(className)) return true;
         }
       }
-      for (const selector of blockedElementSelectors) {
-        if (element.matches?.(selector)) return true;
+      if (blockedElementSelectors.length > 0) {
+        for (const selector of blockedElementSelectors) {
+          if (element.matches(selector)) return true;
+        }
       }
       return false;
     }
@@ -15567,8 +15588,9 @@
         translatedElements.add(element);
         return;
       }
-      const tagName = element.tagName?.toLowerCase();
-      const isContentBlocked = BLOCKS_CONTENT_ONLY.has(tagName);
+      const tagName = element.tagName;
+      const flags = TAG_FLAGS[tagName] || 0;
+      const isContentBlocked = (flags & MASK_CONTENT_ONLY) !== 0;
       if (!isContentBlocked) {
         if (translateElementContent(element)) {
           if (element instanceof Element && pseudoRules.length > 0) {
