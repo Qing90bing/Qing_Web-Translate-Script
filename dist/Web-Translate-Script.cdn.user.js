@@ -2194,49 +2194,44 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     registerMenuCommands();
   }
 
+  // src/config.js
+  var BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(['script', 'style', 'pre', 'code', 'svg']);
+  var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set([]);
+  var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
+  var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
+  var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate', 'kbd']);
+  var ANTI_FLICKER_TIMEOUT = 5e3;
+
   // src/modules/ui/anti-flicker.js
   var STYLE_ID = 'anti-flicker-style';
+  var failsafeTimer = null;
   function injectAntiFlickerStyle() {
     if (!document.documentElement) {
+      return;
+    }
+    if (document.getElementById(STYLE_ID)) {
       return;
     }
     document.documentElement.classList.add('translation-in-progress');
     const antiFlickerStyle = document.createElement('style');
     antiFlickerStyle.id = STYLE_ID;
-    const styleContent = `
-        /* 当 <html> 标签有 'translation-in-progress' 类时，隐藏 <body> */
-        html.translation-in-progress body {
-            visibility: hidden !important;
-            opacity: 0 !important;
-        }
-        /* 当翻译完成后，此类被添加，使 <body> 平滑地淡入显示 */
-        html.translation-complete body {
-            visibility: visible !important;
-            opacity: 1 !important;
-            transition: opacity 0.1s ease-in !important;
-        }
-        /*
-         * 一个重要的例外：即使在隐藏 body 时，也要保持常见的加载指示器 (spinner/loader) 可见。
-         * 这可以避免让用户误以为页面卡死或未加载，提升了等待期间的体验。
-         */
-        html.translation-in-progress [class*="load"],
-        html.translation-in-progress [class*="spin"],
-        html.translation-in-progress [id*="load"],
-        html.translation-in-progress [id*="spin"],
-        html.translation-in-progress .loader,
-        html.translation-in-progress .spinner,
-        html.translation-in-progress .loading {
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-    `;
+    const styleContent = 'html.translation-in-progress body{visibility:hidden!important;opacity:0!important}html.translation-complete body{visibility:visible!important;opacity:1!important;transition:opacity .1s ease-in!important}html.translation-in-progress [class*="load"],html.translation-in-progress [class*="spin"],html.translation-in-progress [id*="load"],html.translation-in-progress [id*="spin"],html.translation-in-progress .loader,html.translation-in-progress .spinner,html.translation-in-progress .loading{visibility:visible!important;opacity:1!important}';
     antiFlickerStyle.appendChild(document.createTextNode(styleContent));
     const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
     head.insertBefore(antiFlickerStyle, head.firstChild);
+    if (failsafeTimer) clearTimeout(failsafeTimer);
+    failsafeTimer = setTimeout(() => {
+      console.warn('[Qing Web Translate] Anti-Flicker Safety Valve Triggered: Force showing page due to timeout.');
+      removeAntiFlickerStyle();
+    }, ANTI_FLICKER_TIMEOUT);
   }
   function removeAntiFlickerStyle() {
     if (!document.documentElement) {
       return;
+    }
+    if (failsafeTimer) {
+      clearTimeout(failsafeTimer);
+      failsafeTimer = null;
     }
     document.documentElement.classList.remove('translation-in-progress');
     document.documentElement.classList.add('translation-complete');
@@ -2247,13 +2242,6 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       }
     }, 100);
   }
-
-  // src/config.js
-  var BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(['script', 'style', 'pre', 'code', 'svg']);
-  var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set([]);
-  var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
-  var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
-  var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate', 'kbd']);
 
   // src/modules/core/translator.js
   function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = [], pseudoRules = []) {

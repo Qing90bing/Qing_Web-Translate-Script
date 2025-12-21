@@ -14,9 +14,12 @@
  *
  * 这种策略确保了用户看到的始终是翻译完成后的最终内容，从而消除了闪烁现象。
  */
+import { ANTI_FLICKER_TIMEOUT } from '../../config.js';
 
 // 用于标识防闪烁样式标签的唯一 ID，方便后续移除。
 const STYLE_ID = 'anti-flicker-style';
+// 安全阀超时时间 (毫秒)，防止页面因脚本错误而永久白屏
+let failsafeTimer = null;
 
 /**
  * @function injectAntiFlickerStyle
@@ -29,48 +32,39 @@ export function injectAntiFlickerStyle() {
     if (!document.documentElement) {
         return;
     }
-    
+
+    // 幂等性检查：防止重复注入样式
+    if (document.getElementById(STYLE_ID)) {
+        return;
+    }
+
     document.documentElement.classList.add('translation-in-progress');
 
     const antiFlickerStyle = document.createElement('style');
     antiFlickerStyle.id = STYLE_ID;
-    
-    const styleContent = `
-        /* 当 <html> 标签有 'translation-in-progress' 类时，隐藏 <body> */
-        html.translation-in-progress body {
-            visibility: hidden !important;
-            opacity: 0 !important;
-        }
-        /* 当翻译完成后，此类被添加，使 <body> 平滑地淡入显示 */
-        html.translation-complete body {
-            visibility: visible !important;
-            opacity: 1 !important;
-            transition: opacity 0.1s ease-in !important;
-        }
-        /*
-         * 一个重要的例外：即使在隐藏 body 时，也要保持常见的加载指示器 (spinner/loader) 可见。
-         * 这可以避免让用户误以为页面卡死或未加载，提升了等待期间的体验。
-         */
-        html.translation-in-progress [class*="load"],
-        html.translation-in-progress [class*="spin"],
-        html.translation-in-progress [id*="load"],
-        html.translation-in-progress [id*="spin"],
-        html.translation-in-progress .loader,
-        html.translation-in-progress .spinner,
-        html.translation-in-progress .loading {
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-    `;
+
+    // CSS 优化：已压缩以提升性能。
+    // 1. 隐藏 body (translation-in-progress)
+    // 2. 显示 body (translation-complete) 并使用过渡效果
+    // 3. 保持加载动画可见 (spinner/loader/loading)
+    const styleContent = 'html.translation-in-progress body{visibility:hidden!important;opacity:0!important}html.translation-complete body{visibility:visible!important;opacity:1!important;transition:opacity .1s ease-in!important}html.translation-in-progress [class*="load"],html.translation-in-progress [class*="spin"],html.translation-in-progress [id*="load"],html.translation-in-progress [id*="spin"],html.translation-in-progress .loader,html.translation-in-progress .spinner,html.translation-in-progress .loading{visibility:visible!important;opacity:1!important}';
 
     // 使用 `appendChild(document.createTextNode(...))` 的方式来设置样式内容，
     // 这是一种更安全、更能兼容严格内容安全策略 (CSP) 和 Trusted Types 的方法。
     antiFlickerStyle.appendChild(document.createTextNode(styleContent));
-    
+
     // 此处 `document.documentElement` 已保证存在。
     const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
     // 使用 `insertBefore` 将样式插入到 <head> 的最前面，确保它能优先于其他样式被应用。
     head.insertBefore(antiFlickerStyle, head.firstChild);
+
+    // 启动安全阀倒计时
+    // 如果在指定时间内没有移除样式（即翻译未完成），强制移除以恢复页面显示
+    if (failsafeTimer) clearTimeout(failsafeTimer);
+    failsafeTimer = setTimeout(() => {
+        console.warn('[Qing Web Translate] Anti-Flicker Safety Valve Triggered: Force showing page due to timeout.');
+        removeAntiFlickerStyle();
+    }, ANTI_FLICKER_TIMEOUT);
 }
 
 /**
@@ -82,6 +76,12 @@ export function removeAntiFlickerStyle() {
     // 再次添加保护，以防万一。
     if (!document.documentElement) {
         return;
+    }
+
+    // 清除安全阀的一倒计时，因为可以正常移除了
+    if (failsafeTimer) {
+        clearTimeout(failsafeTimer);
+        failsafeTimer = null;
     }
     // 切换 <html> 上的类名，这将触发 CSS 过渡效果，使页面平滑淡入。
     document.documentElement.classList.remove('translation-in-progress');

@@ -62,4 +62,14 @@ export const attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt
  * @example
  * // <p class="notranslate">This text will be ignored.</p>
  */
-export const BLOCKED_CSS_CLASSES = new Set(['notranslate','kbd'],);
+export const BLOCKED_CSS_CLASSES = new Set(['notranslate', 'kbd'],);
+
+// --- 超时配置 ---
+
+/**
+ * @const {number} ANTI_FLICKER_TIMEOUT
+ * @description
+ * 防闪烁机制的安全阀超时时间（毫秒）。
+ * 如果在指定时间内翻译未完成，将强制显示页面，防止永久白屏。
+ */
+export const ANTI_FLICKER_TIMEOUT = 5000;
