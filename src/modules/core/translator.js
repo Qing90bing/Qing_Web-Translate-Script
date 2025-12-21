@@ -151,21 +151,19 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
      * @returns {boolean} 如果元素应被阻止，则返回 true。
      */
     function isElementBlocked(element) {
-        // 1. 检查 isContentEditable (最昂贵的 DOM 属性访问之一，但必须检查)
-        // 这是一个动态属性，无法缓存到静态表中。
-        if (element.isContentEditable) return true;
-
-        // 2. 获取标签名
+        // 1. 获取标签名
         const tagName = element.tagName; // tagName 通常是大写的，直接使用避免 toLowerCase() 开销
 
-        // 3. 位掩码查找
-        // 这一步极快。如果 TAG_FLAGS[tagName] 是 undefined (假值)，则说明该标签不在任何禁止列表中。
-        // 如果是数字 (真值)，我们需要进一步检查它是否包含 MASK_NO_TRANSLATE 位。
+        // 2. 位掩码优化：优先进行极速检查 (O(1))
+        // 如果 TAG_FLAGS[tagName] 是 undefined (假值)，则说明该标签不在任何禁止列表中。
         const flags = TAG_FLAGS[tagName];
 
         // 使用位与运算 (&) 检查特定位是否被置位。
-        // 逻辑：如果 (flags & MASK_NO_TRANSLATE) 的结果不为 0，说明 MASK_NO_TRANSLATE 位是 1。
         if (flags & MASK_NO_TRANSLATE) return true;
+
+        // 3. 检查 isContentEditable (较昂贵的 DOM 属性访问，排在位掩码之后)
+        // 这是一个动态属性，无法缓存到静态表中。
+        if (element.isContentEditable) return true;
 
         // 4. 检查 CSS 类名 (无法避免的 DOMList 遍历，但放在最后做)
         if (element.classList && element.classList.length > 0) {
@@ -222,6 +220,13 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
         if (translationCache.has(originalText)) {
             return translationCache.get(originalText);
         }
+
+        // 内存保护：简单粗暴但有效的 LRU 近似策略
+        // 如果缓存过大，直接清空，防止特定页面（如无限滚动流）导致内存泄漏。
+        if (translationCache.size > 5000) {
+            translationCache.clear();
+        }
+
         const trimmedText = text.trim();
         if (trimmedText === '') return text;
         let translatedText = text;
@@ -247,10 +252,14 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                 }
             }
         }
-        // 4. 如果文本被修改过，则将其存入缓存。
-        if (hasChanged) {
-            translationCache.set(originalText, translatedText);
-        }
+
+        // 4. 结果缓存 (Memoization)
+        // 优化：无论是否翻译成功，都缓存结果。
+        // 之前的逻辑只缓存成功的翻译 (hasChanged)。
+        // 现在我们缓存所有结果，包括那些“不需要翻译”的文本。
+        // 这极大地避免了对同一段常见文本（如 "Share", "Like", "123"）重复执行昂贵的正则遍历 (O(N*M))。
+        translationCache.set(originalText, translatedText);
+
         return translatedText;
     }
 

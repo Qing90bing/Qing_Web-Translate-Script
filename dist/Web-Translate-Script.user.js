@@ -15473,10 +15473,10 @@
       mergeFlag(lowerTag, MASK_CONTENT_ONLY);
     });
     function isElementBlocked(element) {
-      if (element.isContentEditable) return true;
       const tagName = element.tagName;
       const flags = TAG_FLAGS[tagName];
       if (flags & MASK_NO_TRANSLATE) return true;
+      if (element.isContentEditable) return true;
       if (element.classList && element.classList.length > 0) {
         for (const className of element.classList) {
           if (BLOCKED_CSS_CLASSES.has(className)) return true;
@@ -15510,6 +15510,9 @@
       if (translationCache.has(originalText)) {
         return translationCache.get(originalText);
       }
+      if (translationCache.size > 5e3) {
+        translationCache.clear();
+      }
       const trimmedText = text.trim();
       if (trimmedText === '') return text;
       let translatedText = text;
@@ -15531,9 +15534,7 @@
           }
         }
       }
-      if (hasChanged) {
-        translationCache.set(originalText, translatedText);
-      }
+      translationCache.set(originalText, translatedText);
       return translatedText;
     }
     function translateElementContent(element) {
