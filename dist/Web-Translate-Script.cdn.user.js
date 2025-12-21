@@ -2696,6 +2696,56 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         observeRoot(shadowRoot);
       });
     }
+    function patchAttachShadow(win, winName) {
+      try {
+        if (!win || !win.Element || !win.Element.prototype || !win.Element.prototype.attachShadow) {
+          return false;
+        }
+        const originalAttachShadow = win.Element.prototype.attachShadow;
+        if (originalAttachShadow._isPatchedByWTS) {
+          return true;
+        }
+        const patchedAttachShadow = function (init) {
+          const shadowRoot = originalAttachShadow.call(this, init);
+          try {
+            if (shadowRoot) {
+              observeRoot(shadowRoot);
+            }
+          } catch (e) {}
+          return shadowRoot;
+        };
+        patchedAttachShadow._isPatchedByWTS = true;
+        try {
+          win.Element.prototype.attachShadow = patchedAttachShadow;
+        } catch (err) {
+          try {
+            Object.defineProperty(win.Element.prototype, 'attachShadow', {
+              value: patchedAttachShadow,
+              writable: true,
+              configurable: true,
+            });
+          } catch (err2) {
+            throw new Error(`Assignment failed: ${err.message}, DefineProperty failed: ${err2.message}`);
+          }
+        }
+        if (win.Element.prototype.attachShadow !== patchedAttachShadow) {
+          throw new Error('Patch 写入后未生效 (可能被重置或被 Proxy 拦截)');
+        }
+        log(`[${winName}] 已成功拦截 Element.prototype.attachShadow`);
+        return true;
+      } catch (e) {
+        debug(`[${winName}] 拦截 attachShadow 失败:`, e.message);
+        return false;
+      }
+    }
+    const resultWindow = patchAttachShadow(window, 'window');
+    let resultUnsafe = false;
+    if (typeof unsafeWindow !== 'undefined' && unsafeWindow !== window) {
+      resultUnsafe = patchAttachShadow(unsafeWindow, 'unsafeWindow');
+    }
+    if (!resultWindow && !resultUnsafe) {
+      log('警告: 无法在任何环境中拦截 attachShadow。动态 Shadow DOM 翻译可能会失效。这通常是由于网站严格的 CSP 或安全策略导致。');
+    }
     observeRoot(document.body);
     const initWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
       acceptNode: (n) => (n.shadowRoot ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP),

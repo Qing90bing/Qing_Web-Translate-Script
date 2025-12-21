@@ -22,7 +22,7 @@ export const claudeAiZhCn = {
   // 禁止翻译的元素选择器
   // 为每个网站提供定制化的禁止翻译元素配置
   blockedElements: [
-    '.token module','.user-message'
+    '.token module', '.user-message'
   ],
 
   // 扩展翻译元素选择器
@@ -619,6 +619,7 @@ export const claudeAiZhCn = {
     ["Failed to cancel the subscription downgrade. Please try again or contact support.", "取消订阅降级失败。请重试或联系支持。"],
     ["Track invention of the idea of “free time” - when did that start?", "追踪“空闲时间”概念的发明——它是什么时候开始的？"],
     ["At any time, the USG may inspect and seize data stored on this IS.", "美国政府可随时检查和扣押存储在此信息系统上的数据。"],
+    ["Claude is currently experiencing a temporary service disruption. We’re", "Claude 目前正在经历一次临时服务中断。我们正在"],
     ["Cover usage beyond your subscription limits by adding funds to your wallet", "通过向您的钱包充值来支付超出订阅限制的用量"],
     ["Delete and re-add connectors to edit custom OAuth Client Secrets.", "删除并重新添加连接器以编辑自定义 OAuth 客户端密钥。"],
     ["Look through my emails and tell me where I’m avoiding something important", "查看我的邮件，告诉我我在回避什么重要的事情"],
@@ -1016,6 +1017,7 @@ export const claudeAiZhCn = {
     ["Help me understand a complex topic from scratch", "帮我从头开始理解一个复杂的主题"],
     ["Includes Claude Code access and more usage", "包含 Claude Code 访问权限和更多用量"],
     ["Navigate the maze of healthcare compliance requirements", "应对复杂的医疗合规要求"],
+    ["Reaching out to support? Mention this error code:", "联系支持？提及这个错误代码："],
     ["Socket MCP server for scanning dependencies", "用于扫描依赖项的 Socket MCP 服务器"],
     ["Understand your schedule and optimize your time", "了解您的日程安排并优化您的时间"],
     ["You may have been removed from your organization.", "您可能已被从您的组织中移除。"],
@@ -1500,6 +1502,7 @@ export const claudeAiZhCn = {
     ["Help me reflect on an experience", "帮我反思一次经历"],
     ["Higher limits, priority access", "更高限制，优先访问"],
     ["Install Claude GitHub app", "安装 Claude GitHub 应用"],
+    ["Learn more about Anthropic", "了解更多关于 Anthropic"],
     ["Manage your authorization tokens", "管理您的授权令牌"],
     ["No tools provided by extension", "扩展未提供任何工具"],
     ["Open Extension Settings Folder", "打开扩展设置文件夹"],
@@ -1770,6 +1773,7 @@ export const claudeAiZhCn = {
     ["Plan special celebrations", "策划特别庆祝活动"],
     ["Please check your email", "请检查您的电子邮件"],
     ["Preview with an example...", "通过示例预览..."],
+    ["Push notifications disabled", "推送通知已禁用"],
     ["Search by organization name", "按组织名称搜索"],
     ["Select your work function", "选择您的工作职能"],
     ["Stop Claude’s response", "停止 Claude 的响应"],
@@ -1791,6 +1795,7 @@ export const claudeAiZhCn = {
     ["Chat deleted successfully.", "聊天已成功删除"],
     ["Chat, projects, and more", "聊天、项目及更多"],
     ["Child safety/sexual abuse", "儿童安全/性虐待"],
+    ["Claude will return soon", "Claude 将很快回来"],
     ["Consider innovation patterns", "考虑创新模式"],
     ["Create debugging workflows", "创建调试工作流"],
     ["Create recruiting strategies", "创建招聘策略"],
@@ -1810,6 +1815,7 @@ export const claudeAiZhCn = {
     ["Plan a development roadmap", "规划开发路线图"],
     ["Plan expansion opportunities", "规划扩张机会"],
     ["Practice salary negotiations", "练习薪资谈判"],
+    ["Push notifications enabled", "推送通知已启用"],
     ["Quiz me on python code", "考考我 Python 代码"],
     ["Remote MCP server URL", "远程 MCP 服务器 URL"],
     ["Search and reference chats", "搜索和引用聊天"],
@@ -1912,6 +1918,7 @@ export const claudeAiZhCn = {
     ["Trusted network access", "受信任的网络访问"],
     ["Upgrade to Max or Pro", "升级到 Max 或 Pro"],
     ["Write product descriptions", "撰写产品描述"],
+    [", please check back soon.", "，请稍后回来"],
     ["Ability to search the web", "能够搜索网络"],
     ["An unknown error occurred", "发生未知错误"],
     ["Analyze text and images", "分析文本和图片"],
@@ -2973,6 +2980,7 @@ export const claudeAiZhCn = {
     ["Touch Grass", "触摸草地"],
     ["Upload file", "上传文件"],
     ["Verify code", "验证代码"],
+    ["working on it", "处理中"],
     ["(Required)", "（必填）"],
     ["Acknowledged", "已确认"],
     ["Add a note", "添加备注"],
