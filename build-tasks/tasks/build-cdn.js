@@ -21,6 +21,8 @@ async function loadEmbeddedTranslations() {
   const serialize = (value) => {
     if (value instanceof RegExp) return value.toString();
     if (value === null) return 'null';
+    if (value === undefined) return 'undefined';
+    if (typeof value === 'function') return value.toString();
     if (typeof value !== 'object') {
       // 对字符串等基本类型使用JSON.stringify以正确处理转义。
       return JSON.stringify(value);
@@ -117,10 +119,10 @@ export default async function handleCdnBuild() {
     // 使用 Prettier 对整个脚本进行最终格式化，确保长字符串不会被换行
     console.log(color.green(t('buildProject.removingFormatting')));
     const finalScript = await prettier.format(rawScript, {
-        parser: 'babel',
-        semi: true,
-        singleQuote: true,
-        printWidth: 9999, // 关键：设置一个很大的值来防止自动换行
+      parser: 'babel',
+      semi: true,
+      singleQuote: true,
+      printWidth: 9999, // 关键：设置一个很大的值来防止自动换行
     });
 
     // --- 步骤 3: 将最终脚本写入文件 ---

@@ -42,7 +42,7 @@ export const wwwCurseforgeComZhCn = {
   // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
   // 示例: 'data-tip', 'data-title'
   customAttributes: [
-    // 在这里添加自定义属性
+    'data-tooltip-content', 'data-tooltip'
   ],
 
   // 自定义属性黑名单 

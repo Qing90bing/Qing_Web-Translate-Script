@@ -151,6 +151,9 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
      * @returns {boolean} 如果元素应被阻止，则返回 true。
      */
     function isElementBlocked(element) {
+        // 0. 安全检查：必须是 Element 节点 (ShadowRoot 或 TextNode 没有 matches 方法)
+        if (!(element instanceof Element)) return false;
+
         // 1. 获取标签名
         const tagName = element.tagName; // tagName 通常是大写的，直接使用避免 toLowerCase() 开销
 

@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.100-2025-12-21-cdn
+// @version      1.0.100-2025-12-22-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -436,6 +436,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Open model that can handle complex tasks with visual and text input.', '能够处理复杂的视觉和文本输入任务的开放模型'],
         ['Our best image generation model yet, engineered for creativity', '我们迄今为止最强大的图片生成模型，专为创意而生。'],
         ['Plot sin(x) from 0 to 2*pi. Generate the resulting graph image.', '绘制 sin(x) 从 0 到 2*pi 的函数图像，并生成图片'],
+        [' The specified model was not recognized. The default model will be used. ', '指定的模型未被识别，将使用默认模型。'],
         ['“Generate a hyper-realistic, studio-quality product ad...”', '“生成一则超逼真、具有专业影棚质感的产品广告...”'],
         ['Create, visualize, and rebuild sculptures using the same set of blocks.', '创建、可视化并使用相同的积木块重建雕塑'],
         ['Manage a virtual metropolis and fulfill tasks provided by Gemini.', '管理一座虚拟大都会，并完成 Gemini 下达的任务'],
@@ -607,6 +608,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Are you sure you want to delete this API key?', '你确定想要删掉该 API 密钥吗？'],
         ['Audio recording will be added to your prompt', '音频录音将被添加到您的提示词中'],
         ['Set the temperature of a room using function calls', '使用函数调用设置房间温度'],
+        ['System instructions are not supported for this model', '系统介绍不支持这个模型'],
         [' Monitor usage and more in the Dashboard ', '在仪表板中监控使用情况及其他信息'],
         ['A vintage-style poster of a local coffee shop', '一张本地咖啡店的复古风格海报'],
         ['Append to prompt and run (Ctrl + Enter)', '将提示词追加并运行（Ctrl + Enter）'],
@@ -990,6 +992,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Gemini image generation', 'Gemini 图像生成'],
         ['Get started with Gemini', '开始使用 Gemini'],
         ['Google AI Studio', 'Google AI 开发者工作台'],
+        ['Ignoring specified model', '忽略指定的模型'],
         ['Live audio-to-audio dialog', '实时音频对话'],
         ['policy-controlled features', '策略控制功能'],
         ['See original conversations', '查看原始对话'],
@@ -2281,6 +2284,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       mergeFlag(lowerTag, MASK_CONTENT_ONLY);
     });
     function isElementBlocked(element) {
+      if (!(element instanceof Element)) return false;
       const tagName = element.tagName;
       const flags = TAG_FLAGS[tagName];
       if (flags & MASK_NO_TRANSLATE) return true;
