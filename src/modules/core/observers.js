@@ -16,8 +16,8 @@
  *    - **缓存清理**: 在重新翻译一个节点之前，会先从缓存中删除该节点及其所有子节点的旧翻译，确保翻译的准确性。
  */
 
-import { log, debug, perf } from '../utils/logger.js';
-import { attributesToTranslate } from '../../config.js';
+import { log, debug } from '../utils/logger.js';
+import { attributesToTranslate } from '../../config/index.js';
 
 /**
  * @function initializeObservers

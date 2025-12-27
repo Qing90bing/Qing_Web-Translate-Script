@@ -1,5 +1,5 @@
 /**
- * @file src/config.js
+ * @file src/config/index.js
  * @description
  * 全局配置文件，定义了翻译引擎在处理 DOM 元素时的核心行为规则。
  * 此文件中的配置是通用的，适用于所有网站，用于控制哪些元素、属性或内容应该被翻译或忽略。
