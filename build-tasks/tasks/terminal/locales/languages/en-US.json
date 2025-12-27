@@ -317,6 +317,7 @@
     "indexJsUpdatedSuccess": "✅ Successfully updated index file: {0}",
     "headerTxtUpdatedSuccess": "✅ Successfully updated header file: {0}",
     "headerAlreadyExists": "⚠️  Matching directive already exists in header file: {0}",
+    "headerNotRemoved": "⚠️  @match directive in header.txt was NOT removed because translation files for this site exist in other languages.",
     "rollingBack": "Attempting to roll back all changes...",
     "fileRestored": "  -> Restored: {0}",
     "fileDeleted": "  -> Deleted: {0}",

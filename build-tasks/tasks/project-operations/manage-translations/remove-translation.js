@@ -24,6 +24,8 @@ import path from 'path';
 
 // 导入第三方库
 import inquirer from 'inquirer';
+// 导入 Prettier 用于代码格式化
+import prettier from 'prettier';
 
 // 导入本地模块
 import { color } from '../../../lib/colors.js';
@@ -184,14 +186,29 @@ async function handleRemoveTranslation() {
       let indexJsContent = fs.readFileSync(indexJsPath, 'utf-8');
       // 构建精确的正则表达式来移除 import 语句
       // 修改：import 路径现在是 ./sites/...
-      const importRegex = new RegExp(`^import\\s+\\{\\s*${variableName}\\s*\\}\\s+from\\s+'\\./sites/${fileToRemove.file}';?\\s*\\r?\\n?`, 'm');
+      // 修复：更新正则以匹配单引号或双引号，并处理可能的缩进和转义点号。
+      const escapedFileName = fileToRemove.file.replace(/\./g, '\\.');
+      const importRegex = new RegExp(`^\\s*import\\s+\\{\\s*${variableName}\\s*\\}\\s+from\\s+['"]\\./sites/${escapedFileName}['"];?\\s*`, 'm');
       indexJsContent = indexJsContent.replace(importRegex, '');
 
       // 构建精确的正则表达式来移除注册条目
       const mapEntryRegex = new RegExp(`^\\s*"${domain}#${fileToRemove.langDir}":\\s*${variableName},?\\s*\\r?\\n?`, 'm');
       indexJsContent = indexJsContent.replace(mapEntryRegex, '');
 
-      fs.writeFileSync(indexJsPath, indexJsContent);
+      // 用户要求混合风格：Import 使用单引号，Keys 使用双引号。
+      // 第一步：Prettier 统一使用单引号
+      const formattedContent = await prettier.format(indexJsContent, {
+        singleQuote: true,
+        tabWidth: 4,
+        filepath: indexJsPath,
+      });
+
+      // 第二步：使用正则将对象的键（key）强制保留为双引号
+      // 匹配模式：'domain#lang':
+      // 替换为："domain#lang":
+      const finalMixedContent = formattedContent.replace(/'([\w.-]+#[\w-]+)'\s*:/g, '"$1":');
+
+      fs.writeFileSync(indexJsPath, finalMixedContent);
       console.log(color.green(t('manageTranslations.indexJsUpdated')));
     } else {
       console.error(color.red(`Index file not found: ${indexJsPath}`));

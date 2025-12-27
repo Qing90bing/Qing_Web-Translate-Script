@@ -317,6 +317,7 @@
     "indexJsUpdatedSuccess": "✅ 成功更新 index 檔案：{0}",
     "headerTxtUpdatedSuccess": "✅ 成功更新 header 檔案：{0}",
     "headerAlreadyExists": "⚠️  header 檔案中已存在相符的指令：{0}",
+    "headerNotRemoved": "⚠️  未移除 header.txt 中的 @match 指令，因為在其他語言中仍存在此網站的翻譯檔案。",
     "rollingBack": "正在嘗試還原所有變更...",
     "fileRestored": "  -> 已還原：{0}",
     "fileDeleted": "  -> 已刪除：{0}",
