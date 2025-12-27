@@ -11,7 +11,7 @@ export const wplaceLiveZhCn = {
   createdAt: '2025-10-06',
 
   // 语言：此翻译配置适用的语言
-  language: 'zh-cn', // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文), zh-hk(中文香港)
+  language: 'zh-cn', // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文)
 
   // 启用状态：控制此翻译配置是否启用
   enabled: true,
@@ -39,7 +39,7 @@ export const wplaceLiveZhCn = {
     // '#dynamic-content',
     // '.custom-widget'
   ],
-  
+
   // 自定义属性白名单 
   // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
   // 示例: 'data-tip', 'data-title'

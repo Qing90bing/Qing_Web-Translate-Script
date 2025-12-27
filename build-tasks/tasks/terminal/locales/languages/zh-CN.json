@@ -183,7 +183,7 @@
     "promptLanguageCode": "请输入语言代码 (例如: zh-HK, ja-JP):",
     "languageCodeCannotBeEmpty": "语言代码不能为空",
     "languageCodeTooShort": "语言代码至少需要2个字符",
-    "promptLanguageName": "请输入语言名称 (例如: 繁體中文-香港, 日本語):",
+    "promptLanguageName": "请输入语言名称 (例如: 繁體中文, 日本語):",
     "languageNameCannotBeEmpty": "语言名称不能为空",
     "languageNameTooShort": "语言名称至少需要2个字符",
     "confirmAddLanguage": "确认添加语言 {0} ({1})?",

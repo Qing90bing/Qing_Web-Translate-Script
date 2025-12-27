@@ -11,7 +11,7 @@ export const wwwAvogado6ComZhCn = {
   createdAt: '2025-10-05',
 
   // 语言：此翻译配置适用的语言
-  language: 'zh-cn', // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文), zh-hk(中文香港)
+  language: 'zh-cn', // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文)
 
   // 启用状态：控制此翻译配置是否启用
   enabled: true,
@@ -19,7 +19,7 @@ export const wwwAvogado6ComZhCn = {
   // 样式 (CSS)
   // 支持编写多个CSS规则
   styles: [
-  `
+    `
     @font-face {
       font-family: 'custom-numbers';
       src: local('Palatino Linotype'), local('Book Antiqua'), local('Palatino');
@@ -38,7 +38,7 @@ export const wwwAvogado6ComZhCn = {
   blockedElements: [
     '.img_imageZoomComp'
   ],
-  
+
   // 扩展翻译元素选择器
   // 用于翻译那些默认情况下未被翻译的元素
   extendedElements: [
@@ -46,7 +46,7 @@ export const wwwAvogado6ComZhCn = {
     // '#dynamic-content',
     // '.custom-widget'
   ],
-  
+
   // 自定义属性白名单 
   // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
   // 示例: 'data-tip', 'data-title'

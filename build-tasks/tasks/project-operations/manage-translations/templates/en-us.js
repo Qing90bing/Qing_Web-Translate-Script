@@ -12,7 +12,7 @@ export const ${variableName} = {
   createdAt: '${currentDate}',
   
   // Language: The language this translation configuration applies to.
-  language: '${language}', // Supported languages: zh-cn, zh-tw, zh-hk, etc.
+  language: '${language}', // Supported languages: zh-cn, zh-tw, etc.
 
   // Enabled State: Controls whether this translation configuration is enabled.
   enabled: true,

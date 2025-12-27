@@ -23,9 +23,8 @@
  * @property {string} flag - 代表该语言/地区的旗帜表情符号，用于增强 UI 的可识别性。
  */
 export const SUPPORTED_LANGUAGES = [
-  { code: 'zh-cn', name: '简体中文-大陆', flag: '🇨🇳' },
-  { code: 'zh-hk', name: '繁體中文-香港', flag: '🇭🇰' },
-  { code: 'zh-tw', name: '繁體中文-台湾', flag: '🇹🇼' },
+  { code: 'zh-cn', name: '简体中文', flag: '🇨🇳' },
+  { code: 'zh-tw', name: '繁體中文', flag: '🇹🇼' },
 ];
 
 /**
@@ -63,7 +62,7 @@ export function addLanguage(code, name, flag) {
     console.warn(`Language ${code} already exists`);
     return false;
   }
-  
+
   // 添加新语言对象到数组中。
   SUPPORTED_LANGUAGES.push({ code, name, flag });
   return true;

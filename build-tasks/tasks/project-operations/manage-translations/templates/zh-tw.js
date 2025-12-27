@@ -12,7 +12,7 @@ export const ${variableName} = {
   createdAt: '${currentDate}',
 
   // 語言：此翻譯配置適用的語言
-  language: '${language}', // 支援的語言: zh-cn(簡體中文), zh-tw(繁體中文), zh-hk(中文香港)
+  language: '${language}', // 支援的語言: zh-cn(簡體中文), zh-tw(繁體中文)
 
   // 啟用狀態：控制此翻譯配置是否啟用
   enabled: true,

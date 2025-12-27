@@ -54,32 +54,38 @@ import { initializeTranslation } from './modules/core/translationInitializer.js'
         if (storedLang && SUPPORTED_LANGUAGE_CODES.includes(storedLang)) {
             return storedLang;
         }
-        
+
         // 优先级 3: 检查浏览器的语言设置。
         const browserLang = navigator.language || navigator.userLanguage;
         if (browserLang) {
-            // 尝试将浏览器语言（可能包含地区代码，如 'en-US'）映射到我们支持的语言代码。
-            // a. 查找完全匹配的语言代码。
-            const exactMatch = SUPPORTED_LANGUAGE_CODES.find(code => 
-                browserLang.toLowerCase() === code.toLowerCase()
+            const lowerLang = browserLang.toLowerCase();
+
+            // 1. 明确的繁体中文映射
+            // 涵盖: 香港 (zh-hk), 澳门 (zh-mo), 台湾 (zh-tw), 繁体脚本 (zh-hant)
+            if (['zh-hk', 'zh-mo', 'zh-tw', 'zh-hant'].some(code => lowerLang.includes(code))) {
+                return 'zh-tw';
+            }
+
+            // 2. 明确的简体中文映射
+            // 涵盖: 大陆 (zh-cn), 新加坡 (zh-sg), 简体脚本 (zh-hans)
+            if (['zh-cn', 'zh-sg', 'zh-hans'].some(code => lowerLang.includes(code))) {
+                return 'zh-cn';
+            }
+
+            // 3. 标准匹配逻辑 (用于其他语言或上述未匹配的情况)
+            // a. 查找完全匹配
+            const exactMatch = SUPPORTED_LANGUAGE_CODES.find(code =>
+                lowerLang === code.toLowerCase()
             );
             if (exactMatch) return exactMatch;
-            
-            // b. 查找部分匹配的语言代码（例如，浏览器是 'zh-HK'，我们支持 'zh-hk'）。
-            const partialMatch = SUPPORTED_LANGUAGE_CODES.find(code => 
-                browserLang.toLowerCase().startsWith(code.toLowerCase())
+
+            // b. 查找前缀匹配
+            const partialMatch = SUPPORTED_LANGUAGE_CODES.find(code =>
+                lowerLang.startsWith(code.toLowerCase())
             );
             if (partialMatch) return partialMatch;
-            
-            // c. 特殊处理中文变体：如果浏览器是任何中文变体（如 'zh-SG'），则回退到我们支持的第一个中文变体。
-            if (browserLang.toLowerCase().startsWith('zh')) {
-                const chineseVariant = SUPPORTED_LANGUAGE_CODES.find(code => 
-                    code.toLowerCase().startsWith('zh')
-                );
-                if (chineseVariant) return chineseVariant;
-            }
         }
-        
+
         // 优先级 4: 如果以上都失败，则默认返回我们支持的第一个语言作为后备。
         return SUPPORTED_LANGUAGE_CODES[0] || 'zh-cn';
     }
@@ -92,13 +98,13 @@ import { initializeTranslation } from './modules/core/translationInitializer.js'
      */
     function selectTranslationForSite(hostname) {
         const userLang = getUserLanguage();
-        
+
         // 尝试使用 `域名#语言` 的格式查找特定语言的词典。
         const langSpecificKey = `${hostname}#${userLang}`;
         if (translations[langSpecificKey]) {
             return translations[langSpecificKey];
         }
-        
+
         // 如果没有找到，则返回 undefined，表示此网站/语言组合没有可用的翻译。
         return undefined;
     }
@@ -117,7 +123,7 @@ import { initializeTranslation } from './modules/core/translationInitializer.js'
     }
 
     log(`开始为网站 ${window.location.hostname} 初始化翻译，使用语言: ${siteDictionary.language}`);
-    
+
     // 3. 如果找到有效的词典，则启动完整的翻译初始化流程。
     //    这里采用了依赖注入的方式，将所有需要的模块和配置传递给初始化函数。
     initializeTranslation(siteDictionary, createTranslator, removeAntiFlickerStyle, initializeObservers, log);

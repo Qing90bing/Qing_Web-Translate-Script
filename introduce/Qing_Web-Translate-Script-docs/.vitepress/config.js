@@ -165,84 +165,9 @@ export default defineConfig({
         }
       }
     },
-    // --- 繁体中文（香港）配置 ---
-    hk: {
-      label: '繁體中文 (香港)',
-      lang: 'zh-HK',
-      link: '/hk/',
-      title: "WEB 中文漢化腳本",
-      description: "提升常用網站瀏覽體驗，減少閱讀壓力 :)",
-      themeConfig: {
-        nav: [
-          { text: '主頁', link: '/hk/' },
-          { text: '安裝指南', link: '/hk/guide/introduction' }
-        ],
-        sidebar: {
-          '/hk/guide/': [
-            {
-              text: '指南',
-              items: [
-                { text: '介紹', link: '/hk/guide/introduction' },
-                { text: '開始安裝', link: '/hk/guide/getting-started' }
-              ]
-            }
-          ]
-        },
-        editLink: {
-          pattern: 'https://github.com/Qing90bing/Qing_Web-Translate-Script/edit/main/introduce/Qing_Web-Translate-Script-docs/:path',
-          text: '在 GitHub 上編輯此頁'
-        },
-        footer: {
-          message: '基於 MIT 許可發布',
-          copyright: `❤️ 版權所有 © ${copyrightYearRange} Qing90bing`
-        },
-        docFooter: {
-          prev: '上一頁',
-          next: '下一頁'
-        },
-        outline: {
-          label: '在本頁'
-        },
-        lastUpdated: {
-          text: '最後更新於'
-        },
-        notFound: {
-          title: '頁面未找到',
-          quote: '但只要不改變方向，堅持尋找，你最終會到達目的地。',
-          linkText: '返回主頁'
-        },
-        darkModeSwitchLabel: '外觀',
-        lightModeSwitchTitle: '切換至淺色模式',
-        darkModeSwitchTitle: '切換至深色模式',
-        sidebarMenuLabel: '選單',
-        returnToTopLabel: '返回頂部',
-        langMenuLabel: '切換語言',
-        skipToContentLabel: '跳至主要內容',
-        search: {
-          provider: 'local',
-          options: {
-            translations: {
-              button: {
-                buttonText: '搜尋',
-                buttonAriaLabel: '搜尋'
-              },
-              modal: {
-                noResultsText: '無法找到相關結果',
-                resetButtonTitle: '清除查詢條件',
-                footer: {
-                  selectText: '選擇',
-                  navigateText: '切換',
-                  closeText: '關閉'
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     // --- 繁体中文（台湾）配置 ---
     tw: {
-      label: '繁體中文 (台灣)',
+      label: '繁體中文',
       lang: 'zh-TW',
       link: '/tw/',
       title: "WEB 中文漢化腳本",
@@ -269,7 +194,7 @@ export default defineConfig({
         },
         footer: {
           message: '基於 MIT 許可發布',
-          copyright: `❤️ 版權所有 © ${copyrightYearRange} Qing9ing`
+          copyright: `❤️ 版權所有 © ${copyrightYearRange} Qing90bing`
         },
         docFooter: {
           prev: '上一頁',

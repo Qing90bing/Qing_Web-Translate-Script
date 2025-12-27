@@ -11,7 +11,7 @@ export const wwwCurseforgeComZhCn = {
   createdAt: '2025-12-15',
 
   // 语言：此翻译配置适用的语言
-  language: 'zh-cn', // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文), zh-hk(中文香港)
+  language: 'zh-cn', // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文)
 
   // 启用状态：控制此翻译配置是否启用
   enabled: true,
