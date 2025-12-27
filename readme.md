@@ -1,6 +1,6 @@
 <div align="center"><a name="readme-top"></a>
 
-<img src="introduce/icon/Qing_Web-Translate-Script.svg" width="100" height="100" alt="WEB 中文汉化插件图标">
+<img src="assets/icon/Qing_Web-Translate-Script.svg" width="100" height="100" alt="WEB 中文汉化插件图标">
 
 # [WEB 中文汉化脚本][github-project-link]
 
@@ -56,14 +56,14 @@
   <figure>
     <figcaption>Google AI Studio 汉化效果</figcaption>
     <div style="border-radius: 10px; overflow: hidden; margin: 10px; width: 600px;">
-      <img src="introduce/img/googleaistudio_introduce.jpg" width="700" alt="Google AI Studio 汉化效果预览" style="border-radius: 10px;">
+      <img src="assets/img/googleaistudio_introduce.jpg" width="700" alt="Google AI Studio 汉化效果预览" style="border-radius: 10px;">
     </div>
   </figure>
   <br>
   <figure>
     <figcaption>Jules 网站汉化效果</figcaption>
     <div style="border-radius: 10px; overflow: hidden; margin: 10px; width: 600px;">
-      <img src="introduce/img/jules_introduce.jpg" width="700" alt="Jules 汉化效果预览" style="border-radius: 10px;">
+      <img src="assets/img/jules_introduce.jpg" width="700" alt="Jules 汉化效果预览" style="border-radius: 10px;">
     </div>
   </figure>
 

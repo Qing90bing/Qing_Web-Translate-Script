@@ -1,4 +1,4 @@
-// 导入翻译模块
+// 导入简体中文翻译模块
 import { julesGoogleComZhCn } from './zh-cn/jules.google.com.js';
 import { aistudioGoogleComZhCn } from './zh-cn/aistudio.google.com.js';
 import { claudeAiZhCn } from './zh-cn/claude.ai.js';
@@ -29,11 +29,11 @@ export const masterTranslationMap = {
   "claude.ai#zh-cn": claudeAiZhCn,
   "platform.claude.com#zh-cn": platformClaudeComZhCn,
   "status.claude.com#zh-cn": statusClaudeComZhCn,
-// 繁体中文（香港）翻译映射
+  // 繁体中文（香港）翻译映射
   "jules.google.com#zh-hk": julesGoogleComZhHk,
   "aistudio.google.com#zh-hk": aistudioGoogleComZhHk,
   "claude.ai#zh-hk": claudeAiZhHk,
-// 繁体中文（台湾）翻译映射
+  // 繁体中文（台湾）翻译映射
   "aistudio.google.com#zh-tw": aistudioGoogleComZhTw,
   "claude.ai#zh-tw": claudeAiZhTw,
   "gemini.google.com#zh-cn": geminiGoogleComZhCn,
