@@ -102,7 +102,8 @@ async function handleAddNewTranslation() {
 
         // 检查对应的翻译文件是否已存在。
         const fileName = `${trimmedInput}.js`;
-        const filePath = path.join(process.cwd(), 'src', 'translations', language, fileName);
+        // 修改：检查 sites 子目录
+        const filePath = path.join(process.cwd(), 'src', 'translations', language, 'sites', fileName);
 
         if (fs.existsSync(filePath)) {
           return t('manageTranslations.fileAlreadyExists', color.yellow(fileName));
@@ -152,7 +153,9 @@ async function handleAddNewTranslation() {
   }
 
   // --- 步骤 3: 创建新的翻译文件 ---
-  const filePath = path.join(process.cwd(), 'src', 'translations', language, fileName);
+  // 修改：文件路径指向 sites 子目录
+  const sitesDir = path.join(process.cwd(), 'src', 'translations', language, 'sites');
+  const filePath = path.join(sitesDir, fileName);
   const currentDate = new Date().toISOString().split('T')[0]; // 获取 YYYY-MM-DD 格式的当前日期
 
   // --- 动态加载模板 ---
@@ -185,10 +188,9 @@ async function handleAddNewTranslation() {
   }
 
   try {
-    // 在写入文件前，确保目标语言的目录存在。
-    const langDir = path.join(process.cwd(), 'src', 'translations', language);
-    if (!fs.existsSync(langDir)) {
-      fs.mkdirSync(langDir, { recursive: true });
+    // 在写入文件前，确保目标语言的 sites 目录存在。
+    if (!fs.existsSync(sitesDir)) {
+      fs.mkdirSync(sitesDir, { recursive: true });
     }
 
     // 将生成的模板内容写入新文件。
@@ -200,29 +202,46 @@ async function handleAddNewTranslation() {
   }
 
   // --- 步骤 4: 更新 index.js 和 header.txt (事务性操作) ---
-  const indexJsPath = path.join(process.cwd(), 'src', 'translations', 'index.js');
+  // 修改：只更新当前语言的 index.js
+  const indexJsPath = path.join(process.cwd(), 'src', 'translations', language, 'index.js');
   const headerTxtPath = path.join(process.cwd(), 'src', 'header.txt');
   let originalIndexJsContent, originalHeaderTxtContent;
 
   try {
     // **事务开始**: 在修改前，先读取并缓存原始文件内容。
     // 这是实现回滚的关键步骤。
-    originalIndexJsContent = fs.readFileSync(indexJsPath, 'utf-8');
+    if (fs.existsSync(indexJsPath)) {
+      originalIndexJsContent = fs.readFileSync(indexJsPath, 'utf-8');
+    } else {
+      // 如果 index.js 不存在（这是可能的，如果是全新的语言），我们需要创建一个基础结构
+      // 但这里简化处理，假设 index.js 应该已经由其它过程初始化，或者我们在下面处理
+      console.error(color.red(`Error: Index file not found at ${indexJsPath}`));
+      return;
+    }
+
     originalHeaderTxtContent = fs.readFileSync(headerTxtPath, 'utf-8');
 
     // --- 4a. 更新 index.js ---
     let indexJsContent = originalIndexJsContent;
-    // 构造新的 import 语句。
-    const importStatement = `import { ${variableName} } from './${language}/${fileName}';\n`;
+    // 构造新的 import 语句。修改：路径改为相对 sites 目录
+    const importStatement = `import { ${variableName} } from './sites/${fileName}';\n`;
+
     // 找到最后一个 'import' 语句的位置，在其后插入新的 import，以保持代码整洁。
     const lastImportIndex = indexJsContent.lastIndexOf('import');
-    const nextLineIndexAfterLastImport = indexJsContent.indexOf('\n', lastImportIndex);
-    indexJsContent =
-      indexJsContent.slice(0, nextLineIndexAfterLastImport + 1) +
-      importStatement +
-      indexJsContent.slice(nextLineIndexAfterLastImport + 1);
 
-    // 找到 `masterTranslationMap` 对象的结束括号 `}`，在其前插入新的翻译条目。
+    if (lastImportIndex !== -1) {
+      const nextLineIndexAfterLastImport = indexJsContent.indexOf('\n', lastImportIndex);
+      indexJsContent =
+        indexJsContent.slice(0, nextLineIndexAfterLastImport + 1) +
+        importStatement +
+        indexJsContent.slice(nextLineIndexAfterLastImport + 1);
+    } else {
+      // 如果没有 import，则在文件开头添加
+      indexJsContent = importStatement + '\n' + indexJsContent;
+    }
+
+    // 找到 `export const xxxTranslations = {` 对象的结束括号 `}`
+    // 注意：这里假设文件末尾只有一个主要的导出对象
     const lastBraceIndex = indexJsContent.lastIndexOf('}');
     if (lastBraceIndex === -1) {
       throw new Error(t('sortTranslations.exportNotFound'));

@@ -15,14 +15,23 @@ export default async function handleFullBuild(preserveFormatting) {
   try {
     // --- 步骤 1: 使用 esbuild 执行打包 ---
     // 注意：启动消息和用户提示已移至主 build.js 文件中，以实现更好的流程控制。
+    // --- 步骤 1: 使用 esbuild 执行打包 ---
     console.log(color.bold(t('buildProject.bundlingScript')));
-    const result = await esbuild.build({
+
+    const buildOptions = {
       entryPoints: [path.resolve('src/main.js')],
       bundle: true,
       write: false,
       charset: 'utf8',
       minify: false,
-    });
+    };
+
+    // 如果不保留格式（标准构建），则启用空白压缩以自动移除注释
+    if (!preserveFormatting) {
+      buildOptions.minifyWhitespace = true;
+    }
+
+    const result = await esbuild.build(buildOptions);
 
     // --- 步骤 3: 后处理代码并组合成最终脚本 ---
     console.log(color.bold(t('buildProject.generatingFile')));
@@ -41,17 +50,20 @@ export default async function handleFullBuild(preserveFormatting) {
       finalScript = `${header}\n\n${formattedCode}`;
       console.log(color.green(t('buildProject.preservingFormatting')));
     } else {
-      bundledCode = bundledCode.replace(
-        /("(?:\\.|[^"\\])*")|('(?:\\.|[^'\\])*')|(`(?:\\.|[^`\\])*`)|(\/\*[\s\S]*?\*\/)|(\/\/.*)/g,
-        (m, dq, sq, tl) => (dq || sq || tl ? m : '')
-      );
-      bundledCode = bundledCode.replace(/^\s*description:\s*["'][\s\S]*?["'],?\s*$/gm, '');
-      bundledCode = bundledCode.replace(/^\s*testUrl:\s*["'][\s\S]*?["'],?\s*$/gm, '');
-      bundledCode = bundledCode.replace(/^\s*createdAt:\s*["'][\s\S]*?["'],?\s*$/gm, '');
+      // 在标准构建模式下，esbuild 已经移除了注释 (minifyWhitespace=true)。
+      // 我们先用 Prettier 格式化代码，使其结构化，以便后续的正则能正确匹配并移除特定属性。
       let formattedCode = await prettier.format(bundledCode, {
         parser: 'babel', semi: true, singleQuote: true, printWidth: 9999,
       });
+
+      // 移除特定的元数据属性
+      formattedCode = formattedCode.replace(/^\s*description:\s*["'][\s\S]*?["'],?\s*$/gm, '');
+      formattedCode = formattedCode.replace(/^\s*testUrl:\s*["'][\s\S]*?["'],?\s*$/gm, '');
+      formattedCode = formattedCode.replace(/^\s*createdAt:\s*["'][\s\S]*?["'],?\s*$/gm, '');
+
+      // 移除可能因为属性移除而产生的空行
       formattedCode = formattedCode.replace(/^\s*[\r\n]/gm, '');
+
       finalScript = `${header}\n\n${formattedCode}`;
       console.log(color.green(t('buildProject.removingFormatting')));
     }

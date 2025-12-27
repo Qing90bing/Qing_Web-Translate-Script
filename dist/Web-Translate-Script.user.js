@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.111-2025-12-27-offline
+// @version      1.0.120-2025-12-27-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -7374,325 +7374,6 @@
       ['Togo', '多哥'],
     ],
   };
-  var julesGoogleComZhHk = {
-    language: 'zh-hk',
-    enabled: true,
-    styles: ['.feedback-button { width: auto !important; white-space: nowrap !important; }'],
-    blockedElements: [],
-    extendedElements: [],
-    customAttributes: [],
-    blockedAttributes: [],
-    jsRules: [],
-    regexRules: [
-      [/^Step\s+(\d+)\s+of the plan is complete\.$/i, '「計劃」的第 $1 步已完成。'],
-      [/Completed\s+(\d+)\s+minutes?\s+ago/i, '$1 分鐘前完成'],
-      [/Completed\s+(\d+)\s+hours?\s+ago/i, '$1 小時前完成'],
-      [/Completed\s+(\d+)\s+seconds?\s+ago/i, '$1 秒前完成'],
-      [/Dec\s+(\d{1,2})\s+(\d{2}:\d{2})/, '12 月 $1 日 $2'],
-      [/Nov\s+(\d{1,2})\s+(\d{2}:\d{2})/, '11 月 $1 日 $2'],
-      [/Oct\s+(\d{1,2})\s+(\d{2}:\d{2})/, '10 月 $1 日 $2'],
-      [/Apr\s+(\d{1,2})\s+(\d{2}:\d{2})/, '4 月 $1 日 $2'],
-      [/Aug\s+(\d{1,2})\s+(\d{2}:\d{2})/, '8 月 $1 日 $2'],
-      [/Feb\s+(\d{1,2})\s+(\d{2}:\d{2})/, '2 月 $1 日 $2'],
-      [/Jan\s+(\d{1,2})\s+(\d{2}:\d{2})/, '1 月 $1 日 $2'],
-      [/Jul\s+(\d{1,2})\s+(\d{2}:\d{2})/, '7 月 $1 日 $2'],
-      [/Jun\s+(\d{1,2})\s+(\d{2}:\d{2})/, '6 月 $1 日 $2'],
-      [/Mar\s+(\d{1,2})\s+(\d{2}:\d{2})/, '3 月 $1 日 $2'],
-      [/May\s+(\d{1,2})\s+(\d{2}:\d{2})/, '5 月 $1 日 $2'],
-      [/Sep\s+(\d{1,2})\s+(\d{2}:\d{2})/, '9 月 $1 日 $2'],
-      [/Completed\s+(\d+)\s+days?\s+ago/i, '$1 天前完成'],
-      [/^Searching for\s+"(.+?)"$/i, '正在搜尋「$1」'],
-      [/Completed\s+<1 minute\s+ago/i, '剛剛完成'],
-      [/^Searching for\s+(.+)$/i, '正在搜尋：$1'],
-      [/(\d{1,2})\s+(\d{1,2})月/, '$2 月 $1 日'],
-      [/Read\s+([\w\.\-]+)/i, '讀取檔案：$1'],
-      [/Today\s+(\d{1,2}:\d{2})/i, '今天 $1'],
-    ],
-    textRules: [
-      ['Jules attempts to setup your environment according to hints in your codebase and agents.md. Optionally, you can provide a setup script to be run explicitly. No need for clone commands, the repo will be cloned automatically into the /app directory.', 'Jules 會嘗試根據您代碼庫中的提示和 `agents.md` 檔案來設定您的環境。您也可以選擇提供一個設定腳本來明確執行。儲存庫會自動複製到 /app 目錄，無需手動執行複製指令。'],
-      ['Let Google use your future Jules conversations and code on content Jules receives from public repositories to train its generative AI models. Opting out does not apply to any feedback you may choose to provide.', '允許 Google 使用您未來與 Jules 的對話，以及 Jules 從公開儲存庫中獲取的內容，用於訓練其生成式 AI 模型。選擇退出不適用於您可能選擇提供的任何意見回饋。'],
-      ['After a successful test of the setup script, your environment will be snapshotted for faster startups. For more information and a list of default toolsets installed see the ', '設定腳本成功測試後，系統將為您的環境建立快照，以便將來能更快啟動。如需更多資訊及預設安裝的工具組清單，請參閱'],
-      ['Google does not train its generative AI models on content Jules receives from your private repositories unless you choose to include that content along with your feedback.', '除非您在提交意見回饋時選擇包含私有儲存庫中的內容，否則 Google 不會使用這些內容來訓練其生成式 AI 模型。'],
-      ['Enable notifications to receive updates about your Jules conversations, including when a plan is created or when code is ready for review.', '啟用通知以接收關於您 Jules 對話的更新，包括當計劃建立或代碼可供審核時。'],
-      ['Jules tackles bugs, small feature requests, and other software engineering tasks, with direct export to GitHub.', 'Jules 能夠處理錯誤修復、小型功能請求及其他軟件工程任務，並能將代碼直接匯出到 GitHub。'],
-      ['Set your preferences for when you want to be contacted by the Jules team about product updates and research opportunities.', '設定您的偏好設定，以便在 Jules 團隊發布產品更新或提供研究機會時與您聯繫。'],
-      ['Jules is currently experiencing high load. You can view your existing tasks. Come back in a bit to create more tasks.', 'Jules 目前負載較高。您可以檢視現有任務，請稍後再回來建立新任務。'],
-      ["You're on the Pro plan—built for steady, high-intensity workflows. Need even more capacity?", '您正在使用專業版方案——專為穩定、高強度的工作流程而設。需要更多容量嗎？'],
-      ["Would you like to enable notifications and I'll let you know when a plan is ready or code is ready for review?", '您想啟用通知嗎？當計劃或代碼準備就緒時，我會通知您。'],
-      ["I'd like to receive emails for model updates, offers, useful tips and news about Google AI.", '我希望收到關於 Google AI 模型更新、優惠、實用技巧和相關新聞的電郵。'],
-      ["I'd like to receive invitations to participate in research studies to help improve Google AI.", '我希望能收到參與研究的邀請，以協助改善 Google AI。'],
-      ['Work with Jules to deeply understand goals before plan generation', '在產生計劃前，與 Jules 深入溝通以確實了解目標'],
-      ['Feedback submitted will include your conversation and related code.', '提交的意見回饋將包含您的對話和相關代碼。'],
-      ['Allow AI model training on content from public repositories', '允許 AI 模型使用公開儲存庫的內容進行訓練'],
-      ['submitted will include your conversation and related code', '提交的內容將包含您的對話和相關代碼'],
-      ['Jules is waiting for your input to continue working', 'Jules 正在等待您的輸入以繼續工作'],
-      ["I've inspected the frontend changes visually: ", '我已透過視覺化方式檢查了前端的變更：'],
-      ['The data structures and logic were updated as planned.', '資料結構和邏輯已按計劃更新。'],
-      ['This step was already completed in the previous plan.', '此步驟已在上一個計劃中完成。'],
-      ['Jules encountered an error when working on the task.', 'Jules 在處理任務時發生錯誤。'],
-      ['Jules is not yet available in your region.', 'Jules 目前尚未在您所在的地區提供服務。'],
-      ['Deleting a task is permanent and cannot be undone', '刪除任務是永久性的，無法復原'],
-      ['Tell us more - what went right or wrong', '告訴我們更多資訊 - 哪些地方正確或錯誤'],
-    ],
-  };
-  var aistudioGoogleComZhHk = {
-    language: 'zh-hk',
-    enabled: true,
-    styles: [],
-    blockedElements: [],
-    extendedElements: [],
-    customAttributes: [],
-    blockedAttributes: [],
-    jsRules: [],
-    regexRules: [
-      [/↩\s*Add a new line\s*\s*Alt\s*\+\s*↩\s*Append text without running\s*\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  換行 Alt + ↩  附加文字 (不執行) Ctrl + ↩  執行提示'],
-      [/Invalid JSON: SyntaxError: Unexpected token '(.+?)', "(.+?)" is not valid JSON/i, '無效的 JSON 語法錯誤：在「$2」中存在非預期的字元「$1」'],
-      [/([<>]=?)\s*(\d+K)\s+tokens\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '$1$2 Tokens | 輸入: $ $3 / 輸出: $ $4'],
-      [/Image \(\*Output per image\) • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, '圖像 (*每張圖像輸出) | 輸入: $ $1 / 輸出: $ $2'],
-      [/All context lengths\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '所有內容長度 | 輸入: $ $1 / 輸出: $ $2'],
-      [/Text • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, '文字 | 輸入：$ $1，輸出：$ $2'],
-      [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
-      [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
-      [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
-      [/Apr\s+(\d{1,2}),\s+(\d{4})/, '$2年4月$1日'],
-      [/Aug\s+(\d{1,2}),\s+(\d{4})/, '$2年8月$1日'],
-      [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
-      [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
-      [/Jul\s+(\d{1,2}),\s+(\d{4})/, '$2年7月$1日'],
-      [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2年6月$1日'],
-      [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
-      [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
-      [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
-    ],
-    textRules: [
-      ['Upload a photo of yourself and an outfit to see how it looks on you. A virtual fitting room powered by Nano Banana.', '上傳您的個人照片和一套服飾，即可預覽穿著效果。此虛擬試身室由 Nano Banana™ 提供技術支援。'],
-      ['Gemini 2.5 Flash Audio', 'Gemini 2.5 Flash 音訊'],
-      ['Here are the changes:', '變更內容如下：'],
-      ['Character consistency', '角色一致性'],
-      ['object consistency', '物件一致性'],
-      ['Restored from', '從...復原：'],
-      [' Running for ', '執行時間 '],
-      ['Image Editing', '圖像編輯'],
-      ['Save app', '儲存應用程式'],
-      ['Thinking...', '思考中...'],
-      ['Saving…..', '儲存中...'],
-      ['Added', '已新增'],
-      ['Live', '即時'],
-      ['Medium', '中'],
-      ['Move', '移動'],
-      ['Name', '名稱'],
-      ['Save', '儲存'],
-      ['Send', '傳送'],
-      ['Stop', '停止'],
-      ['Talk', '對話'],
-      ['Text', '文字'],
-      ['Type', '類型'],
-      ['User', '用戶'],
-      ['All', '全部'],
-      ['Cut', '剪下'],
-      ['Empty', '空'],
-      ['HOT', '熱門'],
-      ['Off', '關閉'],
-      ['Run', '執行'],
-      ['High', '高'],
-      ['and', '與'],
-      ['Low', '低'],
-      ['NEW', '新'],
-    ],
-  };
-  var claudeAiZhHk = {
-    language: 'zh-hk',
-    enabled: true,
-    styles: [],
-    blockedElements: [],
-    extendedElements: [],
-    customAttributes: [],
-    blockedAttributes: [],
-    jsRules: [],
-    regexRules: [
-      [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, '每人/月，享年度訂閱折扣。若按月計費則為 新幣 $1。最少 $2 名成員。'],
-      [/Per person \/ month\. Minimum (\d+)\s+members\./i, '每人/月。最少 $1 名成員。'],
-      [/Delete\s+(\d+)\s+selected\s+items?/i, '刪除 $1 個已選項目'],
-      [/(\d+)\s+chats?\s+with\s+(.+)/i, '與 $2 共有 $1 個對話'],
-      [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
-      [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
-      [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
-      [/Apr\s+(\d{1,2}),\s+(\d{4})/, '$2年4月$1日'],
-      [/Aug\s+(\d{1,2}),\s+(\d{4})/, '$2年8月$1日'],
-      [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
-      [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
-      [/Jul\s+(\d{1,2}),\s+(\d{4})/, '$2年7月$1日'],
-      [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2年6月$1日'],
-      [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
-      [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
-      [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
-      [/SGD\s+([\d.]+)/i, '新幣 $1'],
-    ],
-    textRules: [
-      ['upstream connect error or disconnect/reset before headers. reset reason: connection termination', '與後端伺服器連線錯誤，或在收到其回應標頭前連線被重設。重設原因：連線已終止。'],
-      ['Don’t share personal information or third-party content without permission, and see our ', '未經許可，請勿分享個人資訊或第三方內容，並請參閱我們的'],
-      ['Only messages up until now will be shared', '僅分享截至目前的訊息'],
-      ['Chat on web, iOS, and Android', '在網頁、iOS 和 Android 上聊天'],
-      ['Private (only you have access)', '私人 (僅限您本人存取)'],
-      ['Ability to search the web', '能夠搜尋網絡'],
-      ['Analyze text and images', '分析文字與圖像'],
-      ['English (United States)', '英文 (美國)'],
-      ['Deutsch (Deutschland)', '德文 (德國)'],
-      ['français (France)', '法文 (法國)'],
-      ['Try Claude', '試用 Claude'],
-      ['Thumbs up', '讚好'],
-      ['Star', '標記星號'],
-      ['Connect', '連線'],
-      ['Log out', '登出'],
-      ['Members', '成員'],
-      ['Upgrade', '升級'],
-      ['Accept', '接受'],
-      ['Browse', '瀏覽'],
-      ['Delete', '刪除'],
-      ['Latest', '最新'],
-      ['Manage', '管理'],
-      ['Chats', '對話'],
-      ['Image', '圖像'],
-      ['Learn', '學習'],
-      ['Legal', '法律'],
-      ['Other', '其他'],
-      ['Retry', '重試'],
-      ['Write', '撰寫'],
-      ['Code', '代碼'],
-      ['Edit', '編輯'],
-      ['Save', '儲存'],
-      ['Skip', '略過'],
-    ],
-  };
-  var aistudioGoogleComZhTw = {
-    language: 'zh-tw',
-    enabled: true,
-    styles: [],
-    blockedElements: [],
-    extendedElements: [],
-    customAttributes: [],
-    blockedAttributes: [],
-    jsRules: [],
-    regexRules: [
-      [/↩\s*Add a new line\s*\s*Alt\s*\+\s*↩\s*Append text without running\s*\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  換行 Alt + ↩  附加文字 (不執行) Ctrl + ↩  執行提示'],
-      [/Invalid JSON: SyntaxError: Unexpected token '(.+?)', "(.+?)" is not valid JSON/i, '無效的 JSON 語法錯誤：在「$2」中存在非預期的字元「$1」'],
-      [/([<>]=?)\s*(\d+K)\s+tokens\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '$1$2 Tokens | 輸入: $ $3 / 輸出: $ $4'],
-      [/Image \(\*Output per image\) • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, '圖片 (*每張圖片輸出) | 輸入: $ $1 / 輸出: $ $2'],
-      [/All context lengths\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '所有內容長度 | 輸入: $ $1 / 輸出: $ $2'],
-      [/Text • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, '文字 | 輸入：$ $1，輸出：$ $2'],
-      [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
-      [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
-      [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
-      [/Apr\s+(\d{1,2}),\s+(\d{4})/, '$2年4月$1日'],
-      [/Aug\s+(\d{1,2}),\s+(\d{4})/, '$2年8月$1日'],
-      [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
-      [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
-      [/Jul\s+(\d{1,2}),\s+(\d{4})/, '$2年7月$1日'],
-      [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2年6月$1日'],
-      [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
-      [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
-      [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
-    ],
-    textRules: [
-      ['Upload a photo of yourself and an outfit to see how it looks on you. A virtual fitting room powered by Nano Banana.', '上傳您的個人照片和一套服飾，即可預覽穿在您身上的效果。這間虛擬試衣間由 Nano Banana™ 提供技術支援。'],
-      ['Gemini 2.5 Flash Audio', 'Gemini 2.5 Flash 音訊'],
-      ['Here are the changes:', '變更內容如下：'],
-      ['Character consistency', '角色一致性'],
-      ['object consistency', '物件一致性'],
-      ['Restored from', '從...復原：'],
-      [' Running for ', '執行時間 '],
-      ['Image Editing', '圖片編輯'],
-      ['Save app', '儲存應用程式'],
-      ['Thinking...', '思考中...'],
-      ['Saving…', '儲存中...'],
-      ['Added', '已新增'],
-      ['User', '使用者'],
-      ['Live', '即時'],
-      ['Medium', '中'],
-      ['Move', '移動'],
-      ['Name', '名稱'],
-      ['Save', '儲存'],
-      ['Send', '傳送'],
-      ['Stop', '停止'],
-      ['Talk', '交談'],
-      ['Text', '文字'],
-      ['Type', '類型'],
-      ['All', '全部'],
-      ['Cut', '剪下'],
-      ['Empty', '空'],
-      ['HOT', '熱門'],
-      ['Off', '關閉'],
-      ['Run', '執行'],
-      ['High', '高'],
-      ['and', '與'],
-      ['Low', '低'],
-      ['NEW', '新'],
-    ],
-  };
-  var claudeAiZhTw = {
-    language: 'zh-tw',
-    enabled: true,
-    styles: [],
-    blockedElements: [],
-    extendedElements: [],
-    customAttributes: [],
-    blockedAttributes: [],
-    jsRules: [],
-    regexRules: [
-      [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, '每人/月，享年度訂閱折扣。若按月計費則為 新幣 $1。至少 $2 名成員。'],
-      [/Per person \/ month\. Minimum (\d+)\s+members\./i, '每人/月。至少 $1 名成員。'],
-      [/Delete\s+(\d+)\s+selected\s+items?/i, '刪除 $1 個選取的項目'],
-      [/(\d+)\s+chats?\s+with\s+(.+)/i, '與 $2 共有 $1 則聊天記錄'],
-      [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
-      [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
-      [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
-      [/Apr\s+(\d{1,2}),\s+(\d{4})/, '$2年4月$1日'],
-      [/Aug\s+(\d{1,2}),\s+(\d{4})/, '$2年8月$1日'],
-      [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
-      [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
-      [/Jul\s+(\d{1,2}),\s+(\d{4})/, '$2年7月$1日'],
-      [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2年6月$1日'],
-      [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
-      [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
-      [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
-      [/SGD\s+([\d.]+)/i, '新幣 $1'],
-    ],
-    textRules: [
-      ['upstream connect error or disconnect/reset before headers. reset reason: connection termination', '與後端伺服器連線錯誤，或在收到其回應標頭前連線被重設。重設原因：連線已終止。'],
-      ['Don’t share personal information or third-party content without permission, and see our ', '未經許可，請勿分享個人資訊或第三方內容，並請參閱我們的'],
-      ['Only messages up until now will be shared', '僅分享截至目前的訊息'],
-      ['Chat on web, iOS, and Android', '在網頁、iOS 和 Android 上聊天'],
-      ['Private (only you have access)', '私人 (僅限您本人存取)'],
-      ['Ability to search the web', '能夠搜尋網路'],
-      ['Analyze text and images', '分析文字與圖片'],
-      ['English (United States)', '英文 (美國)'],
-      ['Deutsch (Deutschland)', '德文 (德國)'],
-      ['français (France)', '法文 (法國)'],
-      ['Try Claude', '試用 Claude'],
-      ['Star', '標記星號'],
-      ['Connect', '連線'],
-      ['Log out', '登出'],
-      ['Members', '成員'],
-      ['Thumbs up', '讚'],
-      ['Upgrade', '升級'],
-      ['Accept', '接受'],
-      ['Browse', '瀏覽'],
-      ['Code', '程式碼'],
-      ['Delete', '刪除'],
-      ['Latest', '最新'],
-      ['Manage', '管理'],
-      ['Chats', '聊天'],
-      ['Image', '圖片'],
-      ['Learn', '學習'],
-      ['Legal', '法律'],
-      ['Other', '其他'],
-      ['Retry', '重試'],
-      ['Write', '撰寫'],
-      ['Edit', '編輯'],
-      ['Save', '儲存'],
-      ['Skip', '略過'],
-    ],
-  };
   var geminiGoogleComZhCn = {
     language: 'zh-cn',
     enabled: true,
@@ -11981,10 +11662,6 @@
       [/\s*(\d+)\s+emails?\s*/i, '$1 封邮件'],
       [/\s*SAVE\s+(\d+)%\s*/, '立省 $1%！'],
     ],
-    // 纯文本翻译规则
-    // 规则会完全匹配整个文本
-    // 格式: ['原始文本', '翻译后的文本']
-    // 示例: ['Login', '登录']
     textRules: [
       [" Modrinth's team of content moderators work hard to review all submitted projects. Typically, you can expect a new project to be reviewed within 24 to 48 hours. Please keep in mind that larger projects, especially modpacks, may require more time to review. Certain holidays or events may also lead to delays depending on moderator availability. Modrinth's moderators will leave a message below if they have any questions or concerns for you. ", 'Modrinth 的内容管理员团队会努力审核所有提交的项目。通常，新项目预计在 24 到 48 小时内完成审核。请注意，较大的项目，尤其是整合包，可能需要更多时间。某些假期或活动也可能因管理员的可用性而导致延迟。如果 Modrinth 管理员对您有任何疑问或顾虑，他们会在此下方留言'],
       [' When your server is under heavy load, we temporarily give it access to additional CPU threads to help mitigate lag spikes and instability. This helps prevent the TPS from going below 20, ensuring the smoothest experience possible. Since those extra CPU threads are only shortly available during high load periods, they might not show up in Spark reports or other profiling tools. ', '当您的服务器负载过高时，我们会暂时为其提供额外的 CPU 线程，以帮助缓解延迟峰值和不稳定性。这有助于防止 TPS（每秒刻数）低于 20，确保最流畅的体验。由于这些额外的 CPU 线程仅在高峰负载期间短暂可用，它们可能不会显示在 Spark 报告或其他性能分析工具中'],
@@ -13917,59 +13594,15 @@
       ['s', ' '],
     ],
   };
-  // src/translations/zh-cn/status.modrinth.com.js
   var statusModrinthComZhCn = {
-    // 描述：此翻译配置的描述信息
-    // 测试链接：用于开发者测试网站显示效果的URL
-    // 创建日期：此翻译配置的创建日期
-    // 语言：此翻译配置适用的语言
     language: 'zh-cn',
-    // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文), zh-hk(中文香港)
-    // 启用状态：控制此翻译配置是否启用
     enabled: true,
-    // 样式 (CSS)
-    // 支持编写多个CSS规则
-    styles: [
-      // 在这里添加styles代码，例如：
-      // "body { background-color: #f0f0f0; }",
-      // "h1 { color: #333; }"
-      // ".rule3 { margin: 10px; }"
-    ],
-    // 禁止翻译的元素选择器
-    blockedElements: [
-      // 在这里添加CSS选择器，例如：
-      // '.notranslate',
-      // '#header .logo'
-    ],
-    // 扩展翻译元素选择器
-    // 用于翻译那些默认情况下未被翻译的元素
+    styles: [],
+    blockedElements: [],
     extendedElements: ['main'],
-    // 自定义属性白名单
-    // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
-    // 示例: 'data-tip', 'data-title'
-    customAttributes: [
-      // 在这里添加自定义属性
-    ],
-    // 自定义属性黑名单
-    // 在此数组中添加的任何 HTML 属性名，都将强制不被翻译。
-    // 此列表的优先级高于白名单，可用于覆盖默认翻译行为。
-    // 示例: 'title'
-    blockedAttributes: [
-      // 在这里添加要阻止翻译的属性
-    ],
-    // 注入脚本 (JavaScript)
-    // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
-    jsRules: [
-      // 在这里添加JavaScript代码，例如：
-      // "console.log('第一条规则');",
-      // "alert('第二条规则');",
-      // "document.title = '修改后的标题';"
-    ],
-    // 正则表达式翻译规则
-    // 规则会自动应用于匹配的文本
-    // 格式: [/原始文本正则表达式/i, '翻译后的文本']
-    // 使用 $1, $2, ... 来引用正则表达式中的捕获组
-    // 示例: [/^Hello (\w+)/, '您好 $1']
+    customAttributes: [],
+    blockedAttributes: [],
+    jsRules: [],
     regexRules: [
       [/\s*Dec(?:ember)?\s+(\d{1,2})\s+at\s+(\d{1,2}:\d{2})am\s*([A-Z]{2,4})\s*/i, '12 月 $1 日 $3 上午 $2'],
       [/\s*Dec(?:ember)?\s+(\d{1,2})\s+at\s+(\d{1,2}:\d{2})pm\s*([A-Z]{2,4})\s*/i, '12 月 $1 日 $3 下午 $2'],
@@ -14055,10 +13688,6 @@
       [/\s*([\d\.]+)\s*ms\b\s*/i, '$1 毫秒'],
       [/\s*([\d\.]+)\s*s\b\s*/i, '$1 秒'],
     ],
-    // 纯文本翻译规则
-    // 规则会完全匹配整个文本
-    // 格式: ['原始文本', '翻译后的文本']
-    // 示例: ['Login', '登录']
     textRules: [
       ['We’re switching to a new cluster for our API for better performance and reliability.', '我们正在为我们的 API 切换到新的集群，以获得更好的性能和可靠性。'],
       ['API, Version API, and 1 other service are down', 'API、版本 API 和 1 个其他服务均中断'],
@@ -14111,63 +13740,15 @@
       ['Today', '今天'],
     ],
   };
-  // src/translations/zh-cn/status.huggingface.co.js
   var statusHuggingfaceCoZhCn = {
-    // 描述：此翻译配置的描述信息
-    // 测试链接：用于开发者测试网站显示效果的URL
-    // 创建日期：此翻译配置的创建日期
-    // 语言：此翻译配置适用的语言
     language: 'zh-cn',
-    // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文), zh-hk(中文香港)
-    // 启用状态：控制此翻译配置是否启用
     enabled: true,
-    // 样式 (CSS)
-    // 支持编写多个CSS规则
-    styles: [
-      // 在这里添加styles代码，例如：
-      // "body { background-color: #f0f0f0; }",
-      // "h1 { color: #333; }"
-      // ".rule3 { margin: 10px; }"
-    ],
-    // 禁止翻译的元素选择器
-    blockedElements: [
-      // 在这里添加CSS选择器，例如：
-      // '.notranslate',
-      // '#header .logo'
-    ],
-    // 扩展翻译元素选择器
-    // 用于翻译那些默认情况下未被翻译的元素
-    extendedElements: [
-      // 在这里添加CSS选择器，例如：
-      // '#dynamic-content',
-      // '.custom-widget'
-    ],
-    // 自定义属性白名单
-    // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
-    // 示例: 'data-tip', 'data-title'
-    customAttributes: [
-      // 在这里添加自定义属性
-    ],
-    // 自定义属性黑名单
-    // 在此数组中添加的任何 HTML 属性名，都将强制不被翻译。
-    // 此列表的优先级高于白名单，可用于覆盖默认翻译行为。
-    // 示例: 'title'
-    blockedAttributes: [
-      // 在这里添加要阻止翻译的属性
-    ],
-    // 注入脚本 (JavaScript)
-    // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
-    jsRules: [
-      // 在这里添加JavaScript代码，例如：
-      // "console.log('第一条规则');",
-      // "alert('第二条规则');",
-      // "document.title = '修改后的标题';"
-    ],
-    // 正则表达式翻译规则
-    // 规则会自动应用于匹配的文本
-    // 格式: [/原始文本正则表达式/i, '翻译后的文本']
-    // 使用 $1, $2, ... 来引用正则表达式中的捕获组
-    // 示例: [/^Hello (\w+)/, '您好 $1']
+    styles: [],
+    blockedElements: [],
+    extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
+    jsRules: [],
     regexRules: [
       [/\s*Last\s+updated\s+on\s+Dec(?:ember)?\s+(\d{1,2})\s+at\s+(\d{1,2}:\d{2})am\s*([A-Z]{2,4})\s*/i, '最后更新于 12 月 $1 日 $3 上午 $2'],
       [/\s*Last\s+updated\s+on\s+Dec(?:ember)?\s+(\d{1,2})\s+at\s+(\d{1,2}:\d{2})pm\s*([A-Z]{2,4})\s*/i, '最后更新于 12 月 $1 日 $3 下午 $2'],
@@ -14277,10 +13858,6 @@
       [/\s*([\d\.]+)\s*ms\b\s*/i, '$1 毫秒'],
       [/\s*([\d\.]+)\s*s\b\s*/i, '$1 秒'],
     ],
-    // 纯文本翻译规则
-    // 规则会完全匹配整个文本
-    // 格式: ['原始文本', '翻译后的文本']
-    // 示例: ['Login', '登录']
     textRules: [
       ['Get a request to your URL whenever Hugging Face creates, updates or resolves an incident.', '每当 Hugging Face 创建、更新或解决事件时，都通过请求您的 URL 通知您'],
       ['Get e-mail notifications whenever Hugging Face creates, updates or resolves an incident.', '每当 Hugging Face 创建、更新或解决事件时，都通过电子邮件通知您'],
@@ -14355,68 +13932,16 @@
       ['\nRSS\n', 'RSS'],
     ],
   };
-  // src/translations/zh-cn/opal.google.js
   var opalGoogleZhCn = {
-    // 描述：此翻译配置的描述信息
-    // 测试链接：用于开发者测试网站显示效果的URL
-    // 创建日期：此翻译配置的创建日期
-    // 语言：此翻译配置适用的语言
     language: 'zh-cn',
-    // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文), zh-hk(中文香港)
-    // 启用状态：控制此翻译配置是否启用
     enabled: true,
-    // 样式 (CSS)
-    // 支持编写多个CSS规则
-    styles: [
-      // 在这里添加styles代码，例如：
-      // "body { background-color: #f0f0f0; }",
-      // "h1 { color: #333; }"
-      // ".rule3 { margin: 10px; }"
-    ],
-    // 禁止翻译的元素选择器
-    blockedElements: [
-      // 在这里添加CSS选择器，例如：
-      // '.notranslate',
-      // '#header .logo'
-    ],
-    // 扩展翻译元素选择器
-    // 用于翻译那些默认情况下未被翻译的元素
-    extendedElements: [
-      // 在这里添加CSS选择器，例如：
-      // '#dynamic-content',
-      // '.custom-widget'
-    ],
-    // 自定义属性白名单
-    // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
-    // 示例: 'data-tip', 'data-title'
-    customAttributes: [
-      // 在这里添加自定义属性
-    ],
-    // 自定义属性黑名单
-    // 在此数组中添加的任何 HTML 属性名，都将强制不被翻译。
-    // 此列表的优先级高于白名单，可用于覆盖默认翻译行为。
-    // 示例: 'title'
-    blockedAttributes: [
-      // 在这里添加要阻止翻译的属性
-    ],
-    // 注入脚本 (JavaScript)
-    // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
-    jsRules: [
-      // 在这里添加JavaScript代码，例如：
-      // "console.log('第一条规则');",
-      // "alert('第二条规则');",
-      // "document.title = '修改后的标题';"
-    ],
-    // 正则表达式翻译规则
-    // 规则会自动应用于匹配的文本
-    // 格式: [/原始文本正则表达式/i, '翻译后的文本']
-    // 使用 $1, $2, ... 来引用正则表达式中的捕获组
-    // 示例: [/^Hello (\w+)/, '您好 $1']
+    styles: [],
+    blockedElements: [],
+    extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
+    jsRules: [],
     regexRules: [],
-    // 纯文本翻译规则
-    // 规则会完全匹配整个文本
-    // 格式: ['原始文本', '翻译后的文本']
-    // 示例: ['Login', '登录']
     textRules: [
       ['\n            Mini-apps anyone can build. Sign in to view or make your own.\n          ', '任何人都可以构建的迷你应用 登录以查看或创建您自己的应用'],
       ['\n              Edit and refine your app’s logic with a node-based workflow.\n            ', '使用基于节点的流程编辑和优化您的应用逻辑'],
@@ -14476,57 +14001,15 @@
       ['Help', '帮助'],
     ],
   };
-  // src/translations/zh-cn/www.curseforge.com.js
   var wwwCurseforgeComZhCn = {
-    // 描述：此翻译配置的描述信息
-    // 测试链接：用于开发者测试网站显示效果的URL
-    // 创建日期：此翻译配置的创建日期
-    // 语言：此翻译配置适用的语言
     language: 'zh-cn',
-    // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文), zh-hk(中文香港)
-    // 启用状态：控制此翻译配置是否启用
     enabled: true,
-    // 样式 (CSS)
-    // 支持编写多个CSS规则
-    styles: [
-      // 在这里添加styles代码，例如：
-      // "body { background-color: #f0f0f0; }",
-      // "h1 { color: #333; }"
-      // ".rule3 { margin: 10px; }"
-    ],
-    // 禁止翻译的元素选择器
+    styles: [],
     blockedElements: ['.project-description', '.notranslate'],
-    // 扩展翻译元素选择器
-    // 用于翻译那些默认情况下未被翻译的元素
-    extendedElements: [
-      // 在这里添加CSS选择器，例如：
-      // '#dynamic-content',
-      // '.custom-widget'
-    ],
-    // 自定义属性白名单
-    // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
-    // 示例: 'data-tip', 'data-title'
+    extendedElements: [],
     customAttributes: ['data-tooltip-content', 'data-tooltip'],
-    // 自定义属性黑名单
-    // 在此数组中添加的任何 HTML 属性名，都将强制不被翻译。
-    // 此列表的优先级高于白名单，可用于覆盖默认翻译行为。
-    // 示例: 'title'
-    blockedAttributes: [
-      // 在这里添加要阻止翻译的属性
-    ],
-    // 注入脚本 (JavaScript)
-    // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
-    jsRules: [
-      // 在这里添加JavaScript代码，例如：
-      // "console.log('第一条规则');",
-      // "alert('第二条规则');",
-      // "document.title = '修改后的标题';"
-    ],
-    // 正则表达式翻译规则
-    // 规则会自动应用于匹配的文本
-    // 格式: [/原始文本正则表达式/i, '翻译后的文本']
-    // 使用 $1, $2, ... 来引用正则表达式中的捕获组
-    // 示例: [/^Hello (\w+)/, '您好 $1']
+    blockedAttributes: [],
+    jsRules: [],
     regexRules: [
       [/\s*(.+?)'s\s+Profile\s+-\s+Member\s+List\s+-\s+CurseForge\s*/i, '$1 的个人主页 - 成员列表 - CurseForge'],
       [/\s*Become\s+Premium\s+from\s+([\$\d\.]+)\/month\s*/i, '开通高级版，每月 $1 起'],
@@ -14580,10 +14063,6 @@
       [/\s*The\s+(.+?)\s+Team\s*$/i, '$1 团队'],
       [/\s*Save\s+([\d\.]+%)\s*/i, '省 $1'],
     ],
-    // 纯文本翻译规则
-    // 规则会完全匹配整个文本
-    // 格式: ['原始文本', '翻译后的文本']
-    // 示例: ['Login', '登录']
     textRules: [
       ["Minecraft Mods on CurseForge - The Home for the Best Minecraft Mods\n\nDiscover the best Minecraft Mods and Modpacks around.\n\nMinecraft is an action-adventure sandbox game where players can build pretty much anything they like, explore their surroundings, craft items, and even engage in combat.\n\nMC has one of the biggest modding communities in the world, and on this very page - you'll be able to become a part of it. If you've been looking around some Minecraft forums recently, you probably know that this is the home for all the best Minecraft mods. Here, you'll be able to easily find and download the best Minecraft mods and modpacks around. From mods that change Minecraft's game interface, through mods that optimize its gameplay, or even mods that offer various tools for improved building, combating, or exploration.\nBrowse through the selection of MC mods and modpacks, check out their descriptions and photos, and find out which ones are best for you.\n\nAlways keep in mind that each and every mod is completely free, so you can try them all until you find your favorite Minecraft mods and modpacks.\n\nAnd of course, the important thing is to have fun with these Minecraft mods - using them to create a personalized game experience that's best for you.", 'CurseForge 上的 Minecraft 模组 - 最佳 Minecraft 模组之家\n\n发现最棒的 Minecraft 模组和整合包。\n\nMinecraft 是一款动作冒险沙盒游戏，玩家可以在其中构建几乎任何他们喜欢的东西，探索周围环境、制作物品，甚至进行战斗。\n\nMC 拥有世界上最大的模组社区之一，而在这个页面上，您就能成为其中的一员。如果您最近在浏览一些 Minecraft 论坛，您可能知道这里是所有最佳 Minecraft 模组的家。在这里，您可以轻松找到并下载最棒的 Minecraft 模组和整合包。从改变 Minecraft 游戏界面的模组，到优化其游戏性能的模组，甚至到提供各种工具以改进建造、战斗或探索的模组，应有尽有。\n浏览我们精选的 MC 模组和整合包，查看它们的描述和图片，找到最适合您的那一个。\n\n请始终记住，每一个模组都是完全免费的，因此您可以全部尝试，直到找到您最喜欢的 Minecraft 模组和整合包。\n\n当然，最重要的是享受这些 Minecraft 模组带来的乐趣——利用它们来打造最适合您的个性化游戏体验。'],
       ['Refunds are generally not offered for subscriptions, but exceptions may be considered based on individual circumstances. If you believe you have a valid case for a refund, please contact our Tebex customer support team at checkout-support@tebex.io to discuss your situation. As part of the Overwolf family, both Tebex and CurseForge work closely together to support online gaming communities. Tebex specializes in providing smooth and secure transactions, so they’re the ones who handle payment processing for CurseForge Premium subscriptions. You might notice their name in our support emails.', '订阅通常不提供退款，但会根据个人情况考虑例外。如果您认为自己有合理的退款理由，请联系我们的 Tebex 客户支持团队 (checkout-support@tebex.io) 讨论您的情况。作为 Overwolf 家族的一部分，Tebex 和 CurseForge 紧密合作，共同支持在线游戏社区。Tebex 专门提供流畅和安全的交易，因此他们是负责处理 CurseForge 高级版订阅付款的团队。您可能会在我们的支持邮件中注意到他们的名字。'],
@@ -15286,72 +14765,20 @@
       ['By', '由'],
     ],
   };
-  // src/translations/zh-cn/sso.curseforge.com.js
   var ssoCurseforgeComZhCn = {
-    // 描述：此翻译配置的描述信息
-    // 测试链接：用于开发者测试网站显示效果的URL
-    // 创建日期：此翻译配置的创建日期
-    // 语言：此翻译配置适用的语言
     language: 'zh-cn',
-    // 支持的语言: zh-cn(简体中文), zh-tw(繁体中文), zh-hk(中文香港)
-    // 启用状态：控制此翻译配置是否启用
     enabled: true,
-    // 样式 (CSS)
-    // 支持编写多个CSS规则
-    styles: [
-      // 在这里添加styles代码，例如：
-      // "body { background-color: #f0f0f0; }",
-      // "h1 { color: #333; }"
-      // ".rule3 { margin: 10px; }"
-    ],
-    // 禁止翻译的元素选择器
-    blockedElements: [
-      // 在这里添加CSS选择器，例如：
-      // '.notranslate',
-      // '#header .logo'
-    ],
-    // 扩展翻译元素选择器
-    // 用于翻译那些默认情况下未被翻译的元素
-    extendedElements: [
-      // 在这里添加CSS选择器，例如：
-      // '#dynamic-content',
-      // '.custom-widget'
-    ],
-    // 自定义属性白名单
-    // 在此数组中添加的任何 HTML 属性名，都将在整个网站范围内被翻译。
-    // 示例: 'data-tip', 'data-title'
-    customAttributes: [
-      // 在这里添加自定义属性
-    ],
-    // 自定义属性黑名单
-    // 在此数组中添加的任何 HTML 属性名，都将强制不被翻译。
-    // 此列表的优先级高于白名单，可用于覆盖默认翻译行为。
-    // 示例: 'title'
-    blockedAttributes: [
-      // 在这里添加要阻止翻译的属性
-    ],
-    // 注入脚本 (JavaScript)
-    // 支持编写多个JS规则，通过循环遍历，每个规则都创建独立的<script>标签注入到页面
-    jsRules: [
-      // 在这里添加JavaScript代码，例如：
-      // "console.log('第一条规则');",
-      // "alert('第二条规则');",
-      // "document.title = '修改后的标题';"
-    ],
-    // 正则表达式翻译规则
-    // 规则会自动应用于匹配的文本
-    // 格式: [/原始文本正则表达式/i, '翻译后的文本']
-    // 使用 $1, $2, ... 来引用正则表达式中的捕获组
-    // 示例: [/^Hello (\w+)/, '您好 $1']
+    styles: [],
+    blockedElements: [],
+    extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
+    jsRules: [],
     regexRules: [
       [/\s*Please\s+confirm\s+this\s+is\s+the\s+account\s+you\s+wish\s+to\s+sign\s+in\s+with:?\s*/i, '请确认您要使用此账号登录：'],
       [/\s*Continue\s+as\s+(.+?)\s*$/i, '以 $1 身份继续'],
       [/\s*Hi\s+(.+?)\s*$/i, '你好，$1'],
     ],
-    // 纯文本翻译规则
-    // 规则会完全匹配整个文本
-    // 格式: ['原始文本', '翻译后的文本']
-    // 示例: ['Login', '登录']
     textRules: [
       ['\n          CurseForge is managed by Overwolf. By continuing you agree to', 'CurseForge 由 Overwolf 管理，继续登录即表示同意'],
       ['\n      To continue, CurseForge will gain access to your:\n      ', '为了继续，CurseForge 将获得您的：'],
@@ -15384,40 +14811,335 @@
       ['Log in', '登录'],
     ],
   };
-  // src/translations/index.js
-  var masterTranslationMap = {
-    'jules.google.com#zh-cn': julesGoogleComZhCn,
-    'aistudio.google.com#zh-cn': aistudioGoogleComZhCn,
-    'claude.ai#zh-cn': claudeAiZhCn,
-    'platform.claude.com#zh-cn': platformClaudeComZhCn,
-    'status.claude.com#zh-cn': statusClaudeComZhCn,
-    // 繁体中文（香港）翻译映射
-    'jules.google.com#zh-hk': julesGoogleComZhHk,
-    'aistudio.google.com#zh-hk': aistudioGoogleComZhHk,
-    'claude.ai#zh-hk': claudeAiZhHk,
-    // 繁体中文（台湾）翻译映射
-    'aistudio.google.com#zh-tw': aistudioGoogleComZhTw,
-    'claude.ai#zh-tw': claudeAiZhTw,
-    'gemini.google.com#zh-cn': geminiGoogleComZhCn,
-    'www.avogado6.com#zh-cn': wwwAvogado6ComZhCn,
-    'wplace.live#zh-cn': wplaceLiveZhCn,
-    'huggingface.co#zh-cn': huggingfaceCoZhCn,
-    'lmarena.ai#zh-cn': lmarenaAiZhCn,
-    'modrinth.com#zh-cn': modrinthComZhCn,
-    'status.modrinth.com#zh-cn': statusModrinthComZhCn,
-    'status.huggingface.co#zh-cn': statusHuggingfaceCoZhCn,
-    'opal.google#zh-cn': opalGoogleZhCn,
-    'www.curseforge.com#zh-cn': wwwCurseforgeComZhCn,
-    'sso.curseforge.com#zh-cn': ssoCurseforgeComZhCn,
+  var zhCnTranslations = { 'jules.google.com#zh-cn': julesGoogleComZhCn, 'aistudio.google.com#zh-cn': aistudioGoogleComZhCn, 'claude.ai#zh-cn': claudeAiZhCn, 'platform.claude.com#zh-cn': platformClaudeComZhCn, 'status.claude.com#zh-cn': statusClaudeComZhCn, 'gemini.google.com#zh-cn': geminiGoogleComZhCn, 'www.avogado6.com#zh-cn': wwwAvogado6ComZhCn, 'wplace.live#zh-cn': wplaceLiveZhCn, 'huggingface.co#zh-cn': huggingfaceCoZhCn, 'lmarena.ai#zh-cn': lmarenaAiZhCn, 'modrinth.com#zh-cn': modrinthComZhCn, 'status.modrinth.com#zh-cn': statusModrinthComZhCn, 'status.huggingface.co#zh-cn': statusHuggingfaceCoZhCn, 'opal.google#zh-cn': opalGoogleZhCn, 'www.curseforge.com#zh-cn': wwwCurseforgeComZhCn, 'sso.curseforge.com#zh-cn': ssoCurseforgeComZhCn };
+  var julesGoogleComZhHk = {
+    language: 'zh-hk',
+    enabled: true,
+    styles: ['.feedback-button { width: auto !important; white-space: nowrap !important; }'],
+    blockedElements: [],
+    extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
+    jsRules: [],
+    regexRules: [
+      [/^Step\s+(\d+)\s+of the plan is complete\.$/i, '「計劃」的第 $1 步已完成。'],
+      [/Completed\s+(\d+)\s+minutes?\s+ago/i, '$1 分鐘前完成'],
+      [/Completed\s+(\d+)\s+hours?\s+ago/i, '$1 小時前完成'],
+      [/Completed\s+(\d+)\s+seconds?\s+ago/i, '$1 秒前完成'],
+      [/Dec\s+(\d{1,2})\s+(\d{2}:\d{2})/, '12 月 $1 日 $2'],
+      [/Nov\s+(\d{1,2})\s+(\d{2}:\d{2})/, '11 月 $1 日 $2'],
+      [/Oct\s+(\d{1,2})\s+(\d{2}:\d{2})/, '10 月 $1 日 $2'],
+      [/Apr\s+(\d{1,2})\s+(\d{2}:\d{2})/, '4 月 $1 日 $2'],
+      [/Aug\s+(\d{1,2})\s+(\d{2}:\d{2})/, '8 月 $1 日 $2'],
+      [/Feb\s+(\d{1,2})\s+(\d{2}:\d{2})/, '2 月 $1 日 $2'],
+      [/Jan\s+(\d{1,2})\s+(\d{2}:\d{2})/, '1 月 $1 日 $2'],
+      [/Jul\s+(\d{1,2})\s+(\d{2}:\d{2})/, '7 月 $1 日 $2'],
+      [/Jun\s+(\d{1,2})\s+(\d{2}:\d{2})/, '6 月 $1 日 $2'],
+      [/Mar\s+(\d{1,2})\s+(\d{2}:\d{2})/, '3 月 $1 日 $2'],
+      [/May\s+(\d{1,2})\s+(\d{2}:\d{2})/, '5 月 $1 日 $2'],
+      [/Sep\s+(\d{1,2})\s+(\d{2}:\d{2})/, '9 月 $1 日 $2'],
+      [/Completed\s+(\d+)\s+days?\s+ago/i, '$1 天前完成'],
+      [/^Searching for\s+"(.+?)"$/i, '正在搜尋「$1」'],
+      [/Completed\s+<1 minute\s+ago/i, '剛剛完成'],
+      [/^Searching for\s+(.+)$/i, '正在搜尋：$1'],
+      [/(\d{1,2})\s+(\d{1,2})月/, '$2 月 $1 日'],
+      [/Read\s+([\w\.\-]+)/i, '讀取檔案：$1'],
+      [/Today\s+(\d{1,2}:\d{2})/i, '今天 $1'],
+    ],
+    textRules: [
+      ['Jules attempts to setup your environment according to hints in your codebase and agents.md. Optionally, you can provide a setup script to be run explicitly. No need for clone commands, the repo will be cloned automatically into the /app directory.', 'Jules 會嘗試根據您代碼庫中的提示和 `agents.md` 檔案來設定您的環境。您也可以選擇提供一個設定腳本來明確執行。儲存庫會自動複製到 /app 目錄，無需手動執行複製指令。'],
+      ['Let Google use your future Jules conversations and code on content Jules receives from public repositories to train its generative AI models. Opting out does not apply to any feedback you may choose to provide.', '允許 Google 使用您未來與 Jules 的對話，以及 Jules 從公開儲存庫中獲取的內容，用於訓練其生成式 AI 模型。選擇退出不適用於您可能選擇提供的任何意見回饋。'],
+      ['After a successful test of the setup script, your environment will be snapshotted for faster startups. For more information and a list of default toolsets installed see the ', '設定腳本成功測試後，系統將為您的環境建立快照，以便將來能更快啟動。如需更多資訊及預設安裝的工具組清單，請參閱'],
+      ['Google does not train its generative AI models on content Jules receives from your private repositories unless you choose to include that content along with your feedback.', '除非您在提交意見回饋時選擇包含私有儲存庫中的內容，否則 Google 不會使用這些內容來訓練其生成式 AI 模型。'],
+      ['Enable notifications to receive updates about your Jules conversations, including when a plan is created or when code is ready for review.', '啟用通知以接收關於您 Jules 對話的更新，包括當計劃建立或代碼可供審核時。'],
+      ['Jules tackles bugs, small feature requests, and other software engineering tasks, with direct export to GitHub.', 'Jules 能夠處理錯誤修復、小型功能請求及其他軟件工程任務，並能將代碼直接匯出到 GitHub。'],
+      ['Set your preferences for when you want to be contacted by the Jules team about product updates and research opportunities.', '設定您的偏好設定，以便在 Jules 團隊發布產品更新或提供研究機會時與您聯繫。'],
+      ['Jules is currently experiencing high load. You can view your existing tasks. Come back in a bit to create more tasks.', 'Jules 目前負載較高。您可以檢視現有任務，請稍後再回來建立新任務。'],
+      ["You're on the Pro plan—built for steady, high-intensity workflows. Need even more capacity?", '您正在使用專業版方案——專為穩定、高強度的工作流程而設。需要更多容量嗎？'],
+      ["Would you like to enable notifications and I'll let you know when a plan is ready or code is ready for review?", '您想啟用通知嗎？當計劃或代碼準備就緒時，我會通知您。'],
+      ["I'd like to receive emails for model updates, offers, useful tips and news about Google AI.", '我希望收到關於 Google AI 模型更新、優惠、實用技巧和相關新聞的電郵。'],
+      ["I'd like to receive invitations to participate in research studies to help improve Google AI.", '我希望能收到參與研究的邀請，以協助改善 Google AI。'],
+      ['Work with Jules to deeply understand goals before plan generation', '在產生計劃前，與 Jules 深入溝通以確實了解目標'],
+      ['Feedback submitted will include your conversation and related code.', '提交的意見回饋將包含您的對話和相關代碼。'],
+      ['Allow AI model training on content from public repositories', '允許 AI 模型使用公開儲存庫的內容進行訓練'],
+      ['submitted will include your conversation and related code', '提交的內容將包含您的對話和相關代碼'],
+      ['Jules is waiting for your input to continue working', 'Jules 正在等待您的輸入以繼續工作'],
+      ["I've inspected the frontend changes visually: ", '我已透過視覺化方式檢查了前端的變更：'],
+      ['The data structures and logic were updated as planned.', '資料結構和邏輯已按計劃更新。'],
+      ['This step was already completed in the previous plan.', '此步驟已在上一個計劃中完成。'],
+      ['Jules encountered an error when working on the task.', 'Jules 在處理任務時發生錯誤。'],
+      ['Jules is not yet available in your region.', 'Jules 目前尚未在您所在的地區提供服務。'],
+      ['Deleting a task is permanent and cannot be undone', '刪除任務是永久性的，無法復原'],
+      ['Tell us more - what went right or wrong', '告訴我們更多資訊 - 哪些地方正確或錯誤'],
+    ],
   };
-  // src/config/languages.js
+  var aistudioGoogleComZhHk = {
+    language: 'zh-hk',
+    enabled: true,
+    styles: [],
+    blockedElements: [],
+    extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
+    jsRules: [],
+    regexRules: [
+      [/↩\s*Add a new line\s*\s*Alt\s*\+\s*↩\s*Append text without running\s*\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  換行 Alt + ↩  附加文字 (不執行) Ctrl + ↩  執行提示'],
+      [/Invalid JSON: SyntaxError: Unexpected token '(.+?)', "(.+?)" is not valid JSON/i, '無效的 JSON 語法錯誤：在「$2」中存在非預期的字元「$1」'],
+      [/([<>]=?)\s*(\d+K)\s+tokens\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '$1$2 Tokens | 輸入: $ $3 / 輸出: $ $4'],
+      [/Image \(\*Output per image\) • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, '圖像 (*每張圖像輸出) | 輸入: $ $1 / 輸出: $ $2'],
+      [/All context lengths\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '所有內容長度 | 輸入: $ $1 / 輸出: $ $2'],
+      [/Text • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, '文字 | 輸入：$ $1，輸出：$ $2'],
+      [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
+      [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
+      [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
+      [/Apr\s+(\d{1,2}),\s+(\d{4})/, '$2年4月$1日'],
+      [/Aug\s+(\d{1,2}),\s+(\d{4})/, '$2年8月$1日'],
+      [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
+      [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
+      [/Jul\s+(\d{1,2}),\s+(\d{4})/, '$2年7月$1日'],
+      [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2年6月$1日'],
+      [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
+      [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
+      [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
+    ],
+    textRules: [
+      ['Upload a photo of yourself and an outfit to see how it looks on you. A virtual fitting room powered by Nano Banana.', '上傳您的個人照片和一套服飾，即可預覽穿著效果。此虛擬試身室由 Nano Banana™ 提供技術支援。'],
+      ['Gemini 2.5 Flash Audio', 'Gemini 2.5 Flash 音訊'],
+      ['Here are the changes:', '變更內容如下：'],
+      ['Character consistency', '角色一致性'],
+      ['object consistency', '物件一致性'],
+      ['Restored from', '從...復原：'],
+      [' Running for ', '執行時間 '],
+      ['Image Editing', '圖像編輯'],
+      ['Save app', '儲存應用程式'],
+      ['Thinking...', '思考中...'],
+      ['Saving…..', '儲存中...'],
+      ['Added', '已新增'],
+      ['Live', '即時'],
+      ['Medium', '中'],
+      ['Move', '移動'],
+      ['Name', '名稱'],
+      ['Save', '儲存'],
+      ['Send', '傳送'],
+      ['Stop', '停止'],
+      ['Talk', '對話'],
+      ['Text', '文字'],
+      ['Type', '類型'],
+      ['User', '用戶'],
+      ['All', '全部'],
+      ['Cut', '剪下'],
+      ['Empty', '空'],
+      ['HOT', '熱門'],
+      ['Off', '關閉'],
+      ['Run', '執行'],
+      ['High', '高'],
+      ['and', '與'],
+      ['Low', '低'],
+      ['NEW', '新'],
+    ],
+  };
+  var claudeAiZhHk = {
+    language: 'zh-hk',
+    enabled: true,
+    styles: [],
+    blockedElements: [],
+    extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
+    jsRules: [],
+    regexRules: [
+      [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, '每人/月，享年度訂閱折扣。若按月計費則為 新幣 $1。最少 $2 名成員。'],
+      [/Per person \/ month\. Minimum (\d+)\s+members\./i, '每人/月。最少 $1 名成員。'],
+      [/Delete\s+(\d+)\s+selected\s+items?/i, '刪除 $1 個已選項目'],
+      [/(\d+)\s+chats?\s+with\s+(.+)/i, '與 $2 共有 $1 個對話'],
+      [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
+      [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
+      [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
+      [/Apr\s+(\d{1,2}),\s+(\d{4})/, '$2年4月$1日'],
+      [/Aug\s+(\d{1,2}),\s+(\d{4})/, '$2年8月$1日'],
+      [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
+      [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
+      [/Jul\s+(\d{1,2}),\s+(\d{4})/, '$2年7月$1日'],
+      [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2年6月$1日'],
+      [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
+      [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
+      [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
+      [/SGD\s+([\d.]+)/i, '新幣 $1'],
+    ],
+    textRules: [
+      ['upstream connect error or disconnect/reset before headers. reset reason: connection termination', '與後端伺服器連線錯誤，或在收到其回應標頭前連線被重設。重設原因：連線已終止。'],
+      ['Don’t share personal information or third-party content without permission, and see our ', '未經許可，請勿分享個人資訊或第三方內容，並請參閱我們的'],
+      ['Only messages up until now will be shared', '僅分享截至目前的訊息'],
+      ['Chat on web, iOS, and Android', '在網頁、iOS 和 Android 上聊天'],
+      ['Private (only you have access)', '私人 (僅限您本人存取)'],
+      ['Ability to search the web', '能夠搜尋網絡'],
+      ['Analyze text and images', '分析文字與圖像'],
+      ['English (United States)', '英文 (美國)'],
+      ['Deutsch (Deutschland)', '德文 (德國)'],
+      ['français (France)', '法文 (法國)'],
+      ['Try Claude', '試用 Claude'],
+      ['Thumbs up', '讚好'],
+      ['Star', '標記星號'],
+      ['Connect', '連線'],
+      ['Log out', '登出'],
+      ['Members', '成員'],
+      ['Upgrade', '升級'],
+      ['Accept', '接受'],
+      ['Browse', '瀏覽'],
+      ['Delete', '刪除'],
+      ['Latest', '最新'],
+      ['Manage', '管理'],
+      ['Chats', '對話'],
+      ['Image', '圖像'],
+      ['Learn', '學習'],
+      ['Legal', '法律'],
+      ['Other', '其他'],
+      ['Retry', '重試'],
+      ['Write', '撰寫'],
+      ['Code', '代碼'],
+      ['Edit', '編輯'],
+      ['Save', '儲存'],
+      ['Skip', '略過'],
+    ],
+  };
+  var zhHkTranslations = { 'jules.google.com#zh-hk': julesGoogleComZhHk, 'aistudio.google.com#zh-hk': aistudioGoogleComZhHk, 'claude.ai#zh-hk': claudeAiZhHk };
+  var aistudioGoogleComZhTw = {
+    language: 'zh-tw',
+    enabled: true,
+    styles: [],
+    blockedElements: [],
+    extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
+    jsRules: [],
+    regexRules: [
+      [/↩\s*Add a new line\s*\s*Alt\s*\+\s*↩\s*Append text without running\s*\s*Ctrl\s*\+\s*↩\s*Run prompt/i, '↩  換行 Alt + ↩  附加文字 (不執行) Ctrl + ↩  執行提示'],
+      [/Invalid JSON: SyntaxError: Unexpected token '(.+?)', "(.+?)" is not valid JSON/i, '無效的 JSON 語法錯誤：在「$2」中存在非預期的字元「$1」'],
+      [/([<>]=?)\s*(\d+K)\s+tokens\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '$1$2 Tokens | 輸入: $ $3 / 輸出: $ $4'],
+      [/Image \(\*Output per image\) • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, '圖片 (*每張圖片輸出) | 輸入: $ $1 / 輸出: $ $2'],
+      [/All context lengths\s+•\s+Input:\s+\$([\d.]+)\s+\/\s+Output:\s+\$([\d.]+)/i, '所有內容長度 | 輸入: $ $1 / 輸出: $ $2'],
+      [/Text • Input: \$([\d.]+) \/ Output: \$([\d.]+)/i, '文字 | 輸入：$ $1，輸出：$ $2'],
+      [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
+      [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
+      [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
+      [/Apr\s+(\d{1,2}),\s+(\d{4})/, '$2年4月$1日'],
+      [/Aug\s+(\d{1,2}),\s+(\d{4})/, '$2年8月$1日'],
+      [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
+      [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
+      [/Jul\s+(\d{1,2}),\s+(\d{4})/, '$2年7月$1日'],
+      [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2年6月$1日'],
+      [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
+      [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
+      [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
+    ],
+    textRules: [
+      ['Upload a photo of yourself and an outfit to see how it looks on you. A virtual fitting room powered by Nano Banana.', '上傳您的個人照片和一套服飾，即可預覽穿在您身上的效果。這間虛擬試衣間由 Nano Banana™ 提供技術支援。'],
+      ['Gemini 2.5 Flash Audio', 'Gemini 2.5 Flash 音訊'],
+      ['Here are the changes:', '變更內容如下：'],
+      ['Character consistency', '角色一致性'],
+      ['object consistency', '物件一致性'],
+      ['Restored from', '從...復原：'],
+      [' Running for ', '執行時間 '],
+      ['Image Editing', '圖片編輯'],
+      ['Save app', '儲存應用程式'],
+      ['Thinking...', '思考中...'],
+      ['Saving…', '儲存中...'],
+      ['Added', '已新增'],
+      ['User', '使用者'],
+      ['Live', '即時'],
+      ['Medium', '中'],
+      ['Move', '移動'],
+      ['Name', '名稱'],
+      ['Save', '儲存'],
+      ['Send', '傳送'],
+      ['Stop', '停止'],
+      ['Talk', '交談'],
+      ['Text', '文字'],
+      ['Type', '類型'],
+      ['All', '全部'],
+      ['Cut', '剪下'],
+      ['Empty', '空'],
+      ['HOT', '熱門'],
+      ['Off', '關閉'],
+      ['Run', '執行'],
+      ['High', '高'],
+      ['and', '與'],
+      ['Low', '低'],
+      ['NEW', '新'],
+    ],
+  };
+  var claudeAiZhTw = {
+    language: 'zh-tw',
+    enabled: true,
+    styles: [],
+    blockedElements: [],
+    extendedElements: [],
+    customAttributes: [],
+    blockedAttributes: [],
+    jsRules: [],
+    regexRules: [
+      [/Per person \/ month with annual subscription discount\. SGD ([\d.]+)\s+if billed monthly\. Minimum (\d+)\s+members\./i, '每人/月，享年度訂閱折扣。若按月計費則為 新幣 $1。至少 $2 名成員。'],
+      [/Per person \/ month\. Minimum (\d+)\s+members\./i, '每人/月。至少 $1 名成員。'],
+      [/Delete\s+(\d+)\s+selected\s+items?/i, '刪除 $1 個選取的項目'],
+      [/(\d+)\s+chats?\s+with\s+(.+)/i, '與 $2 共有 $1 則聊天記錄'],
+      [/Dec\s+(\d{1,2}),\s+(\d{4})/, '$2年12月$1日'],
+      [/Nov\s+(\d{1,2}),\s+(\d{4})/, '$2年11月$1日'],
+      [/Oct\s+(\d{1,2}),\s+(\d{4})/, '$2年10月$1日'],
+      [/Apr\s+(\d{1,2}),\s+(\d{4})/, '$2年4月$1日'],
+      [/Aug\s+(\d{1,2}),\s+(\d{4})/, '$2年8月$1日'],
+      [/Feb\s+(\d{1,2}),\s+(\d{4})/, '$2年2月$1日'],
+      [/Jan\s+(\d{1,2}),\s+(\d{4})/, '$2年1月$1日'],
+      [/Jul\s+(\d{1,2}),\s+(\d{4})/, '$2年7月$1日'],
+      [/Jun\s+(\d{1,2}),\s+(\d{4})/, '$2年6月$1日'],
+      [/Mar\s+(\d{1,2}),\s+(\d{4})/, '$2年3月$1日'],
+      [/May\s+(\d{1,2}),\s+(\d{4})/, '$2年5月$1日'],
+      [/Sep\s+(\d{1,2}),\s+(\d{4})/, '$2年9月$1日'],
+      [/SGD\s+([\d.]+)/i, '新幣 $1'],
+    ],
+    textRules: [
+      ['upstream connect error or disconnect/reset before headers. reset reason: connection termination', '與後端伺服器連線錯誤，或在收到其回應標頭前連線被重設。重設原因：連線已終止。'],
+      ['Don’t share personal information or third-party content without permission, and see our ', '未經許可，請勿分享個人資訊或第三方內容，並請參閱我們的'],
+      ['Only messages up until now will be shared', '僅分享截至目前的訊息'],
+      ['Chat on web, iOS, and Android', '在網頁、iOS 和 Android 上聊天'],
+      ['Private (only you have access)', '私人 (僅限您本人存取)'],
+      ['Ability to search the web', '能夠搜尋網路'],
+      ['Analyze text and images', '分析文字與圖片'],
+      ['English (United States)', '英文 (美國)'],
+      ['Deutsch (Deutschland)', '德文 (德國)'],
+      ['français (France)', '法文 (法國)'],
+      ['Try Claude', '試用 Claude'],
+      ['Star', '標記星號'],
+      ['Connect', '連線'],
+      ['Log out', '登出'],
+      ['Members', '成員'],
+      ['Thumbs up', '讚'],
+      ['Upgrade', '升級'],
+      ['Accept', '接受'],
+      ['Browse', '瀏覽'],
+      ['Code', '程式碼'],
+      ['Delete', '刪除'],
+      ['Latest', '最新'],
+      ['Manage', '管理'],
+      ['Chats', '聊天'],
+      ['Image', '圖片'],
+      ['Learn', '學習'],
+      ['Legal', '法律'],
+      ['Other', '其他'],
+      ['Retry', '重試'],
+      ['Write', '撰寫'],
+      ['Edit', '編輯'],
+      ['Save', '儲存'],
+      ['Skip', '略過'],
+    ],
+  };
+  var zhTwTranslations = { 'aistudio.google.com#zh-tw': aistudioGoogleComZhTw, 'claude.ai#zh-tw': claudeAiZhTw };
+  var masterTranslationMap = { ...zhCnTranslations, ...zhHkTranslations, ...zhTwTranslations };
   var SUPPORTED_LANGUAGES = [
     { code: 'zh-cn', name: '简体中文-大陆', flag: '🇨🇳' },
     { code: 'zh-hk', name: '繁體中文-香港', flag: '🇭🇰' },
     { code: 'zh-tw', name: '繁體中文-台湾', flag: '🇹🇼' },
   ];
   var SUPPORTED_LANGUAGE_CODES = SUPPORTED_LANGUAGES.map((lang) => lang.code);
-  // src/modules/utils/logger.js
   var LOG_KEY = 'web_translate_debug_mode';
   var isDebugMode = GM_getValue(LOG_KEY, false);
   function updateDebugState(newMode) {
@@ -15443,7 +15165,6 @@
       }
     }
   }
-  // src/modules/ui/menu.js
   var MENU_COMMAND_ID = 'toggle_debug_log_command';
   var OVERRIDE_LANG_KEY = 'web-translate-language-override';
   function setOverrideLanguage(langCode) {
@@ -15477,7 +15198,6 @@
   function initializeMenu() {
     registerMenuCommands();
   }
-  // src/modules/ui/anti-flicker.js
   var STYLE_ID = 'anti-flicker-style';
   function injectAntiFlickerStyle() {
     if (!document.documentElement) {
@@ -15507,16 +15227,14 @@
       }
     }, 100);
   }
-  // src/config/index.js
-  var BLOCKS_ALL_TRANSLATION = /* @__PURE__ */ new Set(['script', 'style', 'pre', 'code', 'svg']);
-  var BLOCKS_CONTENT_ONLY = /* @__PURE__ */ new Set([]);
-  var ALL_UNTRANSLATABLE_TAGS = /* @__PURE__ */ new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
+  var BLOCKS_ALL_TRANSLATION = new Set(['script', 'style', 'pre', 'code', 'svg']);
+  var BLOCKS_CONTENT_ONLY = new Set([]);
+  var ALL_UNTRANSLATABLE_TAGS = new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
   var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
-  var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate', 'kbd']);
-  // src/modules/core/translator.js
+  var BLOCKED_CSS_CLASSES = new Set(['notranslate', 'kbd']);
   function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = [], pseudoRules = []) {
     let shadowRootFoundCallback = null;
-    const textTranslationMap = /* @__PURE__ */ new Map();
+    const textTranslationMap = new Map();
     if (Array.isArray(textRules)) {
       for (const rule of textRules) {
         if (Array.isArray(rule) && rule.length === 2 && typeof rule[0] === 'string' && typeof rule[1] === 'string') {
@@ -15525,11 +15243,11 @@
       }
     }
     let regexRules = regexArr;
-    let translationCache = /* @__PURE__ */ new Map();
-    let translatedElements = /* @__PURE__ */ new WeakSet();
-    const blockedElements = /* @__PURE__ */ new Set([...ALL_UNTRANSLATABLE_TAGS]);
+    let translationCache = new Map();
+    let translatedElements = new WeakSet();
+    const blockedElements = new Set([...ALL_UNTRANSLATABLE_TAGS]);
     const blockedElementSelectors = blockedSelectors || [];
-    const whitelist = /* @__PURE__ */ new Set([...attributesToTranslate, ...customAttributes]);
+    const whitelist = new Set([...attributesToTranslate, ...customAttributes]);
     for (const attr of blockedAttributes) {
       whitelist.delete(attr);
     }
@@ -15790,24 +15508,20 @@
       translate: translateElement,
       resetState: () => {
         translationCache.clear();
-        translatedElements = /* @__PURE__ */ new WeakSet();
+        translatedElements = new WeakSet();
         log('翻译器状态已重置');
       },
-      // 允许外部模块（如 observers.js）在 DOM 变动时，精确地使单个元素的缓存失效。
       deleteElement: (element) => {
         translatedElements.delete(element);
       },
       translatePseudoElements,
-      // 暴露给外部使用
-      // 允许外部注册 Shadow Root 发现回调
       setShadowRootCallback: (callback) => {
         shadowRootFoundCallback = callback;
       },
     };
   }
-  // src/modules/core/observers.js
   function initializeObservers(translator, extendedElements = [], customAttributes = [], blockedAttributes = []) {
-    const translationQueue = /* @__PURE__ */ new Set();
+    const translationQueue = new Set();
     let isScheduled = false;
     const FRAME_BUDGET = 12;
     function processQueue() {
@@ -15885,7 +15599,7 @@
       }
     };
     const mainObserver = new MutationObserver(mutationHandler);
-    const observedShadowRoots = /* @__PURE__ */ new WeakSet();
+    const observedShadowRoots = new WeakSet();
     function observeRoot(root) {
       if (!root || observedShadowRoots.has(root)) {
         return;
@@ -15909,18 +15623,12 @@
         }, 300);
       }
     });
-    const whitelist = /* @__PURE__ */ new Set([...attributesToTranslate, ...customAttributes]);
+    const whitelist = new Set([...attributesToTranslate, ...customAttributes]);
     for (const attr of blockedAttributes) {
       whitelist.delete(attr);
     }
     const finalAttributeFilter = [...whitelist];
-    const observerConfig = {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: finalAttributeFilter,
-      characterData: true,
-    };
+    const observerConfig = { childList: true, subtree: true, attributes: true, attributeFilter: finalAttributeFilter, characterData: true };
     if (translator.setShadowRootCallback) {
       translator.setShadowRootCallback((shadowRoot) => {
         observeRoot(shadowRoot);
@@ -15949,11 +15657,7 @@
           win.Element.prototype.attachShadow = patchedAttachShadow;
         } catch (err) {
           try {
-            Object.defineProperty(win.Element.prototype, 'attachShadow', {
-              value: patchedAttachShadow,
-              writable: true,
-              configurable: true,
-            });
+            Object.defineProperty(win.Element.prototype, 'attachShadow', { value: patchedAttachShadow, writable: true, configurable: true });
           } catch (err2) {
             throw new Error(`Assignment failed: ${err.message}, DefineProperty failed: ${err2.message}`);
           }
@@ -15977,9 +15681,7 @@
       log('警告: 无法在任何环境中拦截 attachShadow。动态 Shadow DOM 翻译可能会失效。这通常是由于网站严格的 CSP 或安全策略导致。');
     }
     observeRoot(document.body);
-    const initWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
-      acceptNode: (n) => (n.shadowRoot ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP),
-    });
+    const initWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, { acceptNode: (n) => (n.shadowRoot ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP) });
     while (initWalker.nextNode()) {
       observeRoot(initWalker.currentNode.shadowRoot);
     }
@@ -15998,12 +15700,7 @@
         titleObserver.disconnect();
       }
       titleObserver = new MutationObserver(handleTitleContentChange);
-      titleObserver.observe(element, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-        // 有些浏览器直接改 textNode
-      });
+      titleObserver.observe(element, { childList: true, subtree: true, characterData: true });
       translator.deleteElement(element);
       translator.translate(element);
     };
@@ -16093,15 +15790,11 @@
           }
         }
       });
-      additionObserver.observe(document.documentElement, {
-        childList: true,
-        subtree: true,
-      });
+      additionObserver.observe(document.documentElement, { childList: true, subtree: true });
       log('扩展元素观察器已激活。');
     }
     log('监听器初始化完成 (Time Slicing Enabled)。');
   }
-  // src/modules/core/translationInitializer.js
   function initializeTranslation(siteDictionary, createTranslator2, removeAntiFlickerStyle2, initializeObservers2, log2) {
     const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [], pseudoElements = [] } = siteDictionary;
     log2(`开始初始化翻译流程，使用语言: ${language ?? 'unknown'}`);
@@ -16121,14 +15814,7 @@
         }
       }
     }
-    const universalPseudoCss = [
-      '[data-wts-before]::before { content: attr(data-wts-before) !important; }',
-      '[data-wts-after]::after { content: attr(data-wts-after) !important; }',
-      '@keyframes wts-pseudo-start { from { opacity: 0.99; } to { opacity: 1; } }',
-      // 应用于所有伪元素。如果网站定义了自己的 animation，根据 CSS 优先级(Cascade)，
-      // 网站的规则(通常带有类名)会覆盖这里(仅标签名)，从而避免冲突。
-      '*::before, *::after { animation-duration: 0.001s; animation-name: wts-pseudo-start; }',
-    ];
+    const universalPseudoCss = ['[data-wts-before]::before { content: attr(data-wts-before) !important; }', '[data-wts-after]::after { content: attr(data-wts-after) !important; }', '@keyframes wts-pseudo-start { from { opacity: 0.99; } to { opacity: 1; } }', '*::before, *::after { animation-duration: 0.001s; animation-name: wts-pseudo-start; }'];
     const allCssRules = [...cssRules, ...universalPseudoCss];
     if (allCssRules.length > 0) {
       const customStyleElement = document.createElement('style');
@@ -16218,7 +15904,6 @@
       startTranslation();
     }
   }
-  // src/main.js
   (function (translations) {
     'use strict';
     initializeMenu();

@@ -36,8 +36,14 @@ async function calculateStatistics() {
       if (langDir.isDirectory()) {
         const langCode = langDir.name;
         stats[langCode] = { totalRules: 0, totalConfigs: 0, totalWebsites: 0, websites: {} };
-        const langPath = path.join(TRANSLATIONS_DIR, langCode);
-        const websiteFiles = await fs.readdir(langPath);
+        const langPath = path.join(TRANSLATIONS_DIR, langCode, 'sites');
+        let websiteFiles = [];
+        try {
+          websiteFiles = await fs.readdir(langPath);
+        } catch (e) {
+          // 如果 sites 目录不存在，忽略
+          continue;
+        }
         for (const file of websiteFiles) {
           if (file.endsWith('.js')) {
             const websiteName = file.replace('.js', '');

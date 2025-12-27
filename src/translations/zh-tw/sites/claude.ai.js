@@ -34,7 +34,7 @@ export const claudeAiZhTw = {
     // '#dynamic-content',
     // '.custom-widget'
   ],
-  
+
   // 自訂屬性白名單
   // 在此陣列中新增的任何 HTML 屬性名稱，都將在整個網站範圍內被翻譯。
   // 範例: 'data-tip', 'data-title'

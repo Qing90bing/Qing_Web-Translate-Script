@@ -77,10 +77,17 @@ async function handleRemoveTranslation() {
 
     // 遍历每个语言目录，收集其中的 `.js` 文件。
     for (const langDir of langDirs) {
-      const langPath = path.join(translationsDir, langDir);
-      const files = fs.readdirSync(langPath).filter(file => file.endsWith('.js'));
-      // 将文件及其所属的语言目录作为一个对象存入数组。
-      translationFiles.push(...files.map(file => ({ file, langDir })));
+      // 修改：扫描 sites 子目录
+      const sitesPath = path.join(translationsDir, langDir, 'sites');
+      try {
+        if (!fs.existsSync(sitesPath)) continue;
+
+        const files = fs.readdirSync(sitesPath).filter(file => file.endsWith('.js'));
+        // 将文件及其所属的语言目录作为一个对象存入数组。
+        translationFiles.push(...files.map(file => ({ file, langDir })));
+      } catch (e) {
+        // 忽略无法读取的目录
+      }
     }
   } catch (error) {
     console.error(color.red(t('manageTranslations.readingDirError')), error);
@@ -157,28 +164,38 @@ async function handleRemoveTranslation() {
   const domain = fileToRemove.file.replace(/\.js$/, '');
   // 根据文件名和语言目录反向生成对应的驼峰式变量名。
   const variableName = toCamelCase(domain, fileToRemove.langDir);
-  const filePath = path.join(translationsDir, fileToRemove.langDir, fileToRemove.file);
-  const indexJsPath = path.join(translationsDir, 'index.js');
+  // 修改：删除 sites 下的文件
+  const filePath = path.join(translationsDir, fileToRemove.langDir, 'sites', fileToRemove.file);
+  // 修改：更新的 index.js 是语言子目录下的
+  const indexJsPath = path.join(translationsDir, fileToRemove.langDir, 'index.js');
   const headerTxtPath = path.join(process.cwd(), 'src', 'header.txt');
 
   try {
     // 4a. 删除翻译文件本身
-    fs.unlinkSync(filePath);
-    console.log(color.green(t('manageTranslations.fileRemoved', fileToRemove.langDir, fileToRemove.file)));
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.log(color.green(t('manageTranslations.fileRemoved', fileToRemove.langDir, fileToRemove.file)));
+    } else {
+      console.warn(color.yellow(`File not found: ${filePath}`));
+    }
 
     // 4b. 更新 index.js
-    let indexJsContent = fs.readFileSync(indexJsPath, 'utf-8');
-    // 构建精确的正则表达式来移除 import 语句，匹配整行（包括换行符）以避免留下空行。
-    // 使用 'm' (multiline) 标志，使 '^' 能够匹配一行的开头。
-    const importRegex = new RegExp(`^import\\s+\\{\\s*${variableName}\\s*\\}\\s+from\\s+'\\.\\/${fileToRemove.langDir}/${fileToRemove.file}';?\\s*\\r?\\n?`, 'm');
-    indexJsContent = indexJsContent.replace(importRegex, '');
+    if (fs.existsSync(indexJsPath)) {
+      let indexJsContent = fs.readFileSync(indexJsPath, 'utf-8');
+      // 构建精确的正则表达式来移除 import 语句
+      // 修改：import 路径现在是 ./sites/...
+      const importRegex = new RegExp(`^import\\s+\\{\\s*${variableName}\\s*\\}\\s+from\\s+'\\./sites/${fileToRemove.file}';?\\s*\\r?\\n?`, 'm');
+      indexJsContent = indexJsContent.replace(importRegex, '');
 
-    // 构建精确的正则表达式来移除在 masterTranslationMap 中的注册条目。
-    const mapEntryRegex = new RegExp(`^\\s*"${domain}#${fileToRemove.langDir}":\\s*${variableName},?\\s*\\r?\\n?`, 'm');
-    indexJsContent = indexJsContent.replace(mapEntryRegex, '');
+      // 构建精确的正则表达式来移除注册条目
+      const mapEntryRegex = new RegExp(`^\\s*"${domain}#${fileToRemove.langDir}":\\s*${variableName},?\\s*\\r?\\n?`, 'm');
+      indexJsContent = indexJsContent.replace(mapEntryRegex, '');
 
-    fs.writeFileSync(indexJsPath, indexJsContent);
-    console.log(color.green(t('manageTranslations.indexJsUpdated')));
+      fs.writeFileSync(indexJsPath, indexJsContent);
+      console.log(color.green(t('manageTranslations.indexJsUpdated')));
+    } else {
+      console.error(color.red(`Index file not found: ${indexJsPath}`));
+    }
 
     // 4c. 条件性地更新 header.txt
     // 在移除 @match 指令前，先检查是否还存在该网站的其他语言版本的翻译文件。
@@ -190,7 +207,8 @@ async function handleRemoveTranslation() {
       );
 
       for (const langDir of allLangDirs) {
-        const otherLangPath = path.join(translationsDir, langDir, fileToRemove.file);
+        // 修改：检查其他语言的 sites 目录
+        const otherLangPath = path.join(translationsDir, langDir, 'sites', fileToRemove.file);
         if (fs.existsSync(otherLangPath)) {
           hasOtherLanguageFiles = true;
           break; // 找到一个就足够了，可以立即中断检查。

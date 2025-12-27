@@ -248,8 +248,15 @@ async function handleSortTranslations() {
       );
 
       for (const langDir of langDirs) {
-        const langPath = path.join(translationsDir, langDir);
-        const files = (await fs.readdir(langPath)).filter(file => file.endsWith('.js'));
+        // 修改：扫描 sites 子目录
+        const sitesPath = path.join(translationsDir, langDir, 'sites');
+        try {
+          await fs.stat(sitesPath);
+        } catch {
+          continue;
+        }
+
+        const files = (await fs.readdir(sitesPath)).filter(file => file.endsWith('.js'));
         allFiles.push(...files.map(file => ({ file, langDir })));
       }
     } catch (error) {
@@ -312,7 +319,8 @@ async function handleSortTranslations() {
     if (isGlobalOperation) {
       console.log(color.bold(t('sortTranslations.executingGlobalTask')));
       for (const { file, langDir } of allFiles) {
-        const filePath = path.join(translationsDir, langDir, file);
+        // 修改：文件位于 sites 子目录
+        const filePath = path.join(translationsDir, langDir, 'sites', file);
         console.log(color.cyan(t('sortTranslations.processingFile', file, langDir)));
         if (fileToSort === 'all_regex' || fileToSort === 'all_all') {
           await runSort(filePath, 'regexRules');
@@ -353,7 +361,8 @@ async function handleSortTranslations() {
         continue; // 返回文件选择菜单
       }
 
-      const filePath = path.join(translationsDir, fileToSort.langDir, fileToSort.file);
+      // 修改：文件位于 sites 子目录
+      const filePath = path.join(translationsDir, fileToSort.langDir, 'sites', fileToSort.file);
 
       if (keyToSort === 'all') {
         console.log(color.bold(t('sortTranslations.comprehensiveSort', color.yellow(fileToSort.file), fileToSort.langDir)));
