@@ -51,7 +51,7 @@ onMounted(() => {
   margin-bottom: 2rem;
 }
 
-p {
+.redirect-container p {
   font-size: 1.2rem;
   font-weight: 500;
   color: var(--vp-c-text-1);
