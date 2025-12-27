@@ -19,7 +19,7 @@ const __dirname = path.dirname(__filename);
 
 // --- 路径定义 ---
 // 定义语言包的根目录
-const LOCALES_DIR = path.join(__dirname, '../../locales/terminal');
+const LOCALES_DIR = path.join(__dirname, '../tasks/terminal/locales');
 // 定义存放具体语言文件（如 en-US.json）的目录
 const LANGUAGES_DIR = path.join(LOCALES_DIR, 'languages');
 // 定义语言配置文件的完整路径
@@ -70,12 +70,12 @@ export function setCurrentLanguage(languageCode) {
     if (!isSupported) {
       throw new Error(t('terminalLanguage.unsupportedLanguage', languageCode) || `Unsupported language: ${languageCode}`);
     }
-    
+
     // 更新配置对象中的当前语言
     config.currentLanguage = languageCode;
     // 将更新后的配置写回 config.json 文件，`null, 2` 用于格式化输出，使其具有缩进，易于阅读。
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf8');
-    
+
     // 成功设置新语言后，清除缓存，以便下次调用 `t` 函数时能加载新的语言包。
     currentLanguagePack = null;
     currentLanguageCode = null;
@@ -110,12 +110,12 @@ export function loadLanguagePack(languageCode) {
  */
 export function getCurrentLanguagePack() {
   const config = getLanguageConfig();
-  
+
   // 检查缓存是否有效：缓存存在且语言代码与当前配置一致。
   if (currentLanguagePack && currentLanguageCode === config.currentLanguage) {
     return currentLanguagePack;
   }
-  
+
   // 如果缓存无效，则加载新的语言包
   currentLanguagePack = loadLanguagePack(config.currentLanguage);
   // 更新缓存中的语言代码
@@ -134,11 +134,11 @@ export function getCurrentLanguagePack() {
  */
 export function t(key, ...args) {
   const languagePack = getCurrentLanguagePack();
-  
+
   // 通过点号分隔的键路径获取嵌套的对象值
   const keys = key.split('.');
   let value = languagePack;
-  
+
   for (const k of keys) {
     // 逐级深入对象，查找最终的值
     if (value && typeof value === 'object' && k in value) {
@@ -148,7 +148,7 @@ export function t(key, ...args) {
       return key;
     }
   }
-  
+
   // 如果最终找到的值是字符串，并且有替换参数，则进行占位符替换。
   // 正则表达式 `/{(\d+)}/g` 匹配所有像 {0}, {1} 这样的占位符。
   if (args.length > 0 && typeof value === 'string') {
@@ -158,7 +158,7 @@ export function t(key, ...args) {
       return args[index] !== undefined ? args[index] : match;
     });
   }
-  
+
   // 如果没有参数或找到的值不是字符串，直接返回值。
   return value;
 }
@@ -191,20 +191,20 @@ export function getCurrentLanguageCode() {
 export function addLanguage(languageCode, languageName) {
   try {
     const config = getLanguageConfig();
-    
+
     // 检查该语言是否已经存在，避免重复添加。
     const exists = config.supportedLanguages.some(lang => lang.code === languageCode);
     if (exists) {
       console.warn(t('terminalLanguage.languageAlreadyExists', languageCode) || `Language ${languageCode} already exists`);
       return false;
     }
-    
+
     // 在支持语言列表中添加新语言
     config.supportedLanguages.push({ code: languageCode, name: languageName });
-    
+
     // 更新配置文件
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf8');
-    
+
     // 以英文语言包为模板，创建新的语言文件。
     // 这样做可以确保新语言文件包含所有必需的键。
     const englishPack = loadLanguagePack('en-US');
@@ -212,10 +212,10 @@ export function addLanguage(languageCode, languageName) {
       ...englishPack,
       "language": languageName // 将新语言的名称写入语言包
     };
-    
+
     const languageFile = path.join(LANGUAGES_DIR, `${languageCode}.json`);
     fs.writeFileSync(languageFile, JSON.stringify(newLanguagePack, null, 2), 'utf8');
-    
+
     console.log(t('terminalLanguage.successfullyAdded', languageCode, languageName) || `Successfully added language: ${languageCode} (${languageName})`);
     return true;
   } catch (error) {
@@ -233,7 +233,7 @@ export function addLanguage(languageCode, languageName) {
 export function updateLanguagePack(languageCode, translations) {
   try {
     const languageFile = path.join(LANGUAGES_DIR, `${languageCode}.json`);
-    
+
     // 先读取现有的语言包内容
     let existingContent = {};
     try {
@@ -243,13 +243,13 @@ export function updateLanguagePack(languageCode, translations) {
       // 如果文件不存在或无法解析，则警告用户并从一个空对象开始。
       console.warn(t('terminalLanguage.languageFileNotFound', languageCode) || `Language file for ${languageCode} not found or invalid, creating new one.`);
     }
-    
+
     // 将新旧内容合并，新内容会覆盖旧内容中相同的键。
     const updatedContent = { ...existingContent, ...translations };
-    
+
     // 将合并后的内容写回文件。
     fs.writeFileSync(languageFile, JSON.stringify(updatedContent, null, 2), 'utf8');
-    
+
     console.log(t('terminalLanguage.successfullyUpdatedPack', languageCode) || `Successfully updated language pack for: ${languageCode}`);
     return true;
   } catch (error) {

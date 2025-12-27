@@ -26,9 +26,9 @@ import path from 'path';
 import inquirer from 'inquirer';
 
 // 导入本地模块
-import { color } from '../../lib/colors.js';
-import { t } from '../../lib/terminal-i18n.js';
-import { SUPPORTED_LANGUAGE_CODES } from '../../../src/config/languages.js';
+import { color } from '../../../lib/colors.js';
+import { t } from '../../../lib/terminal-i18n.js';
+import { SUPPORTED_LANGUAGE_CODES } from '../../../../src/config/languages.js';
 
 // --- 辅助函数 ---
 
@@ -44,15 +44,15 @@ function toCamelCase(domain, language = '') {
   let result = domain.replace(/\./g, ' ').replace(/(?:^|\s)\w/g, (match, index) => {
     return index === 0 ? match.toLowerCase().trim() : match.toUpperCase().trim();
   }).replace(/\s+/g, '');
-  
+
   if (language) {
     const langParts = language.split('-');
-    const langSuffix = langParts.map(part => 
+    const langSuffix = langParts.map(part =>
       part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
     ).join('');
     result += langSuffix;
   }
-  
+
   return result;
 }
 
@@ -65,16 +65,16 @@ async function handleRemoveTranslation() {
   console.log(color.bold(color.cyan(t('manageTranslations.scanningFiles'))));
 
   const translationsDir = path.join(process.cwd(), 'src', 'translations');
-  
+
   // --- 步骤 1: 扫描并列出所有可移除的翻译文件 ---
   let translationFiles = [];
   try {
     // 读取 `src/translations` 下的所有子目录，并筛选出在配置中支持的语言目录。
-    const langDirs = fs.readdirSync(translationsDir).filter(file => 
-      fs.statSync(path.join(translationsDir, file)).isDirectory() && 
+    const langDirs = fs.readdirSync(translationsDir).filter(file =>
+      fs.statSync(path.join(translationsDir, file)).isDirectory() &&
       SUPPORTED_LANGUAGE_CODES.includes(file)
     );
-    
+
     // 遍历每个语言目录，收集其中的 `.js` 文件。
     for (const langDir of langDirs) {
       const langPath = path.join(translationsDir, langDir);
@@ -100,7 +100,7 @@ async function handleRemoveTranslation() {
     }
     filesByLanguage[langDir].push({ file, langDir });
   });
-  
+
   // 创建 inquirer 的选项数组，包含语言分组的分隔符。
   const choices = [];
   Object.keys(filesByLanguage).sort().forEach(langDir => {
@@ -112,7 +112,7 @@ async function handleRemoveTranslation() {
       });
     });
   });
-  
+
   // --- 步骤 3: 提示用户选择并确认 ---
   const { fileToRemove } = await inquirer.prompt([
     {
@@ -185,10 +185,10 @@ async function handleRemoveTranslation() {
     let hasOtherLanguageFiles = false;
     try {
       const allLangDirs = fs.readdirSync(translationsDir).filter(file =>
-        fs.statSync(path.join(translationsDir, file)).isDirectory() && 
+        fs.statSync(path.join(translationsDir, file)).isDirectory() &&
         SUPPORTED_LANGUAGE_CODES.includes(file)
       );
-      
+
       for (const langDir of allLangDirs) {
         const otherLangPath = path.join(translationsDir, langDir, fileToRemove.file);
         if (fs.existsSync(otherLangPath)) {
@@ -199,7 +199,7 @@ async function handleRemoveTranslation() {
     } catch (checkError) {
       console.warn(color.yellow(t('sortTranslations.readingDirError', checkError.message)));
     }
-    
+
     // 只有当这是该网站的最后一个翻译文件时，才移除 @match 指令。
     if (!hasOtherLanguageFiles) {
       let headerTxtContent = fs.readFileSync(headerTxtPath, 'utf-8');

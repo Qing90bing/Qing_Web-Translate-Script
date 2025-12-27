@@ -2,8 +2,8 @@ import esbuild from 'esbuild';
 import fs from 'fs/promises';
 import path from 'path';
 import prettier from 'prettier';
-import { color } from '../lib/colors.js';
-import { t } from '../lib/terminal-i18n.js';
+import { color } from '../../../lib/colors.js';
+import { t } from '../../../lib/terminal-i18n.js';
 
 /**
  * @function handleFullBuild
@@ -32,28 +32,28 @@ export default async function handleFullBuild(preserveFormatting) {
     let finalScript;
 
     if (preserveFormatting) {
-        const formattedCode = await prettier.format(bundledCode, {
-            parser: 'babel',
-            semi: true,
-            singleQuote: true,
-            printWidth: 9999,
-        });
-        finalScript = `${header}\n\n${formattedCode}`;
-        console.log(color.green(t('buildProject.preservingFormatting')));
+      const formattedCode = await prettier.format(bundledCode, {
+        parser: 'babel',
+        semi: true,
+        singleQuote: true,
+        printWidth: 9999,
+      });
+      finalScript = `${header}\n\n${formattedCode}`;
+      console.log(color.green(t('buildProject.preservingFormatting')));
     } else {
-        bundledCode = bundledCode.replace(
-          /("(?:\\.|[^"\\])*")|('(?:\\.|[^'\\])*')|(`(?:\\.|[^`\\])*`)|(\/\*[\s\S]*?\*\/)|(\/\/.*)/g,
-          (m, dq, sq, tl) => (dq || sq || tl ? m : '')
-        );
-        bundledCode = bundledCode.replace(/^\s*description:\s*["'][\s\S]*?["'],?\s*$/gm, '');
-        bundledCode = bundledCode.replace(/^\s*testUrl:\s*["'][\s\S]*?["'],?\s*$/gm, '');
-        bundledCode = bundledCode.replace(/^\s*createdAt:\s*["'][\s\S]*?["'],?\s*$/gm, '');
-        let formattedCode = await prettier.format(bundledCode, {
-            parser: 'babel', semi: true, singleQuote: true, printWidth: 9999,
-        });
-        formattedCode = formattedCode.replace(/^\s*[\r\n]/gm, '');
-        finalScript = `${header}\n\n${formattedCode}`;
-        console.log(color.green(t('buildProject.removingFormatting')));
+      bundledCode = bundledCode.replace(
+        /("(?:\\.|[^"\\])*")|('(?:\\.|[^'\\])*')|(`(?:\\.|[^`\\])*`)|(\/\*[\s\S]*?\*\/)|(\/\/.*)/g,
+        (m, dq, sq, tl) => (dq || sq || tl ? m : '')
+      );
+      bundledCode = bundledCode.replace(/^\s*description:\s*["'][\s\S]*?["'],?\s*$/gm, '');
+      bundledCode = bundledCode.replace(/^\s*testUrl:\s*["'][\s\S]*?["'],?\s*$/gm, '');
+      bundledCode = bundledCode.replace(/^\s*createdAt:\s*["'][\s\S]*?["'],?\s*$/gm, '');
+      let formattedCode = await prettier.format(bundledCode, {
+        parser: 'babel', semi: true, singleQuote: true, printWidth: 9999,
+      });
+      formattedCode = formattedCode.replace(/^\s*[\r\n]/gm, '');
+      finalScript = `${header}\n\n${formattedCode}`;
+      console.log(color.green(t('buildProject.removingFormatting')));
     }
 
     // --- 步骤 4: 将最终脚本写入文件 ---

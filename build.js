@@ -26,17 +26,17 @@ import { promptToPreserveFormatting } from './build-tasks/lib/prompting.js';
 // 导入终端国际化模块，用于显示多语言菜单。
 import { t, getSupportedLanguages, getCurrentLanguageCode } from './build-tasks/lib/terminal-i18n.js';
 // 从 `tasks` 目录导入所有具体的任务处理器。
-import handleTerminalLanguage from './build-tasks/tasks/terminal-language.js';
+import handleTerminalLanguage from './build-tasks/tasks/terminal/terminal-language.js';
 import handleCommaCheck from './build-tasks/tasks/check/check-comma.js';
 import handleDuplicatesCheck from './build-tasks/tasks/check/check-duplicates.js';
 import handleEmptyCheck from './build-tasks/tasks/check/check-empty.js';
 import handleIdenticalCheck from './build-tasks/tasks/check/check-identical.js';
 import handleSourceDuplicatesCheck from './build-tasks/tasks/check/check-source-duplicates.js';
-import handleFullBuild from './build-tasks/tasks/build-project.js';
-import handleCdnBuild from './build-tasks/tasks/build-cdn.js';
-import handleManageTranslations from './build-tasks/tasks/translation/manage-translations.js';
-import handleSortTranslations from './build-tasks/tasks/translation/sort-translations.js';
-import handleStatistics from './build-tasks/tasks/statistics.js';
+import handleFullBuild from './build-tasks/tasks/project-operations/build/build-project.js';
+import handleCdnBuild from './build-tasks/tasks/project-operations/build/build-cdn.js';
+import handleManageTranslations from './build-tasks/tasks/project-operations/manage-translations/manage-translations.js';
+import handleSortTranslations from './build-tasks/tasks/project-operations/sort-translations/sort-translations.js';
+import handleStatistics from './build-tasks/tasks/terminal/statistics.js';
 
 
 /**
@@ -55,7 +55,7 @@ async function main() {
     console.log(separator);
     console.log(title);
     console.log(separator);
-    
+
     // 获取当前终端语言信息，用于在菜单中动态显示。
     const currentLanguageCode = getCurrentLanguageCode();
     const supportedLanguages = getSupportedLanguages();

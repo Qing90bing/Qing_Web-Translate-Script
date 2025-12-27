@@ -25,11 +25,11 @@ import inquirer from 'inquirer'; // 用于创建交互式菜单
 import { parse } from 'acorn'; // 用于将 JS 代码解析成 AST
 
 // 导入本地模块
-import { color } from '../../lib/colors.js';
-import { t } from '../../lib/terminal-i18n.js';
-import { getLiteralValue } from '../../lib/validation.js';
-import { pressAnyKeyToContinue } from '../../lib/utils.js';
-import { SUPPORTED_LANGUAGE_CODES } from '../../../src/config/languages.js';
+import { color } from '../../../lib/colors.js';
+import { t } from '../../../lib/terminal-i18n.js';
+import { getLiteralValue } from '../../../lib/validation.js';
+import { pressAnyKeyToContinue } from '../../../lib/utils.js';
+import { SUPPORTED_LANGUAGE_CODES } from '../../../../src/config/languages.js';
 
 /**
  * @function visualLength
@@ -178,24 +178,24 @@ async function runSort(filePath, keyToSort) {
 
     // 步骤 3: 将 AST 数组元素转换成一个标准的 JavaScript 数组，以便于排序。
     const originalArray = arrayNode.elements.map(element => {
-        if (element.type !== 'ArrayExpression' || element.elements.length !== 2) {
-            return null; // 忽略格式不正确的条目
-        }
-        const keyNode = element.elements[0];
-        const valueNode = element.elements[1];
+      if (element.type !== 'ArrayExpression' || element.elements.length !== 2) {
+        return null; // 忽略格式不正确的条目
+      }
+      const keyNode = element.elements[0];
+      const valueNode = element.elements[1];
 
-        let key;
-        if (keyNode.type === 'RegExpLiteral') {
-            // 从 AST 节点重新构造 RegExp 对象。
-            key = new RegExp(keyNode.pattern, keyNode.flags);
-        } else {
-            key = getLiteralValue(keyNode); // 处理字符串字面量
-        }
+      let key;
+      if (keyNode.type === 'RegExpLiteral') {
+        // 从 AST 节点重新构造 RegExp 对象。
+        key = new RegExp(keyNode.pattern, keyNode.flags);
+      } else {
+        key = getLiteralValue(keyNode); // 处理字符串字面量
+      }
 
-        const value = getLiteralValue(valueNode);
+      const value = getLiteralValue(valueNode);
 
-        if (key === null || value === null) return null;
-        return [key, value];
+      if (key === null || value === null) return null;
+      return [key, value];
     }).filter(Boolean); // 过滤掉所有格式不正确的条目
 
     // 步骤 4: 调用相应的排序函数对数组进行排序。
@@ -215,7 +215,7 @@ async function runSort(filePath, keyToSort) {
     const contentBefore = originalContent.substring(0, arrayNode.range[0]);
     const contentAfter = originalContent.substring(arrayNode.range[1]);
     const updatedContent = contentBefore + sortedArrayString + contentAfter;
-    
+
     await fs.writeFile(filePath, updatedContent, 'utf-8');
     console.log(color.green(t('sortTranslations.sortSuccess', color.yellow(keyToSort))));
     return true;
@@ -243,10 +243,10 @@ async function handleSortTranslations() {
     // 动态扫描并列出所有可供排序的翻译文件。
     let allFiles = [];
     try {
-      const langDirs = (await fs.readdir(translationsDir)).filter(file => 
+      const langDirs = (await fs.readdir(translationsDir)).filter(file =>
         SUPPORTED_LANGUAGE_CODES.includes(file)
       );
-      
+
       for (const langDir of langDirs) {
         const langPath = path.join(translationsDir, langDir);
         const files = (await fs.readdir(langPath)).filter(file => file.endsWith('.js'));
@@ -257,7 +257,7 @@ async function handleSortTranslations() {
       await pressAnyKeyToContinue();
       return;
     }
-    
+
     if (allFiles.length === 0) {
       console.log(color.yellow(t('sortTranslations.noFilesToSort')));
       await pressAnyKeyToContinue();
@@ -267,14 +267,14 @@ async function handleSortTranslations() {
     // 创建 inquirer 选项，按语言对文件进行分组显示，以提高可读性。
     const fileChoices = [];
     const filesByLanguage = {};
-    
+
     allFiles.forEach(({ file, langDir }) => {
       if (!filesByLanguage[langDir]) {
         filesByLanguage[langDir] = [];
       }
       filesByLanguage[langDir].push({ file, langDir });
     });
-    
+
     Object.keys(filesByLanguage).sort().forEach(langDir => {
       fileChoices.push(new inquirer.Separator(`--- ${langDir} ---`));
       filesByLanguage[langDir].forEach(({ file, langDir }) => {
@@ -292,11 +292,11 @@ async function handleSortTranslations() {
         name: 'fileToSort',
         message: t('sortTranslations.selectFile'),
         choices: [
-          ...fileChoices, 
+          ...fileChoices,
           new inquirer.Separator(t('sortTranslations.globalOperation')),
           { name: t('sortTranslations.sortAllRegex'), value: 'all_regex' },
           { name: t('sortTranslations.sortAllText'), value: 'all_text' },
-          { name: t('sortTranslations.sortAll'), value: 'all_all' }, 
+          { name: t('sortTranslations.sortAll'), value: 'all_all' },
           new inquirer.Separator(),
           { name: t('sortTranslations.backToMenu'), value: 'back' }
         ],
@@ -307,7 +307,7 @@ async function handleSortTranslations() {
     if (fileToSort === 'back') { return; }
 
     const isGlobalOperation = typeof fileToSort === 'string' && fileToSort.startsWith('all_');
-    
+
     // 处理全局批量操作
     if (isGlobalOperation) {
       console.log(color.bold(t('sortTranslations.executingGlobalTask')));
@@ -329,23 +329,23 @@ async function handleSortTranslations() {
         await pressAnyKeyToContinue();
         continue;
       }
-      
+
       // 询问用户要对该文件的哪个部分进行排序。
       const { keyToSort } = await inquirer.prompt([
         {
-            type: 'list',
-            name: 'keyToSort',
-            message: t('sortTranslations.selectKey', color.yellow(fileToSort.file), fileToSort.langDir),
-            choices: [
-                { name: t('sortTranslations.regexRules'), value: 'regexRules' },
-                { name: t('sortTranslations.textRules'), value: 'textRules' },
-                new inquirer.Separator(),
-                { name: t('sortTranslations.executeAll'), value: 'all' },
-                new inquirer.Separator(),
-                { name: t('sortTranslations.back'), value: 'back' },
-            ],
-            prefix: '🔑',
-            pageSize: 20,
+          type: 'list',
+          name: 'keyToSort',
+          message: t('sortTranslations.selectKey', color.yellow(fileToSort.file), fileToSort.langDir),
+          choices: [
+            { name: t('sortTranslations.regexRules'), value: 'regexRules' },
+            { name: t('sortTranslations.textRules'), value: 'textRules' },
+            new inquirer.Separator(),
+            { name: t('sortTranslations.executeAll'), value: 'all' },
+            new inquirer.Separator(),
+            { name: t('sortTranslations.back'), value: 'back' },
+          ],
+          prefix: '🔑',
+          pageSize: 20,
         }
       ]);
 
@@ -354,7 +354,7 @@ async function handleSortTranslations() {
       }
 
       const filePath = path.join(translationsDir, fileToSort.langDir, fileToSort.file);
-      
+
       if (keyToSort === 'all') {
         console.log(color.bold(t('sortTranslations.comprehensiveSort', color.yellow(fileToSort.file), fileToSort.langDir)));
         const successRegex = await runSort(filePath, 'regexRules');

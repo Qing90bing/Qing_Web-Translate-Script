@@ -17,8 +17,8 @@
 import inquirer from 'inquirer';
 
 // 导入本地模块
-import { color } from '../../lib/colors.js'; // 颜色工具
-import { t } from '../../lib/terminal-i18n.js'; // 国际化函数
+import { color } from '../../../lib/colors.js'; // 颜色工具
+import { t } from '../../../lib/terminal-i18n.js'; // 国际化函数
 import handleAddNewTranslation from './add-translation.js'; // 导入“添加翻译”任务处理器
 import handleRemoveTranslation from './remove-translation.js'; // 导入“移除翻译”任务处理器
 

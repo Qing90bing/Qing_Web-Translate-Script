@@ -2,8 +2,8 @@
 import inquirer from 'inquirer';
 
 // 导入本地模块
-import { color } from '../lib/colors.js';
-import { t, setCurrentLanguage, getSupportedLanguages, getCurrentLanguageCode, addLanguage } from '../lib/terminal-i18n.js';
+import { color } from '../../lib/colors.js';
+import { t, setCurrentLanguage, getSupportedLanguages, getCurrentLanguageCode, addLanguage } from '../../lib/terminal-i18n.js';
 
 /**
  * @file build-tasks/tasks/terminal-language.js
@@ -30,7 +30,7 @@ async function handleTerminalLanguage() {
     // 获取当前语言和所有支持的语言
     const currentLanguageCode = getCurrentLanguageCode();
     const supportedLanguages = getSupportedLanguages();
-    
+
     // 获取当前语言的详细信息
     const currentLanguage = supportedLanguages.find(lang => lang.code === currentLanguageCode);
 
@@ -79,13 +79,13 @@ async function handleTerminalLanguage() {
 async function handleSwitchLanguage() {
   const supportedLanguages = getSupportedLanguages();
   const currentLanguageCode = getCurrentLanguageCode();
-  
+
   // 创建语言选择列表 - 只在当前语言显示对勾，其他语言不显示图标
   const languageChoices = supportedLanguages.map(lang => ({
     name: `${lang.code === currentLanguageCode ? '✅' : '  '} ${lang.name} (${lang.code})`,
     value: lang.code
   }));
-  
+
   languageChoices.push(new inquirer.Separator());
   languageChoices.push({ name: t('terminalLanguage.back'), value: 'back' });
 
@@ -103,7 +103,7 @@ async function handleSwitchLanguage() {
   if (languageCode !== 'back') {
     setCurrentLanguage(languageCode);
     console.log(color.green(t('terminalLanguage.languageSwitched', languageCode)));
-    
+
     // 还原"请选择操作:"提示
     await inquirer.prompt([
       {
@@ -125,7 +125,7 @@ async function handleSwitchLanguage() {
  */
 async function handleAddLanguage() {
   console.log(color.cyan(t('terminalLanguage.enterLanguageCode')));
-  
+
   const { languageCode } = await inquirer.prompt([
     {
       type: 'input',
@@ -166,7 +166,7 @@ async function handleAddLanguage() {
 
   const code = languageCode.trim();
   const name = languageName.trim();
-  
+
   // 确认添加
   const { confirm } = await inquirer.prompt([
     {
@@ -186,7 +186,7 @@ async function handleAddLanguage() {
     } else {
       console.log(color.red(t('terminalLanguage.languageAddFailed')));
     }
-    
+
     // 还原"请选择操作:"提示
     await inquirer.prompt([
       {
@@ -210,23 +210,23 @@ async function handleAddLanguage() {
 async function handleListLanguages() {
   const supportedLanguages = getSupportedLanguages();
   const currentLanguageCode = getCurrentLanguageCode();
-  
+
   console.clear();
   const title = color.bold(color.cyan(t('terminalLanguage.allLanguagesTitle')));
   const separator = color.dim(t('terminalLanguage.separator'));
   console.log(separator);
   console.log(title);
   console.log(separator);
-  
+
   console.log(`\n${t('terminalLanguage.currentLanguageIndicator', color.green(currentLanguageCode))}\n`);
-  
+
   console.log(t('terminalLanguage.languageList'));
   supportedLanguages.forEach((lang, index) => {
     const isCurrent = lang.code === currentLanguageCode;
     // 所有语言都显示地球图标
     console.log(t('terminalLanguage.languageItem', index + 1, lang.name, lang.code, isCurrent ? t('terminalLanguage.currentIndicator') : ''));
   });
-  
+
   // 还原"请选择操作:"提示
   await inquirer.prompt([
     {

@@ -22,9 +22,9 @@ import path from 'path';
 import inquirer from 'inquirer';
 
 // 导入本地的辅助模块和配置
-import { color } from '../../lib/colors.js'; // 用于在终端输出带颜色的文本
-import { t } from '../../lib/terminal-i18n.js'; // 国际化函数，用于显示多语言文本
-import { SUPPORTED_LANGUAGES } from '../../../src/config/languages.js'; // 支持的语言列表
+import { color } from '../../../lib/colors.js'; // 用于在终端输出带颜色的文本
+import { t } from '../../../lib/terminal-i18n.js'; // 国际化函数，用于显示多语言文本
+import { SUPPORTED_LANGUAGES } from '../../../../src/config/languages.js'; // 支持的语言列表
 
 /**
  * @function toCamelCase
@@ -39,17 +39,17 @@ function toCamelCase(domain, language = '') {
   let result = domain.replace(/\./g, ' ').replace(/(?:^|\s)\w/g, (match, index) => {
     return index === 0 ? match.toLowerCase().trim() : match.toUpperCase().trim();
   }).replace(/\s+/g, ''); // 移除所有空格
-  
+
   // 如果提供了语言标识，则将其附加到变量名后面以确保唯一性。
   if (language) {
     // 将语言标识（如 "zh-CN"）也转换为驼峰式命名的大写后缀（如 "ZhCn"）。
     const langParts = language.split('-');
-    const langSuffix = langParts.map(part => 
+    const langSuffix = langParts.map(part =>
       part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
     ).join('');
     result += langSuffix;
   }
-  
+
   return result;
 }
 
@@ -62,10 +62,10 @@ async function handleAddNewTranslation() {
   // --- 步骤 1: 提示用户选择语言 ---
   // 根据配置文件动态生成语言选择列表，包含国旗以增强可读性。
   const languageChoices = SUPPORTED_LANGUAGES.map(lang => ({
-    name: `${lang.name} (${lang.code}) ${lang.flag}`, 
+    name: `${lang.name} (${lang.code}) ${lang.flag}`,
     value: lang.code
   }));
-  
+
   const { language } = await inquirer.prompt([
     {
       type: 'list',
@@ -79,13 +79,13 @@ async function handleAddNewTranslation() {
       ]
     }
   ]);
-  
+
   // 如果用户选择返回，则取消操作并退出。
   if (language === 'back') {
     console.log(color.dim(t('manageTranslations.creationCancelled')));
     return;
   }
-  
+
   // --- 步骤 2: 提示用户输入并验证域名 ---
   const { domain } = await inquirer.prompt([
     {
@@ -107,7 +107,7 @@ async function handleAddNewTranslation() {
         if (fs.existsSync(filePath)) {
           return t('manageTranslations.fileAlreadyExists', color.yellow(fileName));
         }
-        
+
         // 使用正则表达式对域名格式进行简单校验。
         const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!domainRegex.test(trimmedInput)) {
@@ -131,7 +131,7 @@ async function handleAddNewTranslation() {
   const variableName = toCamelCase(trimmedDomain, language);
 
   console.log(t('manageTranslations.creatingFile', color.yellow(t('manageTranslations.languageLabel')), language, color.yellow(t('manageTranslations.fileNameLabel')), fileName, color.yellow(t('manageTranslations.variableNameLabel')), variableName));
-  
+
   // 最终确认
   const { confirm } = await inquirer.prompt([
     {
@@ -161,8 +161,8 @@ async function handleAddNewTranslation() {
     // Node.js 的动态 import() 需要文件 URL 或绝对路径。
     // 我们将使用 path.resolve 来获取模板文件的绝对路径。
     const templateFileName = `${language}.js`;
-    const templatePath = path.resolve(process.cwd(), 'build-tasks/tasks/translation/templates', templateFileName);
-    const defaultTemplatePath = path.resolve(process.cwd(), 'build-tasks/tasks/translation/templates', 'en-us.js');
+    const templatePath = path.resolve(process.cwd(), 'build-tasks/tasks/project-operations/manage-translations/templates', templateFileName);
+    const defaultTemplatePath = path.resolve(process.cwd(), 'build-tasks/tasks/project-operations/manage-translations/templates', 'en-us.js');
 
     let finalPath;
     // 检查是否存在特定语言的模板文件。
@@ -190,7 +190,7 @@ async function handleAddNewTranslation() {
     if (!fs.existsSync(langDir)) {
       fs.mkdirSync(langDir, { recursive: true });
     }
-    
+
     // 将生成的模板内容写入新文件。
     fs.writeFileSync(filePath, template);
     console.log(color.green(t('manageTranslations.fileCreated', color.yellow(filePath))));
@@ -198,7 +198,7 @@ async function handleAddNewTranslation() {
     console.error(color.red(t('manageTranslations.fileCreationError', error.message)));
     return;
   }
-  
+
   // --- 步骤 4: 更新 index.js 和 header.txt (事务性操作) ---
   const indexJsPath = path.join(process.cwd(), 'src', 'translations', 'index.js');
   const headerTxtPath = path.join(process.cwd(), 'src', 'header.txt');
@@ -209,7 +209,7 @@ async function handleAddNewTranslation() {
     // 这是实现回滚的关键步骤。
     originalIndexJsContent = fs.readFileSync(indexJsPath, 'utf-8');
     originalHeaderTxtContent = fs.readFileSync(headerTxtPath, 'utf-8');
-    
+
     // --- 4a. 更新 index.js ---
     let indexJsContent = originalIndexJsContent;
     // 构造新的 import 语句。
@@ -217,26 +217,26 @@ async function handleAddNewTranslation() {
     // 找到最后一个 'import' 语句的位置，在其后插入新的 import，以保持代码整洁。
     const lastImportIndex = indexJsContent.lastIndexOf('import');
     const nextLineIndexAfterLastImport = indexJsContent.indexOf('\n', lastImportIndex);
-    indexJsContent = 
-      indexJsContent.slice(0, nextLineIndexAfterLastImport + 1) + 
-      importStatement + 
+    indexJsContent =
+      indexJsContent.slice(0, nextLineIndexAfterLastImport + 1) +
+      importStatement +
       indexJsContent.slice(nextLineIndexAfterLastImport + 1);
 
     // 找到 `masterTranslationMap` 对象的结束括号 `}`，在其前插入新的翻译条目。
     const lastBraceIndex = indexJsContent.lastIndexOf('}');
     if (lastBraceIndex === -1) {
-        throw new Error(t('sortTranslations.exportNotFound'));
+      throw new Error(t('sortTranslations.exportNotFound'));
     }
     // 这是一个小技巧，用于判断是否需要在新条目前加一个换行符，以维持代码格式。
     const precedingChar = indexJsContent.substring(lastBraceIndex - 1, lastBraceIndex).trim();
     const needsNewline = precedingChar === ',';
     // 在主映射中使用 `域名#语言` 作为唯一键，以支持同一域名下的多语言版本。
     const mapEntry = `${needsNewline ? '\n' : ''}  "${trimmedDomain}#${language}": ${variableName},\n`;
-    
-    indexJsContent = 
-        indexJsContent.slice(0, lastBraceIndex) +
-        mapEntry +
-        indexJsContent.slice(lastBraceIndex);
+
+    indexJsContent =
+      indexJsContent.slice(0, lastBraceIndex) +
+      mapEntry +
+      indexJsContent.slice(lastBraceIndex);
 
     fs.writeFileSync(indexJsPath, indexJsContent);
     console.log(color.green(t('manageTranslations.indexJsUpdatedSuccess', color.yellow(indexJsPath))));
@@ -250,11 +250,11 @@ async function handleAddNewTranslation() {
       // 找到最后一个 '// @match' 指令，在其后插入新指令，以保持指令的分组。
       const lastMatchIndex = headerTxtContent.lastIndexOf('// @match');
       const nextLineIndexAfterLastMatch = headerTxtContent.indexOf('\n', lastMatchIndex);
-      headerTxtContent = 
+      headerTxtContent =
         headerTxtContent.slice(0, nextLineIndexAfterLastMatch + 1) +
         matchDirective +
         headerTxtContent.slice(nextLineIndexAfterLastMatch + 1);
-        
+
       fs.writeFileSync(headerTxtPath, headerTxtContent);
       console.log(color.green(t('manageTranslations.headerTxtUpdatedSuccess', color.yellow(headerTxtPath))));
     } else {
@@ -262,7 +262,7 @@ async function handleAddNewTranslation() {
     }
   } catch (error) {
     console.error(color.red(t('manageTranslations.indexJsUpdateError', error.message)));
-    
+
     // --- **自动回滚** ---
     // 这是关键的容错机制。如果在 try 块中的任何文件操作失败，
     // catch 块会立即执行，将所有被修改的文件恢复到其原始状态，并删除新创建的文件。
@@ -277,7 +277,7 @@ async function handleAddNewTranslation() {
     }
     // 使用 unlinkSync 确保即使在错误处理中也能可靠地删除文件。
     try {
-      fs.unlinkSync(filePath); 
+      fs.unlinkSync(filePath);
       console.log(color.yellow(t('manageTranslations.fileDeleted', fileName)));
     } catch (unlinkError) {
       // 如果文件因某些原因本就未创建成功，删除会失败，这里忽略该错误。
