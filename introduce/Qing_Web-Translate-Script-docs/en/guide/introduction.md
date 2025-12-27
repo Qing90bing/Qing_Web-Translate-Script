@@ -24,12 +24,12 @@ Through the efforts of the community, we hope to make some websites more friendl
 
 ## 🖼️ Preview
 
-![Google AI Studio Translation Effect](../../public/img/googleaistudio_introduce.jpg)
+![Google AI Studio Translation Effect](/img/googleaistudio_introduce.jpg)
 *Google AI Studio Translation Effect*
 
 <br/>
 
-![Jules AI Translation Effect](../../public/img/jules_introduce.jpg)
+![Jules AI Translation Effect](/img/jules_introduce.jpg)
 *Jules AI Translation Effect*
 
 ---

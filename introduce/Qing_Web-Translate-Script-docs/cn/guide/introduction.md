@@ -24,12 +24,12 @@
 
 ## 🖼️ 效果预览
 
-![Google AI Studio 汉化效果](../public/img/googleaistudio_introduce.jpg)
+![Google AI Studio 汉化效果](/img/googleaistudio_introduce.jpg)
 *Google AI Studio 汉化效果*
 
 <br/>
 
-![Jules AI 汉化效果](../public/img/jules_introduce.jpg)
+![Jules AI 汉化效果](/img/jules_introduce.jpg)
 *Jules AI 汉化效果*
 
 ---
