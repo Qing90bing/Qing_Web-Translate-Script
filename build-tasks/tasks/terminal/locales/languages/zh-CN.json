@@ -188,7 +188,7 @@
     "languageNameTooShort": "语言名称至少需要2个字符",
     "confirmAddLanguage": "确认添加语言 {0} ({1})?",
     "languageAdded": "\n✅ 语言 {0} ({1}) 已成功添加!",
-    "nextStep": "\n💡 下一步将你可以将该翻译文件发送给翻译人员，或者自己翻译文件:",
+    "nextStep": "\n💡 下一步你可以将该翻译文件发送给翻译人员，或者自己翻译文件:",
     "filePath": "   locales/terminal/languages/{0}.json",
     "languageAddFailed": "\n❌ 语言添加失败，请检查是否已存在或查看错误日志。",
     "allLanguagesTitle": "📋 所有支持的语言",
