@@ -33,25 +33,30 @@ export default defineConfig({
 
   // --- 多语言支持配置 ---
   locales: {
-    // --- 中文（简体）配置 ---
+    // --- 根目录（重定向）配置 ---
     root: {
+      lang: 'zh-CN',
+      link: '/'
+    },
+    // --- 中文（简体）配置 ---
+    cn: {
       label: '简体中文',
       lang: 'zh-CN',
-      link: '/',
+      link: '/cn/',
       title: "WEB 中文汉化脚本",
       description: "提升常用网站浏览体验，减少阅读压力 :)",
       themeConfig: {
         nav: [
-          { text: '主页', link: '/' },
-          { text: '安装指南', link: '/guide/introduction' }
+          { text: '主页', link: '/cn/' },
+          { text: '安装指南', link: '/cn/guide/introduction' }
         ],
         sidebar: {
-          '/guide/': [
+          '/cn/guide/': [
             {
               text: '指南',
               items: [
-                { text: '介绍', link: '/guide/introduction' },
-                { text: '开始安装', link: '/guide/getting-started' }
+                { text: '介绍', link: '/cn/guide/introduction' },
+                { text: '开始安装', link: '/cn/guide/getting-started' }
               ]
             }
           ]

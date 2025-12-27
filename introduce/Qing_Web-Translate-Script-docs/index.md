@@ -1,35 +1,72 @@
----
-# 主页特定配置
-layout: home
+<script setup>
+import { onMounted } from 'vue'
+import { useRouter, withBase } from 'vitepress'
 
-# 英雄区域
-hero:
-  name: "WEB 中文汉化脚本"
-  text: "提升常用网站浏览体验"
-  tagline: "为常用网站提供人工翻译，告别生硬的机器翻译，让您的网络浏览更流畅、更舒心"
-  image:
-    src: /logo.svg
-    alt: WEB 中文汉化插件图标
-  actions:
-    - theme: brand
-      text: 快速开始
-      link: /guide/introduction
-    - theme: alt
-      text: 在 GitHub 上查看
-      link: https://github.com/Qing90bing/Qing_Web-Translate-Script
+const router = useRouter()
+onMounted(() => {
+  const lang = navigator.language || navigator.userLanguage || 'zh-CN';
+  const lowerLang = lang.toLowerCase();
 
-# 功能区域
-features:
-  - icon: '✏️'
-    title: 人工校对
-    details: 译文由社区成员提交和修正，旨在为部分网站提供更符合中文用户阅读习惯的翻译
-  - icon: '🚀'
-    title: 无缝体验
-    details: 内置“防闪烁”加载机制，在翻译应用前后，页面内容保持稳定，告别页面抖动和闪烁
-  - icon: '🌐'
-    title: 智能适配
-    details: 脚本能自动检测浏览器语言并应用翻译，您也可以在油猴菜单中根据需求手动切换
-  - icon: '🌍'
-    title: 社区驱动
-    details: 一个开放的项目，欢迎所有用户参与贡献，共同扩展和完善翻译库
----
+  let targetPath = '/cn/'; // 默认简体中文 (使用绝对路径，配合 withBase)
+
+  if (lowerLang.includes('zh-tw') || lowerLang.includes('zh-hk') || lowerLang.includes('zh-mo')) {
+    targetPath = '/tw/';
+  } else if (lowerLang.startsWith('en')) {
+    targetPath = '/en/';
+  } else if (lowerLang.startsWith('zh')) {
+     targetPath = '/cn/';
+  } else {
+     targetPath = '/en/';
+  }
+
+  // withBase 会自动加上 config.js 中配置的 base 路径
+  // 例如：/Qing_Web-Translate-Script/cn/
+  router.go(withBase(targetPath))
+})
+</script>
+
+<div class="redirect-container">
+  <div class="spinner"></div>
+  <p>正在跳转...</p>
+  <p class="sub-text">Redirecting...</p>
+</div>
+
+<style>
+.redirect-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh; /* 占据大部分视口高度 */
+  font-family: var(--vp-font-family-base);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--vp-c-divider);
+  border-top-color: var(--vp-c-brand);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 2rem;
+}
+
+p {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--vp-c-text-1);
+  margin: 0;
+}
+
+.sub-text {
+  font-size: 1rem;
+  color: var(--vp-c-text-2);
+  margin-top: 0.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>
