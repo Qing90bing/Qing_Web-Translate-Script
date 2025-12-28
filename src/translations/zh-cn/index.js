@@ -14,6 +14,7 @@ import { statusHuggingfaceCoZhCn } from './sites/status.huggingface.co.js';
 import { opalGoogleZhCn } from './sites/opal.google.js';
 import { wwwCurseforgeComZhCn } from './sites/www.curseforge.com.js';
 import { ssoCurseforgeComZhCn } from './sites/sso.curseforge.com.js';
+import { claudeComZhCn } from './sites/claude.com.js';
 
 export const zhCnTranslations = {
     "jules.google.com#zh-cn": julesGoogleComZhCn,
@@ -32,4 +33,5 @@ export const zhCnTranslations = {
     "opal.google#zh-cn": opalGoogleZhCn,
     "www.curseforge.com#zh-cn": wwwCurseforgeComZhCn,
     "sso.curseforge.com#zh-cn": ssoCurseforgeComZhCn,
+    "claude.com#zh-cn": claudeComZhCn,
 };

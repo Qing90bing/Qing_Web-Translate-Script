@@ -25,6 +25,7 @@
 // @match        *://opal.google/*
 // @match        *://www.curseforge.com/*
 // @match        *://sso.curseforge.com/*
+// @match        *://claude.com/*
 // @run-at       document-start
 // @grant        GM_getValue
 // @grant        GM_setValue
