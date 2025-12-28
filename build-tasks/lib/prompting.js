@@ -60,7 +60,7 @@ export async function promptUserAboutErrors(errors, options = {}) {
       value: 'auto-fix',
     });
   }
-  
+
   // 为原文重复错误提供自动修复选项（保留第一个出现的译文）
   if (sourceDuplicateErrorCount > 0) {
     choices.push({
@@ -128,10 +128,11 @@ export async function promptForManualFix(duplicateErrors) {
   let userExited = false;
 
   for (let i = 0; i < duplicateErrors.length; i++) {
+    console.clear();
     const error = duplicateErrors[i];
     // 从错误对象中直接获取原文文本，避免依赖易变的错误消息格式。
     const originalText = error.occurrences[0].originalValue || t('validation.unknownSource');
-    
+
     // 1. 计算最大行号长度以便对齐。
     const maxLineLength = Math.max(...error.occurrences.map(occ => String(occ.line).length));
 
@@ -205,6 +206,7 @@ export async function promptForEmptyTranslationFix(emptyTranslationErrors) {
   console.log(color.bold(t('prompting.emptyTranslationTitle')));
 
   for (let i = 0; i < emptyTranslationErrors.length; i++) {
+    console.clear();
     const error = emptyTranslationErrors[i];
     // 从 AST 节点中获取原文的值。
     const originalValue = getLiteralValue(error.node.elements[0]);
@@ -259,13 +261,13 @@ export async function promptForSingleEmptyTranslationFix(error, remainingCount) 
 
   // 如果用户选择中止，进行二次确认。
   if (action === 'abort') {
-      const { confirmExit } = await inquirer.prompt([
-        { type: 'confirm', name: 'confirmExit', message: t('prompting.confirmAbort'), prefix: '⚠️', default: false }
-      ]);
-      // 如果用户取消中止，返回一个特殊状态 `retry`，让调用者可以重新处理此项。
-      if (!confirmExit) {
-        return { action: t('prompting.retry') };
-      }
+    const { confirmExit } = await inquirer.prompt([
+      { type: 'confirm', name: 'confirmExit', message: t('prompting.confirmAbort'), prefix: '⚠️', default: false }
+    ]);
+    // 如果用户取消中止，返回一个特殊状态 `retry`，让调用者可以重新处理此项。
+    if (!confirmExit) {
+      return { action: t('prompting.retry') };
+    }
   }
 
   // 如果用户选择修复，则弹出输入框让其输入新译文。
@@ -279,11 +281,11 @@ export async function promptForSingleEmptyTranslationFix(error, remainingCount) 
     ]);
     // 如果用户直接回车，则视为跳过
     if (!newTranslation) {
-        return { action: t('prompting.skip') };
+      return { action: t('prompting.skip') };
     }
     return { action: 'fix', newTranslation };
   }
-  
+
   // 对于其他情况（如 'skip', 'skip-all', 'abort' 等），直接返回决策。
   return { action };
 }
@@ -295,46 +297,46 @@ export async function promptForSingleEmptyTranslationFix(error, remainingCount) 
  * @returns {Promise<string|null>} 返回用户的选择：'preserve' (调试构建), 'no-preserve' (标准构建), 'cdn' (CDN 构建), 或 null (取消).
  */
 export async function promptToPreserveFormatting() {
-    // 如果是测试环境，直接返回 'no-preserve'
-    if (process.env.TEST_NO_FORMATTING === 'true') {
-        return 'no-preserve';
-    }
-    
-    const separator = color.dim('\n' + t('prompting.separator'));
-    console.log(separator);
-    const { action } = await inquirer.prompt([
+  // 如果是测试环境，直接返回 'no-preserve'
+  if (process.env.TEST_NO_FORMATTING === 'true') {
+    return 'no-preserve';
+  }
+
+  const separator = color.dim('\n' + t('prompting.separator'));
+  console.log(separator);
+  const { action } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'action',
+      message: t('prompting.buildOptionsTitle'),
+      choices: [
         {
-            type: 'list',
-            name: 'action',
-            message: t('prompting.buildOptionsTitle'),
-            choices: [
-                {
-                    name: t('prompting.standardBuild'), // 📦 标准构建
-                    value: 'no-preserve'
-                },
-                {
-                    name: t('prompting.debugBuild'), // 🔍 调试构建
-                    value: 'preserve'
-                },
-                {
-                    name: t('prompting.cdnBuild'), // 🚀 CDN 构建
-                    value: 'cdn'
-                },
-                new inquirer.Separator(),
-                {
-                    name: t('prompting.cancelBuild'), // ❌ 取消构建
-                    value: 'cancel'
-                }
-            ],
-            default: 'no-preserve',
+          name: t('prompting.standardBuild'), // 📦 标准构建
+          value: 'no-preserve'
+        },
+        {
+          name: t('prompting.debugBuild'), // 🔍 调试构建
+          value: 'preserve'
+        },
+        {
+          name: t('prompting.cdnBuild'), // 🚀 CDN 构建
+          value: 'cdn'
+        },
+        new inquirer.Separator(),
+        {
+          name: t('prompting.cancelBuild'), // ❌ 取消构建
+          value: 'cancel'
         }
-    ]);
-    
-    if (action === 'cancel') {
-        return null;
+      ],
+      default: 'no-preserve',
     }
-    
-    return action;
+  ]);
+
+  if (action === 'cancel') {
+    return null;
+  }
+
+  return action;
 }
 
 /**
@@ -353,8 +355,9 @@ export async function promptForSyntaxFix(syntaxErrors) {
   console.log(color.bold(t('prompting.syntaxErrorTitle')));
 
   for (let i = 0; i < syntaxErrors.length; i++) {
+    console.clear();
     const error = syntaxErrors[i];
-    
+
     // 1. 使用启发式方法判断这是否是一个可自动修复的"遗漏逗号"错误。
     // 条件：错误信息包含 "Unexpected token"，且错误行的内容以 `[` 开头。
     // 这个特征通常出现在 `[...]` 和 `[...]` 之间缺少逗号的场景。
@@ -375,7 +378,7 @@ export async function promptForSyntaxFix(syntaxErrors) {
     const fileContent = await fs.readFile(error.file, 'utf-8');
     const lines = fileContent.split('\n');
     // Acorn 报错的位置是下一行的行首，因此我们要修复的是错误行的上一行。
-    const lineIndexToFix = error.line - 2; 
+    const lineIndexToFix = error.line - 2;
     const originalLine = lines[lineIndexToFix];
     const fixedLine = originalLine.trimEnd() + ','; // 在行尾添加逗号
 
@@ -478,7 +481,7 @@ export async function promptForSingleCommaFix(error, remainingCount) {
 
   // 3. 构建带有颜色高亮的建议修复行，使新增的逗号在视觉上更醒目。
   const fixedLine = errorLine.slice(0, relativeColumn) + ',' + errorLine.slice(relativeColumn);
-  
+
   // 4. 构建完整的预览文本，包括原始问题代码和建议的修复方案。
   const preview = `
 --- ${t('validation.contentLabel').split(':')[0]} ${t('validation.fileLine', path.basename(error.file), error.line)} ---
@@ -572,13 +575,13 @@ export async function promptForSingleIdenticalFix(error, remainingCount) {
 
   // 2. 如果用户选择中止，进行二次确认。
   if (action === 'abort') {
-      const { confirmExit } = await inquirer.prompt([
-        { type: 'confirm', name: 'confirmExit', message: t('prompting.confirmAbort'), prefix: '⚠️', default: false }
-      ]);
-      // 如果用户取消中止，返回一个特殊状态 `retry`，让调用者可以重新处理此项。
-      if (!confirmExit) {
-        return { error, action: t('prompting.retry') };
-      }
+    const { confirmExit } = await inquirer.prompt([
+      { type: 'confirm', name: 'confirmExit', message: t('prompting.confirmAbort'), prefix: '⚠️', default: false }
+    ]);
+    // 如果用户取消中止，返回一个特殊状态 `retry`，让调用者可以重新处理此项。
+    if (!confirmExit) {
+      return { error, action: t('prompting.retry') };
+    }
   }
 
   // 3. 如果用户选择修改，则弹出输入框让其输入新译文。
@@ -594,7 +597,7 @@ export async function promptForSingleIdenticalFix(error, remainingCount) {
     ]);
     return { error, action: 'modify', newTranslation };
   }
-  
+
   // 4. 对于其他情况（如 'remove', 'skip' 等），直接返回决策。
   return { error, action };
 }
@@ -639,7 +642,7 @@ export async function promptUserAboutIdenticalTranslations(errors) {
     case 'manual-fix':
       // 如果选择手动修复，直接返回该动作，具体的循环处理将在上层函数中进行。
       return { action: 'manual-fix' };
-    
+
     case 'ignore':
       // 如果选择忽略，也直接返回该动作。
       return { action: 'ignore' };
@@ -668,7 +671,7 @@ export async function promptForSourceDuplicateManualFix(sourceDuplicateErrors) {
     const error = sourceDuplicateErrors[i];
     // 从错误对象中直接获取原文文本，避免依赖易变的错误消息格式。
     const originalText = error.occurrences[0].originalValue || t('validation.unknownSource');
-    
+
     // 1. 计算最大行号长度以便对齐。
     const maxLineLength = Math.max(...error.occurrences.map(occ => String(occ.line).length));
 
@@ -753,10 +756,11 @@ export async function promptForSourceDuplicateManualFixImmediate(sourceDuplicate
   let remainingErrors = [...sourceDuplicateErrors]; // 创建副本
 
   while (remainingErrors.length > 0) {
+    console.clear();
     const error = remainingErrors[0]; // 始终处理第一个错误
     // 从错误对象中直接获取原文文本，避免依赖易变的错误消息格式。
     const originalText = error.occurrences[0].originalValue || t('validation.unknownSource');
-    
+
     // 1. 计算最大行号长度以便对齐。
     const maxLineLength = Math.max(...error.occurrences.map(occ => String(occ.line).length));
 
@@ -819,7 +823,7 @@ export async function promptForSourceDuplicateManualFixImmediate(sourceDuplicate
       await applyFunction([decision]); // 立即应用单个修复
       console.log(color.green(`✅ ${t('validation.sourceDuplicateRule', originalText, 1).replace(' 被重复使用了 1 次，分别对应不同的译文。', '')} ${t('checkTasks.fixed')}`));
       fixedCount++;
-      
+
       // 关键步骤：修复后重新验证并更新剩余错误列表
       if (revalidateFunction) {
         const newErrors = await revalidateFunction();

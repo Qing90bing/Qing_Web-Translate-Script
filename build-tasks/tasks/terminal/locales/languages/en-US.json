@@ -238,6 +238,7 @@
   },
   "checkTasks": {
     "checkingMissingComma": "🔍 Starting to check \"Missing Comma\" issues...",
+    "scanning": "🔍 Scanning...",
     "noMissingCommaFound": "\n✅ No possible \"Missing Comma\" issues found.",
     "ignoreAll": "\n🤷‍ Ignored all issues.",
     "autoFixingHighConfidence": "\n🤖 Automatically fixing high-confidence issues iteratively...",

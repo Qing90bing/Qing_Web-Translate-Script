@@ -29,12 +29,46 @@ import { t } from '../../lib/terminal-i18n.js';
  * @description "检查重复的翻译"任务的主处理函数。
  * @returns {Promise<void>}
  */
+import { ProgressBar } from '../../lib/progress.js';
+import { printValidationResults } from '../../lib/validation.js';
+
+/**
+ * @function handleDuplicatesCheck
+ * @description "检查重复的翻译"任务的主处理函数。
+ * @returns {Promise<void>}
+ */
 export default async function handleDuplicatesCheck() {
   console.log(color.cyan(t('checkTasks.checkingDuplicates')));
 
+  const progressBar = new ProgressBar({
+    format: `${color.cyan('{bar}')} {percentage}% | {value}/{total} | {text}`
+  });
+
   // 1. 调用验证器，只开启重复检查。
-  const options = { checkDuplicates: true };
+  const options = {
+    checkDuplicates: true,
+    silent: true,
+    onProgress: (current, total, file) => {
+      progressBar.total = total;
+      progressBar.update(current, `${t('checkTasks.scanning')} ${file}`);
+    }
+  };
+
+  progressBar.start(0, t('checkTasks.scanning'));
   const allErrors = await validateTranslationFiles(options);
+  progressBar.stop(true);
+
+  // 如果有错误，需要手动打印
+  if (allErrors.length > 0) {
+    const errorsByFile = {};
+    for (const error of allErrors) {
+      if (!errorsByFile[error.file]) errorsByFile[error.file] = [];
+      errorsByFile[error.file].push(error);
+    }
+    for (const [file, errors] of Object.entries(errorsByFile)) {
+      printValidationResults(errors, file, options);
+    }
+  }
 
   // 2. 将返回的错误按类型（语法错误、重复错误）进行分类。
   const syntaxErrors = allErrors.filter(e => e.type === 'syntax');
@@ -68,12 +102,14 @@ export default async function handleDuplicatesCheck() {
   // 6. 根据用户的选择执行相应的修复流程。
   switch (userAction) {
     case 'auto-fix':
+      console.clear();
       // 自动修复：保留第一个，删除后续所有重复项。
       await fixDuplicatesAutomatically(duplicateErrors);
       console.log(color.green(t('checkTasks.autoFixCompleteDuplicates')));
       break;
 
     case 'manual-fix':
+      console.clear();
       // 手动修复：让用户逐个选择要保留的版本。
       const decisions = await promptForManualFix(duplicateErrors);
       if (decisions) { // 如果用户没有中途退出手动修复流程
@@ -85,9 +121,11 @@ export default async function handleDuplicatesCheck() {
       break;
 
     case 'ignore':
+      console.clear();
       console.log(color.yellow(t('checkTasks.emptyIssuesIgnored')));
       break;
     case 'cancel':
+      console.clear();
       console.log(color.dim(t('checkTasks.operationCancelled')));
       break;
   }

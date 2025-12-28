@@ -33,12 +33,46 @@ import { t } from '../../lib/terminal-i18n.js';
  * @description "检查空翻译"任务的主处理函数。
  * @returns {Promise<void>}
  */
+import { ProgressBar } from '../../lib/progress.js';
+import { printValidationResults } from '../../lib/validation.js';
+
+/**
+ * @function handleEmptyCheck
+ * @description "检查空翻译"任务的主处理函数。
+ * @returns {Promise<void>}
+ */
 export default async function handleEmptyCheck() {
   console.log(color.cyan(t('checkTasks.checkingEmpty')));
 
+  const progressBar = new ProgressBar({
+    format: `${color.cyan('{bar}')} {percentage}% | {value}/{total} | {text}`
+  });
+
   // 1. 调用验证器，只开启空翻译检查。
-  const options = { checkEmpty: true };
+  const options = {
+    checkEmpty: true,
+    silent: true,
+    onProgress: (current, total, file) => {
+      progressBar.total = total;
+      progressBar.update(current, `${t('checkTasks.scanning')} ${file}`);
+    }
+  };
+
+  progressBar.start(0, t('checkTasks.scanning'));
   const allErrors = await validateTranslationFiles(options);
+  progressBar.stop(true);
+
+  // 如果有错误，需要手动打印（因为设置了 silent: true）
+  if (allErrors.length > 0) {
+    const errorsByFile = {};
+    for (const error of allErrors) {
+      if (!errorsByFile[error.file]) errorsByFile[error.file] = [];
+      errorsByFile[error.file].push(error);
+    }
+    for (const [file, errors] of Object.entries(errorsByFile)) {
+      printValidationResults(errors, file, options);
+    }
+  }
 
   // 2. 将返回的错误按类型分类。
   const syntaxErrors = allErrors.filter(e => e.type === 'syntax');
@@ -67,7 +101,7 @@ export default async function handleEmptyCheck() {
   // 5. 如果存在空翻译错误，询问用户如何操作。
   // 注意：对于空翻译，唯一真正的选项是手动修复或忽略。
   const userAction = await promptUserAboutErrors(emptyErrors, { isFullBuild: false });
-  
+
   // 初始化统计变量
   let totalFixed = 0;
   let totalSkipped = 0;
@@ -75,6 +109,7 @@ export default async function handleEmptyCheck() {
   // 6. 根据用户的选择执行操作。
   switch (userAction) {
     case 'manual-fix':
+      console.clear();
       console.log(color.cyan(t('checkTasks.enteringManualModeEmpty')));
       // ignoredPositions 用于存储用户选择"跳过"的错误位置的集合。
       // Set 数据结构可以确保每个位置只被记录一次，并提供高效的查找。
@@ -83,9 +118,10 @@ export default async function handleEmptyCheck() {
 
       // 进入迭代式手动修复循环
       while (!quit) {
+        console.clear();
         // 每次循环都重新校验，以获取最新的错误列表，并排除已忽略的。
         // 这种方式确保了每次处理的都是当前文件状态下的第一个错误。
-        const currentErrors = (await validateTranslationFiles({ checkEmpty: true, ignoredPositions }))
+        const currentErrors = (await validateTranslationFiles({ checkEmpty: true, ignoredPositions, silent: true }))
           .filter(e => e.type === 'empty-translation');
 
         // 如果没有更多（未被忽略的）错误，则退出循环。
@@ -96,7 +132,7 @@ export default async function handleEmptyCheck() {
 
         const errorToFix = currentErrors[0]; // 每次只处理列表中的第一个错误。
         const remaining = currentErrors.length;
-        
+
         // 提示用户对单个问题进行操作，并等待其决策。
         const decision = await promptForSingleEmptyTranslationFix(errorToFix, remaining);
 
@@ -132,10 +168,12 @@ export default async function handleEmptyCheck() {
       break;
 
     case 'ignore':
+      console.clear();
       totalSkipped = emptyErrors.length;
       console.log(color.yellow(t('checkTasks.emptyIssuesIgnored')));
       break;
     case 'cancel':
+      console.clear();
       console.log(color.dim(t('checkTasks.operationCancelled')));
       break;
 

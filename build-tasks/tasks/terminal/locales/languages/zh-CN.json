@@ -238,6 +238,7 @@
   },
   "checkTasks": {
     "checkingMissingComma": "🔍 开始检查\"遗漏逗号\"问题...",
+    "scanning": "🔍 正在扫描...",
     "noMissingCommaFound": "\n✅ 未发现可能的\"遗漏逗号\"问题。",
     "ignoreAll": "\n🤷‍ 已忽略所有问题。",
     "autoFixingHighConfidence": "\n🤖 正在以迭代方式自动修复高置信度问题...",

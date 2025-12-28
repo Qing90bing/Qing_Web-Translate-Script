@@ -445,14 +445,34 @@ function validateFileContent(file, content, options) {
  * 1. **打印日志**: 在校验过程中，直接向控制台打印格式化的、用户友好的错误报告，以便用户立即看到结果。
  * 2. **返回数据**: 返回一个包含所有错误的扁平化数组，供调用它的上层任务（如 `check-duplicates.js`）进行后续的编程处理（如提示、修复）。
  * @param {object} [options={}] - 包含要执行哪些检查的选项对象。
+ * @param {boolean} [options.silent=false] - 是否静默模式（不打印默认日志）。
+ * @param {function} [options.onProgress] - 进度回调函数 (current, total, file) => void。
  * @returns {Promise<ValidationError[]>} 返回一个包含所有文件中发现的所有错误的扁平化数组。
  */
 export async function validateTranslationFiles(options = {}) {
-  const { checkEmpty = false, checkDuplicates = false, checkMissingComma = false, checkIdentical = false, checkSourceDuplicates = false, ignoredPositions = new Set() } = options;
+  const {
+    checkEmpty = false,
+    checkDuplicates = false,
+    checkMissingComma = false,
+    checkIdentical = false,
+    checkSourceDuplicates = false,
+    ignoredPositions = new Set(),
+    silent = false,
+    onProgress = null
+  } = options;
+
   const files = await findTranslationFiles();
   let allErrors = [];
+  const totalFiles = files.length;
 
-  for (const file of files) {
+  for (let i = 0; i < totalFiles; i++) {
+    const file = files[i];
+
+    // 调用进度回调
+    if (onProgress) {
+      onProgress(i + 1, totalFiles, path.basename(file));
+    }
+
     try {
       const content = await fs.readFile(file, 'utf-8');
       // 对每个文件调用核心校验逻辑。
@@ -464,52 +484,70 @@ export async function validateTranslationFiles(options = {}) {
       const language = langMatch ? langMatch[1] : 'unknown';
 
       // 根据是否有错误以及检查类型，格式化并打印结果到控制台。
-      if (errorsInFile.length > 0) {
-        // 这部分复杂的逻辑是为了在特定检查模式下提供更友好的输出。
-        // 例如，如果用户只要求检查空值，且该文件没有空值错误（但可能有其他错误），则不打印文件名和标题。
-        const isOnlySpecificCheck = checkEmpty || checkDuplicates || checkMissingComma || checkIdentical || checkSourceDuplicates;
-        if (isOnlySpecificCheck && errorsInFile.every(e => e.type !== 'missing-comma' && e.type !== 'empty-translation' && e.type !== 'multi-duplicate' && e.type !== 'identical-translation' && e.type !== 'source-duplicate')) {
-          // 如果是特定检查，但没有发现该类错误，则不打印文件标题
-        } else if (checkMissingComma && errorsInFile.every(e => e.type !== 'missing-comma')) {
-          // 如果是逗号检查，但没有发现逗号错误，则不打印
-        }
-        else {
-          // 打印文件头和错误详情，包含语言信息
-          console.log(t('validation.fileLabel', path.basename(file), language, errorsInFile.length));
-          console.log(t('validation.separator'));
-          errorsInFile.forEach((e, index) => {
-            const errorTypeMap = { 'multi-duplicate': t('validation.duplicateTranslation'), 'source-duplicate': t('validation.duplicateSource'), [t('validation.structure')]: t('validation.structure'), [t('validation.syntaxType')]: t('validation.syntax'), 'empty-translation': t('validation.emptyTranslation'), 'missing-comma': t('validation.missingComma'), 'identical-translation': t('validation.identicalTranslation') };
-            const errorName = errorTypeMap[e.type] || t('validation.unknownError');
-            console.log(`  ${t('validation.issueNumber', index + 1)}: ${errorName} - ${e.message}`);
-            if (e.type === 'multi-duplicate' || e.type === 'source-duplicate') {
-              // 对重复错误，特殊格式化以显示所有出现位置。
-              // 动态计算标签的最大长度，确保在不同语言环境下都能正确对齐
-              const firstDefLabel = t('validation.firstDefinition');
-              const dupOccurLabel = t('validation.duplicateOccurrence');
-              const maxLabelLength = Math.max(firstDefLabel.length, dupOccurLabel.length);
-
-              e.occurrences.forEach((occ, i) => {
-                const label = i === 0 ? firstDefLabel : dupOccurLabel;
-                console.log(`    - ${label.padEnd(maxLabelLength + 2, ' ')}: ${t('validation.lineLabel', String(occ.line).padEnd(4))} -> ${occ.lineContent}`);
-              });
-            } else {
-              console.log(t('validation.lineLabel', e.line));
-              console.log(t('validation.contentLabel', e.lineContent));
-            }
-            console.log(t('validation.separator'));
-          });
-        }
-      } else {
-        // 如果文件没有错误，并且是特定检查模式，则打印通过信息，包含语言信息
-        if (checkEmpty || checkDuplicates || checkMissingComma || checkIdentical || checkSourceDuplicates) {
-          console.log(t('validation.noIssuesFound', path.basename(file), language));
-        }
+      if (!silent) {
+        printValidationResults(errorsInFile, file, { checkEmpty, checkDuplicates, checkMissingComma, checkIdentical, checkSourceDuplicates });
       }
+
       // 将当前文件的错误合并到总错误列表中。
       allErrors = allErrors.concat(errorsInFile);
     } catch (e) {
-      console.error(t('validation.fileProcessingError', file), e);
+      if (!silent) console.error(t('validation.fileProcessingError', file), e);
     }
   }
   return allErrors;
+}
+
+/**
+ * @function printValidationResults
+ * @description 打印校验结果的辅助函数。
+ * @param {ValidationError[]} errorsInFile - 单个文件的错误列表
+ * @param {string} file - 文件路径
+ * @param {object} options - 检查选项
+ */
+export function printValidationResults(errorsInFile, file, options) {
+  const { checkEmpty, checkDuplicates, checkMissingComma, checkIdentical, checkSourceDuplicates } = options;
+
+  // 从文件路径中提取语言信息
+  const langMatch = file.match(/[/\\]([^/\\]+)[/\\]sites[/\\][^/\\]+$/);
+  const language = langMatch ? langMatch[1] : 'unknown';
+
+  if (errorsInFile.length > 0) {
+    // 这部分复杂的逻辑是为了在特定检查模式下提供更友好的输出。
+    const isOnlySpecificCheck = checkEmpty || checkDuplicates || checkMissingComma || checkIdentical || checkSourceDuplicates;
+    if (isOnlySpecificCheck && errorsInFile.every(e => e.type !== 'missing-comma' && e.type !== 'empty-translation' && e.type !== 'multi-duplicate' && e.type !== 'identical-translation' && e.type !== 'source-duplicate')) {
+      // 如果是特定检查，但没有发现该类错误，则不打印文件标题
+    } else if (checkMissingComma && errorsInFile.every(e => e.type !== 'missing-comma')) {
+      // 如果是逗号检查，但没有发现逗号错误，则不打印
+    }
+    else {
+      // 打印文件头和错误详情，包含语言信息
+      console.log(t('validation.fileLabel', path.basename(file), language, errorsInFile.length));
+      console.log(t('validation.separator'));
+      errorsInFile.forEach((e, index) => {
+        const errorTypeMap = { 'multi-duplicate': t('validation.duplicateTranslation'), 'source-duplicate': t('validation.duplicateSource'), [t('validation.structure')]: t('validation.structure'), [t('validation.syntaxType')]: t('validation.syntax'), 'empty-translation': t('validation.emptyTranslation'), 'missing-comma': t('validation.missingComma'), 'identical-translation': t('validation.identicalTranslation') };
+        const errorName = errorTypeMap[e.type] || t('validation.unknownError');
+        console.log(`  ${t('validation.issueNumber', index + 1)}: ${errorName} - ${e.message}`);
+        if (e.type === 'multi-duplicate' || e.type === 'source-duplicate') {
+          // 对重复错误，特殊格式化以显示所有出现位置。
+          const firstDefLabel = t('validation.firstDefinition');
+          const dupOccurLabel = t('validation.duplicateOccurrence');
+          const maxLabelLength = Math.max(firstDefLabel.length, dupOccurLabel.length);
+
+          e.occurrences.forEach((occ, i) => {
+            const label = i === 0 ? firstDefLabel : dupOccurLabel;
+            console.log(`    - ${label.padEnd(maxLabelLength + 2, ' ')}: ${t('validation.lineLabel', String(occ.line).padEnd(4))} -> ${occ.lineContent}`);
+          });
+        } else {
+          console.log(t('validation.lineLabel', e.line));
+          console.log(t('validation.contentLabel', e.lineContent));
+        }
+        console.log(t('validation.separator'));
+      });
+    }
+  } else {
+    // 如果文件没有错误，并且是特定检查模式，则打印通过信息
+    if (checkEmpty || checkDuplicates || checkMissingComma || checkIdentical || checkSourceDuplicates) {
+      console.log(t('validation.noIssuesFound', path.basename(file), language));
+    }
+  }
 }

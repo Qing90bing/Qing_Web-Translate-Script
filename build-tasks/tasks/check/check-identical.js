@@ -31,88 +31,128 @@ import { t } from '../../lib/terminal-i18n.js';
  * @description "检查原文与译文相同"任务的主处理函数。
  * @returns {Promise<void>}
  */
+import { ProgressBar } from '../../lib/progress.js';
+import { printValidationResults } from '../../lib/validation.js';
+
+/**
+ * @function handleIdenticalCheck
+ * @description "检查原文与译文相同"任务的主处理函数。
+ * @returns {Promise<void>}
+ */
 export default async function handleIdenticalCheck() {
-  console.log(color.cyan(t('checkTasks.checkingIdentical')));
+    console.log(color.cyan(t('checkTasks.checkingIdentical')));
 
-  // 1. 查找所有原文和译文相同的错误。
-  let identicalErrors = await validateTranslationFiles({ checkIdentical: true });
-  if (identicalErrors.length === 0) {
-      console.log(color.green(t('checkTasks.noIdenticalFound')));
-      return;
-  }
+    const progressBar = new ProgressBar({
+        format: `${color.cyan('{bar}')} {percentage}% | {value}/{total} | {text}`
+    });
 
-  // 2. 询问用户希望采取哪种顶层操作。
-  // `result` 对象会包含用户的顶层决策，例如 { action: 'auto-fix', decisions: { type: 'remove', errors: [...] } }
-  const result = await promptUserAboutIdenticalTranslations(identicalErrors);
-  if (!result || result.action === 'cancel') {
-      console.log(color.dim(t('checkTasks.operationCancelled')));
-      return;
-  }
+    // 1. 查找所有原文和译文相同的错误。
+    const options = {
+        checkIdentical: true,
+        silent: true,
+        onProgress: (current, total, file) => {
+            progressBar.total = total;
+            progressBar.update(current, `${t('checkTasks.scanning')} ${file}`);
+        }
+    };
 
-  // 3. 根据用户的顶层选择，执行相应流程。
-  if (result.action === 'auto-fix') {
-      // 自动修复流程
-      await fixIdenticalAutomatically(result.decisions);
-      // `fixIdenticalAutomatically` 内部会打印自己的日志，这里不再重复
-  } else if (result.action === 'ignore') {
-      // 忽略流程
-      console.log(color.yellow(t('checkTasks.emptyIssuesIgnored')));
-  } else if (result.action === 'manual-fix') {
-      // 手动修复流程
-      console.log(color.cyan(t('checkTasks.enteringManualModeIdentical')));
-      const ignoredPositions = new Set(); // 存储用户选择跳过的问题的起始位置
-      let quit = false;
-      let totalFixed = 0;
-      let totalSkipped = 0;
+    progressBar.start(0, t('checkTasks.scanning'));
+    let identicalErrors = await validateTranslationFiles(options);
+    progressBar.stop(true);
 
-      while (!quit) {
-          // 每次循环都重新扫描，以获取最新的错误列表（并排除已忽略的）
-          let currentErrors = await validateTranslationFiles({ checkIdentical: true, ignoredPositions });
-          if (currentErrors.length === 0) {
-              console.log(totalFixed > 0 ? color.green(t('checkTasks.allIdenticalFixed')) : color.yellow(t('checkTasks.noIdenticalToProcess')));
-              break;
-          }
+    // 如果有错误，需要手动打印
+    if (identicalErrors.length > 0) {
+        const errorsByFile = {};
+        for (const error of identicalErrors) {
+            if (!errorsByFile[error.file]) errorsByFile[error.file] = [];
+            errorsByFile[error.file].push(error);
+        }
+        for (const [file, errors] of Object.entries(errorsByFile)) {
+            printValidationResults(errors, file, options);
+        }
+    }
+    if (identicalErrors.length === 0) {
+        console.log(color.green(t('checkTasks.noIdenticalFound')));
+        return;
+    }
 
-          const errorToFix = currentErrors[0]; // 一次处理一个
-          // 提示用户对当前错误做出决策
-          const decision = await promptForSingleIdenticalFix(errorToFix, currentErrors.length);
+    // 2. 询问用户希望采取哪种顶层操作。
+    // `result` 对象会包含用户的顶层决策，例如 { action: 'auto-fix', decisions: { type: 'remove', errors: [...] } }
+    const result = await promptUserAboutIdenticalTranslations(identicalErrors);
+    if (!result || result.action === 'cancel') {
+        console.clear();
+        console.log(color.dim(t('checkTasks.operationCancelled')));
+        return;
+    }
 
-          // 根据用户的决策执行操作
-          if (decision.action === 'retry') {
-              // 如果用户在二次确认时取消了"中止"，则重新尝试当前问题
-              continue;
-          }
-          if (decision.action === 'abort') {
-              quit = true;
-              continue;
-          }
-          if (decision.action === 'skip-all') {
-              totalSkipped += currentErrors.length;
-              quit = true;
-              continue;
-          }
+    console.clear();
 
-          if (decision.action === 'skip') {
-              // 将问题加入忽略列表
-              ignoredPositions.add(errorToFix.node.range[0]);
-              totalSkipped++;
-              console.log(color.yellow(t('checkTasks.identicalSkipped')));
-          } else {
-              // 应用修复（修改或移除）
-              await applySingleIdenticalFix(decision);
-              totalFixed++;
-              console.log(color.green(t('checkTasks.identicalFixed')));
-          }
-      }
+    // 3. 根据用户的顶层选择，执行相应流程。
+    if (result.action === 'auto-fix') {
+        // 自动修复流程
+        await fixIdenticalAutomatically(result.decisions);
+        // `fixIdenticalAutomatically` 内部会打印自己的日志，这里不再重复
+    } else if (result.action === 'ignore') {
+        // 忽略流程
+        console.clear();
+        console.log(color.yellow(t('checkTasks.emptyIssuesIgnored')));
+    } else if (result.action === 'manual-fix') {
+        // 手动修复流程
+        console.log(color.cyan(t('checkTasks.enteringManualModeIdentical')));
+        const ignoredPositions = new Set(); // 存储用户选择跳过的问题的起始位置
+        let quit = false;
+        let totalFixed = 0;
+        let totalSkipped = 0;
 
-      // 打印手动修复的总结
-      const separator = color.dim(t('validation.separator').replace(/-/g, ''));
-      console.log(`\n${separator}`);
-      console.log(color.bold(t('checkTasks.manualFixSummaryTitle')));
-      console.log(t('checkTasks.identicalTotalProcessed', '  - ' + color.green(``), totalFixed));
-      if (totalSkipped > 0) {
-          console.log(t('checkTasks.identicalTotalSkipped', '  - ' + color.yellow(``), totalSkipped));
-      }
-      console.log(separator);
-  }
+        while (!quit) {
+            console.clear();
+            // 每次循环都重新扫描，以获取最新的错误列表（并排除已忽略的）
+            let currentErrors = await validateTranslationFiles({ checkIdentical: true, ignoredPositions, silent: true });
+            if (currentErrors.length === 0) {
+                console.log(totalFixed > 0 ? color.green(t('checkTasks.allIdenticalFixed')) : color.yellow(t('checkTasks.noIdenticalToProcess')));
+                break;
+            }
+
+            const errorToFix = currentErrors[0]; // 一次处理一个
+            // 提示用户对当前错误做出决策
+            const decision = await promptForSingleIdenticalFix(errorToFix, currentErrors.length);
+
+            // 根据用户的决策执行操作
+            if (decision.action === 'retry') {
+                // 如果用户在二次确认时取消了"中止"，则重新尝试当前问题
+                continue;
+            }
+            if (decision.action === 'abort') {
+                quit = true;
+                continue;
+            }
+            if (decision.action === 'skip-all') {
+                totalSkipped += currentErrors.length;
+                quit = true;
+                continue;
+            }
+
+            if (decision.action === 'skip') {
+                // 将问题加入忽略列表
+                ignoredPositions.add(errorToFix.node.range[0]);
+                totalSkipped++;
+                console.log(color.yellow(t('checkTasks.identicalSkipped')));
+            } else {
+                // 应用修复（修改或移除）
+                await applySingleIdenticalFix(decision);
+                totalFixed++;
+                console.log(color.green(t('checkTasks.identicalFixed')));
+            }
+        }
+
+        // 打印手动修复的总结
+        const separator = color.dim(t('validation.separator').replace(/-/g, ''));
+        console.log(`\n${separator}`);
+        console.log(color.bold(t('checkTasks.manualFixSummaryTitle')));
+        console.log(t('checkTasks.identicalTotalProcessed', '  - ' + color.green(``), totalFixed));
+        if (totalSkipped > 0) {
+            console.log(t('checkTasks.identicalTotalSkipped', '  - ' + color.yellow(``), totalSkipped));
+        }
+        console.log(separator);
+    }
 }

@@ -33,12 +33,46 @@ import { t } from '../../lib/terminal-i18n.js';
  * @description "检查原文重复"任务的主处理函数。
  * @returns {Promise<void>}
  */
+import { ProgressBar } from '../../lib/progress.js';
+import { printValidationResults } from '../../lib/validation.js';
+
+/**
+ * @function handleSourceDuplicatesCheck
+ * @description "检查原文重复"任务的主处理函数。
+ * @returns {Promise<void>}
+ */
 export default async function handleSourceDuplicatesCheck() {
   console.log(color.cyan(t('checkTasks.checkingSourceDuplicates')));
 
+  const progressBar = new ProgressBar({
+    format: `${color.cyan('{bar}')} {percentage}% | {value}/{total} | {text}`
+  });
+
   // 1. 调用验证器，只开启原文重复检查。
-  const options = { checkSourceDuplicates: true };
+  const options = {
+    checkSourceDuplicates: true,
+    silent: true,
+    onProgress: (current, total, file) => {
+      progressBar.total = total;
+      progressBar.update(current, `${t('checkTasks.scanning')} ${file}`);
+    }
+  };
+
+  progressBar.start(0, t('checkTasks.scanning'));
   const allErrors = await validateTranslationFiles(options);
+  progressBar.stop(true);
+
+  // 如果有错误，需要手动打印
+  if (allErrors.length > 0) {
+    const errorsByFile = {};
+    for (const error of allErrors) {
+      if (!errorsByFile[error.file]) errorsByFile[error.file] = [];
+      errorsByFile[error.file].push(error);
+    }
+    for (const [file, errors] of Object.entries(errorsByFile)) {
+      printValidationResults(errors, file, options);
+    }
+  }
 
   // 2. 将返回的错误按类型（语法错误、原文重复错误）进行分类。
   const syntaxErrors = allErrors.filter(e => e.type === 'syntax');
@@ -72,22 +106,24 @@ export default async function handleSourceDuplicatesCheck() {
   // 6. 根据用户的选择执行相应的修复流程。
   switch (userAction) {
     case 'auto-fix-source':
+      console.clear();
       // 自动修复：保留每组重复中的第一个版本，删除其他版本。
       await fixSourceDuplicatesAutomatically(sourceDuplicateErrors);
       console.log(color.green(t('checkTasks.autoFixCompleteSource')));
       break;
 
     case 'manual-fix-immediate':
+      console.clear();
       // 手动修复（立即保存）：让用户逐个选择要保留的版本，每次选择后立即保存并重新验证。
       // 定义一个重新验证的函数，并将其作为参数传递给交互式提示模块。
       // 这使得 `prompting` 模块可以在每次修复后回调此函数，以获取最新的错误状态。
       const revalidateFunction = async () => {
-        return await validateTranslationFiles({ checkSourceDuplicates: true });
+        return await validateTranslationFiles({ checkSourceDuplicates: true, silent: true });
       };
-      
+
       // 调用特殊的立即修复提示函数
       const fixedCount = await promptForSourceDuplicateManualFixImmediate(
-        sourceDuplicateErrors, 
+        sourceDuplicateErrors,
         applySourceDuplicateManualFixes, // 传递用于应用修复的函数
         revalidateFunction // 传递用于重新验证的函数
       );
@@ -101,9 +137,11 @@ export default async function handleSourceDuplicatesCheck() {
       break;
 
     case 'ignore':
+      console.clear();
       console.log(color.yellow(t('checkTasks.emptyIssuesIgnored')));
       break;
     case 'cancel':
+      console.clear();
       console.log(color.dim(t('checkTasks.operationCancelled')));
       break;
   }

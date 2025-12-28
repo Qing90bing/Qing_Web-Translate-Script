@@ -35,26 +35,66 @@ import { t } from '../../lib/terminal-i18n.js';
  * @description "检查遗漏逗号"任务的主处理函数。
  * @returns {Promise<void>}
  */
+import { ProgressBar } from '../../lib/progress.js';
+import { printValidationResults } from '../../lib/validation.js';
+
+/**
+ * @function handleCommaCheck
+ * @description "检查遗漏逗号"任务的主处理函数。
+ * @returns {Promise<void>}
+ */
 export default async function handleCommaCheck() {
   console.log(color.cyan(t('checkTasks.checkingMissingComma')));
 
-  // 1. 初次校验，找出所有潜在的逗号问题。
-  let initialErrors = await validateTranslationFiles({
-    checkMissingComma: true, checkEmpty: false, checkDuplicates: false
+  const progressBar = new ProgressBar({
+    format: `${color.cyan('{bar}')} {percentage}% | {value}/{total} | {text}`
   });
+
+  // 1. 初次校验，找出所有潜在的逗号问题。
+  // 使用 silent: true 防止打印默认日志，并使用 onProgress 更新进度条
+  progressBar.start(0, t('checkTasks.scanning'));
+
+  let initialErrors = await validateTranslationFiles({
+    checkMissingComma: true, checkEmpty: false, checkDuplicates: false,
+    silent: true,
+    onProgress: (current, total, file) => {
+      progressBar.total = total; // 确保 total 被正确设置
+      progressBar.update(current, `${t('checkTasks.scanning')} ${file}`);
+    }
+  });
+
+  progressBar.stop(true); // 清除进度条
 
   if (initialErrors.length === 0) {
     console.log(color.green(t('checkTasks.noMissingCommaFound')));
     return;
   }
 
+  // 手动打印错误信息
+  //先把错误按文件分组
+  const errorsByFile = {};
+  for (const error of initialErrors) {
+    if (!errorsByFile[error.file]) {
+      errorsByFile[error.file] = [];
+    }
+    errorsByFile[error.file].push(error);
+  }
+
+  // 依次打印每个文件的错误
+  for (const [file, errors] of Object.entries(errorsByFile)) {
+    printValidationResults(errors, file, { checkMissingComma: true });
+  }
+
   // 2. 询问用户如何处理这些错误。
   const action = await promptForCommaFixAction(initialErrors.length);
 
   if (action === 'ignore') {
+    console.clear();
     console.log(color.yellow(t('checkTasks.ignoreAll')));
     return;
   }
+
+  console.clear();
 
   // 初始化统计变量
   let totalFixed = 0;
@@ -63,6 +103,7 @@ export default async function handleCommaCheck() {
 
   // 3. 如果用户选择自动修复...
   if (action === 'auto-fix') {
+    console.clear();
     console.log(color.cyan(t('checkTasks.autoFixingHighConfidence')));
     let fixedInThisPass;
     let autoFixRounds = 0;
@@ -74,7 +115,7 @@ export default async function handleCommaCheck() {
       autoFixRounds++;
       // 每次循环都重新扫描文件，获取最新的错误状态
       const allCurrentErrors = await validateTranslationFiles({
-        checkMissingComma: true, checkEmpty: false, checkDuplicates: false
+        checkMissingComma: true, checkEmpty: false, checkDuplicates: false, silent: true
       });
       if (allCurrentErrors.length === 0) break; // 如果没有错误了，就退出循环
 
@@ -90,8 +131,8 @@ export default async function handleCommaCheck() {
       // 安全阀：为了防止因意外的逻辑错误（例如，修复操作引入了新的、同样高置信度的错误）
       // 导致无限循环，这里设置一个最大修复轮数。如果修复轮数远超初始错误数，则强制中止。
       if (autoFixRounds > initialErrorCount + 5) {
-          console.error(color.lightRed('🚨 ' + t('checkTasks.autoFixInfiniteLoop')));
-          break;
+        console.error(color.lightRed('🚨 ' + t('checkTasks.autoFixInfiniteLoop')));
+        break;
       }
     } while (fixedInThisPass > 0); // 只要上一轮成功修复了问题，就继续循环
 
@@ -99,16 +140,16 @@ export default async function handleCommaCheck() {
 
     // 自动修复后，再次检查是否还有剩余的（低置信度）错误
     const remainingErrors = await validateTranslationFiles({
-      checkMissingComma: true, checkEmpty: false, checkDuplicates: false
+      checkMissingComma: true, checkEmpty: false, checkDuplicates: false, silent: true
     });
 
     if (remainingErrors.length > 0) {
       // 询问用户是否要手动处理这些低置信度错误
       const { continueWithManual } = await inquirer.prompt([{
-          type: 'confirm',
-          name: 'continueWithManual',
-          message: t('checkTasks.continueWithManual', color.yellow(remainingErrors.length)),
-          default: true
+        type: 'confirm',
+        name: 'continueWithManual',
+        message: t('checkTasks.continueWithManual', color.yellow(remainingErrors.length)),
+        default: true
       }]);
       if (continueWithManual) {
         manualMode = true; // 设置标志，以便后续进入手动模式
@@ -117,7 +158,7 @@ export default async function handleCommaCheck() {
         console.log(color.yellow(t('checkTasks.skippedLowConfidence')));
       }
     } else if (totalFixed > 0) {
-        console.log(color.green(t('checkTasks.allFixedInAuto')));
+      console.log(color.green(t('checkTasks.allFixedInAuto')));
     }
   }
 
@@ -132,9 +173,10 @@ export default async function handleCommaCheck() {
     const ignoredPositions = new Set(); // 用于存储用户选择"跳过"的错误位置
     let quit = false;
     while (!quit) {
+      console.clear();
       // 每次循环都重新扫描文件，但会忽略用户已选择跳过的问题
       const errors = await validateTranslationFiles({
-        checkMissingComma: true, checkEmpty: false, checkDuplicates: false, ignoredPositions
+        checkMissingComma: true, checkEmpty: false, checkDuplicates: false, ignoredPositions, silent: true
       });
       if (errors.length === 0) {
         console.log(color.green(t('checkTasks.allManualFixed')));
