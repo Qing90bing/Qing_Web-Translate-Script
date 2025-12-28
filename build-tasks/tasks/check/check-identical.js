@@ -39,6 +39,13 @@ import { printValidationResults } from '../../lib/validation.js';
  * @description "检查原文与译文相同"任务的主处理函数。
  * @returns {Promise<void>}
  */
+import { ValidationReporter } from '../../lib/reporter.js';
+
+/**
+ * @function handleIdenticalCheck
+ * @description "检查原文与译文相同"任务的主处理函数。
+ * @returns {Promise<void>}
+ */
 export default async function handleIdenticalCheck() {
     console.log(color.cyan(t('checkTasks.checkingIdentical')));
 
@@ -87,14 +94,17 @@ export default async function handleIdenticalCheck() {
 
     console.clear();
 
+    const reporter = new ValidationReporter();
+
     // 3. 根据用户的顶层选择，执行相应流程。
     if (result.action === 'auto-fix') {
         // 自动修复流程
-        await fixIdenticalAutomatically(result.decisions);
+        await fixIdenticalAutomatically(result.decisions, reporter);
         // `fixIdenticalAutomatically` 内部会打印自己的日志，这里不再重复
     } else if (result.action === 'ignore') {
         // 忽略流程
         console.clear();
+        reporter.addSkipped(identicalErrors.length);
         console.log(color.yellow(t('checkTasks.emptyIssuesIgnored')));
     } else if (result.action === 'manual-fix') {
         // 手动修复流程
@@ -140,19 +150,24 @@ export default async function handleIdenticalCheck() {
             } else {
                 // 应用修复（修改或移除）
                 await applySingleIdenticalFix(decision);
+
+                // 记录手动修复详情
+                const errorLine = errorToFix.line;
+                const errorContent = errorToFix.node.raw || JSON.stringify(errorToFix.node); // 获取大致内容
+                if (decision.action === 'remove') {
+                    reporter.recordFix(errorToFix.file, 'manual-fix', 'removed', errorLine, 'Row removed');
+                } else if (decision.action === 'modify') {
+                    reporter.recordFix(errorToFix.file, 'manual-fix', 'modified', errorLine, `... -> "${decision.newTranslation}"`);
+                }
+
                 totalFixed++;
                 console.log(color.green(t('checkTasks.identicalFixed')));
             }
         }
 
-        // 打印手动修复的总结
-        const separator = color.dim(t('validation.separator').replace(/-/g, ''));
-        console.log(`\n${separator}`);
-        console.log(color.bold(t('checkTasks.manualFixSummaryTitle')));
-        console.log(t('checkTasks.identicalTotalProcessed', '  - ' + color.green(``), totalFixed));
-        if (totalSkipped > 0) {
-            console.log(t('checkTasks.identicalTotalSkipped', '  - ' + color.yellow(``), totalSkipped));
-        }
-        console.log(separator);
+        reporter.addSkipped(totalSkipped);
     }
+
+    // 打印总结
+    reporter.printSummary();
 }

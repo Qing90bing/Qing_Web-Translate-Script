@@ -22,7 +22,8 @@
 // 导入核心库
 import path from 'path';
 import { color } from '../../lib/colors.js';
-import { validateTranslationFiles } from '../../lib/validation.js';
+import { validateTranslationFiles, printValidationResults } from '../../lib/validation.js';
+import { ProgressBar } from '../../lib/progress.js';
 import { promptUserAboutErrors, promptForSingleEmptyTranslationFix, promptForSyntaxFix } from '../../lib/prompting.js';
 import { applySingleEmptyTranslationFix, applySyntaxFixes } from '../../lib/fixing.js';
 // 从终端国际化模块导入翻译函数
@@ -33,8 +34,7 @@ import { t } from '../../lib/terminal-i18n.js';
  * @description "检查空翻译"任务的主处理函数。
  * @returns {Promise<void>}
  */
-import { ProgressBar } from '../../lib/progress.js';
-import { printValidationResults } from '../../lib/validation.js';
+import { ValidationReporter } from '../../lib/reporter.js';
 
 /**
  * @function handleEmptyCheck
@@ -103,6 +103,7 @@ export default async function handleEmptyCheck() {
   const userAction = await promptUserAboutErrors(emptyErrors, { isFullBuild: false });
 
   // 初始化统计变量
+  const reporter = new ValidationReporter();
   let totalFixed = 0;
   let totalSkipped = 0;
 
@@ -140,6 +141,7 @@ export default async function handleEmptyCheck() {
           case 'fix':
             // 如果用户选择修复，则调用修复函数立即应用更改。
             await applySingleEmptyTranslationFix({ error: errorToFix, newTranslation: decision.newTranslation });
+            reporter.recordFix(errorToFix.file, 'manual-fix', 'modified', errorToFix.line, `"" -> "${decision.newTranslation}"`);
             totalFixed++;
             console.log(color.green(t('checkTasks.emptyFixed')));
             break;
@@ -186,15 +188,7 @@ export default async function handleEmptyCheck() {
 
   // 7. 打印最终的操作总结
   if (totalFixed > 0 || totalSkipped > 0) {
-    const separator = color.dim(t('validation.separator').replace(/-/g, ''));
-    console.log(`\n${separator}`);
-    console.log(color.bold(t('checkTasks.operationSummaryTitle')));
-    if (totalFixed > 0) {
-      console.log(t('checkTasks.totalFixed', '  - ' + color.green(``), totalFixed));
-    }
-    if (totalSkipped > 0) {
-      console.log(t('checkTasks.totalSkipped', '  - ' + color.yellow(``), totalSkipped));
-    }
-    console.log(separator);
+    reporter.addSkipped(totalSkipped);
+    reporter.printSummary();
   }
 }

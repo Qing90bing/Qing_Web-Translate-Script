@@ -41,6 +41,13 @@ import { printValidationResults } from '../../lib/validation.js';
  * @description "检查原文重复"任务的主处理函数。
  * @returns {Promise<void>}
  */
+import { ValidationReporter } from '../../lib/reporter.js';
+
+/**
+ * @function handleSourceDuplicatesCheck
+ * @description "检查原文重复"任务的主处理函数。
+ * @returns {Promise<void>}
+ */
 export default async function handleSourceDuplicatesCheck() {
   console.log(color.cyan(t('checkTasks.checkingSourceDuplicates')));
 
@@ -53,7 +60,7 @@ export default async function handleSourceDuplicatesCheck() {
     checkSourceDuplicates: true,
     silent: true,
     onProgress: (current, total, file) => {
-      progressBar.total = total;
+      progressBar.total = total; // 确保 total 被正确设置
       progressBar.update(current, `${t('checkTasks.scanning')} ${file}`);
     }
   };
@@ -103,12 +110,14 @@ export default async function handleSourceDuplicatesCheck() {
   // 5. 如果存在原文重复错误，询问用户如何操作。
   const userAction = await promptUserAboutErrors(sourceDuplicateErrors, { isFullBuild: false, isSourceDuplicate: true });
 
+  const reporter = new ValidationReporter();
+
   // 6. 根据用户的选择执行相应的修复流程。
   switch (userAction) {
     case 'auto-fix-source':
       console.clear();
       // 自动修复：保留每组重复中的第一个版本，删除其他版本。
-      await fixSourceDuplicatesAutomatically(sourceDuplicateErrors);
+      await fixSourceDuplicatesAutomatically(sourceDuplicateErrors, reporter);
       console.log(color.green(t('checkTasks.autoFixCompleteSource')));
       break;
 
@@ -124,7 +133,7 @@ export default async function handleSourceDuplicatesCheck() {
       // 调用特殊的立即修复提示函数
       const fixedCount = await promptForSourceDuplicateManualFixImmediate(
         sourceDuplicateErrors,
-        applySourceDuplicateManualFixes, // 传递用于应用修复的函数
+        (decisions) => applySourceDuplicateManualFixes(decisions, reporter), // 传递用于应用修复的函数，并注入 reporter
         revalidateFunction // 传递用于重新验证的函数
       );
 
@@ -138,6 +147,7 @@ export default async function handleSourceDuplicatesCheck() {
 
     case 'ignore':
       console.clear();
+      reporter.addSkipped(sourceDuplicateErrors.length);
       console.log(color.yellow(t('checkTasks.emptyIssuesIgnored')));
       break;
     case 'cancel':
@@ -145,4 +155,7 @@ export default async function handleSourceDuplicatesCheck() {
       console.log(color.dim(t('checkTasks.operationCancelled')));
       break;
   }
+
+  // 打印总结
+  reporter.printSummary();
 }

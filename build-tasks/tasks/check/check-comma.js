@@ -24,7 +24,8 @@
 import inquirer from 'inquirer';
 // 导入核心库
 import { color } from '../../lib/colors.js';
-import { validateTranslationFiles } from '../../lib/validation.js';
+import { validateTranslationFiles, printValidationResults } from '../../lib/validation.js';
+import { ProgressBar } from '../../lib/progress.js';
 import { promptForCommaFixAction, promptForSingleCommaFix } from '../../lib/prompting.js';
 import { identifyHighConfidenceCommaErrors, applySingleCommaFix } from '../../lib/fixing.js';
 // 从终端国际化模块导入翻译函数
@@ -35,8 +36,7 @@ import { t } from '../../lib/terminal-i18n.js';
  * @description "检查遗漏逗号"任务的主处理函数。
  * @returns {Promise<void>}
  */
-import { ProgressBar } from '../../lib/progress.js';
-import { printValidationResults } from '../../lib/validation.js';
+import { ValidationReporter } from '../../lib/reporter.js';
 
 /**
  * @function handleCommaCheck
@@ -96,7 +96,8 @@ export default async function handleCommaCheck() {
 
   console.clear();
 
-  // 初始化统计变量
+  // 初始化报告器
+  const reporter = new ValidationReporter();
   let totalFixed = 0;
   let totalSkipped = 0;
   let manualMode = false;
@@ -123,7 +124,10 @@ export default async function handleCommaCheck() {
       const { highConfidenceFixes } = await identifyHighConfidenceCommaErrors(allCurrentErrors);
       if (highConfidenceFixes.length > 0) {
         // 只修复第一个高置信度错误，然后重新开始循环
-        await applySingleCommaFix(highConfidenceFixes[0]);
+        const fix = highConfidenceFixes[0];
+        await applySingleCommaFix(fix);
+
+        reporter.recordFix(fix.file, 'auto-fix', 'added', fix.line, t('validation.missingComma'));
         fixedInThisPass++;
         totalFixed++;
       }
@@ -191,6 +195,7 @@ export default async function handleCommaCheck() {
       switch (decision) {
         case 'fix':
           await applySingleCommaFix(errorToFix);
+          reporter.recordFix(errorToFix.file, 'manual-fix', 'added', errorToFix.line, t('validation.missingComma'));
           totalFixed++;
           console.log(color.green(t('checkTasks.fixed')));
           break;
@@ -212,12 +217,6 @@ export default async function handleCommaCheck() {
   }
 
   // 5. 打印最终的操作总结
-  const separator = color.dim(t('validation.separator').replace(/-/g, ''));
-  console.log(`\n${separator}`);
-  console.log(color.bold(t('checkTasks.operationSummaryTitle')));
-  console.log(t('checkTasks.totalFixed', '  - ' + color.green(``), totalFixed));
-  if (totalSkipped > 0) {
-    console.log(t('checkTasks.totalSkipped', '  - ' + color.yellow(``), totalSkipped));
-  }
-  console.log(separator);
+  reporter.addSkipped(totalSkipped);
+  reporter.printSummary();
 }

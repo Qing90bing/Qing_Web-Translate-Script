@@ -37,6 +37,8 @@ import { printValidationResults } from '../../lib/validation.js';
  * @description "检查重复的翻译"任务的主处理函数。
  * @returns {Promise<void>}
  */
+import { ValidationReporter } from '../../lib/reporter.js';
+
 export default async function handleDuplicatesCheck() {
   console.log(color.cyan(t('checkTasks.checkingDuplicates')));
 
@@ -44,7 +46,6 @@ export default async function handleDuplicatesCheck() {
     format: `${color.cyan('{bar}')} {percentage}% | {value}/{total} | {text}`
   });
 
-  // 1. 调用验证器，只开启重复检查。
   const options = {
     checkDuplicates: true,
     silent: true,
@@ -58,7 +59,6 @@ export default async function handleDuplicatesCheck() {
   const allErrors = await validateTranslationFiles(options);
   progressBar.stop(true);
 
-  // 如果有错误，需要手动打印
   if (allErrors.length > 0) {
     const errorsByFile = {};
     for (const error of allErrors) {
@@ -70,15 +70,11 @@ export default async function handleDuplicatesCheck() {
     }
   }
 
-  // 2. 将返回的错误按类型（语法错误、重复错误）进行分类。
   const syntaxErrors = allErrors.filter(e => e.type === 'syntax');
   const duplicateErrors = allErrors.filter(e => e.type === 'multi-duplicate');
 
-  // 3. 优先处理语法错误。
-  // 如果存在语法错误，重复检查的结果可能是不可靠的。因此，必须先修复语法问题。
   if (syntaxErrors.length > 0) {
     console.log(color.lightRed(t('checkTasks.duplicateSyntaxError')));
-    // 提示用户修复可自动修复的语法错误。
     const decisions = await promptForSyntaxFix(syntaxErrors);
     if (decisions && decisions.length > 0) {
       await applySyntaxFixes(decisions);
@@ -86,25 +82,24 @@ export default async function handleDuplicatesCheck() {
     } else {
       console.log(color.yellow(t('checkTasks.noSyntaxFix')));
     }
-    // 中止当前任务，强制用户在修复语法错误后重新运行，以确保在干净的 AST 上进行重复检查。
     return;
   }
 
-  // 4. 如果没有重复错误，则告知用户并退出。
   if (duplicateErrors.length === 0) {
     console.log(color.green(t('checkTasks.noDuplicatesFound')));
     return;
   }
 
-  // 5. 如果存在重复错误，询问用户如何操作。
   const userAction = await promptUserAboutErrors(duplicateErrors, { isFullBuild: false });
 
-  // 6. 根据用户的选择执行相应的修复流程。
+  // 初始化报告器
+  const reporter = new ValidationReporter();
+
   switch (userAction) {
     case 'auto-fix':
       console.clear();
       // 自动修复：保留第一个，删除后续所有重复项。
-      await fixDuplicatesAutomatically(duplicateErrors);
+      await fixDuplicatesAutomatically(duplicateErrors, reporter);
       console.log(color.green(t('checkTasks.autoFixCompleteDuplicates')));
       break;
 
@@ -112,8 +107,8 @@ export default async function handleDuplicatesCheck() {
       console.clear();
       // 手动修复：让用户逐个选择要保留的版本。
       const decisions = await promptForManualFix(duplicateErrors);
-      if (decisions) { // 如果用户没有中途退出手动修复流程
-        await applyManualFixes(decisions);
+      if (decisions) {
+        await applyManualFixes(decisions, reporter);
         console.log(color.green(t('checkTasks.manualFixCompleteDuplicates')));
       } else {
         console.log(color.yellow(t('checkTasks.manualFixAborted')));
@@ -122,6 +117,7 @@ export default async function handleDuplicatesCheck() {
 
     case 'ignore':
       console.clear();
+      reporter.addSkipped(duplicateErrors.length);
       console.log(color.yellow(t('checkTasks.emptyIssuesIgnored')));
       break;
     case 'cancel':
@@ -129,4 +125,7 @@ export default async function handleDuplicatesCheck() {
       console.log(color.dim(t('checkTasks.operationCancelled')));
       break;
   }
+
+  // 打印总结
+  reporter.printSummary();
 }
