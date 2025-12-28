@@ -69,9 +69,7 @@ export const claudeComZhCn = {
   // 格式: [/原始文本正则表达式/i, '翻译后的文本']
   // 使用 $1, $2, ... 来引用正则表达式中的捕获组
   // 示例: [/^Hello (\w+)/, '您好 $1']
-  regexRules: [
-    // 在这里添加正则表达式规则
-  ],
+  regexRules: [],
 
   // 纯文本翻译规则
   // 规则会完全匹配整个文本
@@ -136,6 +134,7 @@ export const claudeComZhCn = {
     ["Français (France)", "法语（法国）"],
     ["Regional Compliance", "地区合规性"],
     [" cookie settings", " Cookie 设置"],
+    ["Anthropic news", "Anthropic 新闻"],
     ["Code modernization", "代码现代化"],
     ["Service partners", "服务合作伙伴"],
     ["Startups program", "初创企业计划"],
@@ -159,7 +158,9 @@ export const claudeComZhCn = {
     ["Meet Claude", "认识 Claude"],
     ["Privacy policy", "隐私政策"],
     ["Support center", "支持中心"],
+    ["Contact sales", "联系销售"],
     ["Life sciences", "生命科学"],
+    ["Try Claude", "试用 Claude"],
     ["Download app", "下载应用"],
     ["Explore here", "在此探索"],
     ["Nonprofits", "非营利组织"],
@@ -179,6 +180,7 @@ export const claudeComZhCn = {
     ["Max plan", "Max 方案"],
     ["Careers", "职位空缺"],
     ["Government", "政府"],
+    ["Industries", "行业"],
     ["Status", "服务状态"],
     ["Analytics", "分析"],
     ["Education", "教育"],
@@ -190,6 +192,7 @@ export const claudeComZhCn = {
     ["Homepage", "首页"],
     ["News", "新闻中心"],
     ["Overview", "概览"],
+    ["Platform", "平台"],
     ["Products", "产品"],
     ["Required", "必需"],
     ["Research", "研究"],
@@ -206,11 +209,6 @@ export const claudeComZhCn = {
     ["Write", "写作"],
     ["Blog", "博客"],
     ["Code", "代码"],
-    ["Industries", "行业"],
-    ["Anthropic news", "Anthropic 新闻"],
-    ["Contact sales", "联系销售"],
-    ["Platform", "平台"],
-    ["Try Claude", "试用 Claude"],
     ["here", "此处"],
     ["More", "更多"],
     ["App", "应用"],

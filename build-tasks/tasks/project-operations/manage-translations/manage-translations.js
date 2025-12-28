@@ -20,6 +20,7 @@ import inquirer from 'inquirer';
 import { color } from '../../../lib/colors.js'; // 颜色工具
 import { t } from '../../../lib/terminal-i18n.js'; // 国际化函数
 import handleAddNewTranslation from './add-translation.js'; // 导入“添加翻译”任务处理器
+import handleModifyTranslation from './modify-translation.js'; // 导入“修改翻译”任务处理器
 import handleRemoveTranslation from './remove-translation.js'; // 导入“移除翻译”任务处理器
 
 /**
@@ -48,6 +49,7 @@ async function handleManageTranslations() {
         prefix: '✨',
         choices: [
           { name: t('manageTranslationsMenu.add'), value: 'add' },
+          { name: t('manageTranslationsMenu.modify'), value: 'modify' },
           { name: t('manageTranslationsMenu.remove'), value: 'remove' },
           new inquirer.Separator(),
           { name: t('manageTranslationsMenu.back'), value: 'back' },
@@ -63,6 +65,12 @@ async function handleManageTranslations() {
         await handleAddNewTranslation();
         // **体验优化**: 在子任务完成后，暂停执行并等待用户按键。
         // 这可以防止子任务的输出被主菜单瞬间清空，让用户有时间阅读结果。
+        console.log('\n');
+        await inquirer.prompt({ type: 'input', name: 'key', message: color.cyan(t('manageTranslationsMenu.operationComplete')), });
+        break;
+      case 'modify':
+        // 调用“修改网站网址”的任务处理器。
+        await handleModifyTranslation();
         console.log('\n');
         await inquirer.prompt({ type: 'input', name: 'key', message: color.cyan(t('manageTranslationsMenu.operationComplete')), });
         break;
