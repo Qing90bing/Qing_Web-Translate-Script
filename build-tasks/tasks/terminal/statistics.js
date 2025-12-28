@@ -159,7 +159,7 @@ async function handleLanguageSelection(langCode, langStats, langName) {
           name: formatWebsiteChoice(name, stats, maxRulesWidth, maxConfigsWidth),
           value: name,
         })),
-        new inquirer.Separator('---------------------------'),
+        new inquirer.Separator('───────────────────────────'),
         { name: t('statistics.back'), value: '__back__' },
       ],
       pageSize: 25,
@@ -249,7 +249,7 @@ export default async function handleStatistics() {
             value: code,
           };
         }),
-        new inquirer.Separator('--------------------------------------------------'),
+        new inquirer.Separator('──────────────────────────────────────────────────'),
         { name: t('menu.exit'), value: '__exit__' },
       ],
       pageSize: 25,

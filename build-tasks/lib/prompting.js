@@ -146,7 +146,7 @@ export async function promptForManualFix(duplicateErrors) {
     });
 
     // 2. 添加"跳过"和"退出"这两个特殊操作选项。
-    choices.push(new inquirer.Separator());
+    choices.push(new inquirer.Separator('──────────────────────────────────────────────'));
     choices.push({ name: t('prompting.choiceSkip'), value: 'skip' });
     choices.push({ name: t('prompting.choiceExit'), value: 'exit' });
 
@@ -250,7 +250,7 @@ export async function promptForSingleEmptyTranslationFix(error, remainingCount) 
       message: t('prompting.singleEmptyTranslationMessage', progress, color.underline(path.basename(error.file)), color.yellow(`"${originalText}"`), error.line),
       choices: [
         { name: t('prompting.singleEmptyTranslationFix'), value: 'fix' },
-        new inquirer.Separator(),
+        new inquirer.Separator('──────────────────────────────────────────────'),
         { name: t('prompting.singleEmptyTranslationSkip'), value: 'skip' },
         { name: t('prompting.singleEmptyTranslationSkipAll'), value: 'skip-all' },
         { name: t('prompting.singleEmptyTranslationAbort'), value: 'abort' },
@@ -322,7 +322,7 @@ export async function promptToPreserveFormatting() {
           name: t('prompting.cdnBuild'), // 🚀 CDN 构建
           value: 'cdn'
         },
-        new inquirer.Separator(),
+        new inquirer.Separator('──────────────────────────────────────────────'),
         {
           name: t('prompting.cancelBuild'), // ❌ 取消构建
           value: 'cancel'
@@ -387,7 +387,7 @@ export async function promptForSyntaxFix(syntaxErrors) {
 --- ${t('validation.contentLabel').split(':')[0]} ${t('validation.lineRange', error.line - 1, error.line)} ---
 ${originalLine}
 ${error.lineContent}
---------------------------
+──────────────────────────
 
 +++ ${t('validation.contentLabel').split(':')[0]} ${t('validation.highlightNote')} +++
 ${color.green(fixedLine)}
@@ -484,11 +484,11 @@ export async function promptForSingleCommaFix(error, remainingCount) {
 
   // 4. 构建完整的预览文本，包括原始问题代码和建议的修复方案。
   const preview = `
---- ${t('validation.contentLabel').split(':')[0]} ${t('validation.fileLine', path.basename(error.file), error.line)} ---
+─── ${t('validation.contentLabel').split(':')[0]} ${t('validation.fileLine', path.basename(error.file), error.line)} ───
 ${lineAbove}
 ${color.red(errorLine)}
 ${lineBelow}
-----------------------------------
+──────────────────────────────────
 
 +++ ${t('validation.contentLabel').split(':')[0]} ${t('validation.highlightNote')} +++
 ${lineAbove}
@@ -535,7 +535,7 @@ async function promptForIdenticalAutoFix() {
       choices: [
         { name: t('prompting.identicalAutoFixRemove'), value: 'remove' },
         { name: t('prompting.identicalAutoFixEmpty'), value: 'empty' },
-        new inquirer.Separator(),
+        new inquirer.Separator('──────────────────────────────────────────────'),
         { name: t('prompting.identicalAutoFixBack'), value: 'cancel' },
       ],
       pageSize: 20, // 增加 pageSize 选项以显示更多行
@@ -564,7 +564,7 @@ export async function promptForSingleIdenticalFix(error, remainingCount) {
       choices: [
         { name: t('prompting.singleIdenticalModify'), value: 'modify' },
         { name: t('prompting.singleIdenticalRemove'), value: 'remove' },
-        new inquirer.Separator(),
+        new inquirer.Separator('──────────────────────────────────────────────'),
         { name: t('prompting.singleIdenticalSkip'), value: 'skip' },
         { name: t('prompting.singleIdenticalSkipAll'), value: 'skip-all' },
         { name: t('prompting.singleIdenticalAbort'), value: 'abort' },
@@ -621,7 +621,7 @@ export async function promptUserAboutIdenticalTranslations(errors) {
       choices: [
         { name: t('prompting.identicalTranslationAuto'), value: 'auto-fix' },
         { name: t('prompting.identicalTranslationManual'), value: 'manual-fix' },
-        new inquirer.Separator(),
+        new inquirer.Separator('──────────────────────────────────────────────'),
         { name: t('prompting.identicalTranslationIgnore'), value: 'ignore' },
       ],
       pageSize: 20, // 增加 pageSize 选项以显示更多行
@@ -687,7 +687,7 @@ export async function promptForSourceDuplicateManualFix(sourceDuplicateErrors) {
     });
 
     // 2. 添加"跳过"和"退出"这两个特殊操作选项。
-    choices.push(new inquirer.Separator());
+    choices.push(new inquirer.Separator('──────────────────────────────────────────────'));
     choices.push({ name: t('prompting.choiceSkip'), value: 'skip' });
     choices.push({ name: t('prompting.choiceExit'), value: 'exit' });
 
@@ -776,7 +776,7 @@ export async function promptForSourceDuplicateManualFixImmediate(sourceDuplicate
     });
 
     // 2. 添加"跳过"和"退出"这两个特殊操作选项。
-    choices.push(new inquirer.Separator());
+    choices.push(new inquirer.Separator('──────────────────────────────────────────────'));
     choices.push({ name: t('prompting.choiceSkip'), value: 'skip' });
     choices.push({ name: t('prompting.choiceExit'), value: 'exit' });
 

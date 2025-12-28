@@ -71,7 +71,7 @@ async function handleModifyTranslation() {
                     name: `${lang.name} (${lang.code}) ${lang.flag || ''}`,
                     value: lang.code
                 })),
-                new inquirer.Separator(),
+                new inquirer.Separator('──────────────────────────────────────────────'),
                 { name: t('manageTranslationsMenu.back'), value: 'back' },
             ],
             prefix: '🌐',
@@ -104,7 +104,7 @@ async function handleModifyTranslation() {
             message: t('modifyTranslation.selectFileToModify'),
             choices: [
                 ...translationFiles.sort(),
-                new inquirer.Separator(),
+                new inquirer.Separator('──────────────────────────────────────────────'),
                 { name: t('manageTranslationsMenu.back'), value: 'back' },
             ],
             prefix: '📄',

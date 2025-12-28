@@ -76,7 +76,7 @@ async function handleAddNewTranslation() {
       prefix: '🌐',
       choices: [
         ...languageChoices,
-        new inquirer.Separator(), // 添加分隔线
+        new inquirer.Separator('──────────────────────────────────────────────'), // 添加分隔线
         { name: t('manageTranslationsMenu.back'), value: 'back' } // 提供返回选项
       ]
     }

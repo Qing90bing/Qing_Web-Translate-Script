@@ -51,7 +51,7 @@ async function handleManageTranslations() {
           { name: t('manageTranslationsMenu.add'), value: 'add' },
           { name: t('manageTranslationsMenu.modify'), value: 'modify' },
           { name: t('manageTranslationsMenu.remove'), value: 'remove' },
-          new inquirer.Separator(),
+          new inquirer.Separator('──────────────────────────────────────────────'),
           { name: t('manageTranslationsMenu.back'), value: 'back' },
         ],
         pageSize: 20, // 增加 pageSize 选项以显示更多行，避免滚动

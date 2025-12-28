@@ -257,7 +257,7 @@ async function handleSortTranslations() {
 
     // --- 语言选择 ---
     if (existingLangDirs.length > 0) {
-      mainChoices.push(new inquirer.Separator('--- 语言选择 --- '));
+      mainChoices.push(new inquirer.Separator('─── 语言选择 ─── '));
 
       existingLangDirs.forEach(langCode => {
         const langInfo = SUPPORTED_LANGUAGES.find(l => l.code === langCode);
@@ -273,7 +273,7 @@ async function handleSortTranslations() {
     }
 
     // --- 全局操作 ---
-    mainChoices.push(new inquirer.Separator('--- 全局操作 ---'));
+    mainChoices.push(new inquirer.Separator('─── 全局操作 ───'));
     mainChoices.push({ name: '🌐 [全局] 整理所有文件的 regexRules', value: { type: 'global', action: 'all_regex' } });
     mainChoices.push({ name: '🌐 [全局] 整理所有文件的 textRules', value: { type: 'global', action: 'all_text' } });
     mainChoices.push({ name: '🌐 [全局] 整理所有文件的 全部规则', value: { type: 'global', action: 'all_all' } });
@@ -350,7 +350,7 @@ async function handleSortTranslations() {
         console.log(color.cyan(`当前语言: ${selectedLangDir}`));
 
         const fileChoices = siteFiles.map(file => ({ name: file, value: file }));
-        fileChoices.push(new inquirer.Separator());
+        fileChoices.push(new inquirer.Separator('──────────────────────────────────────────────'));
         fileChoices.push({ name: '↩️ 返回上一级', value: 'back_to_main' });
 
         const { fileSelection } = await inquirer.prompt([
@@ -376,9 +376,9 @@ async function handleSortTranslations() {
             choices: [
               { name: t('sortTranslations.regexRules'), value: 'regexRules' },
               { name: t('sortTranslations.textRules'), value: 'textRules' },
-              new inquirer.Separator(),
+              new inquirer.Separator('──────────────────────────────────────────────'),
               { name: t('sortTranslations.executeAll'), value: 'all' },
-              new inquirer.Separator(),
+              new inquirer.Separator('──────────────────────────────────────────────'),
               { name: t('sortTranslations.back'), value: 'back' },
             ],
             prefix: '🔑',

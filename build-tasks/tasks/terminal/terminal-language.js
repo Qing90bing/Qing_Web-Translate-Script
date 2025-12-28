@@ -42,11 +42,11 @@ async function handleTerminalLanguage() {
         prefix: '✨',
         choices: [
           new inquirer.Separator(currentLanguage ? t('terminalLanguage.currentLanguage', `${currentLanguage.name} (${currentLanguage.code})`) : t('terminalLanguage.currentLanguage', currentLanguageCode)),
-          new inquirer.Separator(),
+          new inquirer.Separator('──────────────────────────────────────────────'),
           { name: t('terminalLanguage.switch'), value: 'switch' },
           { name: t('terminalLanguage.add'), value: 'add' },
           { name: t('terminalLanguage.list'), value: 'list' },
-          new inquirer.Separator(),
+          new inquirer.Separator('──────────────────────────────────────────────'),
           { name: t('terminalLanguage.back'), value: 'back' },
         ],
         pageSize: 20, // 增加 pageSize 选项以显示更多行
@@ -86,7 +86,7 @@ async function handleSwitchLanguage() {
     value: lang.code
   }));
 
-  languageChoices.push(new inquirer.Separator());
+  languageChoices.push(new inquirer.Separator('──────────────────────────────────────────────'));
   languageChoices.push({ name: t('terminalLanguage.back'), value: 'back' });
 
   const { languageCode } = await inquirer.prompt([
@@ -194,7 +194,7 @@ async function handleAddLanguage() {
         name: 'back',
         message: t('terminalLanguage.selectAction'),
         choices: [
-          new inquirer.Separator(),
+          new inquirer.Separator('──────────────────────────────────────────────'),
           { name: t('terminalLanguage.back'), value: 'back' },
         ],
       },
@@ -234,7 +234,7 @@ async function handleListLanguages() {
       name: 'back',
       message: t('terminalLanguage.selectAction'),
       choices: [
-        new inquirer.Separator(),
+        new inquirer.Separator('──────────────────────────────────────────────'),
         { name: t('terminalLanguage.back'), value: 'back' },
       ],
     },
