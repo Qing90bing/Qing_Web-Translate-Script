@@ -29,7 +29,7 @@ import { color } from '../../../lib/colors.js';
 import { t } from '../../../lib/terminal-i18n.js';
 import { getLiteralValue } from '../../../lib/validation.js';
 import { pressAnyKeyToContinue } from '../../../lib/utils.js';
-import { SUPPORTED_LANGUAGE_CODES } from '../../../../src/config/languages.js';
+import { SUPPORTED_LANGUAGE_CODES, SUPPORTED_LANGUAGES } from '../../../../src/config/languages.js';
 
 /**
  * @function visualLength
@@ -240,140 +240,169 @@ async function handleSortTranslations() {
     console.log(title);
     console.log(color.dim(t('sortTranslations.separator')));
 
-    // 动态扫描并列出所有可供排序的翻译文件。
-    let allFiles = [];
+    // 动态扫描存在翻译文件的语言目录
+    let existingLangDirs = [];
     try {
-      const langDirs = (await fs.readdir(translationsDir)).filter(file =>
+      existingLangDirs = (await fs.readdir(translationsDir)).filter(file =>
         SUPPORTED_LANGUAGE_CODES.includes(file)
       );
-
-      for (const langDir of langDirs) {
-        // 修改：扫描 sites 子目录
-        const sitesPath = path.join(translationsDir, langDir, 'sites');
-        try {
-          await fs.stat(sitesPath);
-        } catch {
-          continue;
-        }
-
-        const files = (await fs.readdir(sitesPath)).filter(file => file.endsWith('.js'));
-        allFiles.push(...files.map(file => ({ file, langDir })));
-      }
     } catch (error) {
       console.error(color.red(t('sortTranslations.readingDirError')), error);
       await pressAnyKeyToContinue();
       return;
     }
 
-    if (allFiles.length === 0) {
-      console.log(color.yellow(t('sortTranslations.noFilesToSort')));
-      await pressAnyKeyToContinue();
+    // 第一层菜单：语言选择与全局操作
+    const mainChoices = [];
+
+    // --- 语言选择 ---
+    if (existingLangDirs.length > 0) {
+      mainChoices.push(new inquirer.Separator('--- 语言选择 --- '));
+
+      existingLangDirs.forEach(langCode => {
+        const langInfo = SUPPORTED_LANGUAGES.find(l => l.code === langCode);
+        const displayName = langInfo
+          ? `${langInfo.name} (${langInfo.code}) ${langInfo.flag}`
+          : langCode;
+
+        mainChoices.push({
+          name: displayName,
+          value: { type: 'language', langDir: langCode }
+        });
+      });
+    }
+
+    // --- 全局操作 ---
+    mainChoices.push(new inquirer.Separator('--- 全局操作 ---'));
+    mainChoices.push({ name: '🌐 [全局] 整理所有文件的 regexRules', value: { type: 'global', action: 'all_regex' } });
+    mainChoices.push({ name: '🌐 [全局] 整理所有文件的 textRules', value: { type: 'global', action: 'all_text' } });
+    mainChoices.push({ name: '🌐 [全局] 整理所有文件的 全部规则', value: { type: 'global', action: 'all_all' } });
+
+    mainChoices.push(new inquirer.Separator('──────────────'));
+    mainChoices.push({ name: '↩️ 返回主菜单', value: { type: 'back' } });
+
+    const { mainSelection } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'mainSelection',
+        message: '📂 请选择您想要的操作:',
+        choices: mainChoices,
+        pageSize: 20,
+      }
+    ]);
+
+    if (mainSelection.type === 'back') {
       return;
     }
 
-    // 创建 inquirer 选项，按语言对文件进行分组显示，以提高可读性。
-    const fileChoices = [];
-    const filesByLanguage = {};
-
-    allFiles.forEach(({ file, langDir }) => {
-      if (!filesByLanguage[langDir]) {
-        filesByLanguage[langDir] = [];
-      }
-      filesByLanguage[langDir].push({ file, langDir });
-    });
-
-    Object.keys(filesByLanguage).sort().forEach(langDir => {
-      fileChoices.push(new inquirer.Separator(`--- ${langDir} ---`));
-      filesByLanguage[langDir].forEach(({ file, langDir }) => {
-        fileChoices.push({
-          name: `  ${file}`,
-          value: { file, langDir }
-        });
-      });
-    });
-
-    // 主菜单，提供对单个文件、所有文件或特定规则类型的批量操作。
-    const { fileToSort } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'fileToSort',
-        message: t('sortTranslations.selectFile'),
-        choices: [
-          ...fileChoices,
-          new inquirer.Separator(t('sortTranslations.globalOperation')),
-          { name: t('sortTranslations.sortAllRegex'), value: 'all_regex' },
-          { name: t('sortTranslations.sortAllText'), value: 'all_text' },
-          { name: t('sortTranslations.sortAll'), value: 'all_all' },
-          new inquirer.Separator(),
-          { name: t('sortTranslations.backToMenu'), value: 'back' }
-        ],
-        prefix: '📂',
-        pageSize: 9999,
-      },
-    ]);
-    if (fileToSort === 'back') { return; }
-
-    const isGlobalOperation = typeof fileToSort === 'string' && fileToSort.startsWith('all_');
-
-    // 处理全局批量操作
-    if (isGlobalOperation) {
+    // 处理全局操作
+    if (mainSelection.type === 'global') {
+      const action = mainSelection.action;
       console.log(color.bold(t('sortTranslations.executingGlobalTask')));
+
+      // 重新扫描所有文件
+      let allFiles = [];
+      for (const langDir of existingLangDirs) {
+        const sitesPath = path.join(translationsDir, langDir, 'sites');
+        try {
+          const files = (await fs.readdir(sitesPath)).filter(file => file.endsWith('.js'));
+          allFiles.push(...files.map(file => ({ file, langDir })));
+        } catch { continue; }
+      }
+
       for (const { file, langDir } of allFiles) {
-        // 修改：文件位于 sites 子目录
         const filePath = path.join(translationsDir, langDir, 'sites', file);
         console.log(color.cyan(t('sortTranslations.processingFile', file, langDir)));
-        if (fileToSort === 'all_regex' || fileToSort === 'all_all') {
+        if (action === 'all_regex' || action === 'all_all') {
           await runSort(filePath, 'regexRules');
         }
-        if (fileToSort === 'all_text' || fileToSort === 'all_all') {
+        if (action === 'all_text' || action === 'all_all') {
           await runSort(filePath, 'textRules');
         }
       }
       console.log(color.green(color.bold(t('sortTranslations.globalTaskComplete'))));
       await pressAnyKeyToContinue();
-    } else { // 处理对单个文件的操作
-      if (typeof fileToSort !== 'object' || !fileToSort.file || !fileToSort.langDir) {
-        console.error(color.red(t('sortTranslations.invalidFileSelection')));
+      continue; // 返回主菜单
+    }
+
+    // 处理单个语言选择
+    if (mainSelection.type === 'language') {
+      const selectedLangDir = mainSelection.langDir;
+      const sitesPath = path.join(translationsDir, selectedLangDir, 'sites');
+      let siteFiles = [];
+      try {
+        siteFiles = (await fs.readdir(sitesPath)).filter(file => file.endsWith('.js'));
+      } catch (e) {
+        console.log(color.yellow(`  未找到 ${selectedLangDir} 的 sites 目录或目录为空`));
         await pressAnyKeyToContinue();
         continue;
       }
 
-      // 询问用户要对该文件的哪个部分进行排序。
-      const { keyToSort } = await inquirer.prompt([
-        {
-          type: 'list',
-          name: 'keyToSort',
-          message: t('sortTranslations.selectKey', color.yellow(fileToSort.file), fileToSort.langDir),
-          choices: [
-            { name: t('sortTranslations.regexRules'), value: 'regexRules' },
-            { name: t('sortTranslations.textRules'), value: 'textRules' },
-            new inquirer.Separator(),
-            { name: t('sortTranslations.executeAll'), value: 'all' },
-            new inquirer.Separator(),
-            { name: t('sortTranslations.back'), value: 'back' },
-          ],
-          prefix: '🔑',
-          pageSize: 20,
-        }
-      ]);
-
-      if (keyToSort === 'back') {
-        continue; // 返回文件选择菜单
+      if (siteFiles.length === 0) {
+        console.log(color.yellow(`  ${selectedLangDir} 下没有可用的翻译文件`));
+        await pressAnyKeyToContinue();
+        continue;
       }
 
-      // 修改：文件位于 sites 子目录
-      const filePath = path.join(translationsDir, fileToSort.langDir, 'sites', fileToSort.file);
+      // 循环显示文件列表，直到用户选择返回上一级
+      while (true) {
+        console.clear();
+        console.log(color.cyan(`当前语言: ${selectedLangDir}`));
 
-      if (keyToSort === 'all') {
-        console.log(color.bold(t('sortTranslations.comprehensiveSort', color.yellow(fileToSort.file), fileToSort.langDir)));
-        const successRegex = await runSort(filePath, 'regexRules');
-        if (successRegex) { // 只有在 regexRules 成功后才继续，以防文件已损坏
-          await runSort(filePath, 'textRules');
+        const fileChoices = siteFiles.map(file => ({ name: file, value: file }));
+        fileChoices.push(new inquirer.Separator());
+        fileChoices.push({ name: '↩️ 返回上一级', value: 'back_to_main' });
+
+        const { fileSelection } = await inquirer.prompt([
+          {
+            type: 'list',
+            name: 'fileSelection',
+            message: t('sortTranslations.selectFile'),
+            choices: fileChoices,
+            pageSize: 20,
+          }
+        ]);
+
+        if (fileSelection === 'back_to_main') {
+          break; // 跳出文件循环，回到主菜单
         }
-      } else {
-        await runSort(filePath, keyToSort);
+
+        // 选择排序类型
+        const { keyToSort } = await inquirer.prompt([
+          {
+            type: 'list',
+            name: 'keyToSort',
+            message: t('sortTranslations.selectKey', color.yellow(fileSelection), selectedLangDir),
+            choices: [
+              { name: t('sortTranslations.regexRules'), value: 'regexRules' },
+              { name: t('sortTranslations.textRules'), value: 'textRules' },
+              new inquirer.Separator(),
+              { name: t('sortTranslations.executeAll'), value: 'all' },
+              new inquirer.Separator(),
+              { name: t('sortTranslations.back'), value: 'back' },
+            ],
+            prefix: '🔑',
+            pageSize: 20,
+          }
+        ]);
+
+        if (keyToSort === 'back') {
+          continue; // 重新选择文件
+        }
+
+        const filePath = path.join(sitesPath, fileSelection);
+
+        if (keyToSort === 'all') {
+          console.log(color.bold(t('sortTranslations.comprehensiveSort', color.yellow(fileSelection), selectedLangDir)));
+          const successRegex = await runSort(filePath, 'regexRules');
+          if (successRegex) {
+            await runSort(filePath, 'textRules');
+          }
+        } else {
+          await runSort(filePath, keyToSort);
+        }
+        await pressAnyKeyToContinue();
       }
-      await pressAnyKeyToContinue();
     }
   }
 }
