@@ -5,8 +5,8 @@
  * 这是一个破坏性操作，涉及多个文件的修改和删除，因此需要谨慎处理。
  *
  * **核心工作流程**:
- * 1. **扫描文件**: 扫描 `src/translations` 下的所有语言目录，收集所有可移除的 `.js` 翻译文件。
- * 2. **分组与展示**: 将找到的文件按语言进行分组，并在交互式列表中清晰地展示给用户。
+ * 1. **选择语言**: 引导用户首先选择语言，以缩小查找范围。
+ * 2. **选择文件**: 列出该语言下的文件供用户选择。
  * 3. **用户选择与确认**: 提示用户选择要移除的文件，并通过二次确认来防止误操作。
  * 4. **执行移除操作**:
  *    a. **删除翻译文件**: 删除用户选择的 `.js` 文件。
@@ -30,7 +30,7 @@ import prettier from 'prettier';
 // 导入本地模块
 import { color } from '../../../lib/colors.js';
 import { t } from '../../../lib/terminal-i18n.js';
-import { SUPPORTED_LANGUAGE_CODES } from '../../../../src/config/languages.js';
+import { SUPPORTED_LANGUAGES, SUPPORTED_LANGUAGE_CODES } from '../../../../src/config/languages.js';
 
 // --- 辅助函数 ---
 
@@ -68,28 +68,32 @@ async function handleRemoveTranslation() {
 
   const translationsDir = path.join(process.cwd(), 'src', 'translations');
 
-  // --- 步骤 1: 扫描并列出所有可移除的翻译文件 ---
+  // --- 步骤 1: 选择语言 ---
+  const { selectedLanguage } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'selectedLanguage',
+      message: t('modifyTranslation.selectLanguage'), // 复用 modifyTranslation 的 "请选择语言"
+      choices: [
+        ...SUPPORTED_LANGUAGES.map(lang => ({
+          name: `${lang.name} (${lang.code}) ${lang.flag || ''}`,
+          value: lang.code
+        })),
+        new inquirer.Separator(),
+        { name: t('manageTranslationsMenu.back'), value: 'back' },
+      ],
+      prefix: '🌐',
+    },
+  ]);
+
+  if (selectedLanguage === 'back') return;
+
+  // --- 步骤 2: 扫描并列出该语言下的翻译文件 ---
   let translationFiles = [];
   try {
-    // 读取 `src/translations` 下的所有子目录，并筛选出在配置中支持的语言目录。
-    const langDirs = fs.readdirSync(translationsDir).filter(file =>
-      fs.statSync(path.join(translationsDir, file)).isDirectory() &&
-      SUPPORTED_LANGUAGE_CODES.includes(file)
-    );
-
-    // 遍历每个语言目录，收集其中的 `.js` 文件。
-    for (const langDir of langDirs) {
-      // 修改：扫描 sites 子目录
-      const sitesPath = path.join(translationsDir, langDir, 'sites');
-      try {
-        if (!fs.existsSync(sitesPath)) continue;
-
-        const files = fs.readdirSync(sitesPath).filter(file => file.endsWith('.js'));
-        // 将文件及其所属的语言目录作为一个对象存入数组。
-        translationFiles.push(...files.map(file => ({ file, langDir })));
-      } catch (e) {
-        // 忽略无法读取的目录
-      }
+    const sitesPath = path.join(translationsDir, selectedLanguage, 'sites');
+    if (fs.existsSync(sitesPath)) {
+      translationFiles = fs.readdirSync(sitesPath).filter(file => file.endsWith('.js'));
     }
   } catch (error) {
     console.error(color.red(t('manageTranslations.readingDirError')), error);
@@ -101,44 +105,23 @@ async function handleRemoveTranslation() {
     return;
   }
 
-  // --- 步骤 2: 按语言对文件进行分组，以便在列表中清晰地展示 ---
-  const filesByLanguage = {};
-  translationFiles.forEach(({ file, langDir }) => {
-    if (!filesByLanguage[langDir]) {
-      filesByLanguage[langDir] = [];
-    }
-    filesByLanguage[langDir].push({ file, langDir });
-  });
-
-  // 创建 inquirer 的选项数组，包含语言分组的分隔符。
-  const choices = [];
-  Object.keys(filesByLanguage).sort().forEach(langDir => {
-    choices.push(new inquirer.Separator(`--- ${langDir} ---`));
-    filesByLanguage[langDir].forEach(({ file, langDir }) => {
-      choices.push({
-        name: `  ${file}`,
-        value: { file, langDir } // 将文件和语言目录作为选项的值
-      });
-    });
-  });
-
   // --- 步骤 3: 提示用户选择并确认 ---
-  const { fileToRemove } = await inquirer.prompt([
+  const { fileToRemoveName } = await inquirer.prompt([
     {
       type: 'list',
-      name: 'fileToRemove',
+      name: 'fileToRemoveName',
       message: t('manageTranslations.selectFileToRemove'),
       choices: [
-        ...choices,
+        ...translationFiles.sort(),
         new inquirer.Separator(),
         { name: t('manageTranslationsMenu.back'), value: 'back' },
       ],
       prefix: '🗑️',
-      pageSize: 20, // 增加 pageSize 选项以显示更多行
+      pageSize: 20,
     },
   ]);
 
-  if (fileToRemove === 'back') {
+  if (fileToRemoveName === 'back') {
     console.log(color.dim(t('manageTranslations.operationCancelled')));
     return;
   }
@@ -148,7 +131,7 @@ async function handleRemoveTranslation() {
     {
       type: 'list',
       name: 'confirm',
-      message: t('manageTranslations.confirmRemoval', color.yellow(fileToRemove.file)),
+      message: t('manageTranslations.confirmRemoval', color.yellow(fileToRemoveName)), // 这里只显示文件名即可
       choices: [
         { name: t('manageTranslationsMenu.remove'), value: true },
         { name: t('manageTranslations.creationCancelled'), value: false }
@@ -163,6 +146,13 @@ async function handleRemoveTranslation() {
   }
 
   // --- 步骤 4: 执行删除和文件更新操作 ---
+  // 这里我们需要构造之前 fileToRemove 对象包含的信息
+  // 之前的结构是 { file: 'xxx.js', langDir: 'zh-cn' }
+  const fileToRemove = {
+    file: fileToRemoveName,
+    langDir: selectedLanguage
+  };
+
   const domain = fileToRemove.file.replace(/\.js$/, '');
   // 根据文件名和语言目录反向生成对应的驼峰式变量名。
   const variableName = toCamelCase(domain, fileToRemove.langDir);
