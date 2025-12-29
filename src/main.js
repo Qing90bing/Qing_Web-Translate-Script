@@ -19,7 +19,7 @@
 import { masterTranslationMap } from './translations/index.js';
 
 // 导入配置和模块
-import { SUPPORTED_LANGUAGE_CODES } from './config/languages.js';
+import { SUPPORTED_LANGUAGE_CODES } from './modules/utils/language.js';
 import { log } from './modules/utils/logger.js';
 import { initializeMenu } from './modules/ui/menu.js';
 import { injectAntiFlickerStyle, removeAntiFlickerStyle } from './modules/ui/anti-flicker.js';

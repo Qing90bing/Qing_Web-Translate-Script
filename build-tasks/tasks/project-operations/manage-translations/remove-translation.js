@@ -30,7 +30,8 @@ import prettier from 'prettier';
 // 导入本地模块
 import { color } from '../../../lib/colors.js';
 import { t } from '../../../lib/terminal-i18n.js';
-import { SUPPORTED_LANGUAGES, SUPPORTED_LANGUAGE_CODES } from '../../../../src/config/languages.js';
+import { SUPPORTED_LANGUAGES } from '../../../../src/config/languages.js';
+import { SUPPORTED_LANGUAGE_CODES } from '../../../../src/modules/utils/language.js';
 
 // --- 辅助函数 ---
 

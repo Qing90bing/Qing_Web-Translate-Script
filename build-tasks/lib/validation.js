@@ -15,7 +15,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { parse } from 'acorn';
-import { SUPPORTED_LANGUAGE_CODES } from '../../src/config/languages.js';
+import { SUPPORTED_LANGUAGE_CODES } from '../../src/modules/utils/language.js';
 // 从终端国际化模块导入翻译函数
 import { t } from './terminal-i18n.js';
 
@@ -478,10 +478,7 @@ export async function validateTranslationFiles(options = {}) {
       // 对每个文件调用核心校验逻辑。
       const errorsInFile = validateFileContent(file, content, { checkEmpty, checkDuplicates, checkMissingComma, checkIdentical, checkSourceDuplicates, ignoredPositions });
 
-      // 从文件路径中提取语言信息
-      // 修改：处理 .../zh-cn/sites/xxx.js 结构，提取 zh-cn
-      const langMatch = file.match(/[/\\]([^/\\]+)[/\\]sites[/\\][^/\\]+$/);
-      const language = langMatch ? langMatch[1] : 'unknown';
+
 
       // 根据是否有错误以及检查类型，格式化并打印结果到控制台。
       if (!silent) {

@@ -3,8 +3,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import prettier from 'prettier';
-import { embeddedSites } from '../../../../src/config/embedded-sites.js';
-import { SUPPORTED_LANGUAGE_CODES } from '../../../../src/config/languages.js';
+import { embeddedSites } from '../../../../src/config/index.js';
+import { SUPPORTED_LANGUAGE_CODES } from '../../../../src/modules/utils/language.js';
 import { color } from '../../../lib/colors.js';
 import { t } from '../../../lib/terminal-i18n.js';
 

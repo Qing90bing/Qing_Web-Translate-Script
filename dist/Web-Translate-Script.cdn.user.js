@@ -2065,6 +2065,8 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     { code: 'zh-cn', name: '简体中文', flag: '🇨🇳' },
     { code: 'zh-tw', name: '繁體中文', flag: '🇹🇼' },
   ];
+
+  // src/modules/utils/language.js
   var SUPPORTED_LANGUAGE_CODES = SUPPORTED_LANGUAGES.map((lang) => lang.code);
 
   // src/modules/utils/logger.js

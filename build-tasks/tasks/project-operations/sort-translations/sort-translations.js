@@ -29,7 +29,8 @@ import { color } from '../../../lib/colors.js';
 import { t } from '../../../lib/terminal-i18n.js';
 import { getLiteralValue } from '../../../lib/validation.js';
 import { pressAnyKeyToContinue } from '../../../lib/utils.js';
-import { SUPPORTED_LANGUAGE_CODES, SUPPORTED_LANGUAGES } from '../../../../src/config/languages.js';
+import { SUPPORTED_LANGUAGES } from '../../../../src/config/languages.js';
+import { SUPPORTED_LANGUAGE_CODES } from '../../../../src/modules/utils/language.js';
 
 /**
  * @function visualLength

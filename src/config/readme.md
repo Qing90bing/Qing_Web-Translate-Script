@@ -10,19 +10,28 @@
 
 本目录包含以下关键配置文件：
 
--   **`languages.js`**
-    -   **功能**: 集中管理项目中所有受支持的语言。
+-   **`index.js`**
+    -   **功能**: 全局通用配置文件。
     -   **职责**:
-        -   导出一个 `SUPPORTED_LANGUAGES` 数组，其中每个对象都包含了语言的代码、名称和旗帜符号。这是整个项目的核心语言列表。
-        -   提供一系列辅助函数，如 `getLanguageName`，用于根据语言代码获取其显示名称。
-    -   **重要性**: 当需要为项目添加一种新的语言支持时，这是首先需要修改的配置文件之一。
+        -   定义翻译引擎的核心行为规则，如哪些标签 (`BLOCKS_ALL_TRANSLATION`) 或属性 (`attributesToTranslate`) 需要被处理或忽略。
+        -   管理 **嵌入式站点列表 (`embeddedSites`)**：
+            -   定义需要将翻译数据直接嵌入到脚本中的网站域名（主要用于绕过 CSP 限制）。
+            -   仅对 CDN 构建生效。
+        -   定义禁止翻译的 CSS 类名 (`BLOCKED_CSS_CLASSES`)。
 
--   **`embedded-sites.js`**
-    -   **功能**: 定义一个网站域名列表，这些网站的翻译数据将在 **CDN 构建模式**下被直接嵌入到最终脚本中。
+-   **`languages.js`**
+    -   **功能**: 集中管理项目中所有受支持的语言 **(纯数据)**。
     -   **职责**:
-        -   主要用于处理那些具有严格**内容安全策略 (Content Security Policy, CSP)** 的网站。
-        -   通过将翻译数据直接嵌入，可以绕过这些网站对外部 CDN 脚本的加载限制，确保翻译功能在这些特殊网站上也能正常工作。
-    -   **使用场景**: 仅对 CDN 构建 (`build-cdn.js`) 生效。标准构建会忽略此配置，并打包所有翻译。
+        -   仅导出一个 `SUPPORTED_LANGUAGES` 数组。
+        -   相关的逻辑函数（如 `getLanguageName`）已移动到 `src/modules/utils/language.js`。
+
+### `src/modules/utils` 目录
+
+-   **`language.js`**
+    -   **功能**: 语言相关工具函数。
+    -   **职责**:
+        -   提供 `getLanguageName`、`addLanguage` 等辅助函数。
+        -   导出 `SUPPORTED_LANGUAGE_CODES`。
 
 ---
 
