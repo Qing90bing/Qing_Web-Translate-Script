@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.125-2025-12-28-offline
+// @version      1.0.130-2025-12-29-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -8644,6 +8644,7 @@
       [/\s*(\d+)\s+items?\s*/i, '$1 个项目'],
       [/\s*(\d+)\s+Likes?\s*/i, '$1 个点赞'],
       [/\s*(\d+)\s+Upvotes?\s*/i, '$1 个赞'],
+      [/\s*Model:\s+(.+?)\s*$/i, '模型：$1'],
       [/(\d+)\s*days?\s*ago/, '$1 天前'],
       [/Dec\s+(\d+)/i, '12 月 $1 日'],
       [/Nov\s+(\d+)/i, '11 月 $1 日'],
@@ -9485,6 +9486,7 @@
       ['BSD 3-clause Clear license', 'BSD 3-条款清晰许可'],
       ['Default role for new members', '新成员的默认角色'],
       ['Docker, HF Spaces & more', 'Docker、HF Spaces 等'],
+      ['Drop File to add to chat', '将文件拖放到聊天区域'],
       ['eg: https://myapp.com', '例如：https://myapp.com'],
       ['Legal and Compliance processes', '法律和合规流程'],
       ['No connected external apps', '未连接任何外部应用'],
@@ -9756,6 +9758,7 @@
       ['PostgreSQL License', 'PostgreSQL 许可'],
       ['Recently active users', '近期活跃用户'],
       ['Run and Manage Jobs', '运行和管理作业'],
+      ['Start voice recording', '开始语音录制'],
       ['Training & Optimization', '训练与优化'],
       ['Transformers doc', 'Transformers 文档'],
       ['Two-Factor Authentication', '双重认证'],
@@ -10078,6 +10081,7 @@
       ['Dynamic Spaces', '动态 Spaces'],
       ['Email address', '电子邮箱地址'],
       ['Enterprise plan', '企业版计划'],
+      ['file dropzone', '文件拖放区域'],
       ['Filter by title', '按标题筛选'],
       ['Fine Tuning Tools', '微调工具'],
       ['Generate an image', '生成图像'],
@@ -10224,6 +10228,7 @@
       ['…read more', '...阅读更多'],
       ['6-digit code', '6 位验证码'],
       ['a smol course', 'smol 课程'],
+      ['Add attachment', '添加附件'],
       ['Allowed URLs', '允许的 URL'],
       ['Any-to-Any', '任意模态转换'],
       ['Ask anything', '问任何问题'],
@@ -10379,12 +10384,14 @@
       ['Save Changes', '保存更改'],
       ['Seamless M4T', '无缝 M4T'],
       ['search input', '搜索输入'],
+      ['Send message', '发送消息'],
       ['Settings → ', '设置 → '],
       ['Sierra Leone', '塞拉利昂'],
       ['Social Posts', '社交帖子'],
       ['System theme', '系统主题'],
       ['Tajikistan', '塔吉克斯坦'],
       ['Text Ranking', '文本排序'],
+      ['Toggle theme', '切换主题'],
       ['Upload files', '上传文件'],
       ['View pricing', '查看定价'],
       ['\n	New Article', '新文章'],

@@ -38,7 +38,7 @@ async function loadEmbeddedTranslations() {
 
   for (const lang of SUPPORTED_LANGUAGE_CODES) {
     translations[lang] = {};
-    const langDir = path.resolve('src', 'translations', lang);
+    const langDir = path.resolve('src', 'translations', lang, 'sites');
     try {
       const files = await fs.readdir(langDir);
       for (const site of embeddedSites) {

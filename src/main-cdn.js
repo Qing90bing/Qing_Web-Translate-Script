@@ -112,14 +112,14 @@ import { initializeTranslation } from './modules/core/translationInitializer.js'
     async function loadTranslationScript(hostname, userLang) {
         const repoUser = 'qing90bing';
         const repoName = 'qing_web-translate-script';
-        
+
         // 为了防止浏览器或 CDN 缓存旧版本的脚本，为 jsDelivr URL 添加一个基于时间的缓存破坏参数。
         const cacheBuster = `?v=${new Date().getTime()}`;
 
         // 定义主 CDN (raw.githubusercontent) 和备用 CDN (jsDelivr) 的 URL 列表。
         const cdnUrls = [
-            `https://raw.githubusercontent.com/${repoUser}/${repoName}/main/src/translations/${userLang}/${hostname}.js`,
-            `https://cdn.jsdelivr.net/gh/${repoUser}/${repoName}@latest/src/translations/${userLang}/${hostname}.js${cacheBuster}`
+            `https://raw.githubusercontent.com/${repoUser}/${repoName}/main/src/translations/${userLang}/sites/${hostname}.js`,
+            `https://cdn.jsdelivr.net/gh/${repoUser}/${repoName}@latest/src/translations/${userLang}/sites/${hostname}.js${cacheBuster}`
         ];
 
         log(`正在尝试从 CDN 加载翻译文件: ${hostname}.js for ${userLang}...`);
