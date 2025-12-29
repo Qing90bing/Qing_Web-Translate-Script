@@ -166,4 +166,29 @@ export class ProgressBar {
         readline.cursorTo(process.stdout, 0);
         process.stdout.write(output);
     }
+
+    /**
+     * 静态工厂方法，创建一个标准样式的任务进度条。
+     * 旨在统一所有任务的视觉风格。
+     * @param {object} options - 额外的配置选项 (可选)
+     * @returns {ProgressBar}
+     */
+    static createTaskProgressBar(options = {}) {
+        return new ProgressBar({
+            // 统一使用绿色百分比和 30 宽度的条
+            format: options.format || '{bar} ' + color.green('{percentage}%') + ' | {value}/{total} | {text}',
+            width: options.width || 30,
+            ...options
+        });
+    }
+
+    /**
+     * 完成进度条流程的快捷方法。
+     * 将进度更新为总数（100%），显示完成文本，并停止进度条（保留在屏幕上）。
+     * @param {string} text - 完成时显示的文本
+     */
+    finish(text) {
+        this.update(this.total, text);
+        this.stop();
+    }
 }

@@ -46,9 +46,7 @@ import { ValidationReporter } from '../../lib/reporter.js';
 export default async function handleCommaCheck() {
   console.log(color.cyan(t('checkTasks.checkingMissingComma')));
 
-  const progressBar = new ProgressBar({
-    format: `${color.cyan('{bar}')} {percentage}% | {value}/{total} | {text}`
-  });
+  const progressBar = ProgressBar.createTaskProgressBar();
 
   // 1. 初次校验，找出所有潜在的逗号问题。
   // 使用 silent: true 防止打印默认日志，并使用 onProgress 更新进度条
@@ -63,7 +61,7 @@ export default async function handleCommaCheck() {
     }
   });
 
-  progressBar.stop(true); // 清除进度条
+  progressBar.finish(t('checkTasks.done'));
 
   if (initialErrors.length === 0) {
     console.log(color.green(t('checkTasks.noMissingCommaFound')));

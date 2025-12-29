@@ -287,7 +287,8 @@
     "noSourceDuplicatesFound": "\n✅ 未發現「來源重複」問題。",
     "autoFixCompleteSource": "\n🔧 已自動修復「來源重複」問題。",
     "immediateFixedCount": "\n✨ 立即修復了 {0} 個「來源重複」問題。",
-    "noSourceFix": "\n🤷‍ 未執行修復。"
+    "noSourceFix": "\n🤷‍ 未執行修復。",
+    "done": "完成！"
   },
   "buildProject": {
     "startingBuild": "🚀 開始完整建置流程...",
@@ -382,7 +383,15 @@
     "comprehensiveSort": "\n正在全面排序 {0} ({1})...",
     "invalidFileSelection": "❌ 無效的檔案選擇",
     "unknownSortKeyType": "未知的排序鍵類型：{0}",
-    "invalidFormat": "無效格式"
+    "invalidFormat": "無效格式",
+    "scanningFiles": "🔍 正在掃描文件...",
+    "progress": "⏳ 正在處理: {0}",
+    "summaryTitle": "📊 處理完成",
+    "totalFiles": "總文件數",
+    "successCount": "成功處理",
+    "failCount": "處理失敗",
+    "errorList": "❌ 錯誤列表:",
+    "done": "完成！"
   },
   "statistics": {
     "selectLanguage": "請選擇您想檢視的語言：",

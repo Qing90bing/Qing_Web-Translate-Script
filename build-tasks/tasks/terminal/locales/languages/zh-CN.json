@@ -287,7 +287,8 @@
     "noSourceDuplicatesFound": "\n✅ 未发现\"原文重复\"问题。",
     "autoFixCompleteSource": "\n🔧 \"原文重复\"问题已通过自动方式修复。",
     "immediateFixedCount": "\n✨ 总共即时修复了 {0} 个\"原文重复\"问题。",
-    "noSourceFix": "\n🤷‍ 没有进行任何修复操作。"
+    "noSourceFix": "\n🤷‍ 没有进行任何修复操作。",
+    "done": "完成！"
   },
   "buildProject": {
     "startingBuild": "🚀 开始执行完整构建流程...",
@@ -382,7 +383,15 @@
     "comprehensiveSort": "\n将对 {0} ({1}) 进行全面排序...",
     "invalidFileSelection": "❌ 无效的文件选择",
     "unknownSortKeyType": "未知的排序键类型: {0}",
-    "invalidFormat": "无效的格式"
+    "invalidFormat": "无效的格式",
+    "scanningFiles": "🔍 正在扫描文件...",
+    "progress": "⏳ 正在处理: {0}",
+    "summaryTitle": "📊 处理完成",
+    "totalFiles": "总文件数",
+    "successCount": "成功处理",
+    "failCount": "处理失败",
+    "errorList": "❌ 错误列表:",
+    "done": "完成！"
   },
   "statistics": {
     "selectLanguage": "请选择您想查看的语言:",

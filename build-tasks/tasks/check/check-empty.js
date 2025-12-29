@@ -44,9 +44,7 @@ import { ValidationReporter } from '../../lib/reporter.js';
 export default async function handleEmptyCheck() {
   console.log(color.cyan(t('checkTasks.checkingEmpty')));
 
-  const progressBar = new ProgressBar({
-    format: `${color.cyan('{bar}')} {percentage}% | {value}/{total} | {text}`
-  });
+  const progressBar = ProgressBar.createTaskProgressBar();
 
   // 1. 调用验证器，只开启空翻译检查。
   const options = {
@@ -60,7 +58,7 @@ export default async function handleEmptyCheck() {
 
   progressBar.start(0, t('checkTasks.scanning'));
   const allErrors = await validateTranslationFiles(options);
-  progressBar.stop(true);
+  progressBar.finish(t('checkTasks.done'));
 
   // 如果有错误，需要手动打印（因为设置了 silent: true）
   if (allErrors.length > 0) {

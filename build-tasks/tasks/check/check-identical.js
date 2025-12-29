@@ -49,9 +49,7 @@ import { ValidationReporter } from '../../lib/reporter.js';
 export default async function handleIdenticalCheck() {
     console.log(color.cyan(t('checkTasks.checkingIdentical')));
 
-    const progressBar = new ProgressBar({
-        format: `${color.cyan('{bar}')} {percentage}% | {value}/{total} | {text}`
-    });
+    const progressBar = ProgressBar.createTaskProgressBar();
 
     // 1. 查找所有原文和译文相同的错误。
     const options = {
@@ -65,7 +63,7 @@ export default async function handleIdenticalCheck() {
 
     progressBar.start(0, t('checkTasks.scanning'));
     let identicalErrors = await validateTranslationFiles(options);
-    progressBar.stop(true);
+    progressBar.finish(t('checkTasks.done'));
 
     // 如果有错误，需要手动打印
     if (identicalErrors.length > 0) {

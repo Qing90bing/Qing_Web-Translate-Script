@@ -42,9 +42,7 @@ import { ValidationReporter } from '../../lib/reporter.js';
 export default async function handleDuplicatesCheck() {
   console.log(color.cyan(t('checkTasks.checkingDuplicates')));
 
-  const progressBar = new ProgressBar({
-    format: `${color.cyan('{bar}')} {percentage}% | {value}/{total} | {text}`
-  });
+  const progressBar = ProgressBar.createTaskProgressBar();
 
   const options = {
     checkDuplicates: true,
@@ -57,7 +55,7 @@ export default async function handleDuplicatesCheck() {
 
   progressBar.start(0, t('checkTasks.scanning'));
   const allErrors = await validateTranslationFiles(options);
-  progressBar.stop(true);
+  progressBar.finish(t('checkTasks.done'));
 
   if (allErrors.length > 0) {
     const errorsByFile = {};

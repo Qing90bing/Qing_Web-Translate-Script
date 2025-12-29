@@ -287,7 +287,8 @@
     "noSourceDuplicatesFound": "\n✅ No \"Source Duplicate\" issues found.",
     "autoFixCompleteSource": "\n🔧 \"Source Duplicate\" issues fixed automatically.",
     "immediateFixedCount": "\n✨ Fixed {0} \"Source Duplicate\" issues immediately.",
-    "noSourceFix": "\n🤷‍ No fixes performed."
+    "noSourceFix": "\n🤷‍ No fixes performed.",
+    "done": "Done!"
   },
   "buildProject": {
     "startingBuild": "🚀 Starting full build process...",
@@ -382,7 +383,15 @@
     "comprehensiveSort": "\nComprehensively sorting {0} ({1})...",
     "invalidFileSelection": "❌ Invalid file selection",
     "unknownSortKeyType": "Unknown sort key type: {0}",
-    "invalidFormat": "Invalid format"
+    "invalidFormat": "Invalid format",
+    "scanningFiles": "🔍 Scanning files...",
+    "progress": "⏳ Processing: {0}",
+    "summaryTitle": "📊 Process Complete",
+    "totalFiles": "Total Files",
+    "successCount": "Success",
+    "failCount": "Failed",
+    "errorList": "❌ Error List:",
+    "done": "Done!"
   },
   "statistics": {
     "selectLanguage": "Please select a language to view:",

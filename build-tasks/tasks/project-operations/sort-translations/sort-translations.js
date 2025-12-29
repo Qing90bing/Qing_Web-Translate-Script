@@ -29,6 +29,7 @@ import { color } from '../../../lib/colors.js';
 import { t } from '../../../lib/terminal-i18n.js';
 import { getLiteralValue } from '../../../lib/validation.js';
 import { pressAnyKeyToContinue } from '../../../lib/utils.js';
+import { ProgressBar } from '../../../lib/progress.js';
 import { SUPPORTED_LANGUAGES } from '../../../../src/config/languages.js';
 import { SUPPORTED_LANGUAGE_CODES } from '../../../../src/modules/utils/language.js';
 
@@ -140,8 +141,11 @@ function formatArrayAsString(arr, keyType) {
  * @param {'textRules'|'regexRules'} keyToSort - 要排序的数组的键名。
  * @returns {Promise<boolean>} 如果操作成功则返回 `true`，否则返回 `false`。
  */
-async function runSort(filePath, keyToSort) {
-  console.log(color.cyan(t('sortTranslations.processingKey', color.yellow(keyToSort))));
+async function runSort(filePath, keyToSort, options = {}) {
+  const { silent = false } = options;
+  if (!silent) {
+    console.log(color.cyan(t('sortTranslations.processingKey', color.yellow(keyToSort))));
+  }
   try {
     const originalContent = await fs.readFile(filePath, 'utf-8');
     let ast;
@@ -218,11 +222,16 @@ async function runSort(filePath, keyToSort) {
     const updatedContent = contentBefore + sortedArrayString + contentAfter;
 
     await fs.writeFile(filePath, updatedContent, 'utf-8');
-    console.log(color.green(t('sortTranslations.sortSuccess', color.yellow(keyToSort))));
-    return true;
+    await fs.writeFile(filePath, updatedContent, 'utf-8');
+    if (!silent) {
+      console.log(color.green(t('sortTranslations.sortSuccess', color.yellow(keyToSort))));
+    }
+    return { success: true, sorted: true };
   } catch (error) {
-    console.error(color.red(t('sortTranslations.processingError', color.yellow(keyToSort), path.basename(filePath), error.message)));
-    return false;
+    if (!silent) {
+      console.error(color.red(t('sortTranslations.processingError', color.yellow(keyToSort), path.basename(filePath), error.message)));
+    }
+    return { success: false, sorted: false, error: error.message };
   }
 }
 
@@ -303,24 +312,70 @@ async function handleSortTranslations() {
 
       // 重新扫描所有文件
       let allFiles = [];
+      console.log(t('sortTranslations.scanningFiles'));
+
       for (const langDir of existingLangDirs) {
         const sitesPath = path.join(translationsDir, langDir, 'sites');
         try {
           const files = (await fs.readdir(sitesPath)).filter(file => file.endsWith('.js'));
-          allFiles.push(...files.map(file => ({ file, langDir })));
+          allFiles.push(...files.map(file => ({ file, langDir, fullPath: path.join(sitesPath, file) })));
         } catch { continue; }
       }
 
-      for (const { file, langDir } of allFiles) {
-        const filePath = path.join(translationsDir, langDir, 'sites', file);
-        console.log(color.cyan(t('sortTranslations.processingFile', file, langDir)));
+      if (allFiles.length === 0) {
+        console.log(color.yellow(t('sortTranslations.noFilesToSort')));
+        await pressAnyKeyToContinue();
+        continue;
+      }
+
+      // 初始化进度条
+      const bar = ProgressBar.createTaskProgressBar();
+      bar.start(allFiles.length, t('sortTranslations.progress', '...'));
+
+      let successCount = 0;
+      let failCount = 0;
+      let errors = [];
+
+      for (let i = 0; i < allFiles.length; i++) {
+        const { file, langDir, fullPath } = allFiles[i];
+
+        // 更新进度条文本
+        bar.update(i, t('sortTranslations.progress', `${langDir}/${file}`));
+
+        let fileResults = [];
         if (action === 'all_regex' || action === 'all_all') {
-          await runSort(filePath, 'regexRules');
+          fileResults.push(await runSort(fullPath, 'regexRules', { silent: true }));
         }
         if (action === 'all_text' || action === 'all_all') {
-          await runSort(filePath, 'textRules');
+          fileResults.push(await runSort(fullPath, 'textRules', { silent: true }));
+        }
+
+        // 检查结果
+        const failures = fileResults.filter(r => !r.success);
+        if (failures.length > 0) {
+          failCount++;
+          errors.push({ file: `${langDir}/${file}`, messages: failures.map(f => f.error) });
+        } else {
+          successCount++;
         }
       }
+
+      bar.finish(t('sortTranslations.done'));
+
+      // 显示统计报告
+      console.log('\n' + color.bold(t('sortTranslations.summaryTitle')));
+      console.log(color.dim(t('sortTranslations.separator')));
+      console.log(`  - ${t('sortTranslations.totalFiles')}: ${allFiles.length}`);
+      console.log(`  - ${t('sortTranslations.successCount')}: ${color.green(successCount)}`);
+      console.log(`  - ${t('sortTranslations.failCount')}: ${failCount > 0 ? color.red(failCount) : color.green(0)}`);
+
+      if (errors.length > 0) {
+        console.log('\n' + color.red(t('sortTranslations.errorList')));
+        errors.forEach(err => {
+          console.log(`  - ${err.file}: ${err.messages.join(', ')}`);
+        });
+      }
+
       console.log(color.green(color.bold(t('sortTranslations.globalTaskComplete'))));
       await pressAnyKeyToContinue();
       continue; // 返回主菜单
@@ -395,12 +450,59 @@ async function handleSortTranslations() {
 
         if (keyToSort === 'all') {
           console.log(color.bold(t('sortTranslations.comprehensiveSort', color.yellow(fileSelection), selectedLangDir)));
-          const successRegex = await runSort(filePath, 'regexRules');
-          if (successRegex) {
-            await runSort(filePath, 'textRules');
+
+          // 初始化进度条 (2个任务)
+          const bar = ProgressBar.createTaskProgressBar();
+          bar.start(2, t('sortTranslations.progress', '...'));
+
+          let results = [];
+
+          bar.update(0, t('sortTranslations.progress', 'regexRules'));
+          results.push(await runSort(filePath, 'regexRules', { silent: true }));
+
+          bar.update(1, t('sortTranslations.progress', 'textRules'));
+          results.push(await runSort(filePath, 'textRules', { silent: true }));
+
+          bar.finish(t('sortTranslations.done'));
+
+          // 显示简易报告
+          const successCount = results.filter(r => r.success).length;
+          const failCount = results.filter(r => !r.success).length;
+          const errors = results.filter(r => !r.success).map(r => r.error);
+
+          console.log('\n' + color.bold(t('sortTranslations.summaryTitle')));
+          console.log(color.dim(t('sortTranslations.separator')));
+          console.log(`  - ${t('sortTranslations.totalFiles')}: 1`); // 这里的 TotalFiles 指的是操作的文件数，虽然有些生硬，但保持一致
+          console.log(`  - ${t('sortTranslations.successCount')}: ${color.green(successCount)}`);
+          console.log(`  - ${t('sortTranslations.failCount')}: ${failCount > 0 ? color.red(failCount) : color.green(0)}`);
+
+          if (errors.length > 0) {
+            console.log('\n' + color.red(t('sortTranslations.errorList')));
+            errors.forEach(err => console.log(`  - ${err}`));
           }
+          console.log(''); // 空行
+
         } else {
-          await runSort(filePath, keyToSort);
+          // 初始化进度条 (1个任务)
+          const bar = ProgressBar.createTaskProgressBar();
+          bar.start(1, t('sortTranslations.progress', keyToSort));
+
+          const result = await runSort(filePath, keyToSort, { silent: true });
+
+          bar.finish(t('sortTranslations.done'));
+
+          // 显示完整报告
+          console.log('\n' + color.bold(t('sortTranslations.summaryTitle')));
+          console.log(color.dim(t('sortTranslations.separator')));
+          console.log(`  - ${t('sortTranslations.totalFiles')}: 1`);
+          console.log(`  - ${t('sortTranslations.successCount')}: ${result.success ? color.green(1) : color.green(0)}`);
+          console.log(`  - ${t('sortTranslations.failCount')}: ${!result.success ? color.red(1) : color.green(0)}`);
+
+          if (!result.success) {
+            console.log('\n' + color.red(t('sortTranslations.errorList')));
+            console.log(`  - ${result.error}`);
+          }
+          console.log(''); // 空行
         }
         await pressAnyKeyToContinue();
       }
