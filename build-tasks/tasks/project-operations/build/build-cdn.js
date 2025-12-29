@@ -7,14 +7,16 @@ import { embeddedSites } from '../../../../src/config/index.js';
 import { SUPPORTED_LANGUAGE_CODES } from '../../../../src/modules/utils/language.js';
 import { color } from '../../../lib/colors.js';
 import { t } from '../../../lib/terminal-i18n.js';
+import { ProgressBar } from '../../../lib/progress.js';
 
 /**
  * @function loadEmbeddedTranslations
  * @description 加载并编译指定网站的翻译文件。
  * @returns {Promise<string>} 返回一个包含所有嵌入翻译的 JavaScript 代码字符串。
+ * @param {ProgressBar} bar - 进度条实例，用于更新进度文本。
  */
-async function loadEmbeddedTranslations() {
-  console.log(color.bold(t('buildCdn.embeddingTranslations')));
+async function loadEmbeddedTranslations(bar) {
+  // console.log(color.bold(t('buildCdn.embeddingTranslations')));
   const translations = {};
 
   // 一个健壮的序列化函数，用于将包含RegExp的JS对象转换为字符串。
@@ -55,7 +57,8 @@ async function loadEmbeddedTranslations() {
           delete dictionary.createdAt;
 
           translations[lang][site] = serialize(dictionary);
-          console.log(color.green(`  ✓ ${lang}/${site}`));
+          if (bar) bar.update(bar.current, t('buildCdn.embedding', `${lang}/${site}`));
+          // console.log(color.green(`  ✓ ${lang}/${site}`));
         }
       }
     } catch (error) {
@@ -90,12 +93,16 @@ async function loadEmbeddedTranslations() {
  */
 export default async function handleCdnBuild() {
   try {
-    console.log(color.cyan(t('buildProject.startingBuild')));
-    console.log(color.bold(t('buildCdn.modeMessage')));
+    // --- 步骤 1: 初始化进度条 ---
+    const bar = ProgressBar.createTaskProgressBar({
+      format: '{bar} ' + color.green('{percentage}%') + ' | {value}/{total} | {text}',
+      width: 30
+    });
+    bar.start(100, t('buildProject.initializing'));
 
-    // --- 步骤 1: 使用 esbuild 执行打包 ---
-    // 我们打包一个新的入口文件 `main-cdn.js`，这个文件不包含任何翻译数据。
-    console.log(color.bold(t('buildProject.bundlingScript')));
+    // --- 步骤 2: 使用 esbuild 执行打包 ---
+    bar.update(10, t('buildProject.bundling'));
+
     const result = await esbuild.build({
       entryPoints: [path.resolve('src/main-cdn.js')],
       bundle: true,
@@ -105,19 +112,20 @@ export default async function handleCdnBuild() {
       charset: 'utf8',
     });
 
-    // --- 步骤 2: 后处理代码并组合成最终脚本 ---
-    console.log(color.bold(t('buildProject.generatingFile')));
+    bar.update(40, t('buildCdn.embeddingTranslations'));
+
+    // --- 步骤 3: 后处理代码并组合成最终脚本 ---
     const header = await fs.readFile(path.resolve('src/header-cdn.txt'), 'utf-8');
 
     const bundledCode = result.outputFiles[0].text;
-    const embeddedTranslationsCode = await loadEmbeddedTranslations();
+    const embeddedTranslationsCode = await loadEmbeddedTranslations(bar);
     const embeddedSitesCode = `const EMBEDDED_SITES = ${JSON.stringify(embeddedSites)};\n\n`;
 
     // 将所有部分组合成一个完整的脚本
     const rawScript = `${header}\n\n${embeddedTranslationsCode}${embeddedSitesCode}${bundledCode}`;
 
     // 使用 Prettier 对整个脚本进行最终格式化，确保长字符串不会被换行
-    console.log(color.green(t('buildProject.removingFormatting')));
+    bar.update(80, t('buildProject.formatting'));
     const finalScript = await prettier.format(rawScript, {
       parser: 'babel',
       semi: true,
@@ -125,14 +133,24 @@ export default async function handleCdnBuild() {
       printWidth: 9999, // 关键：设置一个很大的值来防止自动换行
     });
 
-    // --- 步骤 3: 将最终脚本写入文件 ---
+    // --- 步骤 4: 将最终脚本写入文件 ---
     const distDir = path.resolve('dist');
     await fs.mkdir(distDir, { recursive: true });
     // 我们将CDN版本保存为一个单独的文件，以避免覆盖标准构建。
     const outputPath = path.join(distDir, 'Web-Translate-Script.cdn.user.js');
     await fs.writeFile(outputPath, finalScript);
 
-    console.log(color.bold(color.lightGreen(t('buildProject.buildSuccess', color.underline(outputPath)))));
+    bar.finish(t('buildProject.done'));
+
+    // 计算文件大小 (KB)
+    const stats = await fs.stat(outputPath);
+    const fileSizeInKB = (stats.size / 1024).toFixed(2) + ' KB';
+
+    // 漂亮的总结输出
+    console.log(''); // 空行
+    console.log(color.green(t('buildProject.buildSuccess')));
+    console.log(color.underline(outputPath));
+    console.log(color.dim(t('buildProject.fileSize', fileSizeInKB)));
 
   } catch (error) {
     if (error.errors && error.errors.length > 0) {

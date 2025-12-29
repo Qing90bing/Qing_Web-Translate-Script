@@ -4,6 +4,7 @@ import path from 'path';
 import prettier from 'prettier';
 import { color } from '../../../lib/colors.js';
 import { t } from '../../../lib/terminal-i18n.js';
+import { ProgressBar } from '../../../lib/progress.js';
 
 /**
  * @function handleFullBuild
@@ -15,8 +16,15 @@ export default async function handleFullBuild(preserveFormatting) {
   try {
     // --- 步骤 1: 使用 esbuild 执行打包 ---
     // 注意：启动消息和用户提示已移至主 build.js 文件中，以实现更好的流程控制。
-    // --- 步骤 1: 使用 esbuild 执行打包 ---
-    console.log(color.bold(t('buildProject.bundlingScript')));
+    // --- 步骤 1: 初始化进度条 ---
+    const bar = ProgressBar.createTaskProgressBar({
+      format: '{bar} ' + color.green('{percentage}%') + ' | {value}/{total} | {text}',
+      width: 30
+    });
+    bar.start(100, t('buildProject.initializing'));
+
+    // --- 步骤 2: 使用 esbuild 执行打包 ---
+    bar.update(10, t('buildProject.bundling'));
 
     const buildOptions = {
       entryPoints: [path.resolve('src/main.js')],
@@ -32,13 +40,15 @@ export default async function handleFullBuild(preserveFormatting) {
     }
 
     const result = await esbuild.build(buildOptions);
+    bar.update(40, t('buildProject.generating'));
 
     // --- 步骤 3: 后处理代码并组合成最终脚本 ---
-    console.log(color.bold(t('buildProject.generatingFile')));
     const header = await fs.readFile(path.resolve('src/header.txt'), 'utf-8');
 
     let bundledCode = result.outputFiles[0].text;
     let finalScript;
+
+    bar.update(60, t('buildProject.formatting'));
 
     if (preserveFormatting) {
       const formattedCode = await prettier.format(bundledCode, {
@@ -48,7 +58,6 @@ export default async function handleFullBuild(preserveFormatting) {
         printWidth: 9999,
       });
       finalScript = `${header}\n\n${formattedCode}`;
-      console.log(color.green(t('buildProject.preservingFormatting')));
     } else {
       // 在标准构建模式下，esbuild 已经移除了注释 (minifyWhitespace=true)。
       // 我们先用 Prettier 格式化代码，使其结构化，以便后续的正则能正确匹配并移除特定属性。
@@ -65,7 +74,6 @@ export default async function handleFullBuild(preserveFormatting) {
       formattedCode = formattedCode.replace(/^\s*[\r\n]/gm, '');
 
       finalScript = `${header}\n\n${formattedCode}`;
-      console.log(color.green(t('buildProject.removingFormatting')));
     }
 
     // --- 步骤 4: 将最终脚本写入文件 ---
@@ -74,7 +82,17 @@ export default async function handleFullBuild(preserveFormatting) {
     const outputPath = path.join(distDir, 'Web-Translate-Script.user.js');
     await fs.writeFile(outputPath, finalScript);
 
-    console.log(color.bold(color.lightGreen(t('buildProject.buildSuccess', color.underline(outputPath)))));
+    bar.finish(t('buildProject.done'));
+
+    // 计算文件大小 (KB)
+    const stats = await fs.stat(outputPath);
+    const fileSizeInKB = (stats.size / 1024).toFixed(2) + ' KB';
+
+    // 漂亮的总结输出
+    console.log(''); // 空行
+    console.log(color.green(t('buildProject.buildSuccess')));
+    console.log(color.underline(outputPath));
+    console.log(color.dim(t('buildProject.fileSize', fileSizeInKB)));
 
   } catch (error) {
     if (error.errors && error.errors.length > 0) {

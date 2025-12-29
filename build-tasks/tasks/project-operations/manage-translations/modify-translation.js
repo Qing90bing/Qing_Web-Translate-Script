@@ -69,7 +69,7 @@ async function handleModifyTranslation() {
             message: t('modifyTranslation.selectLanguage'),
             choices: [
                 ...SUPPORTED_LANGUAGES.map(lang => ({
-                    name: `${lang.name} (${lang.code}) ${lang.flag || ''}`,
+                    name: `${lang.name} (${lang.code})`,
                     value: lang.code
                 })),
                 new inquirer.Separator('──────────────────────────────────────────────'),

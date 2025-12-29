@@ -64,7 +64,7 @@ async function handleAddNewTranslation() {
   // --- 步骤 1: 提示用户选择语言 ---
   // 根据配置文件动态生成语言选择列表，包含国旗以增强可读性。
   const languageChoices = SUPPORTED_LANGUAGES.map(lang => ({
-    name: `${lang.name} (${lang.code}) ${lang.flag}`,
+    name: `${lang.name} (${lang.code})`,
     value: lang.code
   }));
 

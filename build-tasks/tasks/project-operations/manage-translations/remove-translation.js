@@ -77,7 +77,7 @@ async function handleRemoveTranslation() {
       message: t('modifyTranslation.selectLanguage'), // 复用 modifyTranslation 的 "请选择语言"
       choices: [
         ...SUPPORTED_LANGUAGES.map(lang => ({
-          name: `${lang.name} (${lang.code}) ${lang.flag || ''}`,
+          name: `${lang.name} (${lang.code})`,
           value: lang.code
         })),
         new inquirer.Separator('──────────────────────────────────────────────'),

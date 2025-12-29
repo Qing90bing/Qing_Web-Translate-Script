@@ -293,27 +293,21 @@
   "buildProject": {
     "startingBuild": "🚀 Starting full build process...",
     "buildCancelled": "\n⚠️ Build cancelled.",
-    "bundlingScript": "\n─── (Stage 1/2) Bundling script... ───",
-    "generatingFile": "\n─── (Stage 2/2) Generating final file... ───",
-    "preservingFormatting": "  -> 💅 Preserved comments and whitespace.",
-    "removingFormatting": "  -> 🧹 Removed comments and extra whitespace.",
-    "buildSuccess": "\n🎉 Build successful! Final script located at: {0}",
+    "initializing": "⏳ Initializing build environment...",
+    "bundling": "📦 Bundling script components...",
+    "generating": "📄 Generating final file...",
+    "formatting": "✨ Applying final formatting...",
+    "done": "Build Complete!",
+    "buildSuccess": "🎉 Build successful! Final script located at:",
+    "fileSize": "   📊 File size: {0}",
     "esbuildError": "❌ esbuild build failed:",
     "buildError": "❌ Unknown error occurred during build:",
-    "errorLocation": "  - Error: {0} [Location: {1}:{2}]",
-    "start": "🚀 Starting full build process...",
-    "cancelled": "\n⚠️ Build cancelled.",
-    "bundling": "\n─── (Stage 1/2) Bundling script... ───",
-    "generating": "\n─── (Stage 2/2) Generating final file... ───",
-    "preserved": "  -> 💅 Preserved comments and whitespace.",
-    "cleaned": "  -> 🧹 Removed comments and extra whitespace.",
-    "success": "\n🎉 Build successful! Final script located at: {0}",
-    "unknownError": "❌ Unknown error occurred during build:",
-    "errorDetail": "  - Error: {0} [Location: {1}]"
+    "errorLocation": "  - Error: {0} [Location: {1}:{2}]"
   },
   "buildCdn": {
     "modeMessage": "🚀 Building in CDN mode...",
-    "embeddingTranslations": "Embedding translations for specified sites..."
+    "embeddingTranslations": "Embedding translations for specified sites...",
+    "embedding": "✨ Embedding: {0}"
   },
   "manageTranslations": {
     "scanningFiles": "🔍 Scanning removable translation files...",

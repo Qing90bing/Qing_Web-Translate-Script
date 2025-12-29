@@ -272,7 +272,7 @@ async function handleSortTranslations() {
       existingLangDirs.forEach(langCode => {
         const langInfo = SUPPORTED_LANGUAGES.find(l => l.code === langCode);
         const displayName = langInfo
-          ? `${langInfo.name} (${langInfo.code}) ${langInfo.flag}`
+          ? `${langInfo.name} (${langInfo.code})`
           : langCode;
 
         mainChoices.push({

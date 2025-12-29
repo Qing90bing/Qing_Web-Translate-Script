@@ -33,10 +33,9 @@ export function getLanguageName(code) {
  *           永久性地添加新语言支持，需要直接修改此文件中的 `SUPPORTED_LANGUAGES` 数组。
  * @param {string} code - 新语言的代码。
  * @param {string} name - 新语言的名称。
- * @param {string} flag - 新语言的旗帜符号。
  * @returns {boolean} 如果添加成功，返回 `true`。如果语言代码已存在，则返回 `false` 并在控制台打印警告。
  */
-export function addLanguage(code, name, flag) {
+export function addLanguage(code, name) {
     // 检查语言代码是否已存在，避免重复添加。
     // 注意：我们需要重新计算 codes，因为列表可能已更新
     const currentCodes = SUPPORTED_LANGUAGES.map(lang => lang.code);
@@ -47,7 +46,7 @@ export function addLanguage(code, name, flag) {
     }
 
     // 添加新语言对象到数组中。
-    SUPPORTED_LANGUAGES.push({ code, name, flag });
+    SUPPORTED_LANGUAGES.push({ code, name });
     // 更新本地缓存的 codes (虽然导出的是常量，但为了保持一致性，最好依赖源数据)
     // 注意：由于 export const 是值的拷贝(对于基本类型)或引用，
     // 这里 SUPPORTED_LANGUAGE_CODES 如果被外部导入，可能不会自动更新。
