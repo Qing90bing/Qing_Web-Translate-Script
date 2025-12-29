@@ -179,7 +179,8 @@ async function handleRemoveTranslation() {
       // 修改：import 路径现在是 ./sites/...
       // 修复：更新正则以匹配单引号或双引号，并处理可能的缩进和转义点号。
       const escapedFileName = fileToRemove.file.replace(/\./g, '\\.');
-      const importRegex = new RegExp(`^\\s*import\\s+\\{\\s*${variableName}\\s*\\}\\s+from\\s+['"]\\./sites/${escapedFileName}['"];?\\s*`, 'm');
+      // 修复: 移除末尾的 \s* 改为 [ \t]*，以避免吞掉换行符，保留原有的空行结构
+      const importRegex = new RegExp(`^\\s*import\\s+\\{\\s*${variableName}\\s*\\}\\s+from\\s+['"]\\./sites/${escapedFileName}['"];?[ \\t]*`, 'm');
       indexJsContent = indexJsContent.replace(importRegex, '');
 
       // 构建精确的正则表达式来移除注册条目
