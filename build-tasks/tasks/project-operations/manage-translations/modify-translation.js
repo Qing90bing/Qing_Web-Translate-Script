@@ -3,24 +3,24 @@
  * @description
  * 此任务脚本负责引导用户以交互方式修改（重命名）一个现有的网站翻译配置文件。
  * 它会自动处理文件重命名、更新索引文件中的引用以及更新 header.txt 中的匹配规则。
- *
- * **核心工作流程**:
- * 1. **选择语言**: 引导用户首先选择语言，以缩小查找范围。
- * 2. **选择文件**: 列出该语言下的文件供用户选择。
- * 3. **输入新域名**: 提示用户输入新的域名。
- * 4. **变更预览**: 显示详细的变更预览，包括所有受影响的语言版本的文件名和变量名变更。
- * 5. **确认执行**: 用户确认后，执行文件重命名和内容更新。
  */
 
 import fs from 'fs';
 import path from 'path';
 import inquirer from 'inquirer';
-import prettier from 'prettier';
 import { color } from '../../../lib/colors.js';
 import { t } from '../../../lib/terminal-i18n.js';
-import { SUPPORTED_LANGUAGES } from '../../../../src/config/languages.js';
 import { SUPPORTED_LANGUAGE_CODES } from '../../../../src/modules/utils/language.js';
-import { toCamelCase, isValidDomain, formatAndSaveIndex } from '../../../lib/translation-utils.js';
+import {
+    toCamelCase,
+    isValidDomain,
+    formatAndSaveIndex,
+    selectLanguage,
+    scanTranslationFiles,
+    selectTranslationFile,
+    getTranslationFilePaths,
+    updateDomainInHeader
+} from '../../../lib/translation-utils.js';
 
 
 /**
@@ -33,58 +33,19 @@ async function handleModifyTranslation() {
     const translationsDir = path.join(process.cwd(), 'src', 'translations');
 
     // --- 步骤 1: 选择语言 ---
-    const { selectedLanguage } = await inquirer.prompt([
-        {
-            type: 'list',
-            name: 'selectedLanguage',
-            message: t('modifyTranslation.selectLanguage'),
-            choices: [
-                ...SUPPORTED_LANGUAGES.map(lang => ({
-                    name: `${lang.name} (${lang.code})`,
-                    value: lang.code
-                })),
-                new inquirer.Separator('──────────────────────────────────────────────'),
-                { name: t('manageTranslationsMenu.back'), value: 'back' },
-            ],
-            prefix: '🌐',
-        },
-    ]);
-
-    if (selectedLanguage === 'back') return;
+    const selectedLanguage = await selectLanguage();
+    if (!selectedLanguage) return;
 
     // --- 步骤 2: 选择要修改的文件 ---
-    let translationFiles = [];
-    try {
-        const sitesPath = path.join(translationsDir, selectedLanguage, 'sites');
-        if (fs.existsSync(sitesPath)) {
-            translationFiles = fs.readdirSync(sitesPath).filter(file => file.endsWith('.js'));
-        }
-    } catch (error) {
-        console.error(color.red(t('modifyTranslation.readingDirError', error.message)));
-        return;
-    }
+    const translationFiles = scanTranslationFiles(selectedLanguage);
 
     if (translationFiles.length === 0) {
         console.log(color.yellow(t('modifyTranslation.noFilesToModify')));
         return;
     }
 
-    const { fileToModify } = await inquirer.prompt([
-        {
-            type: 'list',
-            name: 'fileToModify',
-            message: t('modifyTranslation.selectFileToModify'),
-            choices: [
-                ...translationFiles.sort(),
-                new inquirer.Separator('──────────────────────────────────────────────'),
-                { name: t('manageTranslationsMenu.back'), value: 'back' },
-            ],
-            prefix: '📄',
-            pageSize: 20,
-        },
-    ]);
-
-    if (fileToModify === 'back') return;
+    const fileToModify = await selectTranslationFile(translationFiles);
+    if (!fileToModify) return;
 
     const oldDomain = fileToModify.replace(/\.js$/, '');
 
@@ -100,7 +61,7 @@ async function handleModifyTranslation() {
 
                 // 新域名不能与旧域名相同
                 if (input === oldDomain) {
-                    return t('modifyTranslation.domainCannotBeSame'); // We need to add this key or just use a text for now, I'll use a hardcoded string if key missing, but better add key.
+                    return t('modifyTranslation.domainCannotBeSame');
                 }
 
                 // 简单检查当前语言下是否存在
@@ -122,17 +83,16 @@ async function handleModifyTranslation() {
 
     // 收集受影响的文件信息
     const changes = [];
+    // 依然需要遍历所有语言来查找同一域名下的文件
     const langDirs = fs.readdirSync(translationsDir).filter(file =>
         fs.statSync(path.join(translationsDir, file)).isDirectory() &&
         SUPPORTED_LANGUAGE_CODES.includes(file)
     );
 
     for (const langDir of langDirs) {
-        const sitesPath = path.join(translationsDir, langDir, 'sites');
-        const oldFilePath = path.join(sitesPath, fileToModify);
+        const { filePath: oldFilePath } = getTranslationFilePaths(langDir, fileToModify);
 
         // 即使在某个语言下不存在该文件，只要在其他语言下存在，原则上我们只处理存在的
-        // 但为了保持一致性，“重命名”通常针对所有匹配的文件
         if (fs.existsSync(oldFilePath)) {
             const newFileName = `${newDomain}.js`;
             const oldVariableName = toCamelCase(oldDomain, langDir);
@@ -185,9 +145,8 @@ async function handleModifyTranslation() {
     try {
         for (const change of changes) {
             const { langDir, oldFileName, newFileName, oldVariableName, newVariableName } = change;
-            const sitesPath = path.join(translationsDir, langDir, 'sites');
-            const oldFilePath = path.join(sitesPath, oldFileName);
-            const newFilePath = path.join(sitesPath, newFileName);
+            const { sitesDir, filePath: oldFilePath, indexJsPath } = getTranslationFilePaths(langDir, oldFileName);
+            const newFilePath = path.join(sitesDir, newFileName);
 
             // 6a. 变量重命名 (在重命名文件之前读取内容)
             let fileContent = fs.readFileSync(oldFilePath, 'utf-8');
@@ -207,7 +166,6 @@ async function handleModifyTranslation() {
             console.log(color.green(t('modifyTranslation.fileRenamed', `${langDir}/${oldFileName}`, newFileName)));
 
             // 6c. 更新索引
-            const indexJsPath = path.join(translationsDir, langDir, 'index.js');
             if (fs.existsSync(indexJsPath)) {
                 let indexJsContent = fs.readFileSync(indexJsPath, 'utf-8');
 
@@ -226,22 +184,7 @@ async function handleModifyTranslation() {
         }
 
         // 更新 header.txt
-        const headerTxtPath = path.join(process.cwd(), 'src', 'header.txt');
-        if (fs.existsSync(headerTxtPath)) {
-            let headerContent = fs.readFileSync(headerTxtPath, 'utf-8');
-            // 修改正则以捕获原本的缩进/空格: (// @match\s+)
-            const oldMatchRegex = new RegExp(`(// @match\\s+)\\*://${oldDomain.replace(/\./g, '\\.')}/\\*`, 'g');
-
-            if (oldMatchRegex.test(headerContent)) {
-                // 使用捕获组 $1 保持原本的这部分字符串 (包含 // @match 和后面的空格)
-                const newMatchLine = `$1*://${newDomain}/*`;
-                headerContent = headerContent.replace(oldMatchRegex, newMatchLine);
-                fs.writeFileSync(headerTxtPath, headerContent);
-                console.log(color.green(t('modifyTranslation.headerTxtUpdated')));
-            } else {
-                console.log(color.yellow(t('modifyTranslation.headerNotUpdated')));
-            }
-        }
+        updateDomainInHeader(oldDomain, newDomain);
 
         console.log('\n' + color.bold(color.lightGreen(t('modifyTranslation.modificationSuccess'))));
 

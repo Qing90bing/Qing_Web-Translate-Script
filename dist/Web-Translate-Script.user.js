@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.130-2025-12-29-offline
+// @version      1.0.135-2025-12-30-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -12556,6 +12556,7 @@
       [' Add external links', '添加外部链接'],
       [' Add gallery image ', '添加画廊图片'],
       [' Add payment method', '添加付款方式'],
+      [' Clear all filters ', '清空所有筛选'],
       [' Open in new tab ', '在新标签页打开'],
       [' Set game versions ', '设置游戏版本'],
       [' Transfer management ', '转移管理权'],

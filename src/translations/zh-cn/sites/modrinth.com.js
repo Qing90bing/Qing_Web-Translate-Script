@@ -1007,6 +1007,7 @@ export const modrinthComZhCn = {
     [" Add external links", "添加外部链接"],
     [" Add gallery image ", "添加画廊图片"],
     [" Add payment method", "添加付款方式"],
+    [" Clear all filters ", "清空所有筛选"],
     [" Open in new tab ", "在新标签页打开"],
     [" Set game versions ", "设置游戏版本"],
     [" Transfer management ", "转移管理权"],

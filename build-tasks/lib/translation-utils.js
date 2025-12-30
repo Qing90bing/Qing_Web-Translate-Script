@@ -6,9 +6,13 @@
  */
 
 import fs from 'fs';
+import path from 'path';
+import inquirer from 'inquirer';
 import prettier from 'prettier';
 import { color } from './colors.js';
 import { t } from './terminal-i18n.js';
+import { SUPPORTED_LANGUAGES } from '../../src/config/languages.js';
+import { SUPPORTED_LANGUAGE_CODES } from '../../src/modules/utils/language.js';
 
 /**
  * @function toCamelCase
@@ -75,5 +79,191 @@ export async function formatAndSaveIndex(filePath, content) {
     } catch (error) {
         console.error(color.red(t('manageTranslations.indexJsUpdateError', error.message)));
         throw error; // 向上抛出，以便调用者处理事务回滚
+    }
+}
+
+/**
+ * @function selectLanguage
+ * @description 提示用户选择语言。
+ * @returns {Promise<string|null>} 返回语言代码，如果选择返回则返回 null。
+ */
+export async function selectLanguage() {
+    const { language } = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'language',
+            message: t('manageTranslations.selectLanguage'),
+            prefix: '🌐',
+            choices: [
+                ...SUPPORTED_LANGUAGES.map(lang => ({
+                    name: `${lang.name} (${lang.code})`,
+                    value: lang.code
+                })),
+                new inquirer.Separator('──────────────────────────────────────────────'),
+                { name: t('manageTranslationsMenu.back'), value: 'back' }
+            ]
+        }
+    ]);
+
+    return language === 'back' ? null : language;
+}
+
+/**
+ * @function scanTranslationFiles
+ * @description 扫描指定语言目录下的翻译文件。
+ * @param {string} language - 语言代码
+ * @returns {Array<string>} 文件名列表
+ */
+export function scanTranslationFiles(language) {
+    const sitesPath = path.join(process.cwd(), 'src', 'translations', language, 'sites');
+    if (fs.existsSync(sitesPath)) {
+        return fs.readdirSync(sitesPath).filter(file => file.endsWith('.js'));
+    }
+    return [];
+}
+
+/**
+ * @function selectTranslationFile
+ * @description 提示用户从列表中选择一个翻译文件。
+ * @param {Array<string>} files - 文件列表
+ * @param {string} message - 提示信息
+ * @returns {Promise<string|null>} 返回文件名，如果选择返回则返回 null。
+ */
+export async function selectTranslationFile(files, message = t('manageTranslations.selectFileToModify')) {
+    if (files.length === 0) {
+        return null; // 这里由调用者处理空列表提示更灵活
+    }
+
+    const { fileName } = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'fileName',
+            message: message,
+            prefix: '📄',
+            pageSize: 20,
+            choices: [
+                ...files.sort(),
+                new inquirer.Separator('──────────────────────────────────────────────'),
+                { name: t('manageTranslationsMenu.back'), value: 'back' },
+            ],
+        },
+    ]);
+
+    return fileName === 'back' ? null : fileName;
+}
+
+/**
+ * @function getTranslationFilePaths
+ * @description 获取与翻译相关的所有文件路径。
+ * @param {string} language - 语言代码
+ * @param {string} fileName - 文件名 (例如 "google.com.js")
+ * @returns {Object} 包含 sitesDir, filePath, indexJsPath
+ */
+export function getTranslationFilePaths(language, fileName) {
+    const sitesDir = path.join(process.cwd(), 'src', 'translations', language, 'sites');
+    const filePath = path.join(sitesDir, fileName);
+    const indexJsPath = path.join(process.cwd(), 'src', 'translations', language, 'index.js');
+    return { sitesDir, filePath, indexJsPath };
+}
+
+/**
+ * @function addDomainToHeader
+ * @description 向 header.txt 添加新的 @match 规则。
+ * @param {string} domain
+ */
+export function addDomainToHeader(domain) {
+    const headerTxtPath = path.join(process.cwd(), 'src', 'header.txt');
+    if (!fs.existsSync(headerTxtPath)) return;
+
+    let headerTxtContent = fs.readFileSync(headerTxtPath, 'utf-8');
+    const matchDirective = `// @match        *://${domain}/*\n`;
+
+    if (!headerTxtContent.includes(matchDirective.trim())) {
+        const lastMatchIndex = headerTxtContent.lastIndexOf('// @match');
+        // 如果找不到 // @match，这可能是一个问题，但我们假设 header 总是包含至少一个 match 或者结构正确
+        if (lastMatchIndex !== -1) {
+            const nextLineIndexAfterLastMatch = headerTxtContent.indexOf('\n', lastMatchIndex);
+            headerTxtContent =
+                headerTxtContent.slice(0, nextLineIndexAfterLastMatch + 1) +
+                matchDirective +
+                headerTxtContent.slice(nextLineIndexAfterLastMatch + 1);
+        } else {
+            // 简单的 fallback，虽然不太可能发生
+            headerTxtContent += matchDirective;
+        }
+
+        fs.writeFileSync(headerTxtPath, headerTxtContent);
+        console.log(color.green(t('manageTranslations.headerTxtUpdatedSuccess', color.yellow(headerTxtPath))));
+    } else {
+        console.log(color.yellow(t('manageTranslations.headerAlreadyExists', color.yellow(domain))));
+    }
+}
+
+/**
+ * @function updateDomainInHeader
+ * @description 在 header.txt 中更新域名。
+ * @param {string} oldDomain
+ * @param {string} newDomain
+ */
+export function updateDomainInHeader(oldDomain, newDomain) {
+    const headerTxtPath = path.join(process.cwd(), 'src', 'header.txt');
+    if (!fs.existsSync(headerTxtPath)) return;
+
+    let headerContent = fs.readFileSync(headerTxtPath, 'utf-8');
+    const oldMatchRegex = new RegExp(`(// @match\\s+)\\*://${oldDomain.replace(/\./g, '\\.')}/\\*`, 'g');
+
+    if (oldMatchRegex.test(headerContent)) {
+        const newMatchLine = `$1*://${newDomain}/*`;
+        headerContent = headerContent.replace(oldMatchRegex, newMatchLine);
+        fs.writeFileSync(headerTxtPath, headerContent);
+        console.log(color.green(t('modifyTranslation.headerTxtUpdated')));
+        return true;
+    } else {
+        console.log(color.yellow(t('modifyTranslation.headerNotUpdated')));
+        return false;
+    }
+}
+
+/**
+ * @function removeDomainFromHeader
+ * @description 从 header.txt 中移除域名，前提是该域名没有被其他语言使用。
+ * @param {string} domain
+ * @param {string} currentLanguage - 当前正在移除的语言，用于排除检查
+ */
+export function removeDomainFromHeader(domain, currentLanguage) {
+    const translationsDir = path.join(process.cwd(), 'src', 'translations');
+    const fileName = `${domain}.js`;
+
+    // 检查其他语言是否存在该文件
+    let hasOtherLanguageFiles = false;
+    try {
+        const allLangDirs = fs.readdirSync(translationsDir).filter(file =>
+            fs.statSync(path.join(translationsDir, file)).isDirectory() &&
+            SUPPORTED_LANGUAGE_CODES.includes(file) &&
+            file !== currentLanguage // 排除当前语言
+        );
+
+        for (const langDir of allLangDirs) {
+            const otherLangPath = path.join(translationsDir, langDir, 'sites', fileName);
+            if (fs.existsSync(otherLangPath)) {
+                hasOtherLanguageFiles = true;
+                break;
+            }
+        }
+    } catch (checkError) {
+        console.warn(color.yellow(`Error checking other languages: ${checkError.message}`));
+    }
+
+    if (!hasOtherLanguageFiles) {
+        const headerTxtPath = path.join(process.cwd(), 'src', 'header.txt');
+        if (fs.existsSync(headerTxtPath)) {
+            let headerTxtContent = fs.readFileSync(headerTxtPath, 'utf-8');
+            const matchRegex = new RegExp(`^// @match\\s+\\*://${domain.replace(/\./g, '\\.')}/\\*\\s*\\r?\\n`, 'm');
+            headerTxtContent = headerTxtContent.replace(matchRegex, '');
+            fs.writeFileSync(headerTxtPath, headerTxtContent);
+            console.log(color.green(t('manageTranslations.headerTxtUpdated')));
+        }
+    } else {
+        console.log(color.yellow(t('manageTranslations.headerNotRemoved', color.yellow(domain))));
     }
 }

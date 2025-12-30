@@ -26,8 +26,13 @@ import prettier from 'prettier';
 // 导入本地的辅助模块和配置
 import { color } from '../../../lib/colors.js'; // 用于在终端输出带颜色的文本
 import { t } from '../../../lib/terminal-i18n.js'; // 国际化函数，用于显示多语言文本
-import { SUPPORTED_LANGUAGES } from '../../../../src/config/languages.js'; // 支持的语言列表
-import { toCamelCase, formatAndSaveIndex } from '../../../lib/translation-utils.js'; // 导入共享工具函数
+import {
+  toCamelCase,
+  formatAndSaveIndex,
+  selectLanguage,
+  getTranslationFilePaths,
+  addDomainToHeader
+} from '../../../lib/translation-utils.js'; // 导入共享工具函数
 
 /**
  * @function handleAddNewTranslation
@@ -36,28 +41,8 @@ import { toCamelCase, formatAndSaveIndex } from '../../../lib/translation-utils.
  */
 async function handleAddNewTranslation() {
   // --- 步骤 1: 提示用户选择语言 ---
-  // 根据配置文件动态生成语言选择列表，包含国旗以增强可读性。
-  const languageChoices = SUPPORTED_LANGUAGES.map(lang => ({
-    name: `${lang.name} (${lang.code})`,
-    value: lang.code
-  }));
-
-  const { language } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'language',
-      message: t('manageTranslations.selectLanguage'),
-      prefix: '🌐',
-      choices: [
-        ...languageChoices,
-        new inquirer.Separator('──────────────────────────────────────────────'), // 添加分隔线
-        { name: t('manageTranslationsMenu.back'), value: 'back' } // 提供返回选项
-      ]
-    }
-  ]);
-
-  // 如果用户选择返回，则取消操作并退出。
-  if (language === 'back') {
+  const language = await selectLanguage();
+  if (!language) {
     console.log(color.dim(t('manageTranslations.creationCancelled')));
     return;
   }
@@ -78,8 +63,8 @@ async function handleAddNewTranslation() {
 
         // 检查对应的翻译文件是否已存在。
         const fileName = `${trimmedInput}.js`;
-        // 修改：检查 sites 子目录
-        const filePath = path.join(process.cwd(), 'src', 'translations', language, 'sites', fileName);
+        // 使用工具函数获取路径
+        const { filePath } = getTranslationFilePaths(language, fileName);
 
         if (fs.existsSync(filePath)) {
           return t('manageTranslations.fileAlreadyExists', color.yellow(fileName));
@@ -129,9 +114,7 @@ async function handleAddNewTranslation() {
   }
 
   // --- 步骤 3: 创建新的翻译文件 ---
-  // 修改：文件路径指向 sites 子目录
-  const sitesDir = path.join(process.cwd(), 'src', 'translations', language, 'sites');
-  const filePath = path.join(sitesDir, fileName);
+  const { sitesDir, filePath, indexJsPath } = getTranslationFilePaths(language, fileName);
   const currentDate = new Date().toISOString().split('T')[0]; // 获取 YYYY-MM-DD 格式的当前日期
 
   // --- 动态加载模板 ---
@@ -178,8 +161,6 @@ async function handleAddNewTranslation() {
   }
 
   // --- 步骤 4: 更新 index.js 和 header.txt (事务性操作) ---
-  // 修改：只更新当前语言的 index.js
-  const indexJsPath = path.join(process.cwd(), 'src', 'translations', language, 'index.js');
   const headerTxtPath = path.join(process.cwd(), 'src', 'header.txt');
   let originalIndexJsContent, originalHeaderTxtContent;
 
@@ -199,7 +180,7 @@ async function handleAddNewTranslation() {
 
     // --- 4a. 更新 index.js ---
     let indexJsContent = originalIndexJsContent;
-    // 构造新的 import 语句。修改：路径改为相对 sites 目录
+    // 构造新的 import 语句。
     const importStatement = `import { ${variableName} } from './sites/${fileName}';\n`;
 
     // 找到最后一个 'import' 语句的位置，在其后插入新的 import，以保持代码整洁。
@@ -239,24 +220,9 @@ async function handleAddNewTranslation() {
     console.log(color.green(t('manageTranslations.indexJsUpdatedSuccess', indexJsPath.replace(process.cwd(), ''))));
 
     // --- 4b. 更新 header.txt ---
-    let headerTxtContent = originalHeaderTxtContent;
-    // 构造新的 @match 指令。
-    const matchDirective = `// @match        *://${trimmedDomain}/*\n`;
-    // 检查是否已存在相同的 @match 指令，避免重复添加。
-    if (!headerTxtContent.includes(matchDirective.trim())) {
-      // 找到最后一个 '// @match' 指令，在其后插入新指令，以保持指令的分组。
-      const lastMatchIndex = headerTxtContent.lastIndexOf('// @match');
-      const nextLineIndexAfterLastMatch = headerTxtContent.indexOf('\n', lastMatchIndex);
-      headerTxtContent =
-        headerTxtContent.slice(0, nextLineIndexAfterLastMatch + 1) +
-        matchDirective +
-        headerTxtContent.slice(nextLineIndexAfterLastMatch + 1);
+    // 使用新的工具函数
+    addDomainToHeader(trimmedDomain);
 
-      fs.writeFileSync(headerTxtPath, headerTxtContent);
-      console.log(color.green(t('manageTranslations.headerTxtUpdatedSuccess', color.yellow(headerTxtPath))));
-    } else {
-      console.log(color.yellow(t('manageTranslations.headerAlreadyExists', color.yellow(trimmedDomain))));
-    }
   } catch (error) {
     console.error(color.red(t('manageTranslations.indexJsUpdateError', error.message)));
 
