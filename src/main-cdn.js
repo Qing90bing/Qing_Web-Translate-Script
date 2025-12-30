@@ -19,7 +19,7 @@
  */
 
 // 导入模块
-import { SUPPORTED_LANGUAGE_CODES } from './modules/utils/language.js';
+import { SUPPORTED_LANGUAGE_CODES, getUserLanguage } from './modules/utils/language.js';
 import { log } from './modules/utils/logger.js';
 import { initializeMenu } from './modules/ui/menu.js';
 import { injectAntiFlickerStyle, removeAntiFlickerStyle } from './modules/ui/anti-flicker.js';
@@ -37,25 +37,7 @@ import { initializeTranslation } from './modules/core/translationInitializer.js'
     // 立即注入防闪烁样式。
     injectAntiFlickerStyle();
 
-    /**
-     * @function getUserLanguage
-     * @description 获取用户语言偏好，逻辑与 main.js 中的版本相同。
-     * @returns {string} 返回一个代表用户语言的代码（例如 'zh-cn'）。
-     */
-    function getUserLanguage() {
-        const overrideLang = GM_getValue('web-translate-language-override', '');
-        if (overrideLang && SUPPORTED_LANGUAGE_CODES.includes(overrideLang)) return overrideLang;
-        const storedLang = localStorage.getItem('web-translate-language');
-        if (storedLang && SUPPORTED_LANGUAGE_CODES.includes(storedLang)) return storedLang;
-        const browserLang = navigator.language || navigator.userLanguage;
-        if (browserLang) {
-            const lowerBrowserLang = browserLang.toLowerCase();
-            if (SUPPORTED_LANGUAGE_CODES.includes(lowerBrowserLang)) return lowerBrowserLang;
-            const partialMatch = SUPPORTED_LANGUAGE_CODES.find(code => lowerBrowserLang.startsWith(code));
-            if (partialMatch) return partialMatch;
-        }
-        return 'zh-cn';
-    }
+
 
     /**
      * @function fetchWithFallbacks

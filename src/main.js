@@ -19,7 +19,7 @@
 import { masterTranslationMap } from './translations/index.js';
 
 // 导入配置和模块
-import { SUPPORTED_LANGUAGE_CODES } from './modules/utils/language.js';
+import { SUPPORTED_LANGUAGE_CODES, getUserLanguage } from './modules/utils/language.js';
 import { log } from './modules/utils/logger.js';
 import { initializeMenu } from './modules/ui/menu.js';
 import { injectAntiFlickerStyle, removeAntiFlickerStyle } from './modules/ui/anti-flicker.js';
@@ -37,58 +37,7 @@ import { initializeTranslation } from './modules/core/translationInitializer.js'
     // 立即注入防闪烁样式，以防止页面在翻译完成前出现内容闪烁。
     injectAntiFlickerStyle();
 
-    /**
-     * @function getUserLanguage
-     * @description 确定要使用的目标语言。
-     * @returns {string} 最终确定的语言代码。
-     */
-    function getUserLanguage() {
-        // 优先级 1: (调试模式) 检查是否有来自油猴菜单的语言强制覆盖设置。
-        const overrideLang = GM_getValue('web-translate-language-override', '');
-        if (overrideLang && SUPPORTED_LANGUAGE_CODES.includes(overrideLang)) {
-            return overrideLang;
-        }
 
-        // 优先级 2: 检查 localStorage 中是否有用户通过其他方式设置的语言（为未来功能保留）。
-        const storedLang = localStorage.getItem('web-translate-language');
-        if (storedLang && SUPPORTED_LANGUAGE_CODES.includes(storedLang)) {
-            return storedLang;
-        }
-
-        // 优先级 3: 检查浏览器的语言设置。
-        const browserLang = navigator.language || navigator.userLanguage;
-        if (browserLang) {
-            const lowerLang = browserLang.toLowerCase();
-
-            // 1. 明确的繁体中文映射
-            // 涵盖: 香港 (zh-hk), 澳门 (zh-mo), 台湾 (zh-tw), 繁体脚本 (zh-hant)
-            if (['zh-hk', 'zh-mo', 'zh-tw', 'zh-hant'].some(code => lowerLang.includes(code))) {
-                return 'zh-tw';
-            }
-
-            // 2. 明确的简体中文映射
-            // 涵盖: 大陆 (zh-cn), 新加坡 (zh-sg), 简体脚本 (zh-hans)
-            if (['zh-cn', 'zh-sg', 'zh-hans'].some(code => lowerLang.includes(code))) {
-                return 'zh-cn';
-            }
-
-            // 3. 标准匹配逻辑 (用于其他语言或上述未匹配的情况)
-            // a. 查找完全匹配
-            const exactMatch = SUPPORTED_LANGUAGE_CODES.find(code =>
-                lowerLang === code.toLowerCase()
-            );
-            if (exactMatch) return exactMatch;
-
-            // b. 查找前缀匹配
-            const partialMatch = SUPPORTED_LANGUAGE_CODES.find(code =>
-                lowerLang.startsWith(code.toLowerCase())
-            );
-            if (partialMatch) return partialMatch;
-        }
-
-        // 优先级 4: 如果以上都失败，则默认返回我们支持的第一个语言作为后备。
-        return SUPPORTED_LANGUAGE_CODES[0] || 'zh-cn';
-    }
 
     /**
      * @function selectTranslationForSite

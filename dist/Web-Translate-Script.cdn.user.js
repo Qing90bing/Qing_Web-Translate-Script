@@ -2062,12 +2062,43 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
 (() => {
   // src/config/languages.js
   var SUPPORTED_LANGUAGES = [
-    { code: 'zh-cn', name: '简体中文', flag: '🇨🇳' },
-    { code: 'zh-tw', name: '繁體中文', flag: '🇹🇼' },
+    { code: 'zh-cn', name: '简体中文' },
+    { code: 'zh-tw', name: '繁體中文' },
   ];
 
   // src/modules/utils/language.js
   var SUPPORTED_LANGUAGE_CODES = SUPPORTED_LANGUAGES.map((lang) => lang.code);
+  function getUserLanguage() {
+    if (typeof GM_getValue !== 'undefined') {
+      const overrideLang = GM_getValue('web-translate-language-override', '');
+      if (overrideLang && SUPPORTED_LANGUAGE_CODES.includes(overrideLang)) {
+        return overrideLang;
+      }
+    }
+    try {
+      const storedLang = localStorage.getItem('web-translate-language');
+      if (storedLang && SUPPORTED_LANGUAGE_CODES.includes(storedLang)) {
+        return storedLang;
+      }
+    } catch (e) {}
+    const browserLang = navigator.language || navigator.userLanguage;
+    if (browserLang) {
+      const lowerLang = browserLang.toLowerCase();
+      if (['zh-hk', 'zh-mo', 'zh-tw', 'zh-hant'].some((code) => lowerLang.includes(code))) {
+        const twCode = 'zh-tw';
+        if (SUPPORTED_LANGUAGE_CODES.includes(twCode)) return twCode;
+      }
+      if (['zh-cn', 'zh-sg', 'zh-hans'].some((code) => lowerLang.includes(code))) {
+        const cnCode = 'zh-cn';
+        if (SUPPORTED_LANGUAGE_CODES.includes(cnCode)) return cnCode;
+      }
+      const exactMatch = SUPPORTED_LANGUAGE_CODES.find((code) => lowerLang === code.toLowerCase());
+      if (exactMatch) return exactMatch;
+      const partialMatch = SUPPORTED_LANGUAGE_CODES.find((code) => lowerLang.startsWith(code.toLowerCase()));
+      if (partialMatch) return partialMatch;
+    }
+    return SUPPORTED_LANGUAGE_CODES[0] || 'zh-cn';
+  }
 
   // src/modules/utils/logger.js
   var LOG_KEY = 'web_translate_debug_mode';
@@ -2882,20 +2913,6 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     'use strict';
     initializeMenu();
     injectAntiFlickerStyle();
-    function getUserLanguage() {
-      const overrideLang = GM_getValue('web-translate-language-override', '');
-      if (overrideLang && SUPPORTED_LANGUAGE_CODES.includes(overrideLang)) return overrideLang;
-      const storedLang = localStorage.getItem('web-translate-language');
-      if (storedLang && SUPPORTED_LANGUAGE_CODES.includes(storedLang)) return storedLang;
-      const browserLang = navigator.language || navigator.userLanguage;
-      if (browserLang) {
-        const lowerBrowserLang = browserLang.toLowerCase();
-        if (SUPPORTED_LANGUAGE_CODES.includes(lowerBrowserLang)) return lowerBrowserLang;
-        const partialMatch = SUPPORTED_LANGUAGE_CODES.find((code) => lowerBrowserLang.startsWith(code));
-        if (partialMatch) return partialMatch;
-      }
-      return 'zh-cn';
-    }
     async function fetchWithFallbacks(urls) {
       for (const url of urls) {
         try {

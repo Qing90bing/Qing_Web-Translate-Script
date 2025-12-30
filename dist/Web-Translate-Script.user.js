@@ -15222,10 +15222,41 @@
   var zhTwTranslations = { 'aistudio.google.com#zh-tw': aistudioGoogleComZhTw, 'claude.ai#zh-tw': claudeAiZhTw };
   var masterTranslationMap = { ...zhCnTranslations, ...zhTwTranslations };
   var SUPPORTED_LANGUAGES = [
-    { code: 'zh-cn', name: '简体中文', flag: '🇨🇳' },
-    { code: 'zh-tw', name: '繁體中文', flag: '🇹🇼' },
+    { code: 'zh-cn', name: '简体中文' },
+    { code: 'zh-tw', name: '繁體中文' },
   ];
   var SUPPORTED_LANGUAGE_CODES = SUPPORTED_LANGUAGES.map((lang) => lang.code);
+  function getUserLanguage() {
+    if (typeof GM_getValue !== 'undefined') {
+      const overrideLang = GM_getValue('web-translate-language-override', '');
+      if (overrideLang && SUPPORTED_LANGUAGE_CODES.includes(overrideLang)) {
+        return overrideLang;
+      }
+    }
+    try {
+      const storedLang = localStorage.getItem('web-translate-language');
+      if (storedLang && SUPPORTED_LANGUAGE_CODES.includes(storedLang)) {
+        return storedLang;
+      }
+    } catch (e) {}
+    const browserLang = navigator.language || navigator.userLanguage;
+    if (browserLang) {
+      const lowerLang = browserLang.toLowerCase();
+      if (['zh-hk', 'zh-mo', 'zh-tw', 'zh-hant'].some((code) => lowerLang.includes(code))) {
+        const twCode = 'zh-tw';
+        if (SUPPORTED_LANGUAGE_CODES.includes(twCode)) return twCode;
+      }
+      if (['zh-cn', 'zh-sg', 'zh-hans'].some((code) => lowerLang.includes(code))) {
+        const cnCode = 'zh-cn';
+        if (SUPPORTED_LANGUAGE_CODES.includes(cnCode)) return cnCode;
+      }
+      const exactMatch = SUPPORTED_LANGUAGE_CODES.find((code) => lowerLang === code.toLowerCase());
+      if (exactMatch) return exactMatch;
+      const partialMatch = SUPPORTED_LANGUAGE_CODES.find((code) => lowerLang.startsWith(code.toLowerCase()));
+      if (partialMatch) return partialMatch;
+    }
+    return SUPPORTED_LANGUAGE_CODES[0] || 'zh-cn';
+  }
   var LOG_KEY = 'web_translate_debug_mode';
   var isDebugMode = GM_getValue(LOG_KEY, false);
   function updateDebugState(newMode) {
@@ -15994,31 +16025,6 @@
     'use strict';
     initializeMenu();
     injectAntiFlickerStyle();
-    function getUserLanguage() {
-      const overrideLang = GM_getValue('web-translate-language-override', '');
-      if (overrideLang && SUPPORTED_LANGUAGE_CODES.includes(overrideLang)) {
-        return overrideLang;
-      }
-      const storedLang = localStorage.getItem('web-translate-language');
-      if (storedLang && SUPPORTED_LANGUAGE_CODES.includes(storedLang)) {
-        return storedLang;
-      }
-      const browserLang = navigator.language || navigator.userLanguage;
-      if (browserLang) {
-        const lowerLang = browserLang.toLowerCase();
-        if (['zh-hk', 'zh-mo', 'zh-tw', 'zh-hant'].some((code) => lowerLang.includes(code))) {
-          return 'zh-tw';
-        }
-        if (['zh-cn', 'zh-sg', 'zh-hans'].some((code) => lowerLang.includes(code))) {
-          return 'zh-cn';
-        }
-        const exactMatch = SUPPORTED_LANGUAGE_CODES.find((code) => lowerLang === code.toLowerCase());
-        if (exactMatch) return exactMatch;
-        const partialMatch = SUPPORTED_LANGUAGE_CODES.find((code) => lowerLang.startsWith(code.toLowerCase()));
-        if (partialMatch) return partialMatch;
-      }
-      return SUPPORTED_LANGUAGE_CODES[0] || 'zh-cn';
-    }
     function selectTranslationForSite(hostname) {
       const userLang = getUserLanguage();
       const langSpecificKey = `${hostname}#${userLang}`;
