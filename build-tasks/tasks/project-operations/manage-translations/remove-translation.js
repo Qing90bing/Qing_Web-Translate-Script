@@ -32,32 +32,8 @@ import { color } from '../../../lib/colors.js';
 import { t } from '../../../lib/terminal-i18n.js';
 import { SUPPORTED_LANGUAGES } from '../../../../src/config/languages.js';
 import { SUPPORTED_LANGUAGE_CODES } from '../../../../src/modules/utils/language.js';
+import { toCamelCase, formatAndSaveIndex } from '../../../lib/translation-utils.js';
 
-// --- 辅助函数 ---
-
-/**
- * @function toCamelCase
- * @description 将文件名（如 "example.com.js"）和语言代码转换为一个唯一的驼峰式命名（如 "exampleComZhCN"）。
- * 这个函数对于根据文件名反向推导出在 `index.js` 中使用的变量名至关重要。
- * @param {string} domain - 要转换的文件名（不含 .js 后缀）。
- * @param {string} [language=''] - 语言代码。
- * @returns {string} 转换后的驼峰式命名的字符串。
- */
-function toCamelCase(domain, language = '') {
-  let result = domain.replace(/\./g, ' ').replace(/(?:^|\s)\w/g, (match, index) => {
-    return index === 0 ? match.toLowerCase().trim() : match.toUpperCase().trim();
-  }).replace(/\s+/g, '');
-
-  if (language) {
-    const langParts = language.split('-');
-    const langSuffix = langParts.map(part =>
-      part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-    ).join('');
-    result += langSuffix;
-  }
-
-  return result;
-}
 
 /**
  * @function handleRemoveTranslation
@@ -187,20 +163,7 @@ async function handleRemoveTranslation() {
       const mapEntryRegex = new RegExp(`^\\s*"${domain}#${fileToRemove.langDir}":\\s*${variableName},?\\s*\\r?\\n?`, 'm');
       indexJsContent = indexJsContent.replace(mapEntryRegex, '');
 
-      // 用户要求混合风格：Import 使用单引号，Keys 使用双引号。
-      // 第一步：Prettier 统一使用单引号
-      const formattedContent = await prettier.format(indexJsContent, {
-        singleQuote: true,
-        tabWidth: 4,
-        filepath: indexJsPath,
-      });
-
-      // 第二步：使用正则将对象的键（key）强制保留为双引号
-      // 匹配模式：'domain#lang':
-      // 替换为："domain#lang":
-      const finalMixedContent = formattedContent.replace(/'([\w.-]+#[\w-]+)'\s*:/g, '"$1":');
-
-      fs.writeFileSync(indexJsPath, finalMixedContent);
+      await formatAndSaveIndex(indexJsPath, indexJsContent);
       console.log(color.green(t('manageTranslations.indexJsUpdated')));
     } else {
       console.error(color.red(`Index file not found: ${indexJsPath}`));

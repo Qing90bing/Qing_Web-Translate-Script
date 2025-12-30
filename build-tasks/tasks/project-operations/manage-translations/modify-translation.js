@@ -20,37 +20,8 @@ import { color } from '../../../lib/colors.js';
 import { t } from '../../../lib/terminal-i18n.js';
 import { SUPPORTED_LANGUAGES } from '../../../../src/config/languages.js';
 import { SUPPORTED_LANGUAGE_CODES } from '../../../../src/modules/utils/language.js';
+import { toCamelCase, isValidDomain, formatAndSaveIndex } from '../../../lib/translation-utils.js';
 
-// --- 辅助函数 ---
-
-/**
- * @function toCamelCase
- * @description 将文件名和语言代码转换为驼峰式变量名
- */
-function toCamelCase(domain, language = '') {
-    let result = domain.replace(/\./g, ' ').replace(/(?:^|\s)\w/g, (match, index) => {
-        return index === 0 ? match.toLowerCase().trim() : match.toUpperCase().trim();
-    }).replace(/\s+/g, '');
-
-    if (language) {
-        const langParts = language.split('-');
-        const langSuffix = langParts.map(part =>
-            part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-        ).join('');
-        result += langSuffix;
-    }
-
-    return result;
-}
-
-/**
- * @function isValidDomain
- * @description 简单的域名格式验证
- */
-function isValidDomain(domain) {
-    // 简单的正则，匹配 example.com 格式
-    return /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(domain);
-}
 
 /**
  * @function handleModifyTranslation
@@ -249,14 +220,7 @@ async function handleModifyTranslation() {
                 const newMapEntry = `"${newDomain}#${langDir}": ${newVariableName}`;
                 indexJsContent = indexJsContent.replace(mapKeyRegex, newMapEntry);
 
-                const formattedContent = await prettier.format(indexJsContent, {
-                    singleQuote: true,
-                    tabWidth: 4,
-                    filepath: indexJsPath,
-                });
-                const finalContent = formattedContent.replace(/'([\w.-]+#[\w-]+)'\s*:/g, '"$1":');
-
-                fs.writeFileSync(indexJsPath, finalContent);
+                await formatAndSaveIndex(indexJsPath, indexJsContent);
                 console.log(color.green(t('modifyTranslation.indexJsUpdated', langDir)));
             }
         }

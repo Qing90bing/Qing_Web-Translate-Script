@@ -27,33 +27,7 @@ import prettier from 'prettier';
 import { color } from '../../../lib/colors.js'; // 用于在终端输出带颜色的文本
 import { t } from '../../../lib/terminal-i18n.js'; // 国际化函数，用于显示多语言文本
 import { SUPPORTED_LANGUAGES } from '../../../../src/config/languages.js'; // 支持的语言列表
-
-/**
- * @function toCamelCase
- * @description 将域名字符串（如 "example.com"）和语言代码（如 "zh-CN"）转换为一个唯一的驼峰式命名（如 "exampleComZhCN"）。
- * 这个函数确保生成的名称是有效的 JavaScript 变量名，并且通过附加语言标识来避免不同语言版本下的命名冲突。
- * @param {string} domain - 要转换的域名。
- * @param {string} [language=''] - 语言代码，可选。
- * @returns {string} 转换后的驼峰式命名的字符串。
- */
-function toCamelCase(domain, language = '') {
-  // 将域名中的 `.` 替换为空格，然后利用正则表达式和回调函数将每个单词的首字母大写（除了第一个单词）。
-  let result = domain.replace(/\./g, ' ').replace(/(?:^|\s)\w/g, (match, index) => {
-    return index === 0 ? match.toLowerCase().trim() : match.toUpperCase().trim();
-  }).replace(/\s+/g, ''); // 移除所有空格
-
-  // 如果提供了语言标识，则将其附加到变量名后面以确保唯一性。
-  if (language) {
-    // 将语言标识（如 "zh-CN"）也转换为驼峰式命名的大写后缀（如 "ZhCn"）。
-    const langParts = language.split('-');
-    const langSuffix = langParts.map(part =>
-      part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-    ).join('');
-    result += langSuffix;
-  }
-
-  return result;
-}
+import { toCamelCase, formatAndSaveIndex } from '../../../lib/translation-utils.js'; // 导入共享工具函数
 
 /**
  * @function handleAddNewTranslation
@@ -259,19 +233,8 @@ async function handleAddNewTranslation() {
       mapEntry +
       indexJsContent.slice(lastBraceIndex);
     // 5c. 写入文件（同时应用 Prettier 格式化）
-    // 用户要求混合风格：Import 使用单引号，Keys 使用双引号。
-    // 第一步：Prettier 统一使用单引号
-    const formattedContent = await prettier.format(indexJsContent, {
-      singleQuote: true,
-      tabWidth: 4,
-      filepath: indexJsPath,
-    });
-    // 第二步：使用正则将对象的键（key）强制保留为双引号
-    // 匹配模式：'domain#lang':
-    // 替换为："domain#lang":
-    const finalMixedContent = formattedContent.replace(/'([\w.-]+#[\w-]+)'\s*:/g, '"$1":');
-
-    fs.writeFileSync(indexJsPath, finalMixedContent);
+    // 使用共享工具函数处理格式化和写入
+    await formatAndSaveIndex(indexJsPath, indexJsContent);
 
     console.log(color.green(t('manageTranslations.indexJsUpdatedSuccess', indexJsPath.replace(process.cwd(), ''))));
 
