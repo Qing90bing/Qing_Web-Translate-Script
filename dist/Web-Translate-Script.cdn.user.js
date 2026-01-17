@@ -2660,6 +2660,8 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     const translationQueue = /* @__PURE__ */ new Set();
     let isScheduled = false;
     const FRAME_BUDGET = 12;
+    let extendedContentObserver = null;
+    let extendedAttributeObserver = null;
     function processQueue() {
       const frameStart = performance.now();
       let tasksProcessed = 0;
@@ -2679,13 +2681,17 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         return true;
       };
       const translationProcessor = (node) => {
-        if (!node.isConnected) return;
-        if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
-          translator.translate(node);
-        } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
-          translator.translate(node.parentElement);
+        try {
+          if (!node.isConnected) return;
+          if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+            translator.translate(node);
+          } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
+            translator.translate(node.parentElement);
+          }
+          tasksProcessed++;
+        } catch (e) {
+          debug('翻译节点时出错 (已忽略，不影响主循环):', e);
         }
-        tasksProcessed++;
       };
       if (!processSet(translationQueue, translationProcessor)) {
         requestAnimationFrame(processQueue);
@@ -2750,6 +2756,8 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         currentUrl = window.location.href;
         log('检测到页面导航，将重新翻译:', currentUrl);
         translator.resetState();
+        if (extendedContentObserver) extendedContentObserver.disconnect();
+        if (extendedAttributeObserver) extendedAttributeObserver.disconnect();
         setTimeout(() => {
           log('开始重新翻译新页面内容...');
           if (document.body) {
@@ -2902,8 +2910,8 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         }
         if (hasUpdates) scheduleProcessing();
       };
-      const extendedContentObserver = new MutationObserver(extendedMutationHandler);
-      const extendedAttributeObserver = new MutationObserver(extendedMutationHandler);
+      extendedContentObserver = new MutationObserver(extendedMutationHandler);
+      extendedAttributeObserver = new MutationObserver(extendedMutationHandler);
       log(`正在为 ${extendedElements.length} 个选择器初始化扩展元素监控。`);
       const processExtendedElements = (elements) => {
         if (elements.length === 0) return;

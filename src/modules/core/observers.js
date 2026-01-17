@@ -36,6 +36,10 @@ export function initializeObservers(translator, extendedElements = [], customAtt
     let isScheduled = false;
     const FRAME_BUDGET = 12; // 每帧最大执行时间 (ms)，留给浏览器渲染
 
+    // [Fix: Memory Leak] 提升变量作用域，以便在 pageObserver 中访问并清理
+    let extendedContentObserver = null;
+    let extendedAttributeObserver = null;
+
     /**
      * @function processQueue
      * @description 核心调度循环。使用时间切片处理队列中的任务。
@@ -67,14 +71,19 @@ export function initializeObservers(translator, extendedElements = [], customAtt
         };
 
         const translationProcessor = (node) => {
-            if (!node.isConnected) return;
+            try {
+                if (!node.isConnected) return;
 
-            if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
-                translator.translate(node);
-            } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
-                translator.translate(node.parentElement);
+                if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+                    translator.translate(node);
+                } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
+                    translator.translate(node.parentElement);
+                }
+                tasksProcessed++;
+            } catch (e) {
+                // 仅在调试模式下记录错误，防止控制台刷屏，同时确保循环不中断
+                debug('翻译节点时出错 (已忽略，不影响主循环):', e);
             }
-            tasksProcessed++;
         };
 
         if (!processSet(translationQueue, translationProcessor)) {
@@ -176,6 +185,11 @@ export function initializeObservers(translator, extendedElements = [], customAtt
             log('检测到页面导航，将重新翻译:', currentUrl);
             // 页面导航是重大变化，需要完全重置状态。
             translator.resetState();
+
+            // [Fix: Memory Leak] 断开旧页面元素的观察器，释放对 Detached DOM Nodes 的引用
+            if (extendedContentObserver) extendedContentObserver.disconnect();
+            if (extendedAttributeObserver) extendedAttributeObserver.disconnect();
+
             setTimeout(() => {
                 log('开始重新翻译新页面内容...');
                 if (document.body) {
@@ -399,8 +413,9 @@ export function initializeObservers(translator, extendedElements = [], customAtt
             if (hasUpdates) scheduleProcessing();
         };
 
-        const extendedContentObserver = new MutationObserver(extendedMutationHandler);
-        const extendedAttributeObserver = new MutationObserver(extendedMutationHandler);
+        // [Fix: Memory Leak] 使用外部定义的变量，而非在此处声明 const
+        extendedContentObserver = new MutationObserver(extendedMutationHandler);
+        extendedAttributeObserver = new MutationObserver(extendedMutationHandler);
 
         log(`正在为 ${extendedElements.length} 个选择器初始化扩展元素监控。`);
 
