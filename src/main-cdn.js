@@ -19,13 +19,21 @@
  */
 
 // 导入模块
-import { SUPPORTED_LANGUAGE_CODES, getUserLanguage } from './modules/utils/language.js';
+import { getUserLanguage } from './modules/utils/language.js';
 import { log } from './modules/utils/logger.js';
 import { initializeMenu } from './modules/ui/menu.js';
 import { injectAntiFlickerStyle, removeAntiFlickerStyle } from './modules/ui/anti-flicker.js';
 import { createTranslator } from './modules/core/translator.js';
 import { initializeObservers } from './modules/core/observers.js';
 import { initializeTranslation } from './modules/core/translationInitializer.js';
+
+// 导入 CDN 配置
+import {
+    CDN_TIMEOUT_MS,
+    CDN_MAX_RETRIES,
+    CDN_RETRY_DELAY_MS,
+    getCdnUrls
+} from './config/cdn.js';
 
 // 使用一个立即调用的异步函数表达式 (IIAFE) 来包裹整个逻辑，以支持顶层的 await。
 (async function () {
@@ -34,51 +42,85 @@ import { initializeTranslation } from './modules/core/translationInitializer.js'
     // 无论后续逻辑如何，首先初始化菜单，确保任何情况下菜单都可用。
     initializeMenu();
 
-    // 立即注入防闪烁样式。
+    // 获取当前网站和用户语言
+    const hostname = window.location.hostname;
+    const userLang = getUserLanguage();
+
+    // 检查当前语言是否支持该网站（使用 @require 预加载的列表）
+    // 如果 SUPPORTED_SITES 存在且当前网站不在列表中，则直接跳过
+    if (typeof SUPPORTED_SITES !== 'undefined') {
+        const supportedList = SUPPORTED_SITES[userLang] || [];
+        if (!supportedList.includes(hostname)) {
+            // 该语言不支持此网站，直接返回，不发起任何网络请求
+            return;
+        }
+    }
+
+    // 网站在支持列表中，注入防闪烁样式
     injectAntiFlickerStyle();
 
 
 
     /**
      * @function fetchWithFallbacks
-     * @description 依次尝试从多个 URL 获取内容，直到成功为止。这是一个提供网络冗余的关键函数。
+     * @description 依次尝试从多个 URL 获取内容，直到成功为止。
+     * 每个 URL 支持重试机制，以处理瞬时网络波动。
      * @param {string[]} urls - 一个包含多个URL的数组，按优先级排列。
      * @returns {Promise<{content: string|null, sourceUrl: string|null}>} 返回第一个成功获取到的内容和其来源URL；如果全部失败则返回 null。
      */
     async function fetchWithFallbacks(urls) {
         for (const url of urls) {
-            try {
-                const startTime = performance.now();
-                // 将基于回调的 GM_xmlhttpRequest 封装成一个 Promise，以便在 async/await 流程中使用。
-                const content = await new Promise((resolve, reject) => {
-                    GM_xmlhttpRequest({
-                        method: 'GET',
-                        url: url,
-                        onload: (response) => {
-                            const duration = performance.now() - startTime;
-                            if (response.status >= 200 && response.status < 300) {
-                                log(`从 ${url} 成功加载内容，状态码: ${response.status}，耗时: ${duration.toFixed(2)}ms`);
-                                resolve(response.responseText);
-                            } else {
-                                log(`从 ${url} 请求失败，状态码: ${response.status}，耗时: ${duration.toFixed(2)}ms`, 'error');
-                                reject(new Error(`请求失败，状态码: ${response.status}`));
-                            }
-                        },
-                        onerror: (error) => {
-                            const duration = performance.now() - startTime;
-                            log(`从 ${url} 网络请求出错: ${error.statusText}，耗时: ${duration.toFixed(2)}ms`, 'error');
-                            reject(new Error(`网络请求出错: ${error.statusText}`));
-                        },
-                        ontimeout: () => {
-                            const duration = performance.now() - startTime;
-                            log(`从 ${url} 请求超时，耗时: ${duration.toFixed(2)}ms`, 'error');
-                            reject(new Error('请求超时'));
-                        },
+            // 为每个 URL 执行重试逻辑
+            for (let attempt = 1; attempt <= CDN_MAX_RETRIES; attempt++) {
+                try {
+                    const startTime = performance.now();
+                    // 将基于回调的 GM_xmlhttpRequest 封装成一个 Promise
+                    const result = await new Promise((resolve, reject) => {
+                        GM_xmlhttpRequest({
+                            method: 'GET',
+                            url: url,
+                            timeout: CDN_TIMEOUT_MS,
+                            onload: (response) => {
+                                const duration = performance.now() - startTime;
+                                if (response.status >= 200 && response.status < 300) {
+                                    log(`从 ${url} 成功加载，耗时: ${duration.toFixed(0)}ms`);
+                                    resolve({ success: true, content: response.responseText });
+                                } else if (response.status === 404) {
+                                    // 404 表示文件不存在于仓库，完全停止尝试（换 CDN 也没用）
+                                    log(`文件不存在 (404)`, 'warn');
+                                    resolve({ success: false, notFound: true });
+                                } else {
+                                    // 其他 HTTP 错误，可以考虑重试
+                                    log(`${url} 返回 ${response.status}`, 'error');
+                                    reject(new Error(`HTTP_${response.status}`));
+                                }
+                            },
+                            onerror: (error) => {
+                                log(`${url} 网络错误: ${error.statusText}`, 'error');
+                                reject(new Error('NETWORK_ERROR'));
+                            },
+                            ontimeout: () => {
+                                log(`${url} 超时 (${CDN_TIMEOUT_MS}ms)`, 'error');
+                                reject(new Error('TIMEOUT'));
+                            },
+                        });
                     });
-                });
-                return { content, sourceUrl: url };
-            } catch (error) {
-                log(`从 ${url} 加载失败: ${error.message}`, 'error');
+
+                    // 处理结果
+                    if (result.success) {
+                        return { content: result.content, sourceUrl: url };
+                    }
+                    if (result.notFound) {
+                        // 文件不存在，直接返回，不再尝试其他 CDN
+                        return { content: null, sourceUrl: null };
+                    }
+                } catch (error) {
+                    // 只有网络错误和超时才重试
+                    log(`[${attempt}/${CDN_MAX_RETRIES}] ${url} 失败: ${error.message}`, 'error');
+                    if (attempt < CDN_MAX_RETRIES) {
+                        await new Promise(r => setTimeout(r, CDN_RETRY_DELAY_MS));
+                    }
+                }
             }
         }
         return { content: null, sourceUrl: null };
@@ -92,51 +134,48 @@ import { initializeTranslation } from './modules/core/translationInitializer.js'
      * @returns {Promise<object|null>} 返回翻译词典对象，如果失败则返回 null。
      */
     async function loadTranslationScript(hostname, userLang) {
-        const repoUser = 'qing90bing';
-        const repoName = 'qing_web-translate-script';
+        // 使用配置文件中的 getCdnUrls 函数生成 CDN URL 列表
+        const cdnUrls = getCdnUrls(userLang, hostname);
 
-        // 为了防止浏览器或 CDN 缓存旧版本的脚本，为 jsDelivr URL 添加一个基于时间的缓存破坏参数。
-        const cacheBuster = `?v=${new Date().getTime()}`;
-
-        // 定义主 CDN (raw.githubusercontent) 和备用 CDN (jsDelivr) 的 URL 列表。
-        const cdnUrls = [
-            `https://raw.githubusercontent.com/${repoUser}/${repoName}/main/src/translations/${userLang}/sites/${hostname}.js`,
-            `https://cdn.jsdelivr.net/gh/${repoUser}/${repoName}@latest/src/translations/${userLang}/sites/${hostname}.js${cacheBuster}`
-        ];
-
-        log(`正在尝试从 CDN 加载翻译文件: ${hostname}.js for ${userLang}...`);
+        log(`正在从 CDN 加载: ${hostname}.js (${userLang})`);
         const result = await fetchWithFallbacks(cdnUrls);
 
         if (!result.content) {
-            log(`无法从所有 CDN 源获取翻译文件: ${hostname}.js`, 'error');
+            // 无需打印错误，fetchWithFallbacks 已经处理了日志
             return null;
         }
 
-        log(`成功从 ${result.sourceUrl} 获取到翻译文件内容`);
+        // 内容验证：检查是否为有效的 JS 模块（应包含 export）
+        const trimmedContent = result.content.trim();
+        if (!trimmedContent.includes('export')) {
+            log(`CDN 返回的内容不是有效的 JS 模块: ${hostname}.js`, 'error');
+            return null;
+        }
 
         let blobUrl = '';
         try {
-            // **安全执行远程代码的关键步骤**:
-            // 为了绕过严格的 CSP (特别是 Trusted Types)，我们将获取到的脚本文本包装成一个 Blob 对象，
-            // 然后为其创建一个临时的、唯一的 Blob URL。
             const blob = new Blob([result.content], { type: 'text/javascript' });
             blobUrl = URL.createObjectURL(blob);
 
-            // 使用动态 import() 来加载这个 Blob URL。这被现代浏览器认为是安全的模块加载方式。
             const module = await import(blobUrl);
-            const dictionary = Object.values(module)[0]; // 假设模块总是默认导出一个对象。
+
+            // 成功加载后立即释放 Blob URL
+            URL.revokeObjectURL(blobUrl);
+            blobUrl = ''; // 标记已释放
+
+            const dictionary = Object.values(module)[0];
 
             if (dictionary && typeof dictionary === 'object') {
-                log(`成功从 CDN 加载并解析翻译: ${hostname}.js`, 'success');
+                log(`成功加载翻译: ${hostname}.js`, 'success');
                 return dictionary;
             }
-            log(`从 CDN 加载的脚本没有有效的导出对象: ${hostname}.js`, 'error');
+            log(`翻译文件格式无效: ${hostname}.js`, 'error');
             return null;
         } catch (e) {
-            log(`执行从 CDN 加载的翻译脚本时出错: ${e.message}`, 'error');
+            log(`解析翻译脚本出错: ${e.message}`, 'error');
             return null;
         } finally {
-            // 释放已创建的 Blob URL 以避免内存泄漏。
+            // 仅在异常情况下释放（正常情况已在上面释放）
             if (blobUrl) {
                 URL.revokeObjectURL(blobUrl);
             }
@@ -144,8 +183,6 @@ import { initializeTranslation } from './modules/core/translationInitializer.js'
     }
 
     // --- 主逻辑 ---
-    const hostname = window.location.hostname;
-    const userLang = getUserLanguage();
 
     let siteDictionary = null;
 

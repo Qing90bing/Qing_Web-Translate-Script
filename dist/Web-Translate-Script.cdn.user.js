@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.131-2026-1-17-cdn
+// @version      1.0.135-2026-1-17-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -21,6 +21,7 @@
 // @grant        GM_registerMenuCommand
 // @grant        GM_xmlhttpRequest
 // @grant        GM_notification
+// @require      https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/src/config/supported-sites.js
 // @updateURL    https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.cdn.user.js
 // @downloadURL  https://raw.githubusercontent.com/Qing90bing/Qing_Web-Translate-Script/main/dist/Web-Translate-Script.cdn.user.js
 // @supportURL   https://github.com/Qing90bing/Qing_Web-Translate-Script/issues
@@ -210,6 +211,7 @@ const EMBEDDED_TRANSLATIONS = {
         [' Signing in to GitHub gives you organized code storage, seamless collaboration with peers, and a powerful way to track every change. ', '登录 GitHub 可以为您提供组织化的代码存储、与同行无缝合作的功能，以及跟踪每个更改的强大方式'],
         ['This model has limited free quota for testing. To generate images beyond the limit or use the model in your projects, use the Gemini API.', '该模型的免费测试配额有限,要生成超出限制的图像或在项目中使用该模型，请使用 Gemini API'],
         ['Discover how to take your first steps with the Gemini JS SDK in an interactive way. No need to create an API key or set up your environment.', ' 通过交互式教程，轻松入门 Gemini JS SDK。无需创建 API 密钥，也无需配置开发环境。'],
+        [' in index.html instead of a package.json file to manage code packages. We automatically find and serve these packages for you using ', '在 index.html 而不是 package.json 文件中来管理代码包。我们自动查找并为您提供这些包裹在'],
         ['Add video generation to your creative app. Let users turn their blog posts, scripts, or product descriptions into short video clips.', '为您的创意应用添加视频生成功能。让用户将他们的博客文章、脚本或产品描述转换为短视频剪辑'],
         [' A collection of our favorite examples from incredible 3D games, multimodal apps, landing pages, and more for you to remix. ', '一个包含我们从精彩的 3D 游戏、多模态应用、落地页等中收藏的示例，您可以修改来创建自己的应用'],
         ["Add powerful photo editing to your app. Allow users to add objects, remove backgrounds, or change a photo's style just by typing.", '为您的应用添加强大的照片编辑功能。允许用户通过输入添加对象、移除背景或改变照片的风格'],
@@ -610,6 +612,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Gemini 1.5 Pro and Flash Throttling Incident', 'Gemini 1.5 Pro 和 Flash 限流事件'],
         ['Gemini 2.5 Pro is unavailable for some users.', '部分用户无法使用 Gemini 2.5 Pro'],
         ['Project name must be at least 4 characters long. ', '项目名称必须至少 4 个字符长'],
+        ['\nmay make mistakes, so double-check outputs.\n', '可能会出错，所以请仔细检查输出'],
         ['Control real time music with a MIDI controller.', '使用 MIDI 控制器控制实时音乐'],
         ['Example of live agent with AI Action Engine', '使用 AI 行动引擎的实时智能体示例'],
         ['Is my API key exposed when sharing apps?', '共享应用时，我的 API 密钥会暴露吗？'],
@@ -1137,12 +1140,14 @@ const EMBEDDED_TRANSLATIONS = {
         ['Output token cost:', '输出 Token 成本'],
         ['Request Count per Day', '每天请求计数'],
         ['Requests per minute', '每分钟请求次数'],
+        ['See more actions for ', '查看更多操作'],
         ['Select device preview', '选择设备预览'],
         ['Show file tree view', '显示文件树视图'],
         ['Target context size', '目标上下文大小'],
         ['Total API Requests', '总 API 请求次数'],
         ['Use Google Search', '使用 Google 搜索'],
         [' Create a new project ', '创建新项目'],
+        [' Google AI models\n', 'Google AI 模型'],
         [' Internet favorites ', '全网人气精选'],
         [' Monitor API usage ', '监控 API 使用'],
         [' Supported values for ', ' 支持的值 '],
@@ -1351,7 +1356,6 @@ const EMBEDDED_TRANSLATIONS = {
         [' Create dataset ', '创建数据集'],
         [' Generate media ', '生成式媒体'],
         [' No prompts yet ', '暂无提示词'],
-        [' No prompts yet ', '暂无提示词'],
         [' Rename project ', '重命名项目'],
         ['400 BadRequest', '400 错误请求'],
         ['Add stop token', '添加停止标记'],
@@ -1434,6 +1438,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['deselect all', '取消选择所有'],
         ['Developer docs', '开发者文档'],
         ['Download the app', '下载应用'],
+        ['Editor content', '编辑器内容'],
         ['Function calling', '函数调用'],
         ['Function Calling', '函数调用'],
         ['Generate content', '生成内容'],
@@ -1654,6 +1659,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Veo prompt', 'Veo 提示词'],
         ['View billing', '查看账单'],
         [' Copy name ', '复制名称'],
+        [' Copy path ', '复制路径'],
         [' documentation ', '文档'],
         [' Let it snow ', '下雪吧'],
         [' Re-record ', '重新录制'],
@@ -1973,6 +1979,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Key', '密钥'],
         ['Off', '关闭'],
         ['Run', '运行'],
+        [' The ', ' '],
         ['Good', '好'],
         ['High', '高'],
         ['OK', '确定'],
@@ -2922,74 +2929,116 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     }
   }
 
+  // src/config/cdn.js
+  var CDN_TIMEOUT_MS = 5e3;
+  var CDN_MAX_RETRIES = 2;
+  var CDN_RETRY_DELAY_MS = 500;
+  var CDN_CACHE_DURATION_MS = 1e3 * 60 * 60;
+  var REPO_USER = 'qing90bing';
+  var REPO_NAME = 'qing_web-translate-script';
+  var REPO_BRANCH = 'main';
+  function getCdnUrls(userLang, hostname) {
+    const cacheVersion = Math.floor(Date.now() / CDN_CACHE_DURATION_MS);
+    const cacheBuster = `?v=${cacheVersion}`;
+    const filePath = `src/translations/${userLang}/sites/${hostname}.js`;
+    return [
+      // 主源：jsDelivr - 全球 CDN 加速，响应速度快
+      `https://cdn.jsdelivr.net/gh/${REPO_USER}/${REPO_NAME}@latest/${filePath}${cacheBuster}`,
+      // 备用源：GitHub Raw - 直接从源获取，无 CDN 缓存延迟
+      `https://raw.githubusercontent.com/${REPO_USER}/${REPO_NAME}/${REPO_BRANCH}/${filePath}${cacheBuster}`,
+    ];
+  }
+
   // src/main-cdn.js
   (async function () {
     'use strict';
     initializeMenu();
+    const hostname = window.location.hostname;
+    const userLang = getUserLanguage();
+    if (typeof SUPPORTED_SITES !== 'undefined') {
+      const supportedList = SUPPORTED_SITES[userLang] || [];
+      if (!supportedList.includes(hostname)) {
+        return;
+      }
+    }
     injectAntiFlickerStyle();
     async function fetchWithFallbacks(urls) {
       for (const url of urls) {
-        try {
-          const startTime = performance.now();
-          const content = await new Promise((resolve, reject) => {
-            GM_xmlhttpRequest({
-              method: 'GET',
-              url,
-              onload: (response) => {
-                const duration = performance.now() - startTime;
-                if (response.status >= 200 && response.status < 300) {
-                  log(`从 ${url} 成功加载内容，状态码: ${response.status}，耗时: ${duration.toFixed(2)}ms`);
-                  resolve(response.responseText);
-                } else {
-                  log(`从 ${url} 请求失败，状态码: ${response.status}，耗时: ${duration.toFixed(2)}ms`, 'error');
-                  reject(new Error(`请求失败，状态码: ${response.status}`));
-                }
-              },
-              onerror: (error) => {
-                const duration = performance.now() - startTime;
-                log(`从 ${url} 网络请求出错: ${error.statusText}，耗时: ${duration.toFixed(2)}ms`, 'error');
-                reject(new Error(`网络请求出错: ${error.statusText}`));
-              },
-              ontimeout: () => {
-                const duration = performance.now() - startTime;
-                log(`从 ${url} 请求超时，耗时: ${duration.toFixed(2)}ms`, 'error');
-                reject(new Error('请求超时'));
-              },
+        for (let attempt = 1; attempt <= CDN_MAX_RETRIES; attempt++) {
+          try {
+            const startTime = performance.now();
+            const result = await new Promise((resolve, reject) => {
+              GM_xmlhttpRequest({
+                method: 'GET',
+                url,
+                timeout: CDN_TIMEOUT_MS,
+                onload: (response) => {
+                  const duration = performance.now() - startTime;
+                  if (response.status >= 200 && response.status < 300) {
+                    log(`从 ${url} 成功加载，耗时: ${duration.toFixed(0)}ms`);
+                    resolve({ success: true, content: response.responseText });
+                  } else if (response.status === 404) {
+                    log(`文件不存在 (404)`, 'warn');
+                    resolve({ success: false, notFound: true });
+                  } else {
+                    log(`${url} 返回 ${response.status}`, 'error');
+                    reject(new Error(`HTTP_${response.status}`));
+                  }
+                },
+                onerror: (error) => {
+                  log(`${url} 网络错误: ${error.statusText}`, 'error');
+                  reject(new Error('NETWORK_ERROR'));
+                },
+                ontimeout: () => {
+                  log(`${url} 超时 (${CDN_TIMEOUT_MS}ms)`, 'error');
+                  reject(new Error('TIMEOUT'));
+                },
+              });
             });
-          });
-          return { content, sourceUrl: url };
-        } catch (error) {
-          log(`从 ${url} 加载失败: ${error.message}`, 'error');
+            if (result.success) {
+              return { content: result.content, sourceUrl: url };
+            }
+            if (result.notFound) {
+              return { content: null, sourceUrl: null };
+            }
+          } catch (error) {
+            log(`[${attempt}/${CDN_MAX_RETRIES}] ${url} 失败: ${error.message}`, 'error');
+            if (attempt < CDN_MAX_RETRIES) {
+              await new Promise((r) => setTimeout(r, CDN_RETRY_DELAY_MS));
+            }
+          }
         }
       }
       return { content: null, sourceUrl: null };
     }
     async function loadTranslationScript(hostname2, userLang2) {
-      const repoUser = 'qing90bing';
-      const repoName = 'qing_web-translate-script';
-      const cacheBuster = `?v=${/* @__PURE__ */ new Date().getTime()}`;
-      const cdnUrls = [`https://raw.githubusercontent.com/${repoUser}/${repoName}/main/src/translations/${userLang2}/sites/${hostname2}.js`, `https://cdn.jsdelivr.net/gh/${repoUser}/${repoName}@latest/src/translations/${userLang2}/sites/${hostname2}.js${cacheBuster}`];
-      log(`正在尝试从 CDN 加载翻译文件: ${hostname2}.js for ${userLang2}...`);
+      const cdnUrls = getCdnUrls(userLang2, hostname2);
+      log(`正在从 CDN 加载: ${hostname2}.js (${userLang2})`);
       const result = await fetchWithFallbacks(cdnUrls);
       if (!result.content) {
-        log(`无法从所有 CDN 源获取翻译文件: ${hostname2}.js`, 'error');
         return null;
       }
-      log(`成功从 ${result.sourceUrl} 获取到翻译文件内容`);
+      const trimmedContent = result.content.trim();
+      if (!trimmedContent.includes('export')) {
+        log(`CDN 返回的内容不是有效的 JS 模块: ${hostname2}.js`, 'error');
+        return null;
+      }
       let blobUrl = '';
       try {
         const blob = new Blob([result.content], { type: 'text/javascript' });
         blobUrl = URL.createObjectURL(blob);
         const module = await import(blobUrl);
+        URL.revokeObjectURL(blobUrl);
+        blobUrl = '';
         const dictionary = Object.values(module)[0];
         if (dictionary && typeof dictionary === 'object') {
-          log(`成功从 CDN 加载并解析翻译: ${hostname2}.js`, 'success');
+          log(`成功加载翻译: ${hostname2}.js`, 'success');
           return dictionary;
         }
-        log(`从 CDN 加载的脚本没有有效的导出对象: ${hostname2}.js`, 'error');
+        log(`翻译文件格式无效: ${hostname2}.js`, 'error');
         return null;
       } catch (e) {
-        log(`执行从 CDN 加载的翻译脚本时出错: ${e.message}`, 'error');
+        log(`解析翻译脚本出错: ${e.message}`, 'error');
         return null;
       } finally {
         if (blobUrl) {
@@ -2997,8 +3046,6 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         }
       }
     }
-    const hostname = window.location.hostname;
-    const userLang = getUserLanguage();
     let siteDictionary = null;
     if (typeof EMBEDDED_TRANSLATIONS !== 'undefined' && typeof EMBEDDED_SITES !== 'undefined') {
       if (EMBEDDED_TRANSLATIONS[userLang]?.[hostname]) {
