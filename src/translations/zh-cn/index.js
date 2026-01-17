@@ -15,6 +15,7 @@ import { opalGoogleZhCn } from './sites/opal.google.js';
 import { wwwCurseforgeComZhCn } from './sites/www.curseforge.com.js';
 import { ssoCurseforgeComZhCn } from './sites/sso.curseforge.com.js';
 import { claudeComZhCn } from './sites/claude.com.js';
+import { githubComZhCn } from './sites/github.com.js';
 
 export const zhCnTranslations = {
     "jules.google.com#zh-cn": julesGoogleComZhCn,
@@ -34,4 +35,5 @@ export const zhCnTranslations = {
     "www.curseforge.com#zh-cn": wwwCurseforgeComZhCn,
     "sso.curseforge.com#zh-cn": ssoCurseforgeComZhCn,
     "claude.com#zh-cn": claudeComZhCn,
+    "github.com#zh-cn": githubComZhCn,
 };

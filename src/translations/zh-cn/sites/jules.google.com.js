@@ -609,6 +609,7 @@ export const julesGoogleComZhCn = {
     ["Publish PR", "发布合并请求"],
     ["Recent tasks", "最近的任务"],
     ["Recent updates", "最近更新"],
+    ["Recent Updates", "最近更新"],
     ["Tabbed files", "标签页视图"],
     ["Task deleted", "任务已删除"],
     ["Verify Changes", "验证更改"],
