@@ -7,6 +7,7 @@
 
 import readline from 'readline';
 import { color } from './colors.js';
+import { BUILD_UI_CONFIG } from '../config/ui.js';
 
 export class ProgressBar {
     /**
@@ -26,7 +27,7 @@ export class ProgressBar {
      */
     constructor(options = {}) {
         this.total = options.total || 100;
-        this.width = options.width || 30;
+        this.width = options.width || BUILD_UI_CONFIG.progressBar.width;
         this.completeChar = options.completeChar || '█';
         this.incompleteChar = options.incompleteChar || '░';
         this.format = options.format || '{bar} ' + color.green('{percentage}%') + ' | {value}/{total} | {text}';
@@ -112,7 +113,7 @@ export class ProgressBar {
 
         // 防止过于频繁的渲染导致性能问题 (限制为 ~60fps)
         const now = Date.now();
-        if (now - this.lastDrawTime < 16 && this.current < this.total) return;
+        if (now - this.lastDrawTime < BUILD_UI_CONFIG.progressBar.renderThrottle && this.current < this.total) return;
         this.lastDrawTime = now;
 
         const ratio = Math.min(Math.max(this.current / this.total, 0), 1);
@@ -177,7 +178,7 @@ export class ProgressBar {
         return new ProgressBar({
             // 统一使用绿色百分比和 30 宽度的条
             format: options.format || '{bar} ' + color.green('{percentage}%') + ' | {value}/{total} | {text}',
-            width: options.width || 30,
+            width: options.width || BUILD_UI_CONFIG.progressBar.width,
             ...options
         });
     }

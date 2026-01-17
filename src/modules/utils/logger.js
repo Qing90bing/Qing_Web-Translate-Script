@@ -15,8 +15,11 @@
  * 3. 项目中的其他所有模块都从本文件导入日志函数，并使用它们来记录信息。这些函数内部会自动根据 `isDebugMode` 的值来决定是否输出。
  */
 
+import { UI_CONFIG } from '../../config/ui.js';
+import { STORAGE_KEYS } from '../../config/storage.js';
+
 // 用于在油猴脚本存储中持久化日志开关状态的键。
-export const LOG_KEY = 'web_translate_debug_mode';
+export const LOG_KEY = STORAGE_KEYS.LOG_KEY;
 
 // 模块加载时，立即从存储中读取当前的日志模式，默认为 false (关闭)。
 export let isDebugMode = GM_getValue(LOG_KEY, false);
@@ -40,7 +43,7 @@ export function updateDebugState(newMode) {
 export function log(...args) {
     if (isDebugMode) {
         // 使用一个统一的前缀，方便用户在控制台根据 "[汉化脚本]" 过滤信息。
-        console.log('[汉化脚本]', ...args);
+        console.log(UI_CONFIG.LOG_PREFIX, ...args);
     }
 }
 
@@ -51,7 +54,7 @@ export function log(...args) {
  */
 export function debug(...args) {
     if (isDebugMode) {
-        console.debug('[汉化脚本-DEBUG]', ...args);
+        console.debug(UI_CONFIG.LOG_PREFIX, '[DEBUG]', ...args);
     }
 }
 
@@ -62,7 +65,7 @@ export function debug(...args) {
  */
 export function error(...args) {
     if (isDebugMode) {
-        console.error('[汉化脚本-ERROR]', ...args);
+        console.error(UI_CONFIG.LOG_PREFIX, '[ERROR]', ...args);
     }
 }
 
@@ -73,7 +76,7 @@ export function error(...args) {
  */
 export function warn(...args) {
     if (isDebugMode) {
-        console.warn('[汉化脚本-WARN]', ...args);
+        console.warn(UI_CONFIG.LOG_PREFIX, '[WARN]', ...args);
     }
 }
 
@@ -88,7 +91,7 @@ export function perf(operation, duration, ...args) {
     if (isDebugMode) {
         // 为了避免控制台被大量琐碎的性能信息淹没，只记录耗时超过 5 毫秒的操作。
         if (duration > 5) {
-            console.log(`[汉化脚本-PERF] ${operation} 耗时: ${duration.toFixed(2)}ms`, ...args);
+            console.log(UI_CONFIG.LOG_PREFIX, `[PERF] ${operation} 耗时: ${duration.toFixed(2)}ms`, ...args);
         }
     }
 }
@@ -106,7 +109,7 @@ export function translateLog(type, original, translated, element = null) {
         // 只记录实际发生了内容变化的翻译。
         if (original !== translated) {
             const elementInfo = element ? ` 元素: ${element.tagName.toLowerCase()}${element.id ? '#' + element.id : ''}${element.className ? '.' + element.className.replace(/\s+/g, '.') : ''}` : '';
-            console.log(`[汉化脚本-TRANSLATE] ${type}:${elementInfo}\n  原文: "${original}"\n  译文: "${translated}"`);
+            console.log(UI_CONFIG.LOG_PREFIX, `[TRANSLATE] ${type}:${elementInfo}\n  原文: "${original}"\n  译文: "${translated}"`);
         }
     }
 }

@@ -18,6 +18,7 @@
  */
 
 import { ALL_UNTRANSLATABLE_TAGS, BLOCKS_ALL_TRANSLATION, BLOCKS_CONTENT_ONLY, attributesToTranslate, BLOCKED_CSS_CLASSES } from '../../config/index.js';
+import { PERFORMANCE_CONFIG } from '../../config/optimization.js';
 import { log, debug, translateLog, perf } from '../utils/logger.js';
 
 /**
@@ -226,7 +227,7 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
 
         // 内存保护：简单粗暴但有效的 LRU 近似策略
         // 如果缓存过大，直接清空，防止特定页面（如无限滚动流）导致内存泄漏。
-        if (translationCache.size > 5000) {
+        if (translationCache.size > PERFORMANCE_CONFIG.MAX_CACHE_SIZE) {
             translationCache.clear();
         }
 

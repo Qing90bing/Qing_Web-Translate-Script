@@ -15,8 +15,11 @@
  * 这种策略确保了用户看到的始终是翻译完成后的最终内容，从而消除了闪烁现象。
  */
 
+import { UI_CONFIG } from '../../config/ui.js';
+import { PERFORMANCE_CONFIG } from '../../config/optimization.js';
+
 // 用于标识防闪烁样式标签的唯一 ID，方便后续移除。
-const STYLE_ID = 'anti-flicker-style';
+const STYLE_ID = UI_CONFIG.antiFlicker.STYLE_ID;
 
 /**
  * @function injectAntiFlickerStyle
@@ -35,7 +38,7 @@ export function injectAntiFlickerStyle() {
         return;
     }
 
-    document.documentElement.classList.add('translation-in-progress');
+    document.documentElement.classList.add(UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS);
 
     const antiFlickerStyle = document.createElement('style');
     antiFlickerStyle.id = STYLE_ID;
@@ -44,7 +47,7 @@ export function injectAntiFlickerStyle() {
     // 1. 隐藏 body (translation-in-progress)
     // 2. 显示 body (translation-complete) 并使用过渡效果
     // 3. 保持加载动画可见 (spinner/loader/loading)
-    const styleContent = 'html.translation-in-progress body{visibility:hidden!important;opacity:0!important}html.translation-complete body{visibility:visible!important;opacity:1!important;transition:opacity .1s ease-in!important}html.translation-in-progress [class*="load"],html.translation-in-progress [class*="spin"],html.translation-in-progress [id*="load"],html.translation-in-progress [id*="spin"],html.translation-in-progress .loader,html.translation-in-progress .spinner,html.translation-in-progress .loading{visibility:visible!important;opacity:1!important}';
+    const styleContent = `html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} body{visibility:hidden!important;opacity:0!important}html.${UI_CONFIG.antiFlicker.CLASS_COMPLETE} body{visibility:visible!important;opacity:1!important;transition:opacity .1s ease-in!important}html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} [class*="load"],html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} [class*="spin"],html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} [id*="load"],html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} [id*="spin"],html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} .loader,html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} .spinner,html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} .loading{visibility:visible!important;opacity:1!important}`;
 
     // 使用 `appendChild(document.createTextNode(...))` 的方式来设置样式内容，
     // 这是一种更安全、更能兼容严格内容安全策略 (CSP) 和 Trusted Types 的方法。
@@ -69,8 +72,8 @@ export function removeAntiFlickerStyle() {
     }
 
     // 切换 <html> 上的类名，这将触发 CSS 过渡效果，使页面平滑淡入。
-    document.documentElement.classList.remove('translation-in-progress');
-    document.documentElement.classList.add('translation-complete');
+    document.documentElement.classList.remove(UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS);
+    document.documentElement.classList.add(UI_CONFIG.antiFlicker.CLASS_COMPLETE);
 
     // 在过渡效果（0.1秒）结束后，从 DOM 中移除我们注入的 <style> 标签。
     // 这样做是为了保持 DOM 的干净，避免无用的样式规则残留。
@@ -79,5 +82,5 @@ export function removeAntiFlickerStyle() {
         if (styleElement && styleElement.parentNode) {
             styleElement.parentNode.removeChild(styleElement);
         }
-    }, 100);
+    }, PERFORMANCE_CONFIG.FADE_IN_DURATION);
 }

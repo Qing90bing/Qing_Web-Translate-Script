@@ -18,12 +18,14 @@
 
 import { isDebugMode, updateDebugState, LOG_KEY } from '../utils/logger.js';
 import { SUPPORTED_LANGUAGES } from '../../config/languages.js';
+import { STORAGE_KEYS } from '../../config/storage.js';
+import { UI_CONFIG } from '../../config/ui.js';
 
 // --- 常量定义 ---
 // 用于切换调试日志命令的唯一 ID，虽然在此脚本中不是必需的，但保留作为良好实践。
-const MENU_COMMAND_ID = 'toggle_debug_log_command';
+const MENU_COMMAND_ID = UI_CONFIG.MENU_COMMAND_ID;
 // 用于在脚本存储中持久化语言覆盖设置的键名。
-const OVERRIDE_LANG_KEY = 'web-translate-language-override';
+const OVERRIDE_LANG_KEY = STORAGE_KEYS.OVERRIDE_LANG_KEY;
 
 // --- 私有函数 ---
 
@@ -80,9 +82,9 @@ function registerMenuCommands() {
     // 2. 仅在调试模式下，才注册语言切换相关的菜单
     if (isDebugMode) {
         const currentOverride = GM_getValue(OVERRIDE_LANG_KEY, '');
-        
+
         // 添加一个分隔符式的标题，以组织菜单结构。
-        GM_registerMenuCommand('--- 语言调试菜单 ---', () => {});
+        GM_registerMenuCommand('--- 语言调试菜单 ---', () => { });
 
         // 遍历所有支持的语言，为每一种语言创建一个菜单项。
         SUPPORTED_LANGUAGES.forEach(lang => {

@@ -914,6 +914,7 @@ export const aistudioGoogleComZhCn = {
     ["Reason over complex problems", "对复杂问题进行推理"],
     ["Run code changes automatically", "自动运行代码变更"],
     ["See changes in version history", "查看版本历史记录"],
+    ["Speaker 1: Hello, world!", "发言人 1: 你好，世界！"],
     ["Total API Errors per hour", "每小时总 API 错误次数"],
     [" Explore Nano Banana Pro ", "探索 Nano Banana Pro"],
     [" Write my own instructions ", " 编写我个人的说明 "],

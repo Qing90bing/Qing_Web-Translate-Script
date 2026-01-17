@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.142-2026-1-17-offline
+// @version      1.0.145-2026-1-17-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -1624,6 +1624,7 @@
       ['Reason over complex problems', '对复杂问题进行推理'],
       ['Run code changes automatically', '自动运行代码变更'],
       ['See changes in version history', '查看版本历史记录'],
+      ['Speaker 1: Hello, world!', '发言人 1: 你好，世界！'],
       ['Total API Errors per hour', '每小时总 API 错误次数'],
       [' Explore Nano Banana Pro ', '探索 Nano Banana Pro'],
       [' Write my own instructions ', ' 编写我个人的说明 '],
@@ -15399,33 +15400,38 @@
     }
     return SUPPORTED_LANGUAGE_CODES[0] || 'zh-cn';
   }
-  var LOG_KEY = 'web_translate_debug_mode';
+  var UI_CONFIG = { LOG_PREFIX: '[WEB 汉化脚本]', MENU_COMMAND_ID: 'toggle_debug_log_command', antiFlicker: { STYLE_ID: 'anti-flicker-style', CLASS_IN_PROGRESS: 'translation-in-progress', CLASS_COMPLETE: 'translation-complete' } };
+  var STORAGE_KEYS = { LOG_KEY: 'web_translate_debug_mode', OVERRIDE_LANG_KEY: 'web-translate-language-override' };
+  var LOG_KEY = STORAGE_KEYS.LOG_KEY;
   var isDebugMode = GM_getValue(LOG_KEY, false);
   function updateDebugState(newMode) {
     isDebugMode = newMode;
   }
   function log(...args) {
     if (isDebugMode) {
-      console.log('[汉化脚本]', ...args);
+      console.log(UI_CONFIG.LOG_PREFIX, ...args);
     }
   }
   function debug(...args) {
     if (isDebugMode) {
-      console.debug('[汉化脚本-DEBUG]', ...args);
+      console.debug(UI_CONFIG.LOG_PREFIX, '[DEBUG]', ...args);
     }
   }
   function translateLog(type, original, translated, element = null) {
     if (isDebugMode) {
       if (original !== translated) {
         const elementInfo = element ? ` 元素: ${element.tagName.toLowerCase()}${element.id ? '#' + element.id : ''}${element.className ? '.' + element.className.replace(/\s+/g, '.') : ''}` : '';
-        console.log(`[汉化脚本-TRANSLATE] ${type}:${elementInfo}
+        console.log(
+          UI_CONFIG.LOG_PREFIX,
+          `[TRANSLATE] ${type}:${elementInfo}
   原文: "${original}"
-  译文: "${translated}"`);
+  译文: "${translated}"`,
+        );
       }
     }
   }
-  var MENU_COMMAND_ID = 'toggle_debug_log_command';
-  var OVERRIDE_LANG_KEY = 'web-translate-language-override';
+  var MENU_COMMAND_ID = UI_CONFIG.MENU_COMMAND_ID;
+  var OVERRIDE_LANG_KEY = STORAGE_KEYS.OVERRIDE_LANG_KEY;
   function setOverrideLanguage(langCode) {
     GM_setValue(OVERRIDE_LANG_KEY, langCode);
     location.reload();
@@ -15457,7 +15463,8 @@
   function initializeMenu() {
     registerMenuCommands();
   }
-  var STYLE_ID = 'anti-flicker-style';
+  var PERFORMANCE_CONFIG = { FRAME_BUDGET: 12, PAGE_LOAD_DELAY: 300, MAX_CACHE_SIZE: 5e3, RETRY_DELAY: 500, FADE_IN_DURATION: 100, HOVER_CHECK_DELAY: 50, PSEUDO_ANIM_DURATION: 0.001, PERF_LOG_THRESHOLD: 5 };
+  var STYLE_ID = UI_CONFIG.antiFlicker.STYLE_ID;
   function injectAntiFlickerStyle() {
     if (!document.documentElement) {
       return;
@@ -15465,10 +15472,10 @@
     if (document.getElementById(STYLE_ID)) {
       return;
     }
-    document.documentElement.classList.add('translation-in-progress');
+    document.documentElement.classList.add(UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS);
     const antiFlickerStyle = document.createElement('style');
     antiFlickerStyle.id = STYLE_ID;
-    const styleContent = 'html.translation-in-progress body{visibility:hidden!important;opacity:0!important}html.translation-complete body{visibility:visible!important;opacity:1!important;transition:opacity .1s ease-in!important}html.translation-in-progress [class*="load"],html.translation-in-progress [class*="spin"],html.translation-in-progress [id*="load"],html.translation-in-progress [id*="spin"],html.translation-in-progress .loader,html.translation-in-progress .spinner,html.translation-in-progress .loading{visibility:visible!important;opacity:1!important}';
+    const styleContent = `html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} body{visibility:hidden!important;opacity:0!important}html.${UI_CONFIG.antiFlicker.CLASS_COMPLETE} body{visibility:visible!important;opacity:1!important;transition:opacity .1s ease-in!important}html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} [class*="load"],html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} [class*="spin"],html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} [id*="load"],html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} [id*="spin"],html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} .loader,html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} .spinner,html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} .loading{visibility:visible!important;opacity:1!important}`;
     antiFlickerStyle.appendChild(document.createTextNode(styleContent));
     const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
     head.insertBefore(antiFlickerStyle, head.firstChild);
@@ -15477,14 +15484,14 @@
     if (!document.documentElement) {
       return;
     }
-    document.documentElement.classList.remove('translation-in-progress');
-    document.documentElement.classList.add('translation-complete');
+    document.documentElement.classList.remove(UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS);
+    document.documentElement.classList.add(UI_CONFIG.antiFlicker.CLASS_COMPLETE);
     setTimeout(() => {
       const styleElement = document.getElementById(STYLE_ID);
       if (styleElement && styleElement.parentNode) {
         styleElement.parentNode.removeChild(styleElement);
       }
-    }, 100);
+    }, PERFORMANCE_CONFIG.FADE_IN_DURATION);
   }
   var BLOCKS_ALL_TRANSLATION = new Set(['script', 'style', 'pre', 'code', 'svg']);
   var BLOCKS_CONTENT_ONLY = new Set([]);
@@ -15577,7 +15584,7 @@
       if (translationCache.has(originalText)) {
         return translationCache.get(originalText);
       }
-      if (translationCache.size > 5e3) {
+      if (translationCache.size > PERFORMANCE_CONFIG.MAX_CACHE_SIZE) {
         translationCache.clear();
       }
       const trimmedText = text.trim();
@@ -16073,7 +16080,7 @@
         }
       }
     }
-    const universalPseudoCss = ['[data-wts-before]::before { content: attr(data-wts-before) !important; }', '[data-wts-after]::after { content: attr(data-wts-after) !important; }', '@keyframes wts-pseudo-start { from { opacity: 0.99; } to { opacity: 1; } }', '*::before, *::after { animation-duration: 0.001s; animation-name: wts-pseudo-start; }'];
+    const universalPseudoCss = ['[data-wts-before]::before { content: attr(data-wts-before) !important; }', '[data-wts-after]::after { content: attr(data-wts-after) !important; }', '@keyframes wts-pseudo-start { from { opacity: 0.99; } to { opacity: 1; } }', `*::before, *::after { animation-duration: ${PERFORMANCE_CONFIG.PSEUDO_ANIM_DURATION}s; animation-name: wts-pseudo-start; }`];
     const allCssRules = [...cssRules, ...universalPseudoCss];
     if (allCssRules.length > 0) {
       const customStyleElement = document.createElement('style');
@@ -16126,7 +16133,7 @@
               parent = parent.parentElement;
               depth++;
             }
-          }, 50);
+          }, PERFORMANCE_CONFIG.HOVER_CHECK_DELAY);
         }
       },
       { passive: true },

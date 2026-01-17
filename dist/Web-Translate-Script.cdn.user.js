@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.135-2026-1-17-cdn
+// @version      1.0.140-2026-1-17-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -892,6 +892,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Reason over complex problems', '对复杂问题进行推理'],
         ['Run code changes automatically', '自动运行代码变更'],
         ['See changes in version history', '查看版本历史记录'],
+        ['Speaker 1: Hello, world!', '发言人 1: 你好，世界！'],
         ['Total API Errors per hour', '每小时总 API 错误次数'],
         [' Explore Nano Banana Pro ', '探索 Nano Banana Pro'],
         [' Write my own instructions ', ' 编写我个人的说明 '],
@@ -2123,36 +2124,83 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     return SUPPORTED_LANGUAGE_CODES[0] || 'zh-cn';
   }
 
+  // src/config/ui.js
+  var UI_CONFIG = {
+    /**
+     * @property {string} LOG_PREFIX
+     * @description 控制台日志的统一前缀，便于在控制台筛选脚本日志。
+     */
+    LOG_PREFIX: '[WEB 汉化脚本]',
+    /**
+     * @property {string} MENU_COMMAND_ID
+     * @description 油猴脚本菜单命令的唯一标识符。
+     */
+    MENU_COMMAND_ID: 'toggle_debug_log_command',
+    /**
+     * @property {object} antiFlicker
+     * @description 防闪烁模块专用的 DOM 标识符。
+     */
+    antiFlicker: {
+      /** @property {string} STYLE_ID - 注入的 <style> 标签 ID */
+      STYLE_ID: 'anti-flicker-style',
+      /** @property {string} CLASS_IN_PROGRESS - 翻译进行时添加在 <html> 上的类名 */
+      CLASS_IN_PROGRESS: 'translation-in-progress',
+      /** @property {string} CLASS_COMPLETE - 翻译完成后添加在 <html> 上的类名 */
+      CLASS_COMPLETE: 'translation-complete',
+    },
+  };
+
+  // src/config/storage.js
+  var STORAGE_KEYS = {
+    /**
+     * @property {string} LOG_KEY
+     * @description
+     * 用于存储“调试模式”开关状态的键名。
+     * 值类型: boolean (true=开启调试日志, false=关闭)
+     */
+    LOG_KEY: 'web_translate_debug_mode',
+    /**
+     * @property {string} OVERRIDE_LANG_KEY
+     * @description
+     * 用于存储“语言强制覆盖”设置的键名。
+     * 值类型: string (例如 'zh-cn', 'en-us')。若为空字符串则表示使用浏览器默认语言。
+     */
+    OVERRIDE_LANG_KEY: 'web-translate-language-override',
+  };
+
   // src/modules/utils/logger.js
-  var LOG_KEY = 'web_translate_debug_mode';
+  var LOG_KEY = STORAGE_KEYS.LOG_KEY;
   var isDebugMode = GM_getValue(LOG_KEY, false);
   function updateDebugState(newMode) {
     isDebugMode = newMode;
   }
   function log(...args) {
     if (isDebugMode) {
-      console.log('[汉化脚本]', ...args);
+      console.log(UI_CONFIG.LOG_PREFIX, ...args);
     }
   }
   function debug(...args) {
     if (isDebugMode) {
-      console.debug('[汉化脚本-DEBUG]', ...args);
+      console.debug(UI_CONFIG.LOG_PREFIX, '[DEBUG]', ...args);
     }
   }
   function translateLog(type, original, translated, element = null) {
     if (isDebugMode) {
       if (original !== translated) {
         const elementInfo = element ? ` 元素: ${element.tagName.toLowerCase()}${element.id ? '#' + element.id : ''}${element.className ? '.' + element.className.replace(/\s+/g, '.') : ''}` : '';
-        console.log(`[汉化脚本-TRANSLATE] ${type}:${elementInfo}
+        console.log(
+          UI_CONFIG.LOG_PREFIX,
+          `[TRANSLATE] ${type}:${elementInfo}
   原文: "${original}"
-  译文: "${translated}"`);
+  译文: "${translated}"`,
+        );
       }
     }
   }
 
   // src/modules/ui/menu.js
-  var MENU_COMMAND_ID = 'toggle_debug_log_command';
-  var OVERRIDE_LANG_KEY = 'web-translate-language-override';
+  var MENU_COMMAND_ID = UI_CONFIG.MENU_COMMAND_ID;
+  var OVERRIDE_LANG_KEY = STORAGE_KEYS.OVERRIDE_LANG_KEY;
   function setOverrideLanguage(langCode) {
     GM_setValue(OVERRIDE_LANG_KEY, langCode);
     location.reload();
@@ -2185,8 +2233,99 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     registerMenuCommands();
   }
 
+  // src/config/optimization.js
+  var PERFORMANCE_CONFIG = {
+    /**
+     * @property {number} FRAME_BUDGET
+     * @description
+     * 每帧留给翻译任务的最大执行时间（毫秒）。
+     * 目标是保持 60fps (16.6ms/帧)。预留约 4ms 给浏览器渲染，剩余 12ms 用于脚本执行。
+     * - **影响**:
+     *   - ⬆️ 调大: 翻译速度加快，但可能导致页面滚动卡顿 (丢帧)。
+     *   - ⬇️ 调小: 页面极其流畅，但大页面完全翻译需要更长时间。
+     * @default 12
+     */
+    FRAME_BUDGET: 12,
+    /**
+     * @property {number} PAGE_LOAD_DELAY
+     * @description
+     * SPA (单页应用) 路由跳转后的等待延迟（毫秒）。
+     * 在检测到 URL 变化后，脚本会等待这段时间再开始扫描新内容。
+     * - **影响**:
+     *   - ⬆️ 调大: 确保动态内容加载完毕后再翻译，减少漏翻。
+     *   - ⬇️ 调小: 页面切换后更快看到中文，但可能遗漏尚未渲染的组件。
+     * @default 300
+     */
+    PAGE_LOAD_DELAY: 300,
+    /**
+     * @property {number} MAX_CACHE_SIZE
+     * @description
+     * 翻译结果缓存的最大条目数。
+     * 5000 条通常对应约 1-2MB 的内存占用。
+     * - **影响**:
+     *   - ⬆️ 调大: 减少重复翻译，提升长久运行的性能，但增加内存占用。
+     *   - ⬇️ 调小: 节省内存，但可能导致频繁出现的词句被反复重新处理。
+     * @default 5000
+     */
+    MAX_CACHE_SIZE: 5e3,
+    /**
+     * @property {number} RETRY_DELAY
+     * @description
+     * 网络请求失败后的重试基础延迟（毫秒）。
+     * 主要用于 CDN 模式下的资源加载。
+     * - **影响**:
+     *   - ⬆️ 调大: 减轻服务器压力，避免短时间频繁请求。
+     *   - ⬇️ 调小: 网络恢复后能更快加载到词库，但可能加剧网络拥堵。
+     * @default 500
+     */
+    RETRY_DELAY: 500,
+    /**
+     * @property {number} FADE_IN_DURATION
+     * @description
+     * 页面翻译完成后的淡入动画时长（毫秒）。
+     * 配合 anti-flicker.js 使用。
+     * - **影响**:
+     *   - ⬆️ 调大: 过渡更柔和，但用户感到“显示慢”。
+     *   - ⬇️ 调小: 响应更迅速，但可能感觉突兀。
+     * @default 100
+     */
+    FADE_IN_DURATION: 100,
+    /**
+     * @property {number} HOVER_CHECK_DELAY
+     * @description
+     * 鼠标悬停 (Mouseover) 事件触发后的检测延迟（毫秒）。
+     * 用于确保 :hover 样式（如 content 属性）已生效。
+     * - **影响**:
+     *   - ⬆️ 调大: 减少误触发，性能更好。
+     *   - ⬇️ 调小: 伪元素翻译响应更快，但可能在样式未应用前就尝试翻译（无效）。
+     * @default 50
+     */
+    HOVER_CHECK_DELAY: 50,
+    /**
+     * @property {number} PSEUDO_ANIM_DURATION
+     * @description
+     * 用于检测伪元素插入的 CSS 动画时长（秒）。
+     * 这是一个 Hack 技巧。
+     * - **影响**:
+     *   - ⬆️ 调大: 理论上无影响，但必须极短以确保不被肉眼察觉。
+     *   - ⬇️ 调小: 必须大于 0，否则 `animationstart` 不会触发。
+     * @default 0.001
+     */
+    PSEUDO_ANIM_DURATION: 1e-3,
+    /**
+     * @property {number} PERF_LOG_THRESHOLD
+     * @description
+     * 性能日志记录的阈值（毫秒）。
+     * - **影响**:
+     *   - ⬆️ 调大: 仅记录严重耗时的操作，控制台更干净。
+     *   - ⬇️ 调小: 记录更多性能细节，但会产生大量日志噪音。
+     * @default 5
+     */
+    PERF_LOG_THRESHOLD: 5,
+  };
+
   // src/modules/ui/anti-flicker.js
-  var STYLE_ID = 'anti-flicker-style';
+  var STYLE_ID = UI_CONFIG.antiFlicker.STYLE_ID;
   function injectAntiFlickerStyle() {
     if (!document.documentElement) {
       return;
@@ -2194,10 +2333,10 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     if (document.getElementById(STYLE_ID)) {
       return;
     }
-    document.documentElement.classList.add('translation-in-progress');
+    document.documentElement.classList.add(UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS);
     const antiFlickerStyle = document.createElement('style');
     antiFlickerStyle.id = STYLE_ID;
-    const styleContent = 'html.translation-in-progress body{visibility:hidden!important;opacity:0!important}html.translation-complete body{visibility:visible!important;opacity:1!important;transition:opacity .1s ease-in!important}html.translation-in-progress [class*="load"],html.translation-in-progress [class*="spin"],html.translation-in-progress [id*="load"],html.translation-in-progress [id*="spin"],html.translation-in-progress .loader,html.translation-in-progress .spinner,html.translation-in-progress .loading{visibility:visible!important;opacity:1!important}';
+    const styleContent = `html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} body{visibility:hidden!important;opacity:0!important}html.${UI_CONFIG.antiFlicker.CLASS_COMPLETE} body{visibility:visible!important;opacity:1!important;transition:opacity .1s ease-in!important}html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} [class*="load"],html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} [class*="spin"],html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} [id*="load"],html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} [id*="spin"],html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} .loader,html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} .spinner,html.${UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS} .loading{visibility:visible!important;opacity:1!important}`;
     antiFlickerStyle.appendChild(document.createTextNode(styleContent));
     const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
     head.insertBefore(antiFlickerStyle, head.firstChild);
@@ -2206,14 +2345,14 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     if (!document.documentElement) {
       return;
     }
-    document.documentElement.classList.remove('translation-in-progress');
-    document.documentElement.classList.add('translation-complete');
+    document.documentElement.classList.remove(UI_CONFIG.antiFlicker.CLASS_IN_PROGRESS);
+    document.documentElement.classList.add(UI_CONFIG.antiFlicker.CLASS_COMPLETE);
     setTimeout(() => {
       const styleElement = document.getElementById(STYLE_ID);
       if (styleElement && styleElement.parentNode) {
         styleElement.parentNode.removeChild(styleElement);
       }
-    }, 100);
+    }, PERFORMANCE_CONFIG.FADE_IN_DURATION);
   }
 
   // src/config/index.js
@@ -2310,7 +2449,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       if (translationCache.has(originalText)) {
         return translationCache.get(originalText);
       }
-      if (translationCache.size > 5e3) {
+      if (translationCache.size > PERFORMANCE_CONFIG.MAX_CACHE_SIZE) {
         translationCache.clear();
       }
       const trimmedText = text.trim();
@@ -2839,7 +2978,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       '@keyframes wts-pseudo-start { from { opacity: 0.99; } to { opacity: 1; } }',
       // 应用于所有伪元素。如果网站定义了自己的 animation，根据 CSS 优先级(Cascade)，
       // 网站的规则(通常带有类名)会覆盖这里(仅标签名)，从而避免冲突。
-      '*::before, *::after { animation-duration: 0.001s; animation-name: wts-pseudo-start; }',
+      `*::before, *::after { animation-duration: ${PERFORMANCE_CONFIG.PSEUDO_ANIM_DURATION}s; animation-name: wts-pseudo-start; }`,
     ];
     const allCssRules = [...cssRules, ...universalPseudoCss];
     if (allCssRules.length > 0) {
@@ -2893,7 +3032,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
               parent = parent.parentElement;
               depth++;
             }
-          }, 50);
+          }, PERFORMANCE_CONFIG.HOVER_CHECK_DELAY);
         }
       },
       { passive: true },
@@ -2960,7 +3099,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     if (typeof SUPPORTED_SITES !== 'undefined') {
       const supportedList = SUPPORTED_SITES[userLang] || [];
       if (!supportedList.includes(hostname)) {
-        log(`${hostname} 暂无可匹配的翻译`);
+        log(`${hostname} 暂无可匹配的翻译词典，显示原始网页。`);
         return;
       }
     }
