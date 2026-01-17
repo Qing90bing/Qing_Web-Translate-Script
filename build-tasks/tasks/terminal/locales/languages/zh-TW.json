@@ -306,6 +306,8 @@
   },
   "buildCdn": {
     "modeMessage": "🚀 CDN 建置模式",
+    "generatingSupportedSites": "正在生成支援網站列表...",
+    "generatedSitesSummary": "  ✓ {0} 個語言, {1} 個網站",
     "embeddingTranslations": "正在為指定網站嵌入翻譯...",
     "embedding": "✨ 正在嵌入：{0}"
   },

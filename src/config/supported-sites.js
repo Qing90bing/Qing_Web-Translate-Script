@@ -3,7 +3,7 @@
  * @description
  * 支持翻译的网站列表，按语言区分。
  * 此文件由构建脚本自动生成，请勿手动编辑。
- * 
+ *
  * 用于 CDN 版本的 @require 预加载，使脚本能快速判断当前网站是否有翻译，
  * 避免对无翻译网站发起不必要的网络请求。
  */
@@ -28,10 +28,10 @@ var SUPPORTED_SITES = {
         'status.modrinth.com',
         'wplace.live',
         'www.avogado6.com',
-        'www.curseforge.com'
+        'www.curseforge.com',
     ],
     'zh-tw': [
         'aistudio.google.com',
-        'claude.ai'
-    ]
+        'claude.ai',
+    ],
 };

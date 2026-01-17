@@ -306,6 +306,8 @@
   },
   "buildCdn": {
     "modeMessage": "🚀 CDN 构建模式",
+    "generatingSupportedSites": "正在生成支持网站列表...",
+    "generatedSitesSummary": "  ✓ {0} 个语言, {1} 个网站",
     "embeddingTranslations": "正在为指定网站嵌入翻译...",
     "embedding": "✨ 正在嵌入: {0}"
   },

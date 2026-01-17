@@ -337,6 +337,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['At the moment these libraries are not supported, because of limited support for compiler plug-ins.', '目前不支持这些库，因为对编译器插件的支持有限。'],
         ['Probability threshold for top-p sampling', '筛选出一个“精英候选词”的范围。值越高，候选范围越大，回复更多样；值越低，范围越小，回复也更专注和可预测'],
         ["Turn real routes into immersive audio stories synced to your journey's exact duration.", '将真实路线转化为沉浸式有声故事，剧情时长与你的旅途分秒同步'],
+        [' Apps in Build may not load due to esm.sh outage. Investigation is underway. ', 'Apps 在 Build 中可能无法加载，因为 esm.sh 出现故障。调查正在进行中'],
         ['Speak, and the orb responds. An interactive experience powered by the Live Audio API.', '你只需开口，光球即会回应。由 Live Audio API 驱动的互动体验'],
         ['You are responsible for ensuring that safety settings for your intended use case comply with the', '您有责任确保安全设置符合您预期用途的相关规定 。'],
         [" “The building's primary structure mimics a colossal, ancient banyan tree, with a ...” ", ' “该建筑的主要结构模仿一棵巨大而古老的榕树，其...” '],
@@ -1013,6 +1014,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['The issue has been resolved.', '问题已解决'],
         ['Who can see my apps?', '谁能看到我的应用？'],
         ['Youthful, Higher pitch', '年轻的，较高音调'],
+        [' Batch API outage. ', 'Batch API 出现故障'],
         [' Google Cloud Console ', 'Google 云控制台'],
         ['A sci-fi movie poster', '一张科幻电影海报'],
         ['An unknown error occurred', '发生未知错误'],
@@ -2958,6 +2960,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     if (typeof SUPPORTED_SITES !== 'undefined') {
       const supportedList = SUPPORTED_SITES[userLang] || [];
       if (!supportedList.includes(hostname)) {
+        log(`${hostname} 暂无可匹配的翻译`);
         return;
       }
     }

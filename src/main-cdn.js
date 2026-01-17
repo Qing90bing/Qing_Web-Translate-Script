@@ -52,6 +52,7 @@ import {
         const supportedList = SUPPORTED_SITES[userLang] || [];
         if (!supportedList.includes(hostname)) {
             // 该语言不支持此网站，直接返回，不发起任何网络请求
+            log(`${hostname} 暂无可匹配的翻译`);
             return;
         }
     }

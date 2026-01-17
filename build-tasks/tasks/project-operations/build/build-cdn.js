@@ -10,6 +10,66 @@ import { t } from '../../../lib/terminal-i18n.js';
 import { ProgressBar } from '../../../lib/progress.js';
 
 /**
+ * @function generateSupportedSites
+ * @description 扫描翻译目录，自动生成 supported-sites.js 文件。
+ * @returns {Promise<void>}
+ */
+async function generateSupportedSites() {
+  const supportedSites = {};
+
+  for (const lang of SUPPORTED_LANGUAGE_CODES) {
+    const langDir = path.resolve('src', 'translations', lang, 'sites');
+    try {
+      const files = await fs.readdir(langDir);
+      // 过滤 .js 文件并提取网站名
+      const sites = files
+        .filter(f => f.endsWith('.js'))
+        .map(f => f.replace('.js', ''))
+        .sort();
+      if (sites.length > 0) {
+        supportedSites[lang] = sites;
+      }
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        console.error(color.red(`扫描 ${lang} 翻译目录时出错: ${error.message}`));
+      }
+    }
+  }
+
+  // 生成 JS 文件内容
+  let jsContent = `/**
+ * @file src/config/supported-sites.js
+ * @description
+ * 支持翻译的网站列表，按语言区分。
+ * 此文件由构建脚本自动生成，请勿手动编辑。
+ *
+ * 用于 CDN 版本的 @require 预加载，使脚本能快速判断当前网站是否有翻译，
+ * 避免对无翻译网站发起不必要的网络请求。
+ */
+
+// eslint-disable-next-line no-unused-vars
+var SUPPORTED_SITES = {\n`;
+
+  for (const lang in supportedSites) {
+    jsContent += `    '${lang}': [\n`;
+    for (const site of supportedSites[lang]) {
+      jsContent += `        '${site}',\n`;
+    }
+    jsContent += `    ],\n`;
+  }
+  jsContent += `};\n`;
+
+  // 写入文件
+  const outputPath = path.resolve('src', 'config', 'supported-sites.js');
+  await fs.writeFile(outputPath, jsContent);
+
+  // 打印统计信息
+  const totalSites = Object.values(supportedSites).flat().length;
+  const langCount = Object.keys(supportedSites).length;
+  console.log(color.green(t('buildCdn.generatedSitesSummary', langCount, totalSites)));
+}
+
+/**
  * @function loadEmbeddedTranslations
  * @description 加载并编译指定网站的翻译文件。
  * @returns {Promise<string>} 返回一个包含所有嵌入翻译的 JavaScript 代码字符串。
@@ -99,6 +159,10 @@ export default async function handleCdnBuild() {
       width: 30
     });
     bar.start(100, t('buildProject.initializing'));
+
+    // --- 步骤 1.5: 自动生成 supported-sites.js ---
+    bar.update(5, t('buildCdn.generatingSupportedSites'));
+    await generateSupportedSites();
 
     // --- 步骤 2: 使用 esbuild 执行打包 ---
     bar.update(10, t('buildProject.bundling'));

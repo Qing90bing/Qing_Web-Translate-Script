@@ -306,6 +306,8 @@
   },
   "buildCdn": {
     "modeMessage": "🚀 Building in CDN mode...",
+    "generatingSupportedSites": "Generating supported sites list...",
+    "generatedSitesSummary": "  ✓ {0} languages, {1} sites",
     "embeddingTranslations": "Embedding translations for specified sites...",
     "embedding": "✨ Embedding: {0}"
   },
