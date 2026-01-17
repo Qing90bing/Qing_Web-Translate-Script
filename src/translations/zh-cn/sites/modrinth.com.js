@@ -103,6 +103,7 @@ export const modrinthComZhCn = {
     [/\s*ModrinthApiError:\s+\[GET\]\s+\"(.+?)\":\s*/i, "Modrinth API 错误：[获取] 请求于 “$1”："],
     [/\s*May\s+(\d{1,2}),\s*(\d{4})\s+at\s+(\d{1,2}:\d{2})\s*AM\s*/i, "$2 年 5 月 $1 日 上午 $3"],
     [/\s*May\s+(\d{1,2}),\s*(\d{4})\s+at\s+(\d{1,2}:\d{2})\s*PM\s*/i, "$2 年 5 月 $1 日 下午 $3"],
+    [/\s*Or\s+US\$([\d\.]+)\s*\/\s*year\s*\(save\s*(\d+)%\)!\s*/i, "或 US$$$1 / 年 (立省 $2%)！"],
     [/\s*or\s+save\s+(\d+)%\s+with\s+(?:annual|yearly)\s+billing!?\s*/i, "或按年付费可省 $1%！"],
     [/\s*Created\s+on\s+(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*/i, "于 $1 年 $2 月 $3 日创建"],
     [/\s*≈\s+([\d\.]+)%\s+\+\s+(\$[\d\.]+),\s+max\s+(\$[\d\.]+)\s*/i, "≈ $1% + $2，最高 $3"],

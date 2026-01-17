@@ -474,6 +474,7 @@ export const claudeAiZhCn = {
     ["Access to Claude is limited. Please contact your organization’s admin to renew your subscription", "对 Claude 的访问受限。请联系您的组织管理员续订。"],
     ["Active members by seat tier. Unassigned members do not count towards your seat usage.", "按席位等级划分的活跃成员。未分配的成员不计入您的席位使用量。"],
     ["Claude does not have internet access. Links provided may not be accurate or up to date.", "Claude 无法访问互联网。提供的链接可能不准确或不是最新的。"],
+    ["You have control over your conversation data and can change your preferences any time in your ", "您有权控制您的对话数据，并且可以在任何时候更改您的"],
     ["Allow team members to upload and use skills. Requires Code execution and file creation.", "允许团队成员上传和使用技能。需要代码执行和文件创建权限。"],
     ["By clicking Purchase, you allow Anthropic to charge your card in the amount above.", "点击“购买”，即表示您允许 Anthropic 从您的卡中扣除上述金额。"],
     ["Disabling memory will permanently delete all memories for your team. This can’t be undone.", "禁用记忆将永久删除您团队的所有记忆。此操作无法撤销。"],
