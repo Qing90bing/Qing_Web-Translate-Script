@@ -76,8 +76,9 @@ export const geminiGoogleComZhCn = {
   // 格式: ['原始文本', '翻译后的文本']
   // 示例: ['Login', '登录']
   textRules: [
-    [" Connected Apps ", " 关联的应用 "],
-    [" Deep Research ", " 深度研究 "],
-    [" Canvas ", " 画布 "]
+    [" Connected Apps ", "关联的应用"],
+    [" Deep Research ", "深度研究"],
+    [" Answer now ", "立即回答"],
+    [" Canvas ", "画布"]
   ],
 };

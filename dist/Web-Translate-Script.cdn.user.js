@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.140-2026-1-17-cdn
+// @version      1.0.141-2026-1-18-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -499,6 +499,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Immersive event landing page with interactive scroll effects.', '具有交互式滚动特效的沉浸式活动落地页'],
         ['Usage is reflective of all request types to the Gemini API.', '使用情况反映了Gemini API的所有请求类型'],
         [' “Create an image of a futuristic cityscape with...” ', ' “创建一张具有未来感的城市景观图片...” '],
+        ['Control image-output aspect ratios with Nano Banana Pro', '使用 Nano Banana Pro 控制输出图像的纵横比'],
         ['Failed to count tokens: permission denied. Please try again.', '计数 Tokens 失败：权限被拒绝，请重试'],
         [', and may be used to improve our services subject to our ', '，并可能根据我们的服务条款用于改进服务'],
         ['Choose a system instructions configuration to use with the applet', '选择一个系统指令配置用于小程序'],
@@ -552,6 +553,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['We are working to resolve the issues as quickly as possible', '我们正在努力尽快解决这些问题'],
         ['Add new features or easily modify this app with a prompt', '添加新功能或轻松修改此应用程序'],
         ['Extract price from a string and format it as JSON', '从字符串中提取价格，并格式化为 JSON。'],
+        ['Generate high-quality images with Nano Banana Pro', '使用 Nano Banana Pro 生成高质量的图片'],
         ['Toggle thinking budget between auto and manual', '在自动和手动模式间切换模型的“思考预算”'],
         ['Can I use Next.js, Svelte, Vue or Astro?', '我可以使用 Next.js、Svelte、Vue 或 Astro 吗？'],
         ['Create an app with Gemini 3 Pro Image Preview', '使用 Gemini 3 Pro Image Preview 创建应用'],
@@ -673,6 +675,7 @@ const EMBEDDED_TRANSLATIONS = {
         ["This model doesn't support System instructions", '此模型不支持系统指令'],
         [' Gemini API and AI Studio outage ', 'Gemini API 和 AI Studio 服务中断'],
         ['Calculate and explain a probability problem', '计算并解释一个概率问题'],
+        ['Convert text to natural-sounding speech', '将文本转换为自然发声的语音'],
         ['Gemini API Additional Terms of Service', '《Gemini API 附加服务条款》'],
         ['Generate images with Nano Banana Pro', '使用 Nano Banana Pro 生成图像'],
         ['Image to a JSON structured recipe', '将食材图片转换为 JSON 格式的食谱'],
@@ -719,6 +722,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Sample from Veo models to generate videos', '调用 Veo 模型生成视频'],
         ['Select an image to add to the prompt', '选择一张图片添加到提示词中'],
         ['before using the code in your project', '在您的项目中使用此代码前'],
+        ['Enable Thinking for complex queries', '启用思考模式以处理复杂请求'],
         ['Gemini 2.0 Flash Throttling Incident', 'Gemini 2.0 Flash 限流事件'],
         ['Gemini intelligence in your app', '在您的应用中使用 Gemini 智能体'],
         ['Generate a confusion matrix in Python', '使用 Python 生成混淆矩阵'],
@@ -776,6 +780,7 @@ const EMBEDDED_TRANSLATIONS = {
         [' “Create a Macro photog... ” ', '“创建一张微距摄影...”'],
         [' Chat with models in the Playground ', '在平台中与模型聊天'],
         ['Call tools natively, like Search', '原生调用“搜索”等工具'],
+        ['Chat powered by Gemini 3 Pro', '由 Gemini 3 Pro 驱动的对话'],
         ['Create regex from text input', '根据文本输入创建正则表达式'],
         ['Design a custom birthday card.', '设计一张定制的生日贺卡。'],
         ['Enter a prompt to generate a video', '输入提示词以生成视频'],
@@ -878,6 +883,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Total API Requests per day', '每天的总 API 请求次数'],
         [' Knowledge cut off: Unknown ', '知识截止日期：未知'],
         [' Monitor usage and projects ', '监控使用情况和项目'],
+        ['Analyze images with Gemini', '使用 Gemini 分析图像'],
         ['Animate images with Veo', '使用 Veo 为图像添加动画'],
         ['Chat | Google AI Studio', '聊天 | Google AI Studio'],
         ['Discover and remix app ideas', '发现并修改应用创意'],
@@ -1559,6 +1565,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Productivity', '生产力工具'],
         ['Project number', '项目编号'],
         ['Prompt gallery', '提示词库'],
+        ['Remove feature', '删除功能'],
         ['Select a model', '选择模型'],
         ['Set up billing', '设置账单'],
         ['Shared with me', '与我共享'],
@@ -2006,9 +2013,10 @@ const EMBEDDED_TRANSLATIONS = {
       jsRules: [],
       regexRules: [],
       textRules: [
-        [' Connected Apps ', ' 关联的应用 '],
-        [' Deep Research ', ' 深度研究 '],
-        [' Canvas ', ' 画布 '],
+        [' Connected Apps ', '关联的应用'],
+        [' Deep Research ', '深度研究'],
+        [' Answer now ', '立即回答'],
+        [' Canvas ', '画布'],
       ],
     },
   },

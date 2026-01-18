@@ -1220,6 +1220,7 @@ export const modrinthComZhCn = {
     ["Server-side only", "仅服务器端"],
     ["South Carolina", "南卡罗来纳州"],
     ["Southwest Airlines", "西南航空"],
+    ["Standard languages", "标准语言"],
     ["Syrian Arab Republic", "叙利亚"],
     ["Tides Foundation", "潮汐基金会"],
     [" Add environment ", "添加环境"],
