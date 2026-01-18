@@ -33,11 +33,17 @@ onMounted(() => {
 
 <style>
 .redirect-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  background-color: var(--vp-c-bg); /* 遮挡底部内容 */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 80vh; /* 占据大部分视口高度 */
   font-family: var(--vp-font-family-base);
 }
 
