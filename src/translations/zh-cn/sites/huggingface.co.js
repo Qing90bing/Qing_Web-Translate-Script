@@ -27,9 +27,7 @@ export const huggingfaceCoZhCn = {
 
   // 禁止翻译的元素选择器
   blockedElements: [
-    // 在这里添加CSS选择器，例如：
-    // '.notranslate',
-    // '#header .logo'
+    '.model-card-content'
   ],
 
   // 扩展翻译元素选择器
@@ -120,6 +118,7 @@ export const huggingfaceCoZhCn = {
     [/\s*(\d{1,2})\s+Mar\s+(\d{4})\s*/i, "$2 年 3 月 $1 日"],
     [/\s*(\d{1,2})\s+May\s+(\d{4})\s*/i, "$2 年 5 月 $1 日"],
     [/\s*(\d{1,2})\s+Sep\s+(\d{4})\s*/i, "$2 年 9 月 $1 日"],
+    [/\s*about\s+(\d+)\s+months?\s+ago\s*/i, "约 $1 个月前"],
     [/\s*Invite\s+people\s+to\s+(.+)\s*/, "邀请用户加入 $1"],
     [/\s*Watch\s+settings\s+for\s+(.+)\s*/, "$1 的关注设置"],
     [/Dec\s+(\d{1,2})\s*,\s*(\d{4})/i, "$2 年 12 月 $1 日"],
@@ -899,6 +898,7 @@ export const huggingfaceCoZhCn = {
     ["List models using this license", "列出使用此许可证的模型"],
     ["Llama2 With Gradio Chat", "带有 Gradio 聊天功能的 Llama2"],
     ["No Space linking this paper", "没有 Space 关联到这篇论文"],
+    ["Preparing payment, please wait...", "准备支付，请稍等..."],
     ["Saint Vincent and the Grenadines", "圣文森特和格林纳丁斯"],
     ["Setup with your AI assistant", "使用您的 AI 助手进行设置"],
     ["Show responses only when complete.", "仅在完整时显示响应"],
@@ -992,6 +992,7 @@ export const huggingfaceCoZhCn = {
     ["This table displays the number of ", "此表格显示了"],
     ["\n					Interact with posts", "与帖子进行互动的权限"],
     ["10× private storage capacity", "10 倍私有存储容量"],
+    ["Add an extended description...", "添加扩展描述..."],
     ["Another HF user follows you", "其他 HF 用户关注您"],
     ["Build your ML portfolio", "构建你的机器学习作品集"],
     ["Collections - Hugging Face", "合集 - Hugging Face"],
@@ -1200,6 +1201,7 @@ export const huggingfaceCoZhCn = {
     ["The Tokenizer Playground", "代币器游乐场"],
     ["Voice Activity Detection", "语音活动检测"],
     ["Your inbox is empty.", "你的收件箱是空的"],
+    ["Your prompt here...", "输入你的提示词..."],
     ["Your sentence here...", "在此输入句子..."],
     ["\n							Subscribe to Team", "订阅团队版"],
     ["\n						New discussion\n					", "新建讨论"],
@@ -1216,6 +1218,7 @@ export const huggingfaceCoZhCn = {
     ["List supported models", "列出支持的模型"],
     ["ML for Games Course", "游戏机器学习课程"],
     ["Not-For-All-Audiences", "不适合所有受众"],
+    ["Open a Pull Request", "打开一个拉取请求"],
     ["Open-Source AI Cookbook", "开源 AI 食谱"],
     ["Organization Full name\n				", "组织全称"],
     ["Organization Username\n			", "组织用户名"],
@@ -1412,6 +1415,7 @@ export const huggingfaceCoZhCn = {
     ["Spaces of the week", "本周精选空间"],
     ["TCO Calculator", "总拥有成本计算器"],
     ["Throughput(t/s)", "吞吐量（次/秒）"],
+    ["Update README.md", "更新 README.md"],
     ["User Access Tokens", "用户访问令牌"],
     ["View arXiv page", "查看 arXiv 页面"],
     ["Watch all activity", "关注所有活动"],
@@ -1743,6 +1747,7 @@ export const huggingfaceCoZhCn = {
     ["Plan a trip", "计划一次旅行"],
     ["Pose Estimation", "姿态估计"],
     ["Private Storage", "私有存储"],
+    ["Propose changes", "提出修改"],
     ["Redirecting...", "重定向..."],
     ["Request a quote", "请求报价"],
     ["Runtime error", "运行时错误"],
@@ -2257,8 +2262,11 @@ export const huggingfaceCoZhCn = {
     ["Guernsey", "根西岛"],
     ["Latvia", "拉脱维亚"],
     ["Licenses", "许可证"],
+    ["Maximize", "最大化"],
+    ["Minimize", "最小化"],
     ["Modalities", "模态"],
     ["Montenegro", "黑山"],
+    ["new\n								", "新"],
     ["New Chat", "新对话"],
     ["one hour", "一小时"],
     ["Paraguay", "巴拉圭"],

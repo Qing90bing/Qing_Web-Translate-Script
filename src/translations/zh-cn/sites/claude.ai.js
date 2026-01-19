@@ -2492,6 +2492,7 @@ export const claudeAiZhCn = {
     ["Invite individually", "单独邀请"],
     ["Just chat instead", "改为仅聊天"],
     ["Location metadata", "位置元数据"],
+    ["Moonlit chat?", "在月光下聊天？"],
     ["No network access", "无网络访问"],
     ["Notifications (F8)", "通知 (F8)"],
     ["Open tools menu", "打开工具菜单"],

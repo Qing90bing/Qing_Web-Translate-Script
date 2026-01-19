@@ -19,7 +19,8 @@
 
 import { ALL_UNTRANSLATABLE_TAGS, BLOCKS_ALL_TRANSLATION, BLOCKS_CONTENT_ONLY, attributesToTranslate, BLOCKED_CSS_CLASSES } from '../../config/index.js';
 import { PERFORMANCE_CONFIG } from '../../config/optimization.js';
-import { log, debug, translateLog, perf } from '../utils/logger.js';
+import { log, translateLog } from '../utils/logger.js';
+import { getShadowRoot } from '../utils/shadow-dom.js';
 
 /**
  * @function createTranslator
@@ -481,10 +482,12 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
 
                     // (漏洞修复) 在遍历过程中，实时检查并递归进入 Shadow DOM。
                     // 这是支持嵌套 Web Components 的关键。
-                    if (node.shadowRoot) {
+                    // 使用 getShadowRoot 获取 ShadowRoot，支持 Open 和 Intercepted Closed 模式
+                    const shadowRoot = getShadowRoot(node);
+                    if (shadowRoot) {
                         // 发现嵌套 ShadowRoot，触发回调并递归
-                        if (shadowRootFoundCallback) shadowRootFoundCallback(node.shadowRoot);
-                        translateElement(node.shadowRoot);
+                        if (shadowRootFoundCallback) shadowRootFoundCallback(shadowRoot);
+                        translateElement(shadowRoot);
                     }
                 }
             }
@@ -559,10 +562,11 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
         // (漏洞修复)
         // 原始的递归调用已被移入 TreeWalker 循环中，以确保能处理嵌套的 Shadow DOM。
         // 但我们仍需处理根元素本身就带有 Shadow DOM 的情况 (例如，当 translateElement 的输入是 custom element 时)。
-        if (element.shadowRoot) {
+        const shadowRoot = getShadowRoot(element);
+        if (shadowRoot) {
             // 确保根元素的 Shadow DOM 也能被观察到
-            if (shadowRootFoundCallback) shadowRootFoundCallback(element.shadowRoot);
-            translateElement(element.shadowRoot);
+            if (shadowRootFoundCallback) shadowRootFoundCallback(shadowRoot);
+            translateElement(shadowRoot);
         }
 
         // 将此元素标记为已处理，以避免重复工作。

@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.141-2026-1-18-cdn
+// @version      1.0.142-2026-1-19-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -818,6 +818,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Send prompt (Ctrl + Enter)', '发送提示词（Ctrl + Enter）'],
         ['Start typing dialog here...', '在此处开始输入对话内容...'],
         ['Summarizing image and text content', '总结图片和文本内容'],
+        [' No model matches your search. ', '没有模型匹配您的搜索'],
         [' Unsupported file type selected. ', '不支持所选文件类型'],
         ['30 RPM 14400 req/day', '每分钟 30 次请求，每天 14400 次'],
         ['Are you sure you want to clear?', '你确定要清空对话吗？'],
@@ -960,6 +961,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Control image aspect ratios', '控制图像纵横比'],
         ['Generate structured outputs', '生成结构化输出'],
         ['Generate videos with Veo', '使用 Veo 生成视频'],
+        ['Image of sushi on a table', '桌子上寿司的图片'],
         ['Loading your API keys', '加载您的 API 密钥...'],
         ['OpenAI SDK compatibility', 'OpenAI SDK 兼容性'],
         ['Use Google AI Studio', '使用 Google AI Studio'],
@@ -993,12 +995,10 @@ const EMBEDDED_TRANSLATIONS = {
         ['Delete function declaration', '删除函数声明'],
         ['Do not run safety filters', '禁用安全过滤器'],
         ['Gemini speech generation', 'Gemini 语音生成'],
-        ['Image of sushi on a table', '桌上寿司的图片'],
         ['Mark property as optional', '标记属性为可选'],
         ['Render indentation guides', '渲染缩进参考线'],
         ['Scroll to next prompt', '滚动到下一条提示词'],
         ['Thanks for your feedback!', '感谢您的反馈！'],
-        [' are a subset of the standard ', ' 是标准 '],
         [' Create with Veo 3.1 ', '使用 Veo 3.1 创建'],
         [' Games and Visualizations ', '游戏和可视化'],
         ['Advanced share permissions', '高级共享权限'],
@@ -1046,6 +1046,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Talk to Gemini live', '与 Gemini 实时交谈'],
         ['Veo Requests per day', '每天 Veo 请求次数'],
         [' Allow Drive access ', '允许访问云端硬盘'],
+        [' are a subset of the standard ', '是标准'],
         [' Explore Past Forward ', '探索过去到未来'],
         [' file. For example, ', ' 文件中。例如， '],
         ['+ Create new instruction', '+ 创建新指令'],
@@ -1529,6 +1530,7 @@ const EMBEDDED_TRANSLATIONS = {
         ['Visual Coding', '可视化编程'],
         ['What is this?', '这是什么？'],
         ['World knowledge', '世界知识'],
+        [' Clear search ', '清空搜索'],
         [' Learn more.', '了解更多。'],
         [' Render Start ', '开始渲染'],
         [' Running for ', '运行时间 '],
@@ -2370,6 +2372,35 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
   var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
   var BLOCKED_CSS_CLASSES = /* @__PURE__ */ new Set(['notranslate', 'kbd']);
 
+  // src/modules/utils/shadow-dom.js
+  function getShadowRoot(element) {
+    if (!element) return null;
+    if (element.shadowRoot) {
+      return element.shadowRoot;
+    }
+    if (element._wtsShadowRoot) {
+      return element._wtsShadowRoot;
+    }
+    return null;
+  }
+  function findAllShadowRoots(root) {
+    const shadowRoots = [];
+    if (!root) return shadowRoots;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, null);
+    do {
+      const node = walker.currentNode;
+      const shadowRoot = getShadowRoot(node);
+      if (shadowRoot) {
+        shadowRoots.push(shadowRoot);
+        const innerShadowRoots = findAllShadowRoots(shadowRoot);
+        if (innerShadowRoots.length > 0) {
+          shadowRoots.push(...innerShadowRoots);
+        }
+      }
+    } while (walker.nextNode());
+    return shadowRoots;
+  }
+
   // src/modules/core/translator.js
   function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = [], pseudoRules = []) {
     let shadowRootFoundCallback = null;
@@ -2598,9 +2629,10 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
                 }
               }
             }
-            if (node.shadowRoot) {
-              if (shadowRootFoundCallback) shadowRootFoundCallback(node.shadowRoot);
-              translateElement(node.shadowRoot);
+            const shadowRoot2 = getShadowRoot(node);
+            if (shadowRoot2) {
+              if (shadowRootFoundCallback) shadowRootFoundCallback(shadowRoot2);
+              translateElement(shadowRoot2);
             }
           }
         }
@@ -2637,9 +2669,10 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
           }
         }
       }
-      if (element.shadowRoot) {
-        if (shadowRootFoundCallback) shadowRootFoundCallback(element.shadowRoot);
-        translateElement(element.shadowRoot);
+      const shadowRoot = getShadowRoot(element);
+      if (shadowRoot) {
+        if (shadowRootFoundCallback) shadowRootFoundCallback(shadowRoot);
+        translateElement(shadowRoot);
       }
       translatedElements.add(element);
     }
@@ -2805,6 +2838,9 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
           const shadowRoot = originalAttachShadow.call(this, init);
           try {
             if (shadowRoot) {
+              if (init && init.mode === 'closed') {
+                this._wtsShadowRoot = shadowRoot;
+              }
               observeRoot(shadowRoot);
             }
           } catch (e) {}
@@ -2843,11 +2879,10 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       log('警告: 无法在任何环境中拦截 attachShadow。动态 Shadow DOM 翻译可能会失效。这通常是由于网站严格的 CSP 或安全策略导致。');
     }
     observeRoot(document.body);
-    const initWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
-      acceptNode: (n) => (n.shadowRoot ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP),
-    });
-    while (initWalker.nextNode()) {
-      observeRoot(initWalker.currentNode.shadowRoot);
+    const existingShadowRoots = findAllShadowRoots(document.body);
+    if (existingShadowRoots.length > 0) {
+      log(`初始化扫描发现 ${existingShadowRoots.length} 个现存 Shadow Roots`);
+      existingShadowRoots.forEach((root) => observeRoot(root));
     }
     pageObserver.observe(document.body, { childList: true, subtree: true });
     let titleObserver = null;

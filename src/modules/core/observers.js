@@ -18,6 +18,7 @@
 
 import { log, debug } from '../utils/logger.js';
 import { attributesToTranslate } from '../../config/index.js';
+import { findAllShadowRoots } from '../utils/shadow-dom.js';
 
 /**
  * @function initializeObservers
@@ -243,9 +244,13 @@ export function initializeObservers(translator, extendedElements = [], customAtt
                 const shadowRoot = originalAttachShadow.call(this, init);
                 try {
                     if (shadowRoot) {
+                        // [New Feature] 保存 Shadow Root 引用以支持 Closed 模式
+                        // 这允许我们在后续遍历中通过 element._wtsShadowRoot 访问它
+                        if (init && init.mode === 'closed') {
+                            this._wtsShadowRoot = shadowRoot;
+                        }
+
                         observeRoot(shadowRoot);
-                        // 额外做一个简单的检查，如果是在翻译队列中已有的元素，可能需要重新调度？
-                        // 不，observeRoot 足够了。
                     }
                 } catch (e) {
                     // console.warn('处理 ShadowRoot 失败:', e);
@@ -306,13 +311,12 @@ export function initializeObservers(translator, extendedElements = [], customAtt
     // 注意：在这里调用 observeRoot 是安全的，即使 patch 失败，至少我们还能监听主文档的变化。
     observeRoot(document.body);
 
-    // 初始化时，使用 TreeWalker 进行一次全量 Shadow DOM 扫描。
-    // 或者页面可能有未被翻译的部分。为了安全，保留这个初始化扫描。
-    const initWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
-        acceptNode: (n) => n.shadowRoot ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
-    });
-    while (initWalker.nextNode()) {
-        observeRoot(initWalker.currentNode.shadowRoot);
+    // 初始化时，使用深度优先遍历进行一次全量 Shadow DOM 扫描。
+    // 这能确保即使是深层嵌套的 Shadow Root 也能被发现并监听。
+    const existingShadowRoots = findAllShadowRoots(document.body);
+    if (existingShadowRoots.length > 0) {
+        log(`初始化扫描发现 ${existingShadowRoots.length} 个现存 Shadow Roots`);
+        existingShadowRoots.forEach(root => observeRoot(root));
     }
 
     pageObserver.observe(document.body, { childList: true, subtree: true });

@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.146-2026-1-18-offline
+// @version      1.0.147-2026-1-19-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -1550,6 +1550,7 @@
       ['Send prompt (Ctrl + Enter)', '发送提示词（Ctrl + Enter）'],
       ['Start typing dialog here...', '在此处开始输入对话内容...'],
       ['Summarizing image and text content', '总结图片和文本内容'],
+      [' No model matches your search. ', '没有模型匹配您的搜索'],
       [' Unsupported file type selected. ', '不支持所选文件类型'],
       ['30 RPM 14400 req/day', '每分钟 30 次请求，每天 14400 次'],
       ['Are you sure you want to clear?', '你确定要清空对话吗？'],
@@ -1692,6 +1693,7 @@
       ['Control image aspect ratios', '控制图像纵横比'],
       ['Generate structured outputs', '生成结构化输出'],
       ['Generate videos with Veo', '使用 Veo 生成视频'],
+      ['Image of sushi on a table', '桌子上寿司的图片'],
       ['Loading your API keys', '加载您的 API 密钥...'],
       ['OpenAI SDK compatibility', 'OpenAI SDK 兼容性'],
       ['Use Google AI Studio', '使用 Google AI Studio'],
@@ -1725,12 +1727,10 @@
       ['Delete function declaration', '删除函数声明'],
       ['Do not run safety filters', '禁用安全过滤器'],
       ['Gemini speech generation', 'Gemini 语音生成'],
-      ['Image of sushi on a table', '桌上寿司的图片'],
       ['Mark property as optional', '标记属性为可选'],
       ['Render indentation guides', '渲染缩进参考线'],
       ['Scroll to next prompt', '滚动到下一条提示词'],
       ['Thanks for your feedback!', '感谢您的反馈！'],
-      [' are a subset of the standard ', ' 是标准 '],
       [' Create with Veo 3.1 ', '使用 Veo 3.1 创建'],
       [' Games and Visualizations ', '游戏和可视化'],
       ['Advanced share permissions', '高级共享权限'],
@@ -1778,6 +1778,7 @@
       ['Talk to Gemini live', '与 Gemini 实时交谈'],
       ['Veo Requests per day', '每天 Veo 请求次数'],
       [' Allow Drive access ', '允许访问云端硬盘'],
+      [' are a subset of the standard ', '是标准'],
       [' Explore Past Forward ', '探索过去到未来'],
       [' file. For example, ', ' 文件中。例如， '],
       ['+ Create new instruction', '+ 创建新指令'],
@@ -2261,6 +2262,7 @@
       ['Visual Coding', '可视化编程'],
       ['What is this?', '这是什么？'],
       ['World knowledge', '世界知识'],
+      [' Clear search ', '清空搜索'],
       [' Learn more.', '了解更多。'],
       [' Render Start ', '开始渲染'],
       [' Running for ', '运行时间 '],
@@ -5178,6 +5180,7 @@
       ['Invite individually', '单独邀请'],
       ['Just chat instead', '改为仅聊天'],
       ['Location metadata', '位置元数据'],
+      ['Moonlit chat?', '在月光下聊天？'],
       ['No network access', '无网络访问'],
       ['Notifications (F8)', '通知 (F8)'],
       ['Open tools menu', '打开工具菜单'],
@@ -8596,7 +8599,7 @@
     language: 'zh-cn',
     enabled: true,
     styles: [],
-    blockedElements: [],
+    blockedElements: ['.model-card-content'],
     extendedElements: [],
     customAttributes: [],
     blockedAttributes: [],
@@ -8656,6 +8659,7 @@
       [/\s*(\d{1,2})\s+Mar\s+(\d{4})\s*/i, '$2 年 3 月 $1 日'],
       [/\s*(\d{1,2})\s+May\s+(\d{4})\s*/i, '$2 年 5 月 $1 日'],
       [/\s*(\d{1,2})\s+Sep\s+(\d{4})\s*/i, '$2 年 9 月 $1 日'],
+      [/\s*about\s+(\d+)\s+months?\s+ago\s*/i, '约 $1 个月前'],
       [/\s*Invite\s+people\s+to\s+(.+)\s*/, '邀请用户加入 $1'],
       [/\s*Watch\s+settings\s+for\s+(.+)\s*/, '$1 的关注设置'],
       [/Dec\s+(\d{1,2})\s*,\s*(\d{4})/i, '$2 年 12 月 $1 日'],
@@ -9430,6 +9434,7 @@
       ['List models using this license', '列出使用此许可证的模型'],
       ['Llama2 With Gradio Chat', '带有 Gradio 聊天功能的 Llama2'],
       ['No Space linking this paper', '没有 Space 关联到这篇论文'],
+      ['Preparing payment, please wait...', '准备支付，请稍等...'],
       ['Saint Vincent and the Grenadines', '圣文森特和格林纳丁斯'],
       ['Setup with your AI assistant', '使用您的 AI 助手进行设置'],
       ['Show responses only when complete.', '仅在完整时显示响应'],
@@ -9523,6 +9528,7 @@
       ['This table displays the number of ', '此表格显示了'],
       ['\n					Interact with posts', '与帖子进行互动的权限'],
       ['10× private storage capacity', '10 倍私有存储容量'],
+      ['Add an extended description...', '添加扩展描述...'],
       ['Another HF user follows you', '其他 HF 用户关注您'],
       ['Build your ML portfolio', '构建你的机器学习作品集'],
       ['Collections - Hugging Face', '合集 - Hugging Face'],
@@ -9731,6 +9737,7 @@
       ['The Tokenizer Playground', '代币器游乐场'],
       ['Voice Activity Detection', '语音活动检测'],
       ['Your inbox is empty.', '你的收件箱是空的'],
+      ['Your prompt here...', '输入你的提示词...'],
       ['Your sentence here...', '在此输入句子...'],
       ['\n							Subscribe to Team', '订阅团队版'],
       ['\n						New discussion\n					', '新建讨论'],
@@ -9747,6 +9754,7 @@
       ['List supported models', '列出支持的模型'],
       ['ML for Games Course', '游戏机器学习课程'],
       ['Not-For-All-Audiences', '不适合所有受众'],
+      ['Open a Pull Request', '打开一个拉取请求'],
       ['Open-Source AI Cookbook', '开源 AI 食谱'],
       ['Organization Full name\n				', '组织全称'],
       ['Organization Username\n			', '组织用户名'],
@@ -9943,6 +9951,7 @@
       ['Spaces of the week', '本周精选空间'],
       ['TCO Calculator', '总拥有成本计算器'],
       ['Throughput(t/s)', '吞吐量（次/秒）'],
+      ['Update README.md', '更新 README.md'],
       ['User Access Tokens', '用户访问令牌'],
       ['View arXiv page', '查看 arXiv 页面'],
       ['Watch all activity', '关注所有活动'],
@@ -10274,6 +10283,7 @@
       ['Plan a trip', '计划一次旅行'],
       ['Pose Estimation', '姿态估计'],
       ['Private Storage', '私有存储'],
+      ['Propose changes', '提出修改'],
       ['Redirecting...', '重定向...'],
       ['Request a quote', '请求报价'],
       ['Runtime error', '运行时错误'],
@@ -10788,8 +10798,11 @@
       ['Guernsey', '根西岛'],
       ['Latvia', '拉脱维亚'],
       ['Licenses', '许可证'],
+      ['Maximize', '最大化'],
+      ['Minimize', '最小化'],
       ['Modalities', '模态'],
       ['Montenegro', '黑山'],
+      ['new\n								', '新'],
       ['New Chat', '新对话'],
       ['one hour', '一小时'],
       ['Paraguay', '巴拉圭'],
@@ -11248,6 +11261,7 @@
       ['Your conversations and certain other personal information will be disclosed to the relevant AI providers and may otherwise be disclosed publicly to help support our community and advance AI research.', '您的对话和某些其他个人信息将透露给相关的 AI 提供商，并可能以其他方式公开披露，以帮助支持我们的社区并推进 AI 研究。'],
       [' by reading our research paper that explains the tried-and-true statistical methods we are using for efficient and accurate evaluation and ranking of models.', ' 通过阅读我们的研究论文，其中解释了我们用于高效、准确评估和模型排名的行之有效的统计方法。'],
       ["In battle mode, you'll be served 2 anonymous models. Dig into the responses and decide which answer best fits your needs.", '在对战模式中，您将看到 2 个匿名模型的回复，深入研究这些回复，然后决定哪个答案最符合您的需求'],
+      ['service offers enterprises, model labs, and developers comprehensive evaluation services grounded in real-world human feedback.', '服务为企业提供、模型实验室和开发者提供全面的评估服务，基于实际的人类反馈。'],
       ['View rankings across multimodal, generative AI models capable of understanding and processing visual inputs', '通过视觉输入查看跨多个多模态、生成式 AI 模型的排名，考虑其理解和处理视觉信息的能力'],
       ['After voting, the model identities are revealed. You can keep chatting in the same conversation, or start a new one.', '投票后，模型身份将被揭示，您可以继续在同一对话中聊天，或开始新的对话'],
       ['Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently removed.', '您确定要删除您的账户吗？此操作无法撤销。所有您的数据将被永久删除。'],
@@ -11296,6 +11310,7 @@
       ['What are these models that show up with codenames?', '这些以代号显示的模型是什么？'],
       ['What steps do you take to protect my privacy?', '您采取了哪些措施来保护我的隐私？'],
       ['Preview will appear when agent is done working', '当智能体完成工作后，预览将显示'],
+      ['Reach out to our team here for AI Evaluations.', '通过这里联系我们进行 AI 评估。'],
       ['Can I submit multiple prompts or votes?', '我可以提交多个提示词或多次投票吗？'],
       ['Describe the website or app you want to build…', '描述您想构建的网站或应用…'],
       ['What happens when I vote in a model battle?', '在模型对战中投票时会发生什么？'],
@@ -11498,6 +11513,7 @@
       ['Send Bugs', '发送 Bug 报告'],
       ['Vision Arena', '视觉竞技场'],
       [' How it works', '工作原理'],
+      ['AI Evaluations', 'AI 评估'],
       ['Download file', '下载文件'],
       ['Download File', '下载文件'],
       ['Feedback Form', '反馈表单'],
@@ -11662,6 +11678,7 @@
       ['Text', '文本'],
       ['Undo', '撤销'],
       ['View', '查看'],
+      ['Our', '我们'],
       ['and', '和'],
       ['OR', '或'],
     ],
@@ -15517,6 +15534,33 @@
   var ALL_UNTRANSLATABLE_TAGS = new Set([...BLOCKS_ALL_TRANSLATION, ...BLOCKS_CONTENT_ONLY]);
   var attributesToTranslate = ['placeholder', 'title', 'aria-label', 'alt', 'mattooltip', 'label'];
   var BLOCKED_CSS_CLASSES = new Set(['notranslate', 'kbd']);
+  function getShadowRoot(element) {
+    if (!element) return null;
+    if (element.shadowRoot) {
+      return element.shadowRoot;
+    }
+    if (element._wtsShadowRoot) {
+      return element._wtsShadowRoot;
+    }
+    return null;
+  }
+  function findAllShadowRoots(root) {
+    const shadowRoots = [];
+    if (!root) return shadowRoots;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, null);
+    do {
+      const node = walker.currentNode;
+      const shadowRoot = getShadowRoot(node);
+      if (shadowRoot) {
+        shadowRoots.push(shadowRoot);
+        const innerShadowRoots = findAllShadowRoots(shadowRoot);
+        if (innerShadowRoots.length > 0) {
+          shadowRoots.push(...innerShadowRoots);
+        }
+      }
+    } while (walker.nextNode());
+    return shadowRoots;
+  }
   function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = [], pseudoRules = []) {
     let shadowRootFoundCallback = null;
     const textTranslationMap = new Map();
@@ -15744,9 +15788,10 @@
                 }
               }
             }
-            if (node.shadowRoot) {
-              if (shadowRootFoundCallback) shadowRootFoundCallback(node.shadowRoot);
-              translateElement(node.shadowRoot);
+            const shadowRoot2 = getShadowRoot(node);
+            if (shadowRoot2) {
+              if (shadowRootFoundCallback) shadowRootFoundCallback(shadowRoot2);
+              translateElement(shadowRoot2);
             }
           }
         }
@@ -15783,9 +15828,10 @@
           }
         }
       }
-      if (element.shadowRoot) {
-        if (shadowRootFoundCallback) shadowRootFoundCallback(element.shadowRoot);
-        translateElement(element.shadowRoot);
+      const shadowRoot = getShadowRoot(element);
+      if (shadowRoot) {
+        if (shadowRootFoundCallback) shadowRootFoundCallback(shadowRoot);
+        translateElement(shadowRoot);
       }
       translatedElements.add(element);
     }
@@ -15940,6 +15986,9 @@
           const shadowRoot = originalAttachShadow.call(this, init);
           try {
             if (shadowRoot) {
+              if (init && init.mode === 'closed') {
+                this._wtsShadowRoot = shadowRoot;
+              }
               observeRoot(shadowRoot);
             }
           } catch (e) {}
@@ -15974,9 +16023,10 @@
       log('警告: 无法在任何环境中拦截 attachShadow。动态 Shadow DOM 翻译可能会失效。这通常是由于网站严格的 CSP 或安全策略导致。');
     }
     observeRoot(document.body);
-    const initWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, { acceptNode: (n) => (n.shadowRoot ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP) });
-    while (initWalker.nextNode()) {
-      observeRoot(initWalker.currentNode.shadowRoot);
+    const existingShadowRoots = findAllShadowRoots(document.body);
+    if (existingShadowRoots.length > 0) {
+      log(`初始化扫描发现 ${existingShadowRoots.length} 个现存 Shadow Roots`);
+      existingShadowRoots.forEach((root) => observeRoot(root));
     }
     pageObserver.observe(document.body, { childList: true, subtree: true });
     let titleObserver = null;
