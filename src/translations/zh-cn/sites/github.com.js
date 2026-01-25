@@ -78,6 +78,8 @@ export const githubComZhCn = {
   textRules: [
     ["Search code, repositories, users, issues, pull requests...", "搜索代码、仓库、用户、问题、拉取请求..."],
     ["No spaces found. You can create a new space to get started.", "未找到空间，您可以创建一个新空间开始"],
+    ["Deploy VitePress Site to Pages / Deploy (push)", "将 VitePress 站点部署到 Pages / 部署 (推送)"],
+    ["Deploy VitePress Site to Pages / build (push)", "将 VitePress 站点部署到 Pages / 构建 (推送)"],
     ["Chat with Copilot, Start a new Copilot thread", "与 Copilot 聊天，开始一个新的 Copilot 讨论"],
     ["You switched accounts on another tab or window. ", "您在另一个标签页或窗口中切换了账户。"],
     ["No pull requests found, try a different filter.", "未找到拉取请求，尝试使用不同的筛选器"],
