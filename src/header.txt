@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.149-2026-1-28-offline
+// @version      1.0.150-2026-2-4-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -18,7 +18,7 @@
 // @match        *://www.avogado6.com/*
 // @match        *://wplace.live/*
 // @match        *://huggingface.co/*
-// @match        *://lmarena.ai/*
+// @match        *://arena.ai/*
 // @match        *://modrinth.com/*
 // @match        *://status.modrinth.com/*
 // @match        *://status.huggingface.co/*

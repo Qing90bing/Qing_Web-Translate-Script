@@ -12,13 +12,13 @@
 var SUPPORTED_SITES = {
     'zh-cn': [
         'aistudio.google.com',
+        'arena.ai',
         'claude.ai',
         'claude.com',
         'gemini.google.com',
         'github.com',
         'huggingface.co',
         'jules.google.com',
-        'lmarena.ai',
         'modrinth.com',
         'opal.google',
         'platform.claude.com',

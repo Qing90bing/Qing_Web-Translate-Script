@@ -7,7 +7,7 @@ import { geminiGoogleComZhCn } from './sites/gemini.google.com.js';
 import { wwwAvogado6ComZhCn } from './sites/www.avogado6.com.js';
 import { wplaceLiveZhCn } from './sites/wplace.live.js';
 import { huggingfaceCoZhCn } from './sites/huggingface.co.js';
-import { lmarenaAiZhCn } from './sites/lmarena.ai.js';
+import { arenaAiZhCn } from './sites/arena.ai.js';
 import { modrinthComZhCn } from './sites/modrinth.com.js';
 import { statusModrinthComZhCn } from './sites/status.modrinth.com.js';
 import { statusHuggingfaceCoZhCn } from './sites/status.huggingface.co.js';
@@ -27,7 +27,7 @@ export const zhCnTranslations = {
     "www.avogado6.com#zh-cn": wwwAvogado6ComZhCn,
     "wplace.live#zh-cn": wplaceLiveZhCn,
     "huggingface.co#zh-cn": huggingfaceCoZhCn,
-    "lmarena.ai#zh-cn": lmarenaAiZhCn,
+    "arena.ai#zh-cn": arenaAiZhCn,
     "modrinth.com#zh-cn": modrinthComZhCn,
     "status.modrinth.com#zh-cn": statusModrinthComZhCn,
     "status.huggingface.co#zh-cn": statusHuggingfaceCoZhCn,
