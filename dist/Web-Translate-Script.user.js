@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.150-2026-2-4-offline
+// @version      1.0.151-2026-7-19-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -16090,6 +16090,7 @@
     };
   }
   function initializeObservers(translator, extendedElements = [], customAttributes = [], blockedAttributes = []) {
+    let isTranslating = false;
     const translationQueue = new Set();
     let isScheduled = false;
     const FRAME_BUDGET = 12;
@@ -16116,13 +16117,16 @@
       const translationProcessor = (node) => {
         try {
           if (!node.isConnected) return;
+          isTranslating = true;
           if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
             translator.translate(node);
           } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
             translator.translate(node.parentElement);
           }
+          isTranslating = false;
           tasksProcessed++;
         } catch (e) {
+          isTranslating = false;
           debug('翻译节点时出错 (已忽略，不影响主循环):', e);
         }
       };
@@ -16139,6 +16143,7 @@
       }
     }
     const mutationHandler = (mutations) => {
+      if (isTranslating) return;
       let hasUpdates = false;
       for (const mutation of mutations) {
         if (mutation.type === 'childList') {
@@ -16269,10 +16274,13 @@
     pageObserver.observe(document.body, { childList: true, subtree: true });
     let titleObserver = null;
     const handleTitleContentChange = () => {
+      if (isTranslating) return;
       const titleElement = document.querySelector('title');
       if (titleElement) {
+        isTranslating = true;
         translator.deleteElement(titleElement);
         translator.translate(titleElement);
+        isTranslating = false;
       }
     };
     const attachTitleObserver = (element) => {
@@ -16282,8 +16290,10 @@
       }
       titleObserver = new MutationObserver(handleTitleContentChange);
       titleObserver.observe(element, { childList: true, subtree: true, characterData: true });
+      isTranslating = true;
       translator.deleteElement(element);
       translator.translate(element);
+      isTranslating = false;
     };
     const headObserver = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
@@ -16314,6 +16324,7 @@
     };
     if (extendedElements.length > 0) {
       const extendedMutationHandler = (mutations) => {
+        if (isTranslating) return;
         let hasUpdates = false;
         for (const mutation of mutations) {
           let target;

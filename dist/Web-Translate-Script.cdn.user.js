@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.145-2026-2-4-cdn
+// @version      1.0.146-2026-7-19-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -2759,6 +2759,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
 
   // src/modules/core/observers.js
   function initializeObservers(translator, extendedElements = [], customAttributes = [], blockedAttributes = []) {
+    let isTranslating = false;
     const translationQueue = /* @__PURE__ */ new Set();
     let isScheduled = false;
     const FRAME_BUDGET = 12;
@@ -2785,13 +2786,16 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       const translationProcessor = (node) => {
         try {
           if (!node.isConnected) return;
+          isTranslating = true;
           if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
             translator.translate(node);
           } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
             translator.translate(node.parentElement);
           }
+          isTranslating = false;
           tasksProcessed++;
         } catch (e) {
+          isTranslating = false;
           debug('翻译节点时出错 (已忽略，不影响主循环):', e);
         }
       };
@@ -2808,6 +2812,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       }
     }
     const mutationHandler = (mutations) => {
+      if (isTranslating) return;
       let hasUpdates = false;
       for (const mutation of mutations) {
         if (mutation.type === 'childList') {
@@ -2948,10 +2953,13 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     pageObserver.observe(document.body, { childList: true, subtree: true });
     let titleObserver = null;
     const handleTitleContentChange = () => {
+      if (isTranslating) return;
       const titleElement = document.querySelector('title');
       if (titleElement) {
+        isTranslating = true;
         translator.deleteElement(titleElement);
         translator.translate(titleElement);
+        isTranslating = false;
       }
     };
     const attachTitleObserver = (element) => {
@@ -2966,8 +2974,10 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         characterData: true,
         // 有些浏览器直接改 textNode
       });
+      isTranslating = true;
       translator.deleteElement(element);
       translator.translate(element);
+      isTranslating = false;
     };
     const headObserver = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
@@ -2998,6 +3008,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     };
     if (extendedElements.length > 0) {
       const extendedMutationHandler = (mutations) => {
+        if (isTranslating) return;
         let hasUpdates = false;
         for (const mutation of mutations) {
           let target;
