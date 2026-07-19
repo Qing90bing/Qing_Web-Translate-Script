@@ -28,6 +28,12 @@ import { findAllShadowRoots } from '../utils/shadow-dom.js';
 export function initializeObservers(translator, extendedElements = [], customAttributes = [], blockedAttributes = []) {
     // --- 状态与调度器定义 ---
 
+    // 0. 翻译进行中标志位
+    // 翻译器在执行 translate() 时会修改 DOM（如 setAttribute、修改 textNode）。
+    // 这些修改会触发 MutationObserver 回调 → 重新入队 → React 组件检测到外部 DOM 变更而卸载。
+    // 此标志位用于在翻译期间暂停 observer 回调，打破这个死循环。
+    let isTranslating = false;
+
     // 1. 任务队列
     // 使用 Set 存储待翻译的节点，自动去重。
     // 注意：不再需要独立的 shadowCheckQueue，因为翻译过程会自动发现并注册 Shadow Root。
@@ -75,13 +81,16 @@ export function initializeObservers(translator, extendedElements = [], customAtt
             try {
                 if (!node.isConnected) return;
 
+                isTranslating = true;
                 if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
                     translator.translate(node);
                 } else if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
                     translator.translate(node.parentElement);
                 }
+                isTranslating = false;
                 tasksProcessed++;
             } catch (e) {
+                isTranslating = false;
                 // 仅在调试模式下记录错误，防止控制台刷屏，同时确保循环不中断
                 debug('翻译节点时出错 (已忽略，不影响主循环):', e);
             }
@@ -114,6 +123,8 @@ export function initializeObservers(translator, extendedElements = [], customAtt
     // --- MutationObserver 实例定义 ---
 
     const mutationHandler = (mutations) => {
+        if (isTranslating) return;
+
         let hasUpdates = false;
 
         for (const mutation of mutations) {
@@ -326,11 +337,15 @@ export function initializeObservers(translator, extendedElements = [], customAtt
 
     // 标题内容变化的处理器
     const handleTitleContentChange = () => {
+        if (isTranslating) return;
+
         const titleElement = document.querySelector('title');
         if (titleElement) {
             // 避免重复翻译导致的循环，先清理缓存
+            isTranslating = true;
             translator.deleteElement(titleElement);
             translator.translate(titleElement);
+            isTranslating = false;
             // debug('页面标题内容已更新并重新翻译');
         }
     };
@@ -355,8 +370,10 @@ export function initializeObservers(translator, extendedElements = [], customAtt
         });
 
         // 立即翻译一次，确保新绑定的 title 初始状态被翻译
+        isTranslating = true;
         translator.deleteElement(element);
         translator.translate(element);
+        isTranslating = false;
     };
 
     // 监听 document.head 以捕获 title 标签本身的替换 (SPA常见行为)
@@ -399,6 +416,8 @@ export function initializeObservers(translator, extendedElements = [], customAtt
         // 我们也将触发翻译的任务统一扔进 translationQueue。
 
         const extendedMutationHandler = (mutations) => {
+            if (isTranslating) return;
+
             let hasUpdates = false;
             for (const mutation of mutations) {
                 let target;
