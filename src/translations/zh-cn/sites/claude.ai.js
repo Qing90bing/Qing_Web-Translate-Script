@@ -2195,7 +2195,6 @@ export const claudeAiZhCn = {
     ["View your connectors", "查看您的连接器"],
     ["With extended thinking", "通过扩展思考"],
     ["Write skill instructions", "写技能说明"],
-    ["Write skill instructions", "写技能说明"],
     ["Accept All Cookies", "接受所有 Cookie"],
     ["Add files or photos", "添加文件或照片"],
     ["Add or change seats", "添加或更改席位"],
