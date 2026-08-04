@@ -19,6 +19,7 @@
 import { log, debug } from '../utils/logger.js';
 import { attributesToTranslate } from '../../config/index.js';
 import { findAllShadowRoots } from '../utils/shadow-dom.js';
+import { setTranslationState, TRANSLATION_STATES } from './translationBridge.js';
 
 /**
  * @function initializeObservers
@@ -26,6 +27,7 @@ import { findAllShadowRoots } from '../utils/shadow-dom.js';
  * @param {object} translator - 从 `translator.js` 的 `createTranslator` 函数返回的翻译器实例。
  */
 export function initializeObservers(translator, extendedElements = [], customAttributes = [], blockedAttributes = []) {
+    setTranslationState(TRANSLATION_STATES.TRANSLATING);
     // --- 状态与调度器定义 ---
 
     // 0. 翻译进行中标志位
@@ -104,6 +106,7 @@ export function initializeObservers(translator, extendedElements = [], customAtt
 
         // 所有队列已清空
         isScheduled = false;
+        setTranslationState(TRANSLATION_STATES.IDLE);
 
         // 可选：性能打点
         // if (tasksProcessed > 0) perf('时间切片批处理', performance.now() - frameStart, `${tasksProcessed} 个节点`);
@@ -116,6 +119,7 @@ export function initializeObservers(translator, extendedElements = [], customAtt
     function scheduleProcessing() {
         if (!isScheduled) {
             isScheduled = true;
+            setTranslationState(TRANSLATION_STATES.TRANSLATING);
             requestAnimationFrame(processQueue);
         }
     }
@@ -497,4 +501,13 @@ export function initializeObservers(translator, extendedElements = [], customAtt
     }
 
     log('监听器初始化完成 (Time Slicing Enabled)。');
+
+    // If initialization did not enqueue any work, publish an idle state after
+    // observers are attached. If work was queued, processQueue() owns the
+    // eventual idle notification.
+    requestAnimationFrame(() => {
+        if (!isScheduled) {
+            setTranslationState(TRANSLATION_STATES.IDLE);
+        }
+    });
 }

@@ -20,6 +20,7 @@
  */
 
 import { PERFORMANCE_CONFIG } from '../../config/optimization.js';
+import { setTranslationState, TRANSLATION_STATES } from './translationBridge.js';
 
 /**
  * @function initializeTranslation
@@ -36,6 +37,7 @@ import { PERFORMANCE_CONFIG } from '../../config/optimization.js';
  * @param {Function} log - 日志记录函数。
  */
 export function initializeTranslation(siteDictionary, createTranslator, removeAntiFlickerStyle, initializeObservers, log) {
+    setTranslationState(TRANSLATION_STATES.INITIALIZING);
     // 从站点词典中解构出所有规则，并为可能不存在的规则提供默认空数组。
     const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [], pseudoElements = [] } = siteDictionary;
 
@@ -165,6 +167,7 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
      * @description 启动翻译的入口，它会确保在 `document.body` 存在后才执行真正的翻译初始化。
      */
     function startTranslation() {
+        setTranslationState(TRANSLATION_STATES.INITIALIZING);
         if (document.body) {
             initializeFullTranslation();
         } else {
@@ -184,6 +187,7 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
      * @description 执行完整的首次翻译流程，并启动后续的动态监听。
      */
     async function initializeFullTranslation() {
+        setTranslationState(TRANSLATION_STATES.TRANSLATING);
         log('开始执行初次全文翻译...');
         const startTime = performance.now();
 

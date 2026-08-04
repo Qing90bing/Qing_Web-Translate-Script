@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.147-2026-8-02-cdn
+// @version      1.0.148-2026-8-04-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -2757,8 +2757,24 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     };
   }
 
+  // src/modules/core/translationBridge.js
+  var TRANSLATION_STATE_ATTRIBUTE = 'data-qing-web-translate-state';
+  var TRANSLATION_STATE_EVENT = 'qing-web-translate:state';
+  var TRANSLATION_STATES = Object.freeze({
+    INITIALIZING: 'initializing',
+    TRANSLATING: 'translating',
+    IDLE: 'idle',
+  });
+  function setTranslationState(state) {
+    if (document.documentElement) {
+      document.documentElement.setAttribute(TRANSLATION_STATE_ATTRIBUTE, state);
+    }
+    document.dispatchEvent(new CustomEvent(TRANSLATION_STATE_EVENT));
+  }
+
   // src/modules/core/observers.js
   function initializeObservers(translator, extendedElements = [], customAttributes = [], blockedAttributes = []) {
+    setTranslationState(TRANSLATION_STATES.TRANSLATING);
     let isTranslating = false;
     const translationQueue = /* @__PURE__ */ new Set();
     let isScheduled = false;
@@ -2804,10 +2820,12 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         return;
       }
       isScheduled = false;
+      setTranslationState(TRANSLATION_STATES.IDLE);
     }
     function scheduleProcessing() {
       if (!isScheduled) {
         isScheduled = true;
+        setTranslationState(TRANSLATION_STATES.TRANSLATING);
         requestAnimationFrame(processQueue);
       }
     }
@@ -3073,10 +3091,16 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       log('扩展元素观察器已激活。');
     }
     log('监听器初始化完成 (Time Slicing Enabled)。');
+    requestAnimationFrame(() => {
+      if (!isScheduled) {
+        setTranslationState(TRANSLATION_STATES.IDLE);
+      }
+    });
   }
 
   // src/modules/core/translationInitializer.js
   function initializeTranslation(siteDictionary, createTranslator2, removeAntiFlickerStyle2, initializeObservers2, log2) {
+    setTranslationState(TRANSLATION_STATES.INITIALIZING);
     const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [], pseudoElements = [] } = siteDictionary;
     log2(`开始初始化翻译流程，使用语言: ${language ?? 'unknown'}`);
     if (textRules && textRules.length > 0) {
@@ -3162,6 +3186,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     );
     log2('已激活通用伪元素自动翻译监听器 (Animation + Mouseover)');
     function startTranslation() {
+      setTranslationState(TRANSLATION_STATES.INITIALIZING);
       if (document.body) {
         initializeFullTranslation();
       } else {
@@ -3174,6 +3199,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       }
     }
     async function initializeFullTranslation() {
+      setTranslationState(TRANSLATION_STATES.TRANSLATING);
       log2('开始执行初次全文翻译...');
       const startTime = performance.now();
       await translator.translate(document.body);

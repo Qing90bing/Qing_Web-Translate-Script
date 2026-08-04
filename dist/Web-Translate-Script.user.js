@@ -16349,7 +16349,17 @@
       },
     };
   }
+  var TRANSLATION_STATE_ATTRIBUTE = 'data-qing-web-translate-state';
+  var TRANSLATION_STATE_EVENT = 'qing-web-translate:state';
+  var TRANSLATION_STATES = Object.freeze({ INITIALIZING: 'initializing', TRANSLATING: 'translating', IDLE: 'idle' });
+  function setTranslationState(state) {
+    if (document.documentElement) {
+      document.documentElement.setAttribute(TRANSLATION_STATE_ATTRIBUTE, state);
+    }
+    document.dispatchEvent(new CustomEvent(TRANSLATION_STATE_EVENT));
+  }
   function initializeObservers(translator, extendedElements = [], customAttributes = [], blockedAttributes = []) {
+    setTranslationState(TRANSLATION_STATES.TRANSLATING);
     let isTranslating = false;
     const translationQueue = new Set();
     let isScheduled = false;
@@ -16395,10 +16405,12 @@
         return;
       }
       isScheduled = false;
+      setTranslationState(TRANSLATION_STATES.IDLE);
     }
     function scheduleProcessing() {
       if (!isScheduled) {
         isScheduled = true;
+        setTranslationState(TRANSLATION_STATES.TRANSLATING);
         requestAnimationFrame(processQueue);
       }
     }
@@ -16646,8 +16658,14 @@
       log('扩展元素观察器已激活。');
     }
     log('监听器初始化完成 (Time Slicing Enabled)。');
+    requestAnimationFrame(() => {
+      if (!isScheduled) {
+        setTranslationState(TRANSLATION_STATES.IDLE);
+      }
+    });
   }
   function initializeTranslation(siteDictionary, createTranslator2, removeAntiFlickerStyle2, initializeObservers2, log2) {
+    setTranslationState(TRANSLATION_STATES.INITIALIZING);
     const { language, styles: cssRules = [], blockedElements = [], extendedElements = [], customAttributes = [], blockedAttributes = [], jsRules = [], regexRules = [], textRules = [], pseudoElements = [] } = siteDictionary;
     log2(`开始初始化翻译流程，使用语言: ${language ?? 'unknown'}`);
     if (textRules && textRules.length > 0) {
@@ -16726,6 +16744,7 @@
     );
     log2('已激活通用伪元素自动翻译监听器 (Animation + Mouseover)');
     function startTranslation() {
+      setTranslationState(TRANSLATION_STATES.INITIALIZING);
       if (document.body) {
         initializeFullTranslation();
       } else {
@@ -16738,6 +16757,7 @@
       }
     }
     async function initializeFullTranslation() {
+      setTranslationState(TRANSLATION_STATES.TRANSLATING);
       log2('开始执行初次全文翻译...');
       const startTime = performance.now();
       await translator.translate(document.body);
