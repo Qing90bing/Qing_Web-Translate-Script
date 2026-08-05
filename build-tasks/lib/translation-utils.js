@@ -11,6 +11,7 @@ import inquirer from 'inquirer';
 import prettier from 'prettier';
 import { color } from './colors.js';
 import { t } from './terminal-i18n.js';
+import { writeFilePreservingEolSync } from './utils.js';
 import { SUPPORTED_LANGUAGES } from '../../src/config/languages.js';
 import { SUPPORTED_LANGUAGE_CODES } from '../../src/modules/utils/language.js';
 
@@ -175,7 +176,8 @@ export function addDomainToHeader(domain) {
     const headerTxtPath = path.join(process.cwd(), 'src', 'header.txt');
     if (!fs.existsSync(headerTxtPath)) return;
 
-    let headerTxtContent = fs.readFileSync(headerTxtPath, 'utf-8');
+    const originalHeaderTxtContent = fs.readFileSync(headerTxtPath, 'utf-8');
+    let headerTxtContent = originalHeaderTxtContent;
     const matchDirective = `// @match        *://${domain}/*\n`;
 
     if (!headerTxtContent.includes(matchDirective.trim())) {
@@ -192,7 +194,7 @@ export function addDomainToHeader(domain) {
             headerTxtContent += matchDirective;
         }
 
-        fs.writeFileSync(headerTxtPath, headerTxtContent);
+        writeFilePreservingEolSync(headerTxtPath, originalHeaderTxtContent, headerTxtContent);
         console.log(color.green(t('manageTranslations.headerTxtUpdatedSuccess', color.yellow(headerTxtPath))));
     } else {
         console.log(color.yellow(t('manageTranslations.headerAlreadyExists', color.yellow(domain))));

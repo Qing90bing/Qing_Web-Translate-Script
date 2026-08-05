@@ -29,6 +29,7 @@ import { color } from '../../../lib/colors.js';
 import { t } from '../../../lib/terminal-i18n.js';
 import { getLiteralValue } from '../../../lib/validation.js';
 import { pressAnyKeyToContinue } from '../../../lib/utils.js';
+import { writeFilePreservingEol } from '../../../lib/utils.js';
 import { ProgressBar } from '../../../lib/progress.js';
 import { SUPPORTED_LANGUAGES } from '../../../../src/config/languages.js';
 import { SUPPORTED_LANGUAGE_CODES } from '../../../../src/modules/utils/language.js';
@@ -221,8 +222,8 @@ async function runSort(filePath, keyToSort, options = {}) {
     const contentAfter = originalContent.substring(arrayNode.range[1]);
     const updatedContent = contentBefore + sortedArrayString + contentAfter;
 
-    await fs.writeFile(filePath, updatedContent, 'utf-8');
-    await fs.writeFile(filePath, updatedContent, 'utf-8');
+    // 统一换行符；若排序后内容与原文一致则跳过写入，避免产生“幽灵修改”。
+    await writeFilePreservingEol(filePath, originalContent, updatedContent);
     if (!silent) {
       console.log(color.green(t('sortTranslations.sortSuccess', color.yellow(keyToSort))));
     }

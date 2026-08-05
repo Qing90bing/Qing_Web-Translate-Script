@@ -13,6 +13,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { color } from './colors.js';
+import { writeFilePreservingEol } from './utils.js';
 // 从终端国际化模块导入翻译函数
 import { t } from './terminal-i18n.js';
 
@@ -289,7 +290,7 @@ export async function applySyntaxFixes(decisions) {
     }
 
     const fixedContent = lines.join('\n');
-    await fs.writeFile(file, fixedContent, 'utf-8');
+    await writeFilePreservingEol(file, content, fixedContent);
     console.log(t('fixing.syntaxErrorFixed', color.underline(path.basename(file))));
   }
 
@@ -474,7 +475,7 @@ export async function applySingleIdenticalFix(decision) {
   }
 
   const fixedContent = lines.join('\n');
-  await fs.writeFile(file, fixedContent, 'utf-8');
+  await writeFilePreservingEol(file, content, fixedContent);
 }
 
 /**
