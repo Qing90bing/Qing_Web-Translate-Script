@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - 离线版
 // @name:en-US   WEB Chinese Translation Plugin - Offline
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.154-2026-8-06-offline
+// @version      1.0.155-2026-8-08-offline
 // @description  人工翻译一些网站为中文,减少阅读压力,此为离线版,包含所有翻译数据,更新需手动:)
 // @description:en-US   Translate some websites into Chinese, reducing reading pressure, this is an offline version, all translation data is included, update manually :)
 // @license      MIT
@@ -11957,6 +11957,23 @@
       ['Can I submit multiple prompts or votes?', '我可以提交多个提示词或多次投票吗？'],
       ['Describe the website or app you want to build…', '描述您想构建的网站或应用…'],
       ['gets users to confirm the task is done most often', '最常促使用户确认任务完成'],
+      ['Video Arena: Compare the Best AI Video Generators', '视频竞技场：比较最佳 AI 视频生成器'],
+      ['Play', '播放'],
+      ['Seek', '进度'],
+      ['Current time', '当前时间'],
+      ['Volume', '音量'],
+      ['Describe how you want to edit this video…', '描述您想如何编辑此视频…'],
+      ['Pause', '暂停'],
+      ['Image Arena: Compare Top AI Image Generators', '图像竞技场：比较最佳 AI 图像生成器'],
+      ['Generating image...', '生成图像中...'],
+      ['Unmute', '取消静音'],
+      ['Stop generation', '停止生成'],
+      ['Mute', '静音'],
+      ['Settings', '设置'],
+      ['Exit fullscreen', '退出全屏'],
+      ['Enter fullscreen', '进入全屏'],
+      ['Your browser does not support the video tag.', '您的浏览器不支持视频标签。'],
+      ['Please view both videos to vote', '请观看两个视频后再投票'],
       ['What happens when I vote in a model battle?', '在模型对战中投票时会发生什么？'],
       ['and acknowledge receipt and understanding of our', '并确认已收到并理解我们的'],
       ['Blended price per 1M tokens (3:1 Ratio)', '每百万 Token 混合价格（3:1 比例）'],
@@ -16327,8 +16344,8 @@
     }
     return SUPPORTED_LANGUAGE_CODES[0] || 'zh-cn';
   }
-  var UI_CONFIG = { LOG_PREFIX: '[WEB 汉化脚本]', MENU_COMMAND_ID: 'toggle_debug_log_command', antiFlicker: { STYLE_ID: 'anti-flicker-style', CLASS_IN_PROGRESS: 'translation-in-progress', CLASS_COMPLETE: 'translation-complete' } };
-  var STORAGE_KEYS = { LOG_KEY: 'web_translate_debug_mode', OVERRIDE_LANG_KEY: 'web-translate-language-override' };
+  var UI_CONFIG = { LOG_PREFIX: '[WEB 汉化脚本]', MENU_COMMAND_ID: 'toggle_debug_log_command', OUTLINE_HINT_COMMAND_ID: 'toggle_translation_outline_hint_command', outlineHint: { STYLE_ID: 'web-translate-outline-hint-style', ATTRIBUTE: 'data-wts-translated', CSS: '[data-wts-translated] { outline: 2px dashed rgba(255, 82, 82, 0.9) !important; outline-offset: 2px !important; }' }, antiFlicker: { STYLE_ID: 'anti-flicker-style', CLASS_IN_PROGRESS: 'translation-in-progress', CLASS_COMPLETE: 'translation-complete' } };
+  var STORAGE_KEYS = { LOG_KEY: 'web_translate_debug_mode', OVERRIDE_LANG_KEY: 'web-translate-language-override', OUTLINE_HINT_KEY: 'web-translate-outline-hint' };
   var LOG_KEY = STORAGE_KEYS.LOG_KEY;
   var isDebugMode = GM_getValue(LOG_KEY, false);
   function updateDebugState(newMode) {
@@ -16359,6 +16376,8 @@
   }
   var MENU_COMMAND_ID = UI_CONFIG.MENU_COMMAND_ID;
   var OVERRIDE_LANG_KEY = STORAGE_KEYS.OVERRIDE_LANG_KEY;
+  var OUTLINE_HINT_KEY = STORAGE_KEYS.OUTLINE_HINT_KEY;
+  var OUTLINE_HINT_COMMAND_ID = UI_CONFIG.OUTLINE_HINT_COMMAND_ID;
   function setOverrideLanguage(langCode) {
     GM_setValue(OVERRIDE_LANG_KEY, langCode);
     location.reload();
@@ -16373,9 +16392,16 @@
     updateDebugState(newMode);
     location.reload();
   }
+  function toggleOutlineHint() {
+    const newMode = !GM_getValue(OUTLINE_HINT_KEY, false);
+    GM_setValue(OUTLINE_HINT_KEY, newMode);
+    location.reload();
+  }
   function registerMenuCommands() {
     const debugStatus = isDebugMode ? '开启' : '关闭';
     GM_registerMenuCommand(`切换调试日志 (当前: ${debugStatus})`, toggleDebugMode, { id: MENU_COMMAND_ID });
+    const outlineStatus = GM_getValue(OUTLINE_HINT_KEY, false) ? '开启' : '关闭';
+    GM_registerMenuCommand(`翻译描边提示 (当前: ${outlineStatus})`, toggleOutlineHint, { id: OUTLINE_HINT_COMMAND_ID });
     if (isDebugMode) {
       const currentOverride = GM_getValue(OVERRIDE_LANG_KEY, '');
       GM_registerMenuCommand('--- 语言调试菜单 ---', () => {});
@@ -16451,6 +16477,29 @@
       }
     } while (walker.nextNode());
     return shadowRoots;
+  }
+  var OUTLINE_HINT_KEY2 = STORAGE_KEYS.OUTLINE_HINT_KEY;
+  var OUTLINE_STYLE_ID = UI_CONFIG.outlineHint.STYLE_ID;
+  var OUTLINE_ATTRIBUTE = UI_CONFIG.outlineHint.ATTRIBUTE;
+  var OUTLINE_CSS = UI_CONFIG.outlineHint.CSS;
+  var outlineHintEnabled = GM_getValue(OUTLINE_HINT_KEY2, false) === true;
+  function injectOutlineHintStyle(root = document) {
+    if (!outlineHintEnabled) return;
+    const target = root.head || root.documentElement || root;
+    if (!target) return;
+    if (root.getElementById && root.getElementById(OUTLINE_STYLE_ID)) {
+      return;
+    }
+    const style = document.createElement('style');
+    style.id = OUTLINE_STYLE_ID;
+    style.appendChild(document.createTextNode(OUTLINE_CSS));
+    target.appendChild(style);
+  }
+  function markAsTranslated(element) {
+    if (!outlineHintEnabled) return;
+    if (!(element instanceof Element)) return;
+    if (element.hasAttribute(OUTLINE_ATTRIBUTE)) return;
+    element.setAttribute(OUTLINE_ATTRIBUTE, '');
   }
   function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = [], pseudoRules = []) {
     let shadowRootFoundCallback = null;
@@ -16582,6 +16631,7 @@
         textNodes[i].nodeValue = '';
       }
       log('整段翻译:', `"${fullText}"`, '->', `"${translation}"`);
+      markAsTranslated(element);
       return true;
     }
     function translatePseudoElements(element) {
@@ -16598,6 +16648,7 @@
                 const attrName = `data-wts-${type}`;
                 if (element.getAttribute(attrName) !== translated) {
                   element.setAttribute(attrName, translated);
+                  markAsTranslated(element);
                   translateLog(`通用伪元素[::${type}]`, cleanContent, translated);
                 }
               }
@@ -16668,6 +16719,7 @@
             const translatedText = translateText(originalText);
             if (originalText !== translatedText) {
               node.nodeValue = translatedText;
+              markAsTranslated(node.parentElement);
             }
           } else if (node.nodeType === Node.ELEMENT_NODE) {
             translateAttributes(node);
@@ -16691,7 +16743,8 @@
       }
       function translateAttributes(el) {
         if (!el.hasAttributes()) return;
-        for (const attr of el.attributes) {
+        const attrs = outlineHintEnabled ? Array.from(el.attributes) : el.attributes;
+        for (const attr of attrs) {
           const attrName = attr.name;
           const originalValue = attr.value;
           if (!originalValue || !originalValue.trim()) continue;
@@ -16702,6 +16755,7 @@
             const translatedValue = translateText(originalValue);
             if (originalValue !== translatedValue) {
               el.setAttribute(attrName, translatedValue);
+              markAsTranslated(el);
               translateLog(`白名单属性[${attrName}]`, originalValue, translatedValue);
             }
           } else if (isInsideExtendedElement(el)) {
@@ -16713,6 +16767,7 @@
               const translatedValue = leadingSpace + translated + trailingSpace;
               if (originalValue !== translatedValue) {
                 el.setAttribute(attrName, translatedValue);
+                markAsTranslated(el);
                 translateLog(`扩展区属性[${attrName}]`, originalValue, translatedValue);
               }
             }
@@ -16848,6 +16903,9 @@
     function observeRoot(root) {
       if (!root || observedShadowRoots.has(root)) {
         return;
+      }
+      if (root instanceof ShadowRoot) {
+        injectOutlineHintStyle(root);
       }
       const observer = new MutationObserver(mutationHandler);
       observer.observe(root, observerConfig);
@@ -17077,6 +17135,7 @@
         }
       }
     }
+    injectOutlineHintStyle();
     const universalPseudoCss = ['[data-wts-before]::before { content: attr(data-wts-before) !important; }', '[data-wts-after]::after { content: attr(data-wts-after) !important; }', '@keyframes wts-pseudo-start { from { opacity: 0.99; } to { opacity: 1; } }', `*::before, *::after { animation-duration: ${PERFORMANCE_CONFIG.PSEUDO_ANIM_DURATION}s; animation-name: wts-pseudo-start; }`];
     const allCssRules = [...cssRules, ...universalPseudoCss];
     if (allCssRules.length > 0) {

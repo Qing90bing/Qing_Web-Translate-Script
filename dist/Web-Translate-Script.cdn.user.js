@@ -2,7 +2,7 @@
 // @name         WEB 中文汉化插件 - CDN
 // @name:en-US   WEB Chinese Translation Plugin - CDN
 // @namespace    https://github.com/Qing90bing/Qing_Web-Translate-Script
-// @version      1.0.150-2026-8-06-cdn
+// @version      1.0.151-2026-8-08-cdn
 // @description  人工翻译一些网站为中文,减少阅读压力,该版本使用的是CDN,自动更新:)
 // @description:en-US   Translate some websites into Chinese to reduce reading pressure, this version uses CDN, automatically updated :)
 // @license      MIT
@@ -2601,6 +2601,23 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
      */
     MENU_COMMAND_ID: 'toggle_debug_log_command',
     /**
+     * @property {string} OUTLINE_HINT_COMMAND_ID
+     * @description “翻译描边提示”菜单命令的唯一标识符。
+     */
+    OUTLINE_HINT_COMMAND_ID: 'toggle_translation_outline_hint_command',
+    /**
+     * @property {object} outlineHint
+     * @description 翻译描边提示功能专用的 DOM 标识符与样式。
+     */
+    outlineHint: {
+      /** @property {string} STYLE_ID - 注入的 <style> 标签 ID */
+      STYLE_ID: 'web-translate-outline-hint-style',
+      /** @property {string} ATTRIBUTE - 标记被翻译元素的 data 属性名 */
+      ATTRIBUTE: 'data-wts-translated',
+      /** @property {string} CSS - 描边样式，使用 outline 不会影响页面布局 */
+      CSS: '[data-wts-translated] { outline: 2px dashed rgba(255, 82, 82, 0.9) !important; outline-offset: 2px !important; }',
+    },
+    /**
      * @property {object} antiFlicker
      * @description 防闪烁模块专用的 DOM 标识符。
      */
@@ -2630,6 +2647,13 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
      * 值类型: string (例如 'zh-cn', 'en-us')。若为空字符串则表示使用浏览器默认语言。
      */
     OVERRIDE_LANG_KEY: 'web-translate-language-override',
+    /**
+     * @property {string} OUTLINE_HINT_KEY
+     * @description
+     * 用于存储“翻译描边提示”开关状态的键名。
+     * 值类型: boolean (true=显示被翻译元素的描边, false=不显示)
+     */
+    OUTLINE_HINT_KEY: 'web-translate-outline-hint',
   };
 
   // src/modules/utils/logger.js
@@ -2665,6 +2689,8 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
   // src/modules/ui/menu.js
   var MENU_COMMAND_ID = UI_CONFIG.MENU_COMMAND_ID;
   var OVERRIDE_LANG_KEY = STORAGE_KEYS.OVERRIDE_LANG_KEY;
+  var OUTLINE_HINT_KEY = STORAGE_KEYS.OUTLINE_HINT_KEY;
+  var OUTLINE_HINT_COMMAND_ID = UI_CONFIG.OUTLINE_HINT_COMMAND_ID;
   function setOverrideLanguage(langCode) {
     GM_setValue(OVERRIDE_LANG_KEY, langCode);
     location.reload();
@@ -2679,9 +2705,16 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     updateDebugState(newMode);
     location.reload();
   }
+  function toggleOutlineHint() {
+    const newMode = !GM_getValue(OUTLINE_HINT_KEY, false);
+    GM_setValue(OUTLINE_HINT_KEY, newMode);
+    location.reload();
+  }
   function registerMenuCommands() {
     const debugStatus = isDebugMode ? '开启' : '关闭';
     GM_registerMenuCommand(`切换调试日志 (当前: ${debugStatus})`, toggleDebugMode, { id: MENU_COMMAND_ID });
+    const outlineStatus = GM_getValue(OUTLINE_HINT_KEY, false) ? '开启' : '关闭';
+    GM_registerMenuCommand(`翻译描边提示 (当前: ${outlineStatus})`, toggleOutlineHint, { id: OUTLINE_HINT_COMMAND_ID });
     if (isDebugMode) {
       const currentOverride = GM_getValue(OVERRIDE_LANG_KEY, '');
       GM_registerMenuCommand('--- 语言调试菜单 ---', () => {});
@@ -2855,6 +2888,31 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     return shadowRoots;
   }
 
+  // src/modules/ui/outline-hint.js
+  var OUTLINE_HINT_KEY2 = STORAGE_KEYS.OUTLINE_HINT_KEY;
+  var OUTLINE_STYLE_ID = UI_CONFIG.outlineHint.STYLE_ID;
+  var OUTLINE_ATTRIBUTE = UI_CONFIG.outlineHint.ATTRIBUTE;
+  var OUTLINE_CSS = UI_CONFIG.outlineHint.CSS;
+  var outlineHintEnabled = GM_getValue(OUTLINE_HINT_KEY2, false) === true;
+  function injectOutlineHintStyle(root = document) {
+    if (!outlineHintEnabled) return;
+    const target = root.head || root.documentElement || root;
+    if (!target) return;
+    if (root.getElementById && root.getElementById(OUTLINE_STYLE_ID)) {
+      return;
+    }
+    const style = document.createElement('style');
+    style.id = OUTLINE_STYLE_ID;
+    style.appendChild(document.createTextNode(OUTLINE_CSS));
+    target.appendChild(style);
+  }
+  function markAsTranslated(element) {
+    if (!outlineHintEnabled) return;
+    if (!(element instanceof Element)) return;
+    if (element.hasAttribute(OUTLINE_ATTRIBUTE)) return;
+    element.setAttribute(OUTLINE_ATTRIBUTE, '');
+  }
+
   // src/modules/core/translator.js
   function createTranslator(textRules, regexArr, blockedSelectors = [], extendedSelectors = [], customAttributes = [], blockedAttributes = [], pseudoRules = []) {
     let shadowRootFoundCallback = null;
@@ -2986,6 +3044,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         textNodes[i].nodeValue = '';
       }
       log('整段翻译:', `"${fullText}"`, '->', `"${translation}"`);
+      markAsTranslated(element);
       return true;
     }
     function translatePseudoElements(element) {
@@ -3002,6 +3061,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
                 const attrName = `data-wts-${type}`;
                 if (element.getAttribute(attrName) !== translated) {
                   element.setAttribute(attrName, translated);
+                  markAsTranslated(element);
                   translateLog(`通用伪元素[::${type}]`, cleanContent, translated);
                 }
               }
@@ -3072,6 +3132,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
             const translatedText = translateText(originalText);
             if (originalText !== translatedText) {
               node.nodeValue = translatedText;
+              markAsTranslated(node.parentElement);
             }
           } else if (node.nodeType === Node.ELEMENT_NODE) {
             translateAttributes(node);
@@ -3095,7 +3156,8 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
       }
       function translateAttributes(el) {
         if (!el.hasAttributes()) return;
-        for (const attr of el.attributes) {
+        const attrs = outlineHintEnabled ? Array.from(el.attributes) : el.attributes;
+        for (const attr of attrs) {
           const attrName = attr.name;
           const originalValue = attr.value;
           if (!originalValue || !originalValue.trim()) continue;
@@ -3106,6 +3168,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
             const translatedValue = translateText(originalValue);
             if (originalValue !== translatedValue) {
               el.setAttribute(attrName, translatedValue);
+              markAsTranslated(el);
               translateLog(`白名单属性[${attrName}]`, originalValue, translatedValue);
             }
           } else if (isInsideExtendedElement(el)) {
@@ -3117,6 +3180,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
               const translatedValue = leadingSpace + translated + trailingSpace;
               if (originalValue !== translatedValue) {
                 el.setAttribute(attrName, translatedValue);
+                markAsTranslated(el);
                 translateLog(`扩展区属性[${attrName}]`, originalValue, translatedValue);
               }
             }
@@ -3263,6 +3327,9 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
     function observeRoot(root) {
       if (!root || observedShadowRoots.has(root)) {
         return;
+      }
+      if (root instanceof ShadowRoot) {
+        injectOutlineHintStyle(root);
       }
       const observer = new MutationObserver(mutationHandler);
       observer.observe(root, observerConfig);
@@ -3512,6 +3579,7 @@ const EMBEDDED_SITES = ['aistudio.google.com', 'gemini.google.com'];
         }
       }
     }
+    injectOutlineHintStyle();
     const universalPseudoCss = [
       '[data-wts-before]::before { content: attr(data-wts-before) !important; }',
       '[data-wts-after]::after { content: attr(data-wts-after) !important; }',
