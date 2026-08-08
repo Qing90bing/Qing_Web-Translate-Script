@@ -8,7 +8,8 @@
  *
  * **核心功能**:
  * 1.  **调试模式切换**: 提供一个菜单项，用于开启或关闭详细的控制台日志输出。
- * 2.  **语言强制覆盖**: 在调试模式下，会额外显示一个语言子菜单，允许开发者强制使用某种特定语言来渲染页面，
+ * 2.  **翻译描边提示**: 提供一个菜单项，用于高亮所有被脚本实际翻译的元素，方便开发者区分“原生多语言”与“脚本翻译”。
+ * 3.  **语言强制覆盖**: 在调试模式下，会额外显示一个语言子菜单，允许开发者强制使用某种特定语言来渲染页面，
  *     这对于测试特定语言的翻译效果非常有用，无需修改系统或浏览器语言。
  *
  * **实现机制**:
@@ -26,6 +27,10 @@ import { UI_CONFIG } from '../../config/ui.js';
 const MENU_COMMAND_ID = UI_CONFIG.MENU_COMMAND_ID;
 // 用于在脚本存储中持久化语言覆盖设置的键名。
 const OVERRIDE_LANG_KEY = STORAGE_KEYS.OVERRIDE_LANG_KEY;
+// 用于在脚本存储中持久化“翻译描边提示”开关状态的键名。
+const OUTLINE_HINT_KEY = STORAGE_KEYS.OUTLINE_HINT_KEY;
+// 用于切换“翻译描边提示”菜单命令的唯一 ID。
+const OUTLINE_HINT_COMMAND_ID = UI_CONFIG.OUTLINE_HINT_COMMAND_ID;
 
 // --- 私有函数 ---
 
@@ -65,6 +70,17 @@ function toggleDebugMode() {
 
 /**
  * @private
+ * @function toggleOutlineHint
+ * @description 切换“翻译描边提示”的开关状态，并重新加载页面以应用或取消描边。
+ */
+function toggleOutlineHint() {
+    const newMode = !GM_getValue(OUTLINE_HINT_KEY, false);
+    GM_setValue(OUTLINE_HINT_KEY, newMode);
+    location.reload();
+}
+
+/**
+ * @private
  * @function registerMenuCommands
  * @description 注册或更新所有的菜单命令。
  *              此函数是构建整个菜单的核心。
@@ -79,7 +95,16 @@ function registerMenuCommands() {
         { id: MENU_COMMAND_ID }
     );
 
-    // 2. 仅在调试模式下，才注册语言切换相关的菜单
+    // 2. 注册“翻译描边提示”的命令
+    // 开发者在排查“哪些内容仍由脚本翻译”时，不需要先开启调试日志，因此始终显示在菜单中。
+    const outlineStatus = GM_getValue(OUTLINE_HINT_KEY, false) ? '开启' : '关闭';
+    GM_registerMenuCommand(
+        `翻译描边提示 (当前: ${outlineStatus})`,
+        toggleOutlineHint,
+        { id: OUTLINE_HINT_COMMAND_ID }
+    );
+
+    // 3. 仅在调试模式下，才注册语言切换相关的菜单
     if (isDebugMode) {
         const currentOverride = GM_getValue(OVERRIDE_LANG_KEY, '');
 

@@ -21,6 +21,7 @@
 
 import { PERFORMANCE_CONFIG } from '../../config/optimization.js';
 import { setTranslationState, TRANSLATION_STATES } from './translationBridge.js';
+import { injectOutlineHintStyle } from '../ui/outline-hint.js';
 
 /**
  * @function initializeTranslation
@@ -66,6 +67,10 @@ export function initializeTranslation(siteDictionary, createTranslator, removeAn
     }
 
     // --- 步骤 2: 注入自定义资源 ---
+
+    // 如果开启了“翻译描边提示”，先注入主文档的描边样式，
+    // 这样首次全文翻译时标记出的元素会立即显示描边。
+    injectOutlineHintStyle();
 
     // 生成通用伪元素翻译支持 CSS
     // 1. data-wts-* 属性支持：只要元素具有此属性，就覆盖其伪元素 content

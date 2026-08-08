@@ -18,6 +18,25 @@ export const UI_CONFIG = {
     MENU_COMMAND_ID: 'toggle_debug_log_command',
 
     /**
+     * @property {string} OUTLINE_HINT_COMMAND_ID
+     * @description “翻译描边提示”菜单命令的唯一标识符。
+     */
+    OUTLINE_HINT_COMMAND_ID: 'toggle_translation_outline_hint_command',
+
+    /**
+     * @property {object} outlineHint
+     * @description 翻译描边提示功能专用的 DOM 标识符与样式。
+     */
+    outlineHint: {
+        /** @property {string} STYLE_ID - 注入的 <style> 标签 ID */
+        STYLE_ID: 'web-translate-outline-hint-style',
+        /** @property {string} ATTRIBUTE - 标记被翻译元素的 data 属性名 */
+        ATTRIBUTE: 'data-wts-translated',
+        /** @property {string} CSS - 描边样式，使用 outline 不会影响页面布局 */
+        CSS: '[data-wts-translated] { outline: 2px dashed rgba(255, 82, 82, 0.9) !important; outline-offset: 2px !important; }'
+    },
+
+    /**
      * @property {object} antiFlicker
      * @description 防闪烁模块专用的 DOM 标识符。
      */

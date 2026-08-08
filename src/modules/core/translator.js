@@ -21,6 +21,7 @@ import { ALL_UNTRANSLATABLE_TAGS, BLOCKS_ALL_TRANSLATION, BLOCKS_CONTENT_ONLY, a
 import { PERFORMANCE_CONFIG } from '../../config/optimization.js';
 import { log, translateLog } from '../utils/logger.js';
 import { getShadowRoot } from '../utils/shadow-dom.js';
+import { markAsTranslated, outlineHintEnabled } from '../ui/outline-hint.js';
 
 /**
  * @function createTranslator
@@ -301,6 +302,7 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
             textNodes[i].nodeValue = ''; // 清空其余所有文本节点
         }
         log('整段翻译:', `"${fullText}"`, '->', `"${translation}"`);
+        markAsTranslated(element);
         return true;
     }
 
@@ -352,6 +354,7 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                             const attrName = `data-wts-${type}`;
                             if (element.getAttribute(attrName) !== translated) {
                                 element.setAttribute(attrName, translated);
+                                markAsTranslated(element);
                                 translateLog(`通用伪元素[::${type}]`, cleanContent, translated);
                             }
                         }
@@ -464,6 +467,7 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                     const translatedText = translateText(originalText);
                     if (originalText !== translatedText) {
                         node.nodeValue = translatedText;
+                        markAsTranslated(node.parentElement);
                     }
                 } else if (node.nodeType === Node.ELEMENT_NODE) {
                     // 处理元素属性
@@ -519,7 +523,10 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
             // 且其父级也没被 REJECT。所以这里是安全的。
 
             // 遍历元素的所有属性，应用三级优先级翻译模型。
-            for (const attr of el.attributes) {
+            // 仅在描边提示开启时使用 Array.from 快照，避免标记新增属性影响遍历；
+            // 关闭时保持原有零额外开销的实时遍历。
+            const attrs = outlineHintEnabled ? Array.from(el.attributes) : el.attributes;
+            for (const attr of attrs) {
                 const attrName = attr.name;
                 const originalValue = attr.value;
 
@@ -535,6 +542,7 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
                     const translatedValue = translateText(originalValue);
                     if (originalValue !== translatedValue) {
                         el.setAttribute(attrName, translatedValue);
+                        markAsTranslated(el);
                         translateLog(`白名单属性[${attrName}]`, originalValue, translatedValue);
                     }
                 }
@@ -551,6 +559,7 @@ export function createTranslator(textRules, regexArr, blockedSelectors = [], ext
 
                         if (originalValue !== translatedValue) {
                             el.setAttribute(attrName, translatedValue);
+                            markAsTranslated(el);
                             translateLog(`扩展区属性[${attrName}]`, originalValue, translatedValue);
                         }
                     }

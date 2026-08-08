@@ -21,4 +21,12 @@ export const STORAGE_KEYS = {
      * 值类型: string (例如 'zh-cn', 'en-us')。若为空字符串则表示使用浏览器默认语言。
      */
     OVERRIDE_LANG_KEY: 'web-translate-language-override',
+
+    /**
+     * @property {string} OUTLINE_HINT_KEY
+     * @description
+     * 用于存储“翻译描边提示”开关状态的键名。
+     * 值类型: boolean (true=显示被翻译元素的描边, false=不显示)
+     */
+    OUTLINE_HINT_KEY: 'web-translate-outline-hint',
 };

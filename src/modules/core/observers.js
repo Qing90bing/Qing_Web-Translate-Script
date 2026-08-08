@@ -20,6 +20,7 @@ import { log, debug } from '../utils/logger.js';
 import { attributesToTranslate } from '../../config/index.js';
 import { findAllShadowRoots } from '../utils/shadow-dom.js';
 import { setTranslationState, TRANSLATION_STATES } from './translationBridge.js';
+import { injectOutlineHintStyle } from '../ui/outline-hint.js';
 
 /**
  * @function initializeObservers
@@ -185,6 +186,11 @@ export function initializeObservers(translator, extendedElements = [], customAtt
     function observeRoot(root) {
         if (!root || observedShadowRoots.has(root)) {
             return;
+        }
+
+        // 为 Shadow DOM 也注入描边样式，确保 Shadow DOM 内的翻译元素同样可见。
+        if (root instanceof ShadowRoot) {
+            injectOutlineHintStyle(root);
         }
 
         // debug('正在动态监听新的根节点:', root); // 减少日志以提升性能
